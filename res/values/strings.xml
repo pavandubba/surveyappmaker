@@ -65,5 +65,6 @@
     <string name="upload_surv_esp">Subir encuesta</string>
     <string name="upload_surv_eng">Upload survey</string>
     <string name="title_activity_passenger_counter">Passenger_counter</string>
+    <string name="title_activity_iniconfig">Iniconfig</string>
 
 </resources>

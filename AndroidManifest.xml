@@ -5,9 +5,13 @@
     android:versionName="1.0" >
 
     <uses-sdk
-        android:minSdkVersion="8"
-        android:targetSdkVersion="17" />
-
+        android:minSdkVersion="9"
+        android:targetSdkVersion="18" />
+    <uses-permission android:name="android.permission.INTERNET" />
+     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+   
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -26,11 +30,11 @@
         <activity
             android:name="com.example.flocksourcingmx.Couhes"
             android:label="@string/title_activity_couhes"
-            android:parentActivityName="com.example.flocksourcingmx.Welcomes"
+            android:parentActivityName="com.example.flocksourcingmx.Iniconfig"
             android:screenOrientation="portrait" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.flocksourcingmx.Welcomes" />
+                android:value="com.example.flocksourcingmx.Iniconfig" />
         </activity>
         <activity
             android:name="com.example.flocksourcingmx.Username"
@@ -99,9 +103,19 @@
             android:name="com.example.flocksourcingmx.Passenger_counter"
             android:label="@string/title_activity_passenger_counter"
             android:parentActivityName="com.example.flocksourcingmx.Trip_started" >
+            android:screenOrientation="portrait"
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.flocksourcingmx.Trip_started" />
+        </activity>
+        <activity
+            android:name="com.example.flocksourcingmx.Iniconfig"
+            android:label="@string/title_activity_iniconfig"
+            android:parentActivityName="com.example.flocksourcingmx.Welcomes"
+            android:screenOrientation="portrait" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.flocksourcingmx.Welcomes" />
         </activity>
     </application>
 

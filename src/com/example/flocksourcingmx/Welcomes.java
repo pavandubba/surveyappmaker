@@ -32,9 +32,9 @@ public class Welcomes extends Activity {
 		TimerTask finish_splash = new TimerTask() {
 			@Override
 			public void run() {
-				Intent Couhes = new Intent().setClass(Welcomes.this,
-						Couhes.class);
-				startActivity(Couhes);
+				Intent Iniconfig = new Intent().setClass(Welcomes.this,
+						Iniconfig.class);
+				startActivity(Iniconfig);
 				finish();
 			}
 		};
