@@ -60,12 +60,15 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 			filefeedback.setText(url
 					+ "\n Downloaded succesfully \n Starting parsing of file.");
 			try {
-				jsonsurveystring = readFileAsString("/FlockTracker/survey.json");
+				jsonsurveystring = readFileAsString(Environment.getExternalStorageDirectory().getAbsolutePath() + "/FlockTracker/survey.json");
+				filefeedback.setText("Contents of file: \n" + jsonsurveystring);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				filefeedback.setText("Error reading file.");
+				
 			}
-			filefeedback.setText("Contents of file: \n" + jsonsurveystring);
+			
 			 try {
 		            jsurv = new JSONObject(jsonsurveystring);
 		            filefeedback.setText("Survey file succesfully parsed.");
