@@ -79,7 +79,7 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 			 
 			break;
 		case R.id.bcontinue:
-			startActivity(Couhes.class);
+			startActivity(Surveyor.class);
 			break;
 		case R.id.ulp_icon_link:
 			Intent intent = new Intent();
