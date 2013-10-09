@@ -1,6 +1,10 @@
 package com.example.flocksourcingmx;
 
 import java.util.Locale;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -9,6 +13,7 @@ import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -27,6 +32,9 @@ public class Surveyor extends Activity {
 	private CharSequence ChapterDrawerTitle;
 	private CharSequence Title;
 	private static String[] ChapterTitles;
+	
+	private String jsonsurveystring;
+	private JSONObject jsurv = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -34,9 +42,14 @@ public class Surveyor extends Activity {
 		setContentView(R.layout.activity_surveyor);
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
-		    String jsonsurveystring = extras.getString("jsonsurvey");
-		    Toast toast = Toast.makeText(getApplicationContext(), "json recieved", 2000);
-		    toast.show();
+		    jsonsurveystring = extras.getString("jsonsurvey");
+		    try {
+	            jsurv = new JSONObject(jsonsurveystring);
+			    Toast toast = Toast.makeText(getApplicationContext(), "json recieved" + jsonsurveystring , Toast.LENGTH_LONG);
+			    toast.show();
+	        } catch (JSONException e) {
+	            Log.e("JSON Parser", "Error parsing data " + e.toString());
+	        }
 		}
 
 		Title = ChapterDrawerTitle = getTitle();
@@ -104,7 +117,7 @@ public class Surveyor extends Activity {
 		fragmentManager.beginTransaction()
 				.replace(R.id.content_frame, fragment).commit();
 
-		// update selected item and title, then close the drawer
+		// update selected item and title, then close the drawer.
 		ChapterDrawerList.setItemChecked(position, true);
 		setTitle(ChapterTitles[position]);
 		ChapterDrawerLayout.closeDrawer(ChapterDrawerList);
