@@ -65,6 +65,9 @@
     <string name="upload_surv_esp">Subir encuesta</string>
     <string name="upload_surv_eng">Upload survey</string>
     <string name="title_activity_passenger_counter">Passenger_counter</string>
-    <string name="title_activity_iniconfig">Iniconfig</string>
+    <string name="title_activity_iniconfig">Initial configuration</string>
+    <string name="title_activity_surveyor">Surveyor</string>
+    <string name="chapter_drawer_open">Open chapter navigation drawer</string>
+    <string name="chapter_drawer_close">Close chapter navigation drawer</string>
 
 </resources>

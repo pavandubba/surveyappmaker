@@ -28,6 +28,7 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 	TextView filefeedback;
 	EditText urlfield;
 	String url;
+	JSONObject jsurv = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -51,12 +52,11 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 	public void onClick(View view) {
 		switch (view.getId()) {
 		case R.id.bdownload:
-			JSONObject jsurv;
 			String jsonsurveystring = null;
 			url = urlfield.getText().toString();
 			filefeedback.setText("Downloading file: " + url
 					+ "\n Please wait...");
-			downloadFile(url);
+//			downloadFile(url); /* Start the file downloading process. */
 			filefeedback.setText(url
 					+ "\n Downloaded succesfully \n Starting parsing of file.");
 			try {
@@ -79,7 +79,10 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 			 
 			break;
 		case R.id.bcontinue:
-			startActivity(Surveyor.class);
+//			startActivity(Surveyor.class);
+			Intent i = new Intent(getApplicationContext(), Surveyor.class);
+			i.putExtra("jsonsurvey",jsurv.toString());
+			startActivity(i);
 			break;
 		case R.id.ulp_icon_link:
 			Intent intent = new Intent();
@@ -91,11 +94,11 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 		}
 	}
 
-	private void startActivity(Class<? extends Activity> activityClass) {
-		Intent intent = new Intent();
-		intent.setClassName(getPackageName(), activityClass.getName());
-		startActivity(intent);
-	}
+//	private void startActivity(Class<? extends Activity> activityClass) {
+//		Intent intent = new Intent();
+//		intent.setClassName(getPackageName(), activityClass.getName());
+//		startActivity(intent);
+//	}
 
 	public void downloadFile(String urlstring) {
 		// File downloader, it needs android 2.3 (Gingerbread) or later to work and 3.2 (Honeycomb) to show progress bar.
