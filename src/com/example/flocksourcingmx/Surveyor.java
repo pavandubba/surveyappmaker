@@ -2,6 +2,7 @@ package com.example.flocksourcingmx;
 
 import java.util.Locale;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -32,9 +33,13 @@ public class Surveyor extends Activity {
 	private CharSequence ChapterDrawerTitle;
 	private CharSequence Title;
 	private static String[] ChapterTitles;
-	
+
 	private String jsonsurveystring;
 	private JSONObject jsurv = null;
+	private int totalchapters;
+	private JSONArray jchapters = null;
+	private JSONObject aux = null;
+	private Toast toast;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -42,18 +47,36 @@ public class Surveyor extends Activity {
 		setContentView(R.layout.activity_surveyor);
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
-		    jsonsurveystring = extras.getString("jsonsurvey");
-		    try {
-	            jsurv = new JSONObject(jsonsurveystring);
-			    Toast toast = Toast.makeText(getApplicationContext(), "json recieved" + jsonsurveystring , Toast.LENGTH_LONG);
-			    toast.show();
-	        } catch (JSONException e) {
-	            Log.e("JSON Parser", "Error parsing data " + e.toString());
-	        }
+			jsonsurveystring = extras.getString("jsonsurvey");
+			try {
+				jsurv = new JSONObject(jsonsurveystring);
+				toast = Toast.makeText(getApplicationContext(), "json recieved"
+						+ jsonsurveystring, Toast.LENGTH_SHORT);
+				toast.show();
+			} catch (JSONException e) {
+				Log.e("JSON Parser", "Error parsing data " + e.toString());
+			}
 		}
 
+		try {
+			jchapters = jsurv.getJSONArray("Survey");
+			totalchapters = jchapters.length();
+			ChapterTitles = new String[totalchapters];
+			for (int i = 0; i < totalchapters; ++i) {
+				aux = jchapters.getJSONObject(i);
+				ChapterTitles[i] = aux.getString("Chapter");
+			    toast = Toast.makeText(getApplicationContext(), "Chapters " + totalchapters, Toast.LENGTH_SHORT);
+			    toast.show();
+			}
+			toast = Toast.makeText(getApplicationContext(), "Chapters parsed.",
+					Toast.LENGTH_SHORT);
+			toast.show();
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		Title = ChapterDrawerTitle = getTitle();
-		ChapterTitles = new String[] { "abu", "seee", "go" };
+		// ChapterTitles = new String[] { "abu", "seee", "go" };
 		ChapterDrawerLayout = (DrawerLayout) findViewById(R.id.chapter_drawer_layout);
 		ChapterDrawerList = (ListView) findViewById(R.id.chapter_drawer);
 
@@ -88,14 +111,15 @@ public class Surveyor extends Activity {
 		}
 
 	}
-	
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // To make the action bar home/up action should open or close the drawer.
-       if (ChapterDrawerToggle.onOptionsItemSelected(item)) {
-           return true;
-       }
-       return true;
-   }
+
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// To make the action bar home/up action should open or close the
+		// drawer.
+		if (ChapterDrawerToggle.onOptionsItemSelected(item)) {
+			return true;
+		}
+		return true;
+	}
 
 	private class DrawerItemClickListener implements
 			ListView.OnItemClickListener {
