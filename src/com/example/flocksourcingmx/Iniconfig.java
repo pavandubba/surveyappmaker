@@ -2,8 +2,9 @@ package com.example.flocksourcingmx;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -127,8 +128,9 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 	}
 	
 	public static String readFileAsString(String filePath) throws java.io.IOException
-	{
-	    BufferedReader reader = new BufferedReader(new FileReader(filePath));
+	{	
+	    FileInputStream is = new FileInputStream(filePath);
+	    BufferedReader reader = new BufferedReader(new InputStreamReader(is, "ISO-8859-1"));
 	    String line, results = "";
 	    while( ( line = reader.readLine() ) != null)
 	    {
