@@ -38,7 +38,7 @@ public class Surveyor extends Activity {
 	private String jsonsurveystring;
 	private JSONObject jsurv = null;
 	private int totalchapters;
-	private JSONArray jchapters = null;
+	private JSONArray jchapterlist = null;
 	private JSONObject aux = null;
 	private Toast toast;
 
@@ -60,14 +60,14 @@ public class Surveyor extends Activity {
 		}
 
 		try {
-			jchapters = jsurv.getJSONArray("Survey");
-			totalchapters = jchapters.length();
+			jchapterlist = jsurv.getJSONArray("Survey");
+			totalchapters = jchapterlist.length();
 			ChapterTitles = new String[totalchapters];
 			for (int i = 0; i < totalchapters; ++i) {
-				aux = jchapters.getJSONObject(i);
+				aux = jchapterlist.getJSONObject(i);
 				ChapterTitles[i] = aux.getString("Chapter");
-			    toast = Toast.makeText(getApplicationContext(), "Chapters " + totalchapters, Toast.LENGTH_SHORT);
-			    toast.show();
+//			    toast = Toast.makeText(getApplicationContext(), "Chapters " + totalchapters, Toast.LENGTH_SHORT);
+//			    toast.show();
 			}
 			toast = Toast.makeText(getApplicationContext(), "Chapters parsed.",
 					Toast.LENGTH_SHORT);
@@ -108,7 +108,7 @@ public class Surveyor extends Activity {
 		ChapterDrawerLayout.setDrawerListener(ChapterDrawerToggle);
 
 		if (savedInstanceState == null) {
-			selectItem(0);
+			selectChapter(0);
 		}
 
 	}
@@ -127,15 +127,25 @@ public class Surveyor extends Activity {
 		@Override
 		public void onItemClick(AdapterView<?> parent, View view, int position,
 				long id) {
-			selectItem(position);
+			selectChapter(position);
 		}
 	}
 
-	private void selectItem(int position) {
+	private void selectChapter(int position) {
 		// update the main content by replacing fragments
-		Fragment fragment = new ChapterFragment();
+		JSONObject jchapter = null;
+		try {
+			jchapter = jchapterlist.getJSONObject(position);
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		Fragment fragment = new Chapter_fragment();
 		Bundle args = new Bundle();
-		args.putInt(ChapterFragment.ARG_CHAPTER_NUMBER, position);
+		args.putInt(Chapter_fragment.ARG_CHAPTER_NUMBER, position);
+		args.putStringArray(Chapter_fragment.ARG_CHAPTER_LIST, ChapterTitles);
+		args.putString(Chapter_fragment.ARG_JSON_CHAPTER, jchapter.toString());
 		fragment.setArguments(args);
 		
 		FragmentManager fragmentManager = getFragmentManager();
@@ -171,29 +181,29 @@ public class Surveyor extends Activity {
 		ChapterDrawerToggle.onConfigurationChanged(newConfig);
 	}
 
-	public static class ChapterFragment extends Fragment {
-		public static final String ARG_CHAPTER_NUMBER = "chapter_number";
-
-		public ChapterFragment() {
-			// Empty constructor required for fragment subclasses
-		}
-
-		@Override
-		public View onCreateView(LayoutInflater inflater, ViewGroup container,
-				Bundle savedInstanceState) {
-			View rootView = inflater.inflate(R.layout.fragment_chapter,
-					container, false);
-			int i = getArguments().getInt(ARG_CHAPTER_NUMBER);
-			String chapter = ChapterTitles[i];
-
-			int imageId = getResources().getIdentifier(
-					chapter.toLowerCase(Locale.getDefault()), "drawable",
-					getActivity().getPackageName());
-			((ImageView) rootView.findViewById(R.id.image))
-					.setImageResource(imageId);
-			getActivity().setTitle(chapter);
-			return rootView;
-		}
-	}
+//	public static class Chapter_fragment extends Fragment {
+//		public static final String ARG_CHAPTER_NUMBER = "chapter_number";
+//
+//		public Chapter_fragment() {
+//			// Empty constructor required for fragment subclasses
+//		}
+//
+//		@Override
+//		public View onCreateView(LayoutInflater inflater, ViewGroup container,
+//				Bundle savedInstanceState) {
+//			View rootView = inflater.inflate(R.layout.fragment_chapter,
+//					container, false);
+//			int i = getArguments().getInt(ARG_CHAPTER_NUMBER);
+//			String chapter = ChapterTitles[i];
+//
+//			int imageId = getResources().getIdentifier(
+//					chapter.toLowerCase(Locale.getDefault()), "drawable",
+//					getActivity().getPackageName());
+//			((ImageView) rootView.findViewById(R.id.image))
+//					.setImageResource(imageId);
+//			getActivity().setTitle(chapter);
+//			return rootView;
+//		}
+//	}
 
 }

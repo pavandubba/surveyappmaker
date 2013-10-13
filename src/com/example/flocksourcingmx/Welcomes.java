@@ -13,7 +13,8 @@ import android.content.Intent;
 
 public class Welcomes extends Activity {
 
-	private long splashDelay = 6000; // 6 seconds.
+	private long splashDelay = 1000; // 1 second for debugging.
+	// private long splashDelay = 6000; // 6 seconds.
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
