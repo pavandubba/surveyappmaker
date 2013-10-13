@@ -74,7 +74,6 @@ public final class R {
         public static final int bus_continue=0x7f0a000c;
         public static final int chapter_drawer=0x7f0a001f;
         public static final int chapter_drawer_layout=0x7f0a001d;
-        public static final int content_frame=0x7f0a001e;
         public static final int digitalClock1=0x7f0a000f;
         public static final int eturlfield=0x7f0a0008;
         public static final int female_button=0x7f0a0005;
@@ -102,6 +101,7 @@ public final class R {
         public static final int start_trip_button=0x7f0a000e;
         public static final int stop_trip=0x7f0a0024;
         public static final int survey_button=0x7f0a0028;
+        public static final int surveyor_frame=0x7f0a001e;
         public static final int tableRow1=0x7f0a0000;
         public static final int tableRow2=0x7f0a0001;
         public static final int tableRow3=0x7f0a0002;

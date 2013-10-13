@@ -9,6 +9,7 @@ import org.json.JSONObject;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
@@ -136,11 +137,14 @@ public class Surveyor extends Activity {
 		Bundle args = new Bundle();
 		args.putInt(ChapterFragment.ARG_CHAPTER_NUMBER, position);
 		fragment.setArguments(args);
-
+		
 		FragmentManager fragmentManager = getFragmentManager();
-		fragmentManager.beginTransaction()
-				.replace(R.id.content_frame, fragment).commit();
-
+		FragmentTransaction transaction = fragmentManager.beginTransaction();
+		transaction.replace(R.id.surveyor_frame, fragment);
+		transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+		transaction.addToBackStack(null);
+		transaction.commit();
+		
 		// update selected item and title, then close the drawer.
 		ChapterDrawerList.setItemChecked(position, true);
 		setTitle(ChapterTitles[position]);
