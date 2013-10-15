@@ -3,12 +3,12 @@ package com.example.flocksourcingmx;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import android.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -64,9 +64,13 @@ import android.widget.Toast;
 			}
 			
 		
-            TextView v = new TextView(getActivity());
-            v.setText(questionstring);
-            return v;
+            TextView questionview = new TextView(getActivity());
+            questionview.setText(questionstring);
+            ScrollView questionlayout = (ScrollView) rootView.findViewById(R.id.chapterview);
+            // questionlayout.addView(questionview);
+            // return rootView;
+            // The problem is about the addView part of the code and the returning of the rootView layout.
+            return questionview;
 	
 			
 			// Changing background image, for debugging purpose.
