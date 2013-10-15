@@ -1,7 +1,5 @@
 package com.example.flocksourcingmx;
 
-import java.util.Locale;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -16,13 +14,10 @@ import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -51,11 +46,12 @@ public class Surveyor extends Activity {
 			jsonsurveystring = extras.getString("jsonsurvey");
 			try {
 				jsurv = new JSONObject(jsonsurveystring);
-				toast = Toast.makeText(getApplicationContext(), "json recieved"
-						+ jsonsurveystring, Toast.LENGTH_SHORT);
-				toast.show();
+//				toast = Toast.makeText(getApplicationContext(), "json recieved"
+//						+ jsonsurveystring, Toast.LENGTH_SHORT);
+//				toast.show();
 			} catch (JSONException e) {
-				Log.e("JSON Parser", "Error parsing data " + e.toString());
+				Log.e("JSON Parser", "Error parsing data, check survey file."
+						+ e.toString());
 			}
 		}
 
@@ -66,15 +62,16 @@ public class Surveyor extends Activity {
 			for (int i = 0; i < totalchapters; ++i) {
 				aux = jchapterlist.getJSONObject(i);
 				ChapterTitles[i] = aux.getString("Chapter");
-//			    toast = Toast.makeText(getApplicationContext(), "Chapters " + totalchapters, Toast.LENGTH_SHORT);
-//			    toast.show();
+				// toast = Toast.makeText(getApplicationContext(), "Chapters " +
+				// totalchapters, Toast.LENGTH_SHORT);
+				// toast.show();
 			}
-			toast = Toast.makeText(getApplicationContext(), "Chapters parsed.",
-					Toast.LENGTH_SHORT);
-			toast.show();
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			toast = Toast.makeText(getApplicationContext(), "Chapters not parsed.",
+					Toast.LENGTH_SHORT);
+			toast.show();
 		}
 		Title = ChapterDrawerTitle = getTitle();
 		// ChapterTitles = new String[] { "abu", "seee", "go" };
@@ -140,21 +137,20 @@ public class Surveyor extends Activity {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
+		// Starting chapter fragment and passing json chapter information.
 		Fragment fragment = new Chapter_fragment();
 		Bundle args = new Bundle();
-		args.putInt(Chapter_fragment.ARG_CHAPTER_NUMBER, position);
-		args.putStringArray(Chapter_fragment.ARG_CHAPTER_LIST, ChapterTitles);
 		args.putString(Chapter_fragment.ARG_JSON_CHAPTER, jchapter.toString());
 		fragment.setArguments(args);
-		
+
 		FragmentManager fragmentManager = getFragmentManager();
 		FragmentTransaction transaction = fragmentManager.beginTransaction();
 		transaction.replace(R.id.surveyor_frame, fragment);
 		transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
 		transaction.addToBackStack(null);
 		transaction.commit();
-		
+
 		// update selected item and title, then close the drawer.
 		ChapterDrawerList.setItemChecked(position, true);
 		setTitle(ChapterTitles[position]);
@@ -180,30 +176,5 @@ public class Surveyor extends Activity {
 		// Pass any configuration change to the drawer toggles
 		ChapterDrawerToggle.onConfigurationChanged(newConfig);
 	}
-
-//	public static class Chapter_fragment extends Fragment {
-//		public static final String ARG_CHAPTER_NUMBER = "chapter_number";
-//
-//		public Chapter_fragment() {
-//			// Empty constructor required for fragment subclasses
-//		}
-//
-//		@Override
-//		public View onCreateView(LayoutInflater inflater, ViewGroup container,
-//				Bundle savedInstanceState) {
-//			View rootView = inflater.inflate(R.layout.fragment_chapter,
-//					container, false);
-//			int i = getArguments().getInt(ARG_CHAPTER_NUMBER);
-//			String chapter = ChapterTitles[i];
-//
-//			int imageId = getResources().getIdentifier(
-//					chapter.toLowerCase(Locale.getDefault()), "drawable",
-//					getActivity().getPackageName());
-//			((ImageView) rootView.findViewById(R.id.image))
-//					.setImageResource(imageId);
-//			getActivity().setTitle(chapter);
-//			return rootView;
-//		}
-//	}
 
 }

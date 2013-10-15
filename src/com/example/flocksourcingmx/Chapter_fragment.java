@@ -1,7 +1,6 @@
 package com.example.flocksourcingmx;
 
-import java.util.Locale;
-
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -10,14 +9,17 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 	public class Chapter_fragment extends Fragment {
-		public static final String ARG_CHAPTER_NUMBER = "chapter_number";
-		public static final String ARG_CHAPTER_LIST = "chapter_list";
 		public static final String ARG_JSON_CHAPTER = "Json_chapter";
 		private Toast toast;
+		private JSONObject jchapter;
+		private JSONArray jquestionlist = null;
+		private JSONObject jquestion;
+		private String questionstring = "No questions on chapter";
+		private String chapter = null;
 		public Chapter_fragment() {
 			// Empty constructor required for fragment subclasses
 		}
@@ -27,28 +29,57 @@ import android.widget.Toast;
 				Bundle savedInstanceState) {
 			View rootView = inflater.inflate(R.layout.fragment_chapter,
 					container, false);
-			int i = getArguments().getInt(ARG_CHAPTER_NUMBER);			
-			String[] chapters = getArguments().getStringArray(ARG_CHAPTER_LIST);
+			// Getting json chapter from parent activity.
 			String jchapterstring = getArguments().getString(ARG_JSON_CHAPTER);
 			try {
-				JSONObject jchapter = new JSONObject(jchapterstring);
-				toast = Toast.makeText(getActivity(), jchapterstring, Toast.LENGTH_SHORT);
+				jchapter = new JSONObject(jchapterstring);
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				toast = Toast.makeText(getActivity(), "Chapter not recieved from main activity.", Toast.LENGTH_SHORT);
+				toast.show();
+			}
+
+			try {
+				chapter = jchapter.getString("Chapter");
+				
+			} catch (JSONException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+				toast = Toast.makeText(getActivity(), "Chapter does not contain a chapter name.", Toast.LENGTH_SHORT);
+				toast.show();
+			}
+			
+			try {
+				jquestionlist = jchapter.getJSONArray("Questions");
+				jquestion = jquestionlist.getJSONObject(0);
+				questionstring = jquestion.getString("Question");
+				toast = Toast.makeText(getActivity(), jquestionlist.toString(), Toast.LENGTH_SHORT);
 				toast.show();
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				toast = Toast.makeText(getActivity(), "Chapter " + chapter + " does not contain questions or question does not have a Question attribute.", Toast.LENGTH_SHORT);
+				toast.show();
 			}
 			
+		
+            TextView v = new TextView(getActivity());
+            v.setText(questionstring);
+            return v;
+	
 			
-			
-			String chapter = chapters[i];
-			
-			int imageId = getResources().getIdentifier(
-					chapter.toLowerCase(Locale.getDefault()), "drawable",
-					getActivity().getPackageName());
-			((ImageView) rootView.findViewById(R.id.image))
-					.setImageResource(imageId);
-			getActivity().setTitle(chapter);
-			return rootView;
+			// Changing background image, for debugging purpose.
+//			int imageId = getResources().getIdentifier(
+//					chapter.toLowerCase(Locale.getDefault()), "drawable",
+//					getActivity().getPackageName());
+//			((ImageView) rootView.findViewById(R.id.image))
+//					.setImageResource(imageId);
+//			
+//			// Setting activity titles as the chapter.
+//			getActivity().setTitle(chapter);
+//			return rootView;
 		}
+		
+
 	}

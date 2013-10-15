@@ -67,13 +67,14 @@ public final class R {
         public static final int Destination_autocomplete=0x7f0a0011;
         public static final int Origin_autocomplete=0x7f0a0010;
         public static final int Username_edittext=0x7f0a002a;
-        public static final int action_settings=0x7f0a002d;
+        public static final int action_settings=0x7f0a002e;
         public static final int background=0x7f0a002b;
         public static final int bcontinue=0x7f0a000b;
         public static final int bdownload=0x7f0a0009;
         public static final int bus_continue=0x7f0a000c;
         public static final int chapter_drawer=0x7f0a001f;
         public static final int chapter_drawer_layout=0x7f0a001d;
+        public static final int chapterview=0x7f0a002c;
         public static final int digitalClock1=0x7f0a000f;
         public static final int eturlfield=0x7f0a0008;
         public static final int female_button=0x7f0a0005;
@@ -81,7 +82,7 @@ public final class R {
         public static final int flock_continue=0x7f0a0029;
         public static final int flock_pin_button=0x7f0a0027;
         public static final int iagree_b=0x7f0a0003;
-        public static final int image=0x7f0a002c;
+        public static final int image=0x7f0a002d;
         public static final int male_button=0x7f0a0006;
         public static final int passenger_button=0x7f0a0026;
         public static final int question_10_b=0x7f0a001b;
