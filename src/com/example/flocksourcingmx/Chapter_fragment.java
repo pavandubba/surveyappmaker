@@ -7,11 +7,12 @@ import android.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-	public class Chapter_fragment extends Fragment {
+	public class Chapter_fragment extends Fragment implements View.OnClickListener{
 		public static final String ARG_JSON_CHAPTER = "Json_chapter";
 		private static String[] answerlist = null;
 		private Toast toast;
@@ -23,6 +24,7 @@ import android.widget.Toast;
 		private String chapter = null;
 		private Integer totalanswers;
 		private TextView[] tvanswerlist = null;
+		private Integer[] tvansweridlist = null;
 		public Chapter_fragment() {
 			// Empty constructor required for fragment subclasses
 		}
@@ -67,12 +69,17 @@ import android.widget.Toast;
 				totalanswers = janswerlist.length();
 				answerlist = new String[totalanswers];
 				tvanswerlist = new TextView[totalanswers];
+				tvansweridlist = new Integer[totalanswers];
 				for (int i = 0; i < totalanswers; ++i) {
 					JSONObject aux = janswerlist.getJSONObject(i);
 					answerlist[i] = aux.getString("Answer");
 					tvanswerlist[i] = new TextView(rootView.getContext());
 					tvanswerlist[i].setText(answerlist[i]);
 					questionlayout.addView(tvanswerlist[i]);
+					tvansweridlist[i] = i; // Not sure if this is going to have conflicts with other view ids...
+					// tvansweridlist[i] = findId(); // This method was to generate valid View ids that were not used by any other View, but it's not working.
+					tvanswerlist[i].setId(tvansweridlist[i]);					
+					tvanswerlist[i].setOnClickListener(this);
 			      }				
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
@@ -85,8 +92,6 @@ import android.widget.Toast;
             questionview.setText(questionstring); 
 			
             return rootView;
-            // The problem is about the addView part of the code and the returning of the rootView layout.
-            // return questionview;
 	
 			
 			// Changing background image, for debugging purpose.
@@ -100,6 +105,35 @@ import android.widget.Toast;
 //			getActivity().setTitle(chapter);
 //			return rootView;
 		}
+		
+		@Override
+		public void onClick(View view) {
+		    for (int i = 0; i < totalanswers; ++i) {
+		    	if (tvanswerlist[i] instanceof TextView) {
+		    	    TextView textView = (TextView) tvanswerlist[i];
+			    	if (view.getId() == tvanswerlist[i].getId()){
+			    		textView.setTextColor(getResources().getColor(R.color.answer_selected));		    	
+				      }
+			    	else{
+			    		textView.setTextColor(getResources().getColor(R.color.text_color_dark));
+			    	}
+		    	}
+		    
+
+		    } 
+			
+		}
+		
+//		public int findId(){  
+//		    Integer id = 1;
+//			View v = getActivity().findViewById(id);  
+//		    while (v != null){  
+//		        v = getActivity().findViewById(++id);  
+//		    }  
+//		    return id++;  
+//		}
+		
+		
 		
 		
 

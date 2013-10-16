@@ -24,6 +24,8 @@
     <color name="menu_green_b">#EDDF9A</color>
     <color name="text_green_a">#69930C</color>
     <color name="text_green_b">#DBB205</color>
+    <color name="answer_selected">#FF8000</color>
+    
 
     <string name="couhes_esp">He tomado el curso de formación COUHES y me comprometo a cumplir con los mérodos y políticas que ahí se enuncian.</string>
     <string name="couhes_eng">I have taken the COUHES training course and agree to abide by the methods and policies set forth therein.</string>

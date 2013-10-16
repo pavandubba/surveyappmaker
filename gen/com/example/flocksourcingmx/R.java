@@ -11,6 +11,7 @@ public final class R {
     public static final class attr {
     }
     public static final class color {
+        public static final int answer_selected=0x7f070008;
         public static final int menu_green_a=0x7f070004;
         public static final int menu_green_b=0x7f070005;
         public static final int text_bkgrd=0x7f070000;
