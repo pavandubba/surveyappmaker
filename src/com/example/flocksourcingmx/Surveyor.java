@@ -62,10 +62,10 @@ public class Surveyor extends Activity {
 			for (int i = 0; i < totalchapters; ++i) {
 				aux = jchapterlist.getJSONObject(i);
 				ChapterTitles[i] = aux.getString("Chapter");
-				// toast = Toast.makeText(getApplicationContext(), "Chapters " +
-				// totalchapters, Toast.LENGTH_SHORT);
-				// toast.show();
 			}
+			// toast = Toast.makeText(getApplicationContext(), "Chapters " +
+			// totalchapters, Toast.LENGTH_SHORT);
+			// toast.show();
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

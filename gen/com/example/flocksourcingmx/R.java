@@ -82,7 +82,6 @@ public final class R {
         public static final int flock_continue=0x7f0a0029;
         public static final int flock_pin_button=0x7f0a0027;
         public static final int iagree_b=0x7f0a0003;
-        public static final int image=0x7f0a002d;
         public static final int male_button=0x7f0a0006;
         public static final int passenger_button=0x7f0a0026;
         public static final int question_10_b=0x7f0a001b;
@@ -95,6 +94,7 @@ public final class R {
         public static final int question_8_b=0x7f0a0019;
         public static final int question_9_b=0x7f0a001a;
         public static final int question__3_b=0x7f0a0014;
+        public static final int questionlayout=0x7f0a002d;
         public static final int spinner1=0x7f0a0020;
         public static final int spinner2=0x7f0a0021;
         public static final int spinner3=0x7f0a0022;
