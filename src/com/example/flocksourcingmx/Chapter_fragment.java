@@ -55,7 +55,7 @@ import android.widget.Toast;
 				toast.show();
 			}
 			
-			ViewGroup questionlayout = (ViewGroup) rootView.findViewById(R.id.questionlayout); // Layout for the dynamic content of the activity (mainly answers).
+			ViewGroup questionlayout = (ViewGroup) rootView.findViewById(R.id.answerlayout); // Layout for the dynamic content of the activity (mainly answers).
 
 			
 			
@@ -63,9 +63,6 @@ import android.widget.Toast;
 				jquestionlist = jchapter.getJSONArray("Questions");
 				jquestion = jquestionlist.getJSONObject(0);  // Its getting only the first question of the chapter.
 				questionstring = jquestion.getString("Question");
-	            TextView questionview = new TextView(rootView.getContext());
-	            questionview.setText(questionstring);            
-	            questionlayout.addView(questionview);
 				janswerlist = jquestion.getJSONArray("Answers");
 				totalanswers = janswerlist.length();
 				answerlist = new String[totalanswers];
@@ -84,7 +81,8 @@ import android.widget.Toast;
 				toast.show();
 			}
 			
-			
+            TextView questionview = (TextView) rootView.findViewById(R.id.questionview);
+            questionview.setText(questionstring); 
 			
             return rootView;
             // The problem is about the addView part of the code and the returning of the rootView layout.

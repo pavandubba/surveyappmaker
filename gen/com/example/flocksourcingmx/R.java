@@ -67,7 +67,8 @@ public final class R {
         public static final int Destination_autocomplete=0x7f0a0011;
         public static final int Origin_autocomplete=0x7f0a0010;
         public static final int Username_edittext=0x7f0a002a;
-        public static final int action_settings=0x7f0a002e;
+        public static final int action_settings=0x7f0a002f;
+        public static final int answerlayout=0x7f0a002e;
         public static final int background=0x7f0a002b;
         public static final int bcontinue=0x7f0a000b;
         public static final int bdownload=0x7f0a0009;
@@ -94,7 +95,7 @@ public final class R {
         public static final int question_8_b=0x7f0a0019;
         public static final int question_9_b=0x7f0a001a;
         public static final int question__3_b=0x7f0a0014;
-        public static final int questionlayout=0x7f0a002d;
+        public static final int questionview=0x7f0a002d;
         public static final int spinner1=0x7f0a0020;
         public static final int spinner2=0x7f0a0021;
         public static final int spinner3=0x7f0a0022;
