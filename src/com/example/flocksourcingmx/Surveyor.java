@@ -34,6 +34,9 @@ public class Surveyor extends Activity {
 	private JSONObject jsurv = null;
 	private int totalchapters;
 	private JSONArray jchapterlist = null;
+	JSONArray jquestionlist = null;
+	JSONObject jchapter;
+	JSONObject jquestion = null;
 	private JSONObject aux = null;
 	private Toast toast;
 
@@ -74,7 +77,6 @@ public class Surveyor extends Activity {
 			toast.show();
 		}
 		Title = ChapterDrawerTitle = getTitle();
-		// ChapterTitles = new String[] { "abu", "seee", "go" };
 		ChapterDrawerLayout = (DrawerLayout) findViewById(R.id.chapter_drawer_layout);
 		ChapterDrawerList = (ListView) findViewById(R.id.chapter_drawer);
 
@@ -130,18 +132,26 @@ public class Surveyor extends Activity {
 
 	private void selectChapter(int position) {
 		// update the main content by replacing fragments
-		JSONObject jchapter = null;
+		jchapter = null;
 		try {
 			jchapter = jchapterlist.getJSONObject(position);
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
-		// Starting chapter fragment and passing json chapter information.
-		Fragment fragment = new Chapter_fragment();
+		
+		// update selected item and title, then close the drawer.
+		ChapterDrawerList.setItemChecked(position, true);
+		setTitle(ChapterTitles[position]);
+		ChapterDrawerLayout.closeDrawer(ChapterDrawerList);
+		
+		// Obtaining the question desired to send to fragment
+		getQuestion(0);	  // Its getting only the first question of the chapter.
+		
+		// Starting question fragment and passing json question information.
+		Fragment fragment = new Question_fragment();
 		Bundle args = new Bundle();
-		args.putString(Chapter_fragment.ARG_JSON_CHAPTER, jchapter.toString());
+		args.putString(Question_fragment.ARG_JSON_QUESTION, jquestion.toString());
 		fragment.setArguments(args);
 
 		FragmentManager fragmentManager = getFragmentManager();
@@ -151,10 +161,19 @@ public class Surveyor extends Activity {
 		transaction.addToBackStack(null);
 		transaction.commit();
 
-		// update selected item and title, then close the drawer.
-		ChapterDrawerList.setItemChecked(position, true);
-		setTitle(ChapterTitles[position]);
-		ChapterDrawerLayout.closeDrawer(ChapterDrawerList);
+	}
+	
+	private void getQuestion(int position) {
+		try {
+			jquestionlist = jchapter.getJSONArray("Questions");
+			jquestion = jquestionlist.getJSONObject(position);	
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			toast = Toast.makeText(this, "Chapter  does not contain questions, a Question attribute or answers.", Toast.LENGTH_SHORT);
+			toast.show();
+		}
+		
 	}
 
 	@Override

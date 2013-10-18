@@ -128,7 +128,7 @@ public final class R {
         public static final int activity_username=0x7f03000a;
         public static final int activity_welcomes=0x7f03000b;
         public static final int chapter_drawer_list_item=0x7f03000c;
-        public static final int fragment_chapter=0x7f03000d;
+        public static final int fragment_question=0x7f03000d;
     }
     public static final class menu {
         public static final int couhes=0x7f090000;
