@@ -171,6 +171,13 @@ public class Surveyor extends Activity {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			toast = Toast.makeText(this, "Chapter  does not contain questions, a Question attribute or answers.", Toast.LENGTH_SHORT);
+			String nullquestionhelper = "{\"Question\":\"No questions on chapter\"}";
+			try {
+				jquestion = new JSONObject(nullquestionhelper);
+			} catch (JSONException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			toast.show();
 		}
 		
