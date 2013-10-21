@@ -3,6 +3,8 @@ package com.example.flocksourcingmx;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -21,9 +23,19 @@ import android.widget.Toast;
 		private Integer totalanswers;
 		private TextView[] tvanswerlist = null;
 		private Integer[] tvansweridlist = null;
+		private String answerString;
+		private String jumpString = null;
 		public Question_fragment() {
 			// Empty constructor required for fragment subclasses
 		}
+		
+	    AnswerSelected Callback;
+
+	    // The container Activity must implement this interface so the fragment can deliver messages
+	    public interface AnswerSelected {
+	        /** Called by Fragment when an answer is selected */
+	        public void AnswerRecieve(String answerString, String jumpString);
+	    }		
 
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -96,7 +108,9 @@ import android.widget.Toast;
 		    	if (view instanceof TextView) {
 		    	    TextView textView = (TextView) tvanswerlist[i];
 			    	if (view.getId() == textView.getId()){
-			    		textView.setTextColor(getResources().getColor(R.color.answer_selected));		    	
+			    		textView.setTextColor(getResources().getColor(R.color.answer_selected));
+			    	    answerString = answerlist[i].toString(); // Sets the answer to be sent to parent activity.
+			    	    Callback.AnswerRecieve(answerString, jumpString);
 				      }
 			    	else{
 			    		textView.setTextColor(getResources().getColor(R.color.text_color_dark));
@@ -118,7 +132,19 @@ import android.widget.Toast;
 //		}
 		
 		
-		
+	    @Override
+	    public void onAttach(Activity activity) {
+	        super.onAttach(activity);
+
+	        // This makes sure that the container activity has implemented
+	        // the callback interface. If not, it throws an exception.
+	        try {
+	            Callback = (AnswerSelected) activity;
+	        } catch (ClassCastException e) {
+	            throw new ClassCastException(activity.toString()
+	                    + " must implement Question_fragment.AnswerSelected");
+	        }
+	    }		
 		
 
 	}

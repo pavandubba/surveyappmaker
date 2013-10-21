@@ -21,7 +21,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-public class Surveyor extends Activity {
+public class Surveyor extends Activity
+implements Question_fragment.AnswerSelected{
 	private DrawerLayout ChapterDrawerLayout;
 	private ListView ChapterDrawerList;
 	private ActionBarDrawerToggle ChapterDrawerToggle;
@@ -171,6 +172,7 @@ public class Surveyor extends Activity {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			toast = Toast.makeText(this, "Chapter  does not contain questions, a Question attribute or answers.", Toast.LENGTH_SHORT);
+			toast.show();
 			String nullquestionhelper = "{\"Question\":\"No questions on chapter\"}";
 			try {
 				jquestion = new JSONObject(nullquestionhelper);
@@ -178,7 +180,7 @@ public class Surveyor extends Activity {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-			toast.show();
+			
 		}
 		
 	}
@@ -201,6 +203,17 @@ public class Surveyor extends Activity {
 		super.onConfigurationChanged(newConfig);
 		// Pass any configuration change to the drawer toggles
 		ChapterDrawerToggle.onConfigurationChanged(newConfig);
+	}
+	
+	public void AnswerRecieve (String answerString, String jumpString) {
+		try {
+			jquestion.put("Answer", answerString);
+			toast = Toast.makeText(this, "Answer passed: " + answerString, Toast.LENGTH_SHORT);
+			toast.show();
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 }
