@@ -71,5 +71,6 @@
     <string name="title_activity_surveyor">Surveyor</string>
     <string name="chapter_drawer_open">Open chapter navigation drawer</string>
     <string name="chapter_drawer_close">Close chapter navigation drawer</string>
+    <string name="next_question">Siguiente pregunta/Next question</string>
 
 </resources>

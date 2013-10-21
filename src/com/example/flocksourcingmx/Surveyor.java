@@ -4,6 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.R.integer;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -21,8 +22,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-public class Surveyor extends Activity
-implements Question_fragment.AnswerSelected{
+public class Surveyor extends Activity implements
+		Question_fragment.AnswerSelected {
 	private DrawerLayout ChapterDrawerLayout;
 	private ListView ChapterDrawerList;
 	private ActionBarDrawerToggle ChapterDrawerToggle;
@@ -40,6 +41,10 @@ implements Question_fragment.AnswerSelected{
 	JSONObject jquestion = null;
 	private JSONObject aux = null;
 	private Toast toast;
+	private View nextquestionbutton;
+	private Integer questionposition;
+	private Integer chapterposition;
+	private Integer totalquestions;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -50,9 +55,10 @@ implements Question_fragment.AnswerSelected{
 			jsonsurveystring = extras.getString("jsonsurvey");
 			try {
 				jsurv = new JSONObject(jsonsurveystring);
-//				toast = Toast.makeText(getApplicationContext(), "json recieved"
-//						+ jsonsurveystring, Toast.LENGTH_SHORT);
-//				toast.show();
+				// toast = Toast.makeText(getApplicationContext(),
+				// "json recieved"
+				// + jsonsurveystring, Toast.LENGTH_SHORT);
+				// toast.show();
 			} catch (JSONException e) {
 				Log.e("JSON Parser", "Error parsing data, check survey file."
 						+ e.toString());
@@ -73,8 +79,8 @@ implements Question_fragment.AnswerSelected{
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			toast = Toast.makeText(getApplicationContext(), "Chapters not parsed.",
-					Toast.LENGTH_SHORT);
+			toast = Toast.makeText(getApplicationContext(),
+					"Chapters not parsed.", Toast.LENGTH_SHORT);
 			toast.show();
 		}
 		Title = ChapterDrawerTitle = getTitle();
@@ -108,8 +114,26 @@ implements Question_fragment.AnswerSelected{
 		ChapterDrawerLayout.setDrawerListener(ChapterDrawerToggle);
 
 		if (savedInstanceState == null) {
-			selectChapter(0);
+			chapterposition = 0;
+			questionposition = 0;
+			selectChapter(chapterposition, questionposition);
 		}
+
+		nextquestionbutton = (View) findViewById(R.id.next_question_button);
+
+		nextquestionbutton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if (questionposition+1 < totalquestions) {
+					++questionposition;
+					selectChapter(chapterposition, questionposition);
+				} else if (questionposition+1 == totalquestions) {
+					questionposition = 0;
+					++chapterposition;
+					selectChapter(chapterposition, questionposition);
+				}
+			}
+		});
 
 	}
 
@@ -127,11 +151,13 @@ implements Question_fragment.AnswerSelected{
 		@Override
 		public void onItemClick(AdapterView<?> parent, View view, int position,
 				long id) {
-			selectChapter(position);
+			chapterposition = position;
+			questionposition = 0;
+			selectChapter(chapterposition, questionposition);
 		}
 	}
 
-	private void selectChapter(int position) {
+	private void selectChapter(int position, int questionposition) {
 		// update the main content by replacing fragments
 		jchapter = null;
 		try {
@@ -140,38 +166,30 @@ implements Question_fragment.AnswerSelected{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		// update selected item and title, then close the drawer.
 		ChapterDrawerList.setItemChecked(position, true);
 		setTitle(ChapterTitles[position]);
 		ChapterDrawerLayout.closeDrawer(ChapterDrawerList);
-		
-		// Obtaining the question desired to send to fragment
-		getQuestion(0);	  // Its getting only the first question of the chapter.
-		
-		// Starting question fragment and passing json question information.
-		Fragment fragment = new Question_fragment();
-		Bundle args = new Bundle();
-		args.putString(Question_fragment.ARG_JSON_QUESTION, jquestion.toString());
-		fragment.setArguments(args);
 
-		FragmentManager fragmentManager = getFragmentManager();
-		FragmentTransaction transaction = fragmentManager.beginTransaction();
-		transaction.replace(R.id.surveyor_frame, fragment);
-		transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-		transaction.addToBackStack(null);
-		transaction.commit();
+		// Obtaining the question desired to send to fragment
+		getQuestion(questionposition);
+
+		// Starting question fragment and passing json question information.
+		ChangeQuestion(jquestion);
 
 	}
-	
+
 	private void getQuestion(int position) {
 		try {
 			jquestionlist = jchapter.getJSONArray("Questions");
-			jquestion = jquestionlist.getJSONObject(position);	
+			totalquestions = jquestionlist.length();
+			jquestion = jquestionlist.getJSONObject(position);
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			toast = Toast.makeText(this, "Chapter  does not contain questions, a Question attribute or answers.", Toast.LENGTH_SHORT);
+			toast = Toast.makeText(this, "Question " + position
+					+ " does not exist in chapter.", Toast.LENGTH_SHORT);
 			toast.show();
 			String nullquestionhelper = "{\"Question\":\"No questions on chapter\"}";
 			try {
@@ -180,9 +198,9 @@ implements Question_fragment.AnswerSelected{
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-			
+
 		}
-		
+
 	}
 
 	@Override
@@ -204,12 +222,30 @@ implements Question_fragment.AnswerSelected{
 		// Pass any configuration change to the drawer toggles
 		ChapterDrawerToggle.onConfigurationChanged(newConfig);
 	}
-	
-	public void AnswerRecieve (String answerString, String jumpString) {
+
+	public void ChangeQuestion(JSONObject jquestion) {
+		// Starting question fragment and passing json question information.
+		Fragment fragment = new Question_fragment();
+		Bundle args = new Bundle();
+		args.putString(Question_fragment.ARG_JSON_QUESTION,
+				jquestion.toString());
+		fragment.setArguments(args);
+
+		FragmentManager fragmentManager = getFragmentManager();
+		FragmentTransaction transaction = fragmentManager.beginTransaction();
+		transaction.replace(R.id.surveyor_frame, fragment);
+		transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+		transaction.addToBackStack(null);
+		transaction.commit();
+
+	}
+
+	public void AnswerRecieve(String answerString, String jumpString) {
 		try {
 			jquestion.put("Answer", answerString);
-			toast = Toast.makeText(this, "Answer passed: " + answerString, Toast.LENGTH_SHORT);
-			toast.show();
+//			toast = Toast.makeText(this, "Answer passed: " + answerString,
+//					Toast.LENGTH_SHORT);
+//			toast.show();
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
