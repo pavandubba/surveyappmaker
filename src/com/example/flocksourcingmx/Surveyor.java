@@ -4,7 +4,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.R.integer;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -45,6 +44,8 @@ public class Surveyor extends Activity implements
 	private Integer questionposition;
 	private Integer chapterposition;
 	private Integer totalquestions;
+	String jumpString = null;
+	Boolean jumpBoolean = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -127,7 +128,7 @@ public class Surveyor extends Activity implements
 				if (questionposition+1 < totalquestions) {
 					++questionposition;
 					selectChapter(chapterposition, questionposition);
-				} else if (questionposition+1 == totalquestions) {
+				} else if (questionposition+1 >= totalquestions) {
 					questionposition = 0;
 					++chapterposition;
 					selectChapter(chapterposition, questionposition);
@@ -191,6 +192,7 @@ public class Surveyor extends Activity implements
 			toast = Toast.makeText(this, "Question " + position
 					+ " does not exist in chapter.", Toast.LENGTH_SHORT);
 			toast.show();
+			totalquestions = 0;
 			String nullquestionhelper = "{\"Question\":\"No questions on chapter\"}";
 			try {
 				jquestion = new JSONObject(nullquestionhelper);
@@ -240,7 +242,7 @@ public class Surveyor extends Activity implements
 
 	}
 
-	public void AnswerRecieve(String answerString, String jumpString) {
+	public void AnswerRecieve(String answerString, String jumpStringrecieve, Boolean jumpBooleanrecieve) {
 		try {
 			jquestion.put("Answer", answerString);
 //			toast = Toast.makeText(this, "Answer passed: " + answerString,
@@ -250,6 +252,8 @@ public class Surveyor extends Activity implements
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		jumpString = jumpStringrecieve;
+		jumpBoolean = jumpBooleanrecieve;
 	}
 
 }
