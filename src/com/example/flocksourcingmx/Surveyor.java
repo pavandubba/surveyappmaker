@@ -43,9 +43,9 @@ public class Surveyor extends Activity implements
 	private View nextquestionbutton;
 	private Integer questionposition;
 	private Integer chapterposition;
-	private Integer totalquestions;
+	private Integer[] totalquestionsArray;
 	String jumpString = null;
-	Boolean jumpBoolean = false;
+	String answerString = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +66,8 @@ public class Surveyor extends Activity implements
 			}
 		}
 
+		// Obtaining information about survey.
+
 		try {
 			jchapterlist = jsurv.getJSONArray("Survey");
 			totalchapters = jchapterlist.length();
@@ -81,9 +83,28 @@ public class Surveyor extends Activity implements
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			toast = Toast.makeText(getApplicationContext(),
-					"Chapters not parsed.", Toast.LENGTH_SHORT);
+					"Chapters not parsed, check survey file.",
+					Toast.LENGTH_SHORT);
 			toast.show();
 		}
+
+		// Filling number of questions per chapter.
+		totalquestionsArray = new Integer[totalchapters];
+		for (int i = 0; i < totalchapters; ++i) {
+			try {
+				aux = jchapterlist.getJSONObject(i);
+				totalquestionsArray[i] = aux.getJSONArray("Questions").length();			
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				totalquestionsArray[i] = 0;
+			}
+//			toast = Toast.makeText(this, "No of questions on chapter " + i +":"+totalquestionsArray[i], Toast.LENGTH_SHORT);
+//			toast.show();
+		}
+		
+		// Navigation drawer information.
+		
 		Title = ChapterDrawerTitle = getTitle();
 		ChapterDrawerLayout = (DrawerLayout) findViewById(R.id.chapter_drawer_layout);
 		ChapterDrawerList = (ListView) findViewById(R.id.chapter_drawer);
@@ -119,20 +140,22 @@ public class Surveyor extends Activity implements
 			questionposition = 0;
 			selectChapter(chapterposition, questionposition);
 		}
+		
+		
+		// Next question navigation.
 
 		nextquestionbutton = (View) findViewById(R.id.next_question_button);
 
 		nextquestionbutton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if (questionposition+1 < totalquestions) {
+				if (questionposition + 1 < totalquestionsArray[chapterposition]) {
 					++questionposition;
-					selectChapter(chapterposition, questionposition);
-				} else if (questionposition+1 >= totalquestions) {
+				} else if (questionposition + 1 >= totalquestionsArray[chapterposition]) {
 					questionposition = 0;
 					++chapterposition;
-					selectChapter(chapterposition, questionposition);
 				}
+				selectChapter(chapterposition, questionposition);
 			}
 		});
 
@@ -183,16 +206,14 @@ public class Surveyor extends Activity implements
 
 	private void getQuestion(int position) {
 		try {
-			jquestionlist = jchapter.getJSONArray("Questions");
-			totalquestions = jquestionlist.length();
-			jquestion = jquestionlist.getJSONObject(position);
+			jquestion = jchapter.getJSONArray("Questions").getJSONObject(
+					position);
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			toast = Toast.makeText(this, "Question " + position
 					+ " does not exist in chapter.", Toast.LENGTH_SHORT);
 			toast.show();
-			totalquestions = 0;
 			String nullquestionhelper = "{\"Question\":\"No questions on chapter\"}";
 			try {
 				jquestion = new JSONObject(nullquestionhelper);
@@ -242,18 +263,23 @@ public class Surveyor extends Activity implements
 
 	}
 
-	public void AnswerRecieve(String answerString, String jumpStringrecieve, Boolean jumpBooleanrecieve) {
+	public void AnswerRecieve(String answerString, String jumpString)
+	{
+	if (answerString != null){
 		try {
-			jquestion.put("Answer", answerString);
-//			toast = Toast.makeText(this, "Answer passed: " + answerString,
-//					Toast.LENGTH_SHORT);
-//			toast.show();
+			jsurv.getJSONArray("Survey").getJSONObject(chapterposition).getJSONArray("Questions").getJSONObject(questionposition).put("Answer", answerString);
+			// toast = Toast.makeText(this, "Answer passed: " + answerString,
+			// Toast.LENGTH_SHORT);
+			// toast.show();
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		jumpString = jumpStringrecieve;
-		jumpBoolean = jumpBooleanrecieve;
+	}
+		
+		toast = Toast.makeText(this, "After: Jump: " + jumpString
+				+ "Answer: " + answerString, Toast.LENGTH_SHORT);
+		toast.show();
 	}
 
 }

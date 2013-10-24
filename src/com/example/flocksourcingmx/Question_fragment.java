@@ -25,10 +25,10 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 	private Integer[] tvansweridlist = null;
 	private String answerString;
 	private String jumpString = null;
+	private String answerjumpString = null;
 	private ViewGroup answerlayout;
 	private View rootView;
 	private String questionkind = null;
-	private Boolean jumpBoolean = false;
 
 	public Question_fragment() {
 		// Empty constructor required for fragment subclasses
@@ -40,8 +40,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 	// deliver messages
 	public interface AnswerSelected {
 		/** Called by Fragment when an answer is selected */
-		public void AnswerRecieve(String answerString, String jumpString,
-				Boolean jumpBoolean);
+		public void AnswerRecieve(String answerString, String jumpString);
 	}
 
 	@Override
@@ -86,7 +85,8 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 			toast.show();
 		}
 
-		getJump(jquestion, jumpString, jumpBoolean);
+		jumpString = getJump(jquestion);
+		Callback.AnswerRecieve(answerString, jumpString);
 
 		try {
 			questionstring = jquestion.getString("Question");
@@ -155,18 +155,19 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 
 	}
 
-	public void getJump(JSONObject Obj, String jumpString, Boolean jumpBoolean) {
+	public String getJump(JSONObject Obj) {
+		String auxjump;
 		try {
-			jumpString = Obj.getString("Jump");
+			auxjump = Obj.getString("Jump");
 		} catch (JSONException e1) {
 			// TODO Auto-generated catch block
+			auxjump = null;
 			e1.printStackTrace();
 		}
-		if (jumpString != null) {
-			jumpBoolean = true;
-		} else {
-			jumpBoolean = false;
-		}
+		toast = Toast.makeText(getActivity(), "Jump: " + auxjump,
+				Toast.LENGTH_SHORT);
+		toast.show();
+		return auxjump;
 	}
 
 	@Override
@@ -178,8 +179,10 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 					textView.setTextColor(getResources().getColor(
 							R.color.answer_selected));
 					try {
-						getJump(janswerlist.getJSONObject(i), jumpString,
-								jumpBoolean);
+						answerjumpString = getJump(janswerlist.getJSONObject(i));
+						if (answerjumpString != null) {
+							jumpString = answerjumpString;
+						}
 					} catch (JSONException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -188,8 +191,10 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 																// to be sent to
 																// parent
 																// activity.
-					Callback.AnswerRecieve(answerString, jumpString,
-							jumpBoolean);
+																// questionreturn
+																// = new
+																// Bundle(3);
+					Callback.AnswerRecieve(answerString, jumpString);
 				} else {
 					textView.setTextColor(getResources().getColor(
 							R.color.text_color_dark));

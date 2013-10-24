@@ -72,7 +72,7 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 			
 			 try {
 		            jsurv = new JSONObject(jsonsurveystring);
-		            filefeedback.setText("Survey file succesfully parsed.");
+		            filefeedback.setText("Survey file succesfully parsed as JSON.");
 		        } catch (JSONException e) {
 		            Log.e("JSON Parser", "Error parsing data " + e.toString());
 		            filefeedback.setText("Survey file not parsed, contains errors.");
