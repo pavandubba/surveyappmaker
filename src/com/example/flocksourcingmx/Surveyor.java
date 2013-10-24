@@ -155,6 +155,9 @@ public class Surveyor extends Activity implements
 					questionposition = 0;
 					++chapterposition;
 				}
+				if (jumpString != null){
+					jumpFinder(jumpString);
+				}
 				selectChapter(chapterposition, questionposition);
 			}
 		});
@@ -263,8 +266,10 @@ public class Surveyor extends Activity implements
 
 	}
 
-	public void AnswerRecieve(String answerString, String jumpString)
+	public void AnswerRecieve(String answerStringRecieve, String jumpStringRecieve)
 	{
+		answerString = answerStringRecieve;
+		jumpString = jumpStringRecieve;
 	if (answerString != null){
 		try {
 			jsurv.getJSONArray("Survey").getJSONObject(chapterposition).getJSONArray("Questions").getJSONObject(questionposition).put("Answer", answerString);
@@ -280,6 +285,26 @@ public class Surveyor extends Activity implements
 		toast = Toast.makeText(this, "After: Jump: " + jumpString
 				+ "Answer: " + answerString, Toast.LENGTH_SHORT);
 		toast.show();
+	}
+	
+	public void jumpFinder(String jumpString){
+		// Searches for a question with the same id as the jumpString value
+		for (int i = 0; i < totalchapters; ++i){
+			for (int j = 0; j < totalquestionsArray[i]; ++j){
+				String jumpAUX = null;
+				try {
+					jumpAUX = jsurv.getJSONArray("Survey").getJSONObject(i).getJSONArray("Questions").getJSONObject(j).getString("id");
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				if(jumpString.equals(jumpAUX)){
+					chapterposition = i;
+					questionposition = j;
+					break;
+				}
+			}
+		}
 	}
 
 }
