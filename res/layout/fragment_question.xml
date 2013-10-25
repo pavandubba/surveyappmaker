@@ -2,8 +2,9 @@
     android:id="@+id/chapterview"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/text_bkgrd"
     android:orientation="vertical" >
+<!--     android:background="@color/text_bkgrd" -->
+    
 
     <!--
          <ImageView
@@ -20,8 +21,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="15dp"
-        android:text="TextView"
-        android:textColor="@color/text_color_dark"
+        android:textColor="@color/text_color_light"
         android:textSize="17sp" />
 
     <ScrollView
@@ -35,7 +35,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="15dp"
-            android:textColor="@color/text_color_dark"
+            android:textColor="@color/text_color_light"
             android:textSize="17sp" >
         </LinearLayout>
     </ScrollView>

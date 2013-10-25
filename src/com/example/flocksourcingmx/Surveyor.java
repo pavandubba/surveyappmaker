@@ -41,6 +41,7 @@ public class Surveyor extends Activity implements
 	private JSONObject aux = null;
 	private Toast toast;
 	private View nextquestionbutton;
+	private View previousquestionbutton;
 	private Integer questionposition;
 	private Integer chapterposition;
 	private Integer[] totalquestionsArray;
@@ -142,7 +143,7 @@ public class Surveyor extends Activity implements
 		}
 		
 		
-		// Next question navigation.
+		// Next and previous question navigation.
 
 		nextquestionbutton = (View) findViewById(R.id.next_question_button);
 
@@ -159,6 +160,16 @@ public class Surveyor extends Activity implements
 					jumpFinder(jumpString);
 				}
 				selectChapter(chapterposition, questionposition);
+			}
+		});
+		
+		previousquestionbutton = (View) findViewById(R.id.previous_question_button);
+		
+		previousquestionbutton.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				onBackPressed();				
 			}
 		});
 
@@ -248,6 +259,18 @@ public class Surveyor extends Activity implements
 		// Pass any configuration change to the drawer toggles
 		ChapterDrawerToggle.onConfigurationChanged(newConfig);
 	}
+	
+	@Override
+	public void onBackPressed(){
+	    FragmentManager fm = getFragmentManager();
+	    if (fm.getBackStackEntryCount() > 0) {
+	        Log.i("MainActivity", "popping backstack");
+	        fm.popBackStack();
+	    } else {
+	        Log.i("MainActivity", "nothing on backstack, calling super");
+	        super.onBackPressed();  
+	    }
+	}
 
 	public void ChangeQuestion(JSONObject jquestion) {
 		// Starting question fragment and passing json question information.
@@ -282,9 +305,9 @@ public class Surveyor extends Activity implements
 		}
 	}
 		
-		toast = Toast.makeText(this, "After: Jump: " + jumpString
-				+ "Answer: " + answerString, Toast.LENGTH_SHORT);
-		toast.show();
+//		toast = Toast.makeText(this, "After: Jump: " + jumpString
+//				+ "Answer: " + answerString, Toast.LENGTH_SHORT);
+//		toast.show();
 	}
 	
 	public void jumpFinder(String jumpString){

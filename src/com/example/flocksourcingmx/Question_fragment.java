@@ -135,6 +135,8 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 				answerlist[i] = aux.getString("Answer");
 				tvanswerlist[i] = new TextView(rootView.getContext());
 				tvanswerlist[i].setText(answerlist[i]);
+				tvanswerlist[i].setTextColor(getResources().getColor(
+						R.color.text_color_light));
 				answerlayout.addView(tvanswerlist[i]);
 				tvansweridlist[i] = i; // Not sure if this is going to have
 										// conflicts with other view ids...
@@ -164,9 +166,9 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 			auxjump = null;
 			e1.printStackTrace();
 		}
-		toast = Toast.makeText(getActivity(), "Jump: " + auxjump,
-				Toast.LENGTH_SHORT);
-		toast.show();
+		// toast = Toast.makeText(getActivity(), "Jump: " + auxjump,
+		// Toast.LENGTH_SHORT);
+		// toast.show();
 		return auxjump;
 	}
 
@@ -197,7 +199,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 					Callback.AnswerRecieve(answerString, jumpString);
 				} else {
 					textView.setTextColor(getResources().getColor(
-							R.color.text_color_dark));
+							R.color.text_color_light));
 				}
 			}
 
