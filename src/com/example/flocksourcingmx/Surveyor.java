@@ -94,18 +94,19 @@ public class Surveyor extends Activity implements
 		for (int i = 0; i < totalchapters; ++i) {
 			try {
 				aux = jchapterlist.getJSONObject(i);
-				totalquestionsArray[i] = aux.getJSONArray("Questions").length();			
+				totalquestionsArray[i] = aux.getJSONArray("Questions").length();
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				totalquestionsArray[i] = 0;
 			}
-//			toast = Toast.makeText(this, "No of questions on chapter " + i +":"+totalquestionsArray[i], Toast.LENGTH_SHORT);
-//			toast.show();
+			// toast = Toast.makeText(this, "No of questions on chapter " + i
+			// +":"+totalquestionsArray[i], Toast.LENGTH_SHORT);
+			// toast.show();
 		}
-		
+
 		// Navigation drawer information.
-		
+
 		Title = ChapterDrawerTitle = getTitle();
 		ChapterDrawerLayout = (DrawerLayout) findViewById(R.id.chapter_drawer_layout);
 		ChapterDrawerList = (ListView) findViewById(R.id.chapter_drawer);
@@ -141,8 +142,7 @@ public class Surveyor extends Activity implements
 			questionposition = 0;
 			selectChapter(chapterposition, questionposition);
 		}
-		
-		
+
 		// Next and previous question navigation.
 
 		nextquestionbutton = (View) findViewById(R.id.next_question_button);
@@ -150,32 +150,36 @@ public class Surveyor extends Activity implements
 		nextquestionbutton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				toast = Toast.makeText(Surveyor.this, "Antes de click chapterposition" + chapterposition
-						+ "questionposition"+questionposition, Toast.LENGTH_SHORT);
+				toast = Toast.makeText(Surveyor.this,
+						"Antes de click chapterposition" + chapterposition
+								+ "questionposition" + questionposition,
+						Toast.LENGTH_SHORT);
 				toast.show();
-				if (jumpString != null){
+				if (jumpString != null) {
 					jumpFinder(jumpString);
-				}else if (questionposition + 1 < totalquestionsArray[chapterposition]) {
+				} else if (questionposition + 1 < totalquestionsArray[chapterposition]) {
 					++questionposition;
 				} else if (questionposition + 1 >= totalquestionsArray[chapterposition]) {
 					questionposition = 0;
 					++chapterposition;
 				}
-				toast = Toast.makeText(Surveyor.this, "Despues de click chapterposition" + chapterposition
-						+ "questionposition"+questionposition, Toast.LENGTH_SHORT);
+				toast = Toast.makeText(Surveyor.this,
+						"Despues de click chapterposition" + chapterposition
+								+ "questionposition" + questionposition,
+						Toast.LENGTH_SHORT);
 				toast.show();
 
 				selectChapter(chapterposition, questionposition);
 			}
 		});
-		
+
 		previousquestionbutton = (View) findViewById(R.id.previous_question_button);
-		
+
 		previousquestionbutton.setOnClickListener(new View.OnClickListener() {
-			
+
 			@Override
 			public void onClick(View v) {
-				onBackPressed();				
+				onBackPressed();
 			}
 		});
 
@@ -220,6 +224,10 @@ public class Surveyor extends Activity implements
 		getQuestion(qposition);
 
 		// Starting question fragment and passing json question information.
+		toast = Toast.makeText(this, "Antes de changequestion chapterposition"
+				+ chapterposition + "questionposition" + questionposition,
+				Toast.LENGTH_SHORT);
+		toast.show();
 		ChangeQuestion(jquestion, chapterposition, questionposition);
 
 	}
@@ -265,27 +273,32 @@ public class Surveyor extends Activity implements
 		// Pass any configuration change to the drawer toggles
 		ChapterDrawerToggle.onConfigurationChanged(newConfig);
 	}
-	
+
 	@Override
-	public void onBackPressed(){
-	    FragmentManager fm = getFragmentManager();
-	    if (fm.getBackStackEntryCount() > 0) {
-	        Log.i("MainActivity", "popping backstack");
-	        fm.popBackStack();
-	    } else {
-	        Log.i("MainActivity", "nothing on backstack, calling super");
-	        super.onBackPressed();  
-	    }
+	public void onBackPressed() {
+		FragmentManager fm = getFragmentManager();
+		if (fm.getBackStackEntryCount() > 0) {
+			Log.i("MainActivity", "popping backstack");
+			fm.popBackStack();
+		} else {
+			Log.i("MainActivity", "nothing on backstack, calling super");
+			super.onBackPressed();
+		}
 	}
 
-	public void ChangeQuestion(JSONObject jquestion, Integer chapterposition, Integer questionposition) {
+	public void ChangeQuestion(JSONObject jquestion, Integer chapterposition,
+			Integer questionposition) {
 		// Starting question fragment and passing json question information.
 		Fragment fragment = new Question_fragment();
 		Bundle args = new Bundle();
 		args.putString(Question_fragment.ARG_JSON_QUESTION,
 				jquestion.toString());
-		args.putInt(Question_fragment.ARG_QUESTION_POSITION, questionposition);
+		toast = Toast.makeText(this, "Antes de Fragment: chapterposition"
+				+ chapterposition + "questionposition" + questionposition,
+				Toast.LENGTH_SHORT);
+		toast.show();
 		args.putInt(Question_fragment.ARG_CHAPTER_POSITION, chapterposition);
+		args.putInt(Question_fragment.ARG_QUESTION_POSITION, questionposition);
 		fragment.setArguments(args);
 
 		FragmentManager fragmentManager = getFragmentManager();
@@ -297,47 +310,55 @@ public class Surveyor extends Activity implements
 
 	}
 
-	public void AnswerRecieve(String answerStringRecieve, String jumpStringRecieve)
-	{
+	public void AnswerRecieve(String answerStringRecieve,
+			String jumpStringRecieve) {
 		answerString = answerStringRecieve;
 		jumpString = jumpStringRecieve;
-	if (answerString != null){
-		try {
-			jsurv.getJSONArray("Survey").getJSONObject(chapterposition).getJSONArray("Questions").getJSONObject(questionposition).put("Answer", answerString);
-			// toast = Toast.makeText(this, "Answer passed: " + answerString,
-			// Toast.LENGTH_SHORT);
-			// toast.show();
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		if (answerString != null) {
+			try {
+				jsurv.getJSONArray("Survey").getJSONObject(chapterposition)
+						.getJSONArray("Questions")
+						.getJSONObject(questionposition)
+						.put("Answer", answerString);
+				// toast = Toast.makeText(this, "Answer passed: " +
+				// answerString,
+				// Toast.LENGTH_SHORT);
+				// toast.show();
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
+
+		// toast = Toast.makeText(this, "After: Jump: " + jumpString
+		// + "Answer: " + answerString, Toast.LENGTH_SHORT);
+		// toast.show();
 	}
-		
-//		toast = Toast.makeText(this, "After: Jump: " + jumpString
-//				+ "Answer: " + answerString, Toast.LENGTH_SHORT);
-//		toast.show();
-	}
-	
-	public void PositionRecieve(Integer chapterpositionrecieve, Integer questionpositionrecieve) {
+
+	public void PositionRecieve(Integer chapterpositionrecieve,
+			Integer questionpositionrecieve) {
 		questionposition = questionpositionrecieve;
 		chapterposition = chapterpositionrecieve;
-		toast = Toast.makeText(this, "DE FRAGMENT chapterposition" + chapterposition
-				+ "questionposition"+questionposition, Toast.LENGTH_SHORT);
+		toast = Toast.makeText(this, "DE FRAGMENT chapterposition"
+				+ chapterposition + "questionposition" + questionposition,
+				Toast.LENGTH_SHORT);
 		toast.show();
 	}
-	
-	public void jumpFinder(String jumpString){
+
+	public void jumpFinder(String jumpString) {
 		// Searches for a question with the same id as the jumpString value
-		for (int i = 0; i < totalchapters; ++i){
-			for (int j = 0; j < totalquestionsArray[i]; ++j){
+		for (int i = 0; i < totalchapters; ++i) {
+			for (int j = 0; j < totalquestionsArray[i]; ++j) {
 				String jumpAUX = null;
 				try {
-					jumpAUX = jsurv.getJSONArray("Survey").getJSONObject(i).getJSONArray("Questions").getJSONObject(j).getString("id");
+					jumpAUX = jsurv.getJSONArray("Survey").getJSONObject(i)
+							.getJSONArray("Questions").getJSONObject(j)
+							.getString("id");
 				} catch (JSONException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				if(jumpString.equals(jumpAUX)){
+				if (jumpString.equals(jumpAUX)) {
 					chapterposition = i;
 					questionposition = j;
 					break;
@@ -345,6 +366,5 @@ public class Surveyor extends Activity implements
 			}
 		}
 	}
-
 
 }
