@@ -22,7 +22,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 public class Surveyor extends Activity implements
-		Question_fragment.AnswerSelected {
+		Question_fragment.AnswerSelected, Question_fragment.PositionPasser {
 	private DrawerLayout ChapterDrawerLayout;
 	private ListView ChapterDrawerList;
 	private ActionBarDrawerToggle ChapterDrawerToggle;
@@ -150,15 +150,21 @@ public class Surveyor extends Activity implements
 		nextquestionbutton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if (questionposition + 1 < totalquestionsArray[chapterposition]) {
+				toast = Toast.makeText(Surveyor.this, "Antes de click chapterposition" + chapterposition
+						+ "questionposition"+questionposition, Toast.LENGTH_SHORT);
+				toast.show();
+				if (jumpString != null){
+					jumpFinder(jumpString);
+				}else if (questionposition + 1 < totalquestionsArray[chapterposition]) {
 					++questionposition;
 				} else if (questionposition + 1 >= totalquestionsArray[chapterposition]) {
 					questionposition = 0;
 					++chapterposition;
 				}
-				if (jumpString != null){
-					jumpFinder(jumpString);
-				}
+				toast = Toast.makeText(Surveyor.this, "Despues de click chapterposition" + chapterposition
+						+ "questionposition"+questionposition, Toast.LENGTH_SHORT);
+				toast.show();
+
 				selectChapter(chapterposition, questionposition);
 			}
 		});
@@ -195,7 +201,7 @@ public class Surveyor extends Activity implements
 		}
 	}
 
-	private void selectChapter(int position, int questionposition) {
+	private void selectChapter(int position, int qposition) {
 		// update the main content by replacing fragments
 		jchapter = null;
 		try {
@@ -211,10 +217,10 @@ public class Surveyor extends Activity implements
 		ChapterDrawerLayout.closeDrawer(ChapterDrawerList);
 
 		// Obtaining the question desired to send to fragment
-		getQuestion(questionposition);
+		getQuestion(qposition);
 
 		// Starting question fragment and passing json question information.
-		ChangeQuestion(jquestion);
+		ChangeQuestion(jquestion, chapterposition, questionposition);
 
 	}
 
@@ -272,12 +278,14 @@ public class Surveyor extends Activity implements
 	    }
 	}
 
-	public void ChangeQuestion(JSONObject jquestion) {
+	public void ChangeQuestion(JSONObject jquestion, Integer chapterposition, Integer questionposition) {
 		// Starting question fragment and passing json question information.
 		Fragment fragment = new Question_fragment();
 		Bundle args = new Bundle();
 		args.putString(Question_fragment.ARG_JSON_QUESTION,
 				jquestion.toString());
+		args.putInt(Question_fragment.ARG_QUESTION_POSITION, questionposition);
+		args.putInt(Question_fragment.ARG_CHAPTER_POSITION, chapterposition);
 		fragment.setArguments(args);
 
 		FragmentManager fragmentManager = getFragmentManager();
@@ -310,6 +318,14 @@ public class Surveyor extends Activity implements
 //		toast.show();
 	}
 	
+	public void PositionRecieve(Integer chapterpositionrecieve, Integer questionpositionrecieve) {
+		questionposition = questionpositionrecieve;
+		chapterposition = chapterpositionrecieve;
+		toast = Toast.makeText(this, "DE FRAGMENT chapterposition" + chapterposition
+				+ "questionposition"+questionposition, Toast.LENGTH_SHORT);
+		toast.show();
+	}
+	
 	public void jumpFinder(String jumpString){
 		// Searches for a question with the same id as the jumpString value
 		for (int i = 0; i < totalchapters; ++i){
@@ -329,5 +345,6 @@ public class Surveyor extends Activity implements
 			}
 		}
 	}
+
 
 }

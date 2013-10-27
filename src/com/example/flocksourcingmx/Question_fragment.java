@@ -15,8 +15,11 @@ import android.widget.Toast;
 
 public class Question_fragment extends Fragment implements View.OnClickListener {
 	public static final String ARG_JSON_QUESTION = "Json_chapter";
+	public static final String ARG_QUESTION_POSITION = null;
+	public static final String ARG_CHAPTER_POSITION = null;
 	private static String[] answerlist = null;
 	private Toast toast;
+	private String jquestionstring;
 	private JSONObject jquestion = null;
 	private JSONArray janswerlist = null;
 	private String questionstring = "No questions on chapter";
@@ -29,11 +32,16 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 	private ViewGroup answerlayout;
 	private View rootView;
 	private String questionkind = null;
+	private Integer questionposition;
+	private Integer chapterposition;
 
 	public Question_fragment() {
 		// Empty constructor required for fragment subclasses
 	}
-
+	
+	// Information interface with main activity.
+	
+	// Passes Answer and jump information to activity.
 	AnswerSelected Callback;
 
 	// The container Activity must implement this interface so the fragment can
@@ -42,6 +50,14 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 		/** Called by Fragment when an answer is selected */
 		public void AnswerRecieve(String answerString, String jumpString);
 	}
+	
+	// Passes position information to activity. Will be called when fragment resumes.
+	PositionPasser Possback;
+	
+	public interface PositionPasser {
+		/** Called by Fragment when an answer is selected */
+		public void PositionRecieve(Integer chapterposition, Integer questionposition);
+	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -49,15 +65,22 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 		rootView = inflater.inflate(R.layout.fragment_question, container,
 				false);
 
-		// Getting json question from parent activity.
-		String jquestionstring = getArguments().getString(ARG_JSON_QUESTION);
+		// Getting json question and position in survey from parent activity.
+		jquestionstring = getArguments().getString(ARG_JSON_QUESTION);
+		questionposition = getArguments().getInt(ARG_QUESTION_POSITION);
+		chapterposition = getArguments().getInt(ARG_CHAPTER_POSITION);
+		toast = Toast.makeText(getActivity(),
+				"DE MAIN chapterposition" + chapterposition
+				+ "questionposition"+questionposition,
+				Toast.LENGTH_SHORT);
+		toast.show();
 		try {
 			jquestion = new JSONObject(jquestionstring);
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			toast = Toast.makeText(getActivity(),
-					"Chapter not recieved from main activity.",
+					"Question not recieved from main activity.",
 					Toast.LENGTH_SHORT);
 			toast.show();
 		}
@@ -126,6 +149,12 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 		// return rootView;
 	}
 
+	@Override
+	public void onResume(){
+		Possback.PositionRecieve(chapterposition, questionposition);
+		super.onResume();
+	}
+	
 	public void MultipleChoiceLayout() {
 		JSONObject aux;
 
@@ -227,6 +256,12 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 		} catch (ClassCastException e) {
 			throw new ClassCastException(activity.toString()
 					+ " must implement Question_fragment.AnswerSelected");
+		}
+		try {
+			Possback = (PositionPasser) activity;
+		} catch (ClassCastException e) {
+			throw new ClassCastException(activity.toString()
+					+ " must implement Question_fragment.PositionPasser");
 		}
 	}
 
