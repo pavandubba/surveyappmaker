@@ -1,16 +1,22 @@
 package com.example.flocksourcingmx;
 
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.graphics.drawable.GradientDrawable.Orientation;
 import android.os.Bundle;
+import android.text.InputType;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,6 +42,11 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 	private String questionkind = null;
 	private Integer questionposition;
 	private Integer chapterposition;
+	private boolean other;
+	private EditText otherET = null;
+	private TextView otheranswer = null;
+	private LinearLayout otherfield = null;
+	private Integer othertotal = 0;
 
 	public Question_fragment() {
 		// Empty constructor required for fragment subclasses
@@ -105,8 +116,20 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			questionkind = "no kind";
 			toast = Toast.makeText(getActivity(),
 					"No question kind in question.", Toast.LENGTH_SHORT);
+			toast.show();
+		}
+
+		try {
+			other = jquestion.getBoolean("Other");
+		} catch (JSONException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+			other = false;
+			toast = Toast.makeText(getActivity(), "Other: " + other,
+					Toast.LENGTH_SHORT);
 			toast.show();
 		}
 
@@ -115,28 +138,20 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 
 		try {
 			questionstring = jquestion.getString("Question");
-			if (questionkind.equals("MC")) {
-				janswerlist = jquestion.getJSONArray("Answers");
-				totalanswers = janswerlist.length();
-				answerlist = new String[totalanswers];
-				tvanswerlist = new TextView[totalanswers];
-				tvansweridlist = new Integer[totalanswers];
-				MultipleChoiceLayout();
-			}else if (questionkind.equals("ON")){
-				OpenNumberLayout();
-			}else if (questionkind.equals("OT")){
-				OpenTextLayout();
-			}else if (questionkind.equals("CB")){
-				CheckBoxLayout();
-			}
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			totalanswers = 0;
-			toast = Toast.makeText(getActivity(),
-					"Poblems with question parsing, please check surve file.",
-					Toast.LENGTH_SHORT);
-			toast.show();
+		}
+
+		// Generating question kind specific layouts.
+		if (questionkind.equals("MC")) {
+			MultipleChoiceLayout();
+		} else if (questionkind.equals("ON")) {
+			OpenNumberLayout();
+		} else if (questionkind.equals("OT")) {
+			OpenTextLayout();
+		} else if (questionkind.equals("CB")) {
+			CheckBoxLayout();
 		}
 
 		TextView questionview = (TextView) rootView
@@ -169,8 +184,12 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 
 	public void MultipleChoiceLayout() {
 		JSONObject aux;
-
 		try {
+			janswerlist = jquestion.getJSONArray("Answers");
+			totalanswers = janswerlist.length();
+			answerlist = new String[totalanswers];
+			tvanswerlist = new TextView[totalanswers];
+			tvansweridlist = new Integer[totalanswers];
 			for (int i = 0; i < totalanswers; ++i) {
 				aux = janswerlist.getJSONObject(i);
 				answerlist[i] = aux.getString("Answer");
@@ -191,26 +210,59 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			toast = Toast.makeText(getActivity(), questionkind,
+			totalanswers = 0;
+			toast = Toast.makeText(getActivity(),
+					"Poblems with question parsing, please check surve file.",
 					Toast.LENGTH_SHORT);
 			toast.show();
 		}
+		if (other == Boolean.TRUE) {
+			otherfield = new LinearLayout(rootView.getContext());
+			otherfield.setOrientation(LinearLayout.VERTICAL);
+			answerlayout.addView(otherfield);
+			otherET = new EditText(rootView.getContext());
+			otherET.setHint("Otro/Other");
+			otherET.setImeOptions(EditorInfo.IME_ACTION_DONE);
+			otherET.setSingleLine();
+			// otherET.setInputType(InputType.TYPE_CLASS_NUMBER);
+			otherET.setTextColor(getResources().getColor(
+					R.color.text_color_light));
+			answerlayout.addView(otherET);
+			otherET.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+				@Override
+				public boolean onEditorAction(TextView v, int actionId,
+						KeyEvent event) {
+					if (actionId == EditorInfo.IME_ACTION_DONE) {
+						++othertotal;
+						otheranswer = new TextView(rootView.getContext());
+						otheranswer.setText(otherET.getText());
+						otherfield.addView(otheranswer);
+						otheranswer.setId(othertotal + totalanswers - 1);
+						otheranswer.setOnClickListener(Question_fragment.this);
+						MultipleChoiceOnClick(otheranswer);
+						otherET.setText("");
+						return true;
+					}
+					return false;
+				}
+			});
+		}
 
 	}
-	
+
 	private void CheckBoxLayout() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	private void OpenTextLayout() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	private void OpenNumberLayout() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public String getJump(JSONObject Obj) {
@@ -230,23 +282,22 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 
 	@Override
 	public void onClick(View view) {
-		if (questionkind.equals("MC")){
+		if (questionkind.equals("MC")) {
 			MultipleChoiceOnClick(view);
-		}else if (questionkind.equals("ON")){
+		} else if (questionkind.equals("ON")) {
 			OpenNumberOnClick(view);
-		}else if (questionkind.equals("OT")){
+		} else if (questionkind.equals("OT")) {
 			OpenTextOnClick(view);
-		}else if (questionkind.equals("CB")){
+		} else if (questionkind.equals("CB")) {
 			CheckBoxOnClick(view);
 		}
-		
-
 
 	}
-	
-	public void MultipleChoiceOnClick(View view){
-		for (int i = 0; i < totalanswers; ++i) {
-			if (view instanceof TextView) {
+
+	public void MultipleChoiceOnClick(View view) {
+		if (view instanceof TextView) {
+			for (int i = 0; i < totalanswers; ++i) {
+
 				TextView textView = (TextView) tvanswerlist[i];
 				if (view.getId() == textView.getId()) {
 					textView.setTextColor(getResources().getColor(
@@ -264,32 +315,48 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 																// to be sent to
 																// parent
 																// activity.
-																// questionreturn
-																// = new
-																// Bundle(3);
 					Callback.AnswerRecieve(answerString, jumpString);
 				} else {
 					textView.setTextColor(getResources().getColor(
 							R.color.text_color_light));
 				}
 			}
+			if (othertotal >= 1) {
+				for (int i = totalanswers; i < othertotal + totalanswers; ++i) {
+					TextView textView = (TextView) rootView.findViewById(i);
+					if (view.getId() == textView.getId()) {
+						textView.setTextColor(getResources().getColor(
+								R.color.answer_selected));
+						answerString = (String) textView.toString(); // Sets the
+																		// answer
+																		// to be
+																		// sent
+																		// to
+																		// parent
+																		// activity.
+						Callback.AnswerRecieve(answerString, jumpString);
+					} else {
+						textView.setTextColor(getResources().getColor(
+								R.color.text_color_light));
+					}
+				}
+			}
 		}
-		
 	}
-	
+
 	private void CheckBoxOnClick(View view) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	private void OpenTextOnClick(View view) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	private void OpenNumberOnClick(View view) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	// public int findId(){
