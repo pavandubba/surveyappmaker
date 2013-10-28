@@ -150,11 +150,6 @@ public class Surveyor extends Activity implements
 		nextquestionbutton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				toast = Toast.makeText(Surveyor.this,
-						"Antes de click chapterposition" + chapterposition
-								+ "questionposition" + questionposition,
-						Toast.LENGTH_SHORT);
-				toast.show();
 				if (jumpString != null) {
 					jumpFinder(jumpString);
 				} else if (questionposition + 1 < totalquestionsArray[chapterposition]) {
@@ -163,11 +158,6 @@ public class Surveyor extends Activity implements
 					questionposition = 0;
 					++chapterposition;
 				}
-				toast = Toast.makeText(Surveyor.this,
-						"Despues de click chapterposition" + chapterposition
-								+ "questionposition" + questionposition,
-						Toast.LENGTH_SHORT);
-				toast.show();
 
 				selectChapter(chapterposition, questionposition);
 			}
@@ -224,10 +214,6 @@ public class Surveyor extends Activity implements
 		getQuestion(qposition);
 
 		// Starting question fragment and passing json question information.
-		toast = Toast.makeText(this, "Antes de changequestion chapterposition"
-				+ chapterposition + "questionposition" + questionposition,
-				Toast.LENGTH_SHORT);
-		toast.show();
 		ChangeQuestion(jquestion, chapterposition, questionposition);
 
 	}
@@ -293,10 +279,6 @@ public class Surveyor extends Activity implements
 		Bundle args = new Bundle();
 		args.putString(Question_fragment.ARG_JSON_QUESTION,
 				jquestion.toString());
-		toast = Toast.makeText(this, "Antes de Fragment: chapterposition"
-				+ chapterposition + "questionposition" + questionposition,
-				Toast.LENGTH_SHORT);
-		toast.show();
 		args.putInt(Question_fragment.ARG_CHAPTER_POSITION, chapterposition);
 		args.putInt(Question_fragment.ARG_QUESTION_POSITION, questionposition);
 		fragment.setArguments(args);
@@ -339,10 +321,6 @@ public class Surveyor extends Activity implements
 			Integer questionpositionrecieve) {
 		questionposition = questionpositionrecieve;
 		chapterposition = chapterpositionrecieve;
-		toast = Toast.makeText(this, "DE FRAGMENT chapterposition"
-				+ chapterposition + "questionposition" + questionposition,
-				Toast.LENGTH_SHORT);
-		toast.show();
 	}
 
 	public void jumpFinder(String jumpString) {

@@ -1,5 +1,6 @@
 package com.example.flocksourcingmx;
 
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -70,17 +71,11 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 
 		// Getting json question and position in survey from parent activity.
 		Bundle args = this.getArguments();
-		if(args != null){
+		if (args != null) {
 			jquestionstring = args.getString(ARG_JSON_QUESTION);
 			chapterposition = args.getInt(ARG_CHAPTER_POSITION);
 			questionposition = args.getInt(ARG_QUESTION_POSITION);
 		}
-
-		
-		toast = Toast.makeText(getActivity(), "DE MAIN chapterposition"
-				+ chapterposition + "questionposition" + questionposition,
-				Toast.LENGTH_SHORT);
-		toast.show();
 		try {
 			jquestion = new JSONObject(jquestionstring);
 		} catch (JSONException e) {
@@ -120,13 +115,19 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 
 		try {
 			questionstring = jquestion.getString("Question");
-			janswerlist = jquestion.getJSONArray("Answers");
-			totalanswers = janswerlist.length();
-			answerlist = new String[totalanswers];
-			tvanswerlist = new TextView[totalanswers];
-			tvansweridlist = new Integer[totalanswers];
 			if (questionkind.equals("MC")) {
+				janswerlist = jquestion.getJSONArray("Answers");
+				totalanswers = janswerlist.length();
+				answerlist = new String[totalanswers];
+				tvanswerlist = new TextView[totalanswers];
+				tvansweridlist = new Integer[totalanswers];
 				MultipleChoiceLayout();
+			}else if (questionkind.equals("ON")){
+				OpenNumberLayout();
+			}else if (questionkind.equals("OT")){
+				OpenTextLayout();
+			}else if (questionkind.equals("CB")){
+				CheckBoxLayout();
 			}
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
@@ -158,6 +159,10 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 
 	@Override
 	public void onResume() {
+		// Communicates position of the question in the general suvey so the
+		// position counter on the main activity can be updated accordingly.
+		// Fixed a bug with the back stack where the main activity would get
+		// lost in terms of its position on the survey.
 		Posback.PositionRecieve(chapterposition, questionposition);
 		super.onResume();
 	}
@@ -192,6 +197,21 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 		}
 
 	}
+	
+	private void CheckBoxLayout() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void OpenTextLayout() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void OpenNumberLayout() {
+		// TODO Auto-generated method stub
+		
+	}
 
 	public String getJump(JSONObject Obj) {
 		String auxjump;
@@ -210,6 +230,21 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 
 	@Override
 	public void onClick(View view) {
+		if (questionkind.equals("MC")){
+			MultipleChoiceOnClick(view);
+		}else if (questionkind.equals("ON")){
+			OpenNumberOnClick(view);
+		}else if (questionkind.equals("OT")){
+			OpenTextOnClick(view);
+		}else if (questionkind.equals("CB")){
+			CheckBoxOnClick(view);
+		}
+		
+
+
+	}
+	
+	public void MultipleChoiceOnClick(View view){
 		for (int i = 0; i < totalanswers; ++i) {
 			if (view instanceof TextView) {
 				TextView textView = (TextView) tvanswerlist[i];
@@ -238,9 +273,23 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 							R.color.text_color_light));
 				}
 			}
-
 		}
+		
+	}
+	
+	private void CheckBoxOnClick(View view) {
+		// TODO Auto-generated method stub
+		
+	}
 
+	private void OpenTextOnClick(View view) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void OpenNumberOnClick(View view) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	// public int findId(){
