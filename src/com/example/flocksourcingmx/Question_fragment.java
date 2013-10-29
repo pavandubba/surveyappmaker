@@ -130,9 +130,6 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 			other = false;
-			toast = Toast.makeText(getActivity(), "Other: " + other,
-					Toast.LENGTH_SHORT);
-			toast.show();
 		}
 
 		jumpString = getJump(jquestion);
@@ -240,7 +237,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 						otheranswer.setOnClickListener(Question_fragment.this);
 						MultipleChoiceOnClick(otheranswer);
 						otherET.setText("");
-						return true;
+						return false; // If false hides the keyboard after pressing Done.
 					}
 					return false;
 				}
@@ -262,7 +259,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 		openET.setHint("Answer/Respuesta");
 		openET.setImeOptions(EditorInfo.IME_ACTION_DONE);
 		if (questionkind.equals("ON")) {
-			openET.setInputType(InputType.TYPE_CLASS_NUMBER);
+			openET.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
 		}
 		openET.setSingleLine();
 		openET.setTextColor(getResources().getColor(R.color.text_color_light));
@@ -280,7 +277,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 					openanswer.setOnClickListener(Question_fragment.this);
 					OpenOnClick(openanswer);
 					openET.setText("");
-					return true;
+					return false; // If false hides the keyboard after pressing Done.
 				}
 				return false;
 			}
@@ -348,7 +345,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 					if (view.getId() == textView.getId()) {
 						textView.setTextColor(getResources().getColor(
 								R.color.answer_selected));
-						answerString = (String) textView.toString(); // Sets the
+						answerString = (String) textView.getText().toString(); // Sets the
 																		// answer
 																		// to be
 																		// sent
@@ -378,7 +375,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 				if (view.getId() == textView.getId()) {
 					textView.setTextColor(getResources().getColor(
 							R.color.answer_selected));
-					answerString = (String) textView.toString(); // Sets the
+					answerString = (String) textView.getText().toString(); // Sets the
 																	// answer
 																	// to be
 																	// sent

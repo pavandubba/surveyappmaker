@@ -302,10 +302,10 @@ public class Surveyor extends Activity implements
 						.getJSONArray("Questions")
 						.getJSONObject(questionposition)
 						.put("Answer", answerString);
-				// toast = Toast.makeText(this, "Answer passed: " +
-				// answerString,
-				// Toast.LENGTH_SHORT);
-				// toast.show();
+//				 toast = Toast.makeText(this, "Answer passed: " +
+//				 answerString,
+//				 Toast.LENGTH_SHORT);
+//				 toast.show();
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
