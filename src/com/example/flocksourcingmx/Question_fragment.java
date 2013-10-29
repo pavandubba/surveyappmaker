@@ -6,13 +6,11 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.graphics.drawable.GradientDrawable.Orientation;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
@@ -46,7 +44,11 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 	private EditText otherET = null;
 	private TextView otheranswer = null;
 	private LinearLayout otherfield = null;
+	private LinearLayout answerfield;
 	private Integer othertotal = 0;
+	private EditText openET;
+	private TextView openanswer;
+	private Integer opentotal = 0;
 
 	public Question_fragment() {
 		// Empty constructor required for fragment subclasses
@@ -146,10 +148,8 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 		// Generating question kind specific layouts.
 		if (questionkind.equals("MC")) {
 			MultipleChoiceLayout();
-		} else if (questionkind.equals("ON")) {
-			OpenNumberLayout();
-		} else if (questionkind.equals("OT")) {
-			OpenTextLayout();
+		} else if (questionkind.equals("OT") || questionkind.equals("ON")) {
+			OpenLayout();
 		} else if (questionkind.equals("CB")) {
 			CheckBoxLayout();
 		}
@@ -224,7 +224,6 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 			otherET.setHint("Otro/Other");
 			otherET.setImeOptions(EditorInfo.IME_ACTION_DONE);
 			otherET.setSingleLine();
-			// otherET.setInputType(InputType.TYPE_CLASS_NUMBER);
 			otherET.setTextColor(getResources().getColor(
 					R.color.text_color_light));
 			answerlayout.addView(otherET);
@@ -255,13 +254,37 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 
 	}
 
-	private void OpenTextLayout() {
-		// TODO Auto-generated method stub
-
-	}
-
-	private void OpenNumberLayout() {
-		// TODO Auto-generated method stub
+	private void OpenLayout() {
+		answerfield = new LinearLayout(rootView.getContext());
+		answerfield.setOrientation(LinearLayout.VERTICAL);
+		answerlayout.addView(answerfield);
+		openET = new EditText(rootView.getContext());
+		openET.setHint("Answer/Respuesta");
+		openET.setImeOptions(EditorInfo.IME_ACTION_DONE);
+		if (questionkind.equals("ON")) {
+			openET.setInputType(InputType.TYPE_CLASS_NUMBER);
+		}
+		openET.setSingleLine();
+		openET.setTextColor(getResources().getColor(R.color.text_color_light));
+		answerlayout.addView(openET);
+		openET.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+			@Override
+			public boolean onEditorAction(TextView v, int actionId,
+					KeyEvent event) {
+				if (actionId == EditorInfo.IME_ACTION_DONE) {
+					++opentotal;
+					openanswer = new TextView(rootView.getContext());
+					openanswer.setText(openET.getText());
+					answerfield.addView(openanswer);
+					openanswer.setId(opentotal-1);
+					openanswer.setOnClickListener(Question_fragment.this);
+					OpenOnClick(openanswer);
+					openET.setText("");
+					return true;
+				}
+				return false;
+			}
+		});
 
 	}
 
@@ -284,10 +307,8 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 	public void onClick(View view) {
 		if (questionkind.equals("MC")) {
 			MultipleChoiceOnClick(view);
-		} else if (questionkind.equals("ON")) {
-			OpenNumberOnClick(view);
-		} else if (questionkind.equals("OT")) {
-			OpenTextOnClick(view);
+		} else if (questionkind.equals("ON") || questionkind.equals("OT")) {
+			OpenOnClick(view);
 		} else if (questionkind.equals("CB")) {
 			CheckBoxOnClick(view);
 		}
@@ -349,14 +370,28 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 
 	}
 
-	private void OpenTextOnClick(View view) {
+	private void OpenOnClick(View view) {
 		// TODO Auto-generated method stub
-
-	}
-
-	private void OpenNumberOnClick(View view) {
-		// TODO Auto-generated method stub
-
+		if (view instanceof TextView) {
+			for (int i = 0; i < opentotal; ++i) {
+				TextView textView = (TextView) rootView.findViewById(i);
+				if (view.getId() == textView.getId()) {
+					textView.setTextColor(getResources().getColor(
+							R.color.answer_selected));
+					answerString = (String) textView.toString(); // Sets the
+																	// answer
+																	// to be
+																	// sent
+																	// to
+																	// parent
+																	// activity.
+					Callback.AnswerRecieve(answerString, jumpString);
+				} else {
+					textView.setTextColor(getResources().getColor(
+							R.color.text_color_light));
+				}
+			}
+		}
 	}
 
 	// public int findId(){
