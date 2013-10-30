@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -32,6 +33,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 	private Integer totalanswers;
 	private TextView[] tvanswerlist = null;
 	private Integer[] tvansweridlist = null;
+	private Integer[] cbansweridlist = null;
 	private String answerString;
 	private String jumpString = null;
 	private String answerjumpString = null;
@@ -49,6 +51,8 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 	private EditText openET;
 	private TextView openanswer;
 	private Integer opentotal = 0;
+	private LinearLayout[] answerinsert;
+	private CheckBox[] cbanswer;
 
 	public Question_fragment() {
 		// Empty constructor required for fragment subclasses
@@ -247,7 +251,38 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 	}
 
 	private void CheckBoxLayout() {
-		// TODO Auto-generated method stub
+		JSONObject aux;
+		try {
+			janswerlist = jquestion.getJSONArray("Answers");
+			totalanswers = janswerlist.length();
+			answerlist = new String[totalanswers];
+			answerinsert = new LinearLayout[totalanswers];
+			cbanswer = new CheckBox[totalanswers];
+			tvanswerlist = new TextView[totalanswers];
+			for (int i = 0; i < totalanswers; ++i) {
+				aux = janswerlist.getJSONObject(i);
+				answerlist[i] = aux.getString("Answer");
+				tvanswerlist[i] = new TextView(rootView.getContext());
+				tvanswerlist[i].setText(answerlist[i]);
+				tvanswerlist[i].setTextColor(getResources().getColor(
+						R.color.text_color_light));
+				answerinsert[i].setOrientation(LinearLayout.HORIZONTAL);
+				answerinsert[i].addView(tvanswerlist[i]);
+				answerinsert[i].addView(cbanswer[i]);
+				answerlayout.addView(answerinsert[i]);
+				tvanswerlist[i].setId(1);
+				cbanswer[i].setId(2);
+				tvanswerlist[i].setOnClickListener(this);
+			}
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			totalanswers = 0;
+			toast = Toast.makeText(getActivity(),
+					"Poblems with question parsing, please check surve file.",
+					Toast.LENGTH_SHORT);
+			toast.show();
+		}
 
 	}
 
