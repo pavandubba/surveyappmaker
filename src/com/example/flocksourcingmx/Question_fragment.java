@@ -8,13 +8,16 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.text.InputType;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.view.inputmethod.EditorInfo;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -241,7 +244,8 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 						otheranswer.setOnClickListener(Question_fragment.this);
 						MultipleChoiceOnClick(otheranswer);
 						otherET.setText("");
-						return false; // If false hides the keyboard after pressing Done.
+						return false; // If false hides the keyboard after
+										// pressing Done.
 					}
 					return false;
 				}
@@ -263,12 +267,16 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 				aux = janswerlist.getJSONObject(i);
 				answerlist[i] = aux.getString("Answer");
 				tvanswerlist[i] = new TextView(rootView.getContext());
+				cbanswer[i] = new CheckBox(rootView.getContext());
+//				tvanswerlist[i].setGravity(Gravity.LEFT);
+//				cbanswer[i].setGravity(Gravity.RIGHT);
+				answerinsert[i]=new LinearLayout(rootView.getContext());
+				answerinsert[i].setOrientation(LinearLayout.HORIZONTAL);
 				tvanswerlist[i].setText(answerlist[i]);
 				tvanswerlist[i].setTextColor(getResources().getColor(
 						R.color.text_color_light));
-				answerinsert[i].setOrientation(LinearLayout.HORIZONTAL);
-				answerinsert[i].addView(tvanswerlist[i]);
 				answerinsert[i].addView(cbanswer[i]);
+				answerinsert[i].addView(tvanswerlist[i]);
 				answerlayout.addView(answerinsert[i]);
 				tvanswerlist[i].setId(1);
 				cbanswer[i].setId(2);
@@ -294,7 +302,8 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 		openET.setHint("Answer/Respuesta");
 		openET.setImeOptions(EditorInfo.IME_ACTION_DONE);
 		if (questionkind.equals("ON")) {
-			openET.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+			openET.setInputType(InputType.TYPE_CLASS_NUMBER
+					| InputType.TYPE_NUMBER_FLAG_DECIMAL);
 		}
 		openET.setSingleLine();
 		openET.setTextColor(getResources().getColor(R.color.text_color_light));
@@ -308,11 +317,12 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 					openanswer = new TextView(rootView.getContext());
 					openanswer.setText(openET.getText());
 					answerfield.addView(openanswer);
-					openanswer.setId(opentotal-1);
+					openanswer.setId(opentotal - 1);
 					openanswer.setOnClickListener(Question_fragment.this);
 					OpenOnClick(openanswer);
 					openET.setText("");
-					return false; // If false hides the keyboard after pressing Done.
+					return false; // If false hides the keyboard after pressing
+									// Done.
 				}
 				return false;
 			}
@@ -380,13 +390,14 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 					if (view.getId() == textView.getId()) {
 						textView.setTextColor(getResources().getColor(
 								R.color.answer_selected));
-						answerString = (String) textView.getText().toString(); // Sets the
-																		// answer
-																		// to be
-																		// sent
-																		// to
-																		// parent
-																		// activity.
+						answerString = (String) textView.getText().toString(); // Sets
+																				// the
+						// answer
+						// to be
+						// sent
+						// to
+						// parent
+						// activity.
 						Callback.AnswerRecieve(answerString, jumpString);
 					} else {
 						textView.setTextColor(getResources().getColor(
@@ -410,13 +421,14 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 				if (view.getId() == textView.getId()) {
 					textView.setTextColor(getResources().getColor(
 							R.color.answer_selected));
-					answerString = (String) textView.getText().toString(); // Sets the
-																	// answer
-																	// to be
-																	// sent
-																	// to
-																	// parent
-																	// activity.
+					answerString = (String) textView.getText().toString(); // Sets
+																			// the
+					// answer
+					// to be
+					// sent
+					// to
+					// parent
+					// activity.
 					Callback.AnswerRecieve(answerString, jumpString);
 				} else {
 					textView.setTextColor(getResources().getColor(
