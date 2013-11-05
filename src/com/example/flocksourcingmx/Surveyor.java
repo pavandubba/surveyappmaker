@@ -312,9 +312,9 @@ public class Surveyor extends Activity implements
 			}
 		}
 
-		// toast = Toast.makeText(this, "After: Jump: " + jumpString
-		// + "Answer: " + answerString, Toast.LENGTH_SHORT);
-		// toast.show();
+		 toast = Toast.makeText(this, "After: Jump: " + jumpString
+		 + "Answer: " + answerString, Toast.LENGTH_SHORT);
+		 toast.show();
 	}
 
 	public void PositionRecieve(Integer chapterpositionrecieve,

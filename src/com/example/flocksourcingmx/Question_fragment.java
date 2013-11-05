@@ -1,5 +1,7 @@
 package com.example.flocksourcingmx;
 
+import javax.security.auth.PrivateCredentialPermission;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -268,9 +270,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 				answerlist[i] = aux.getString("Answer");
 				tvanswerlist[i] = new TextView(rootView.getContext());
 				cbanswer[i] = new CheckBox(rootView.getContext());
-//				tvanswerlist[i].setGravity(Gravity.LEFT);
-//				cbanswer[i].setGravity(Gravity.RIGHT);
-				answerinsert[i]=new LinearLayout(rootView.getContext());
+				answerinsert[i] = new LinearLayout(rootView.getContext());
 				answerinsert[i].setOrientation(LinearLayout.HORIZONTAL);
 				tvanswerlist[i].setText(answerlist[i]);
 				tvanswerlist[i].setTextColor(getResources().getColor(
@@ -278,9 +278,10 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 				answerinsert[i].addView(cbanswer[i]);
 				answerinsert[i].addView(tvanswerlist[i]);
 				answerlayout.addView(answerinsert[i]);
-				tvanswerlist[i].setId(1);
-				cbanswer[i].setId(2);
-				tvanswerlist[i].setOnClickListener(this);
+				tvanswerlist[i].setId(i);
+				cbanswer[i].setId(i + totalanswers);
+				tvanswerlist[i].setOnClickListener(Question_fragment.this);
+				cbanswer[i].setOnClickListener(Question_fragment.this);
 			}
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
@@ -409,8 +410,48 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 	}
 
 	private void CheckBoxOnClick(View view) {
-		// TODO Auto-generated method stub
+		answerString = null;
+		for (int i = 0; i < totalanswers; ++i) {
+			TextView textView = (TextView) tvanswerlist[i];
+			CheckBox checkBox = (CheckBox) cbanswer[i];
+			if (view.getId() == textView.getId()) {
+				if (view instanceof TextView) {
+					if (checkBox.isChecked()) {
+						textView.setTextColor(getResources().getColor(
+								R.color.text_color_light));
+						checkBox.setChecked(false);
 
+					} else if (!checkBox.isChecked()) {
+						textView.setTextColor(getResources().getColor(
+								R.color.answer_selected));
+						checkBox.setChecked(true);
+						answerString = addanswer(answerString, answerlist[i].toString());
+					}
+
+				}
+			} else if (view instanceof CheckBox) {
+				if (checkBox.isChecked()) {
+					textView.setTextColor(getResources().getColor(
+							R.color.answer_selected));
+					answerString = addanswer(answerString, answerlist[i].toString());
+				} else if (!checkBox.isChecked()) {
+					textView.setTextColor(getResources().getColor(
+							R.color.text_color_light));
+				}
+
+			}
+
+		}
+		Callback.AnswerRecieve(answerString, null);	
+	}
+	
+	private String addanswer(String answerContainer, String answerAdded){
+		if (answerContainer == null) {
+			answerContainer = answerAdded;
+		} else {
+			answerContainer = answerContainer + "," + answerAdded;
+		}
+		return answerContainer;		
 	}
 
 	private void OpenOnClick(View view) {
