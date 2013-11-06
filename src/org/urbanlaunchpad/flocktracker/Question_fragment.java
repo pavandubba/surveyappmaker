@@ -437,7 +437,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 			}
 
 		}
-		Callback.AnswerRecieve(answerString, null);	
+		Callback.AnswerRecieve("(" + answerString + ")", null);	
 	}
 	
 	private String addanswer(String answerContainer, String answerAdded){

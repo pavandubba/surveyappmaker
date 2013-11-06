@@ -1,7 +1,6 @@
 package org.urbanlaunchpad.flocktracker;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,12 +53,15 @@ public class Surveyor extends Activity implements
 	private Toast toast;
 	private View nextquestionbutton;
 	private View previousquestionbutton;
+	private View submitbutton;
 	private Integer questionposition;
 	private Integer chapterposition;
 	private Integer[] totalquestionsArray;
 	String jumpString = null;
 	String answerString = null;
 	String token = null;
+	String columnnamesString;
+	String answerfinalString;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -82,8 +84,8 @@ public class Surveyor extends Activity implements
 		}
 
 		new Thread(new Runnable() {
-		    public void run() {
-		    	try {
+			public void run() {
+				try {
 					submitSurvey();
 				} catch (ClientProtocolException e1) {
 					// TODO Auto-generated catch block
@@ -92,10 +94,9 @@ public class Surveyor extends Activity implements
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-		    }
-		  }).start();
-		
-		
+			}
+		}).start();
+
 		// Obtaining information about survey.
 
 		try {
@@ -199,6 +200,19 @@ public class Surveyor extends Activity implements
 			@Override
 			public void onClick(View v) {
 				onBackPressed();
+			}
+		});
+		
+		// Submit button behavior.
+		
+		submitbutton = (View) findViewById(R.id.submit_survey_button);
+		submitbutton.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				columnnamesString = getnames("id");
+				answerfinalString = getnames("Answer");
 			}
 		});
 
@@ -331,19 +345,19 @@ public class Surveyor extends Activity implements
 						.getJSONArray("Questions")
 						.getJSONObject(questionposition)
 						.put("Answer", answerString);
-//				 toast = Toast.makeText(this, "Answer passed: " +
-//				 answerString,
-//				 Toast.LENGTH_SHORT);
-//				 toast.show();
+				// toast = Toast.makeText(this, "Answer passed: " +
+				// answerString,
+				// Toast.LENGTH_SHORT);
+				// toast.show();
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
 
-		 toast = Toast.makeText(this, "After: Jump: " + jumpString
-		 + "Answer: " + answerString, Toast.LENGTH_SHORT);
-		 toast.show();
+		toast = Toast.makeText(this, "After: Jump: " + jumpString + "Answer: "
+				+ answerString, Toast.LENGTH_SHORT);
+		toast.show();
 	}
 
 	public void PositionRecieve(Integer chapterpositionrecieve,
@@ -377,16 +391,44 @@ public class Surveyor extends Activity implements
 	public void submitSurvey() throws ClientProtocolException, IOException {
 		String TABLE_ID = "11lGsm8B2SNNGmEsTmuGVrAy1gcJF9TQBo3G1Vw0";
 		String url = "https://www.googleapis.com/fusiontables/v1/query";
-		String query = "INSERT INTO " + TABLE_ID + " (testcolumn) VALUES (testInput)";
-        HttpClient httpclient = new DefaultHttpClient();
-        HttpPost httppost = new HttpPost(url);
-        httppost.setHeader("Authorization", token);  
-        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
-        nameValuePairs.add(new BasicNameValuePair("sql", query));
-        httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-        httpclient.execute(httppost);
-//        toast = Toast.makeText(getApplicationContext(),
-//				 "submitting survey", Toast.LENGTH_SHORT);
-//        toast.show();   
+		String query = "INSERT INTO " + TABLE_ID
+				+ " (testcolumn) VALUES (testInput)";
+		HttpClient httpclient = new DefaultHttpClient();
+		HttpPost httppost = new HttpPost(url);
+		httppost.setHeader("Authorization", token);
+		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
+		nameValuePairs.add(new BasicNameValuePair("sql", query));
+		httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+		httpclient.execute(httppost);
+		// toast = Toast.makeText(getApplicationContext(),
+		// "submitting survey", Toast.LENGTH_SHORT);
+		// toast.show();
 	}
+
+	public String  getnames(String nametoget) {
+		String addString = null;
+		String namesString = null;
+		for (int i = 0; i < totalchapters; ++i) {
+			for (int j = 0; j < totalquestionsArray[i]; ++j) {
+				try {
+					addString = jsurv.getJSONArray("Survey").getJSONObject(i).getJSONArray("Questions").getJSONObject(j).getString(nametoget);
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					addString = "";
+				}
+				if (i==0 && j==0){
+					namesString = addString;
+				}else{
+					namesString = namesString + "," + addString;
+				}
+			}
+		}
+//		 toast = Toast.makeText(this, "Names: " +
+//				 namesString,
+//		 Toast.LENGTH_SHORT);
+//		 toast.show();
+		return namesString;
+	}
+
 }
