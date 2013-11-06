@@ -5,12 +5,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Collections;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.accounts.AccountManagerCallback;
+import android.accounts.AccountManagerFuture;
 import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.Context;
@@ -26,17 +28,18 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
-
 public class Iniconfig extends Activity implements View.OnClickListener {
 
 	TextView filefeedback;
 	EditText urlfield;
 	String url;
 	JSONObject jsurv = null;
-	GoogleAccountCredential credential;
-	final String TOKEN_TYPE = "https://www.googleapis.com/auth/fusiontables";
-	final int REQUEST_ACCOUNT_PICKER = 1293801980;
+	private AccountManager accountManager;
+	final String SCOPE = "https://www.googleapis.com/auth/fusiontables";
+	private static final int AUTHORIZATION_CODE = 1993;
+	private static final int ACCOUNT_CODE = 1601;	
+	private String token = null;
+	private String username = null;
 	 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -55,8 +58,7 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 		ulp_link.setOnClickListener(this);
 
 		// Google credentials
-		credential =
-		        GoogleAccountCredential.usingOAuth2(this, Collections.singleton(TOKEN_TYPE));
+		accountManager = AccountManager.get(this);
 		chooseAccount();
 	}
 
@@ -94,6 +96,9 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 //			startActivity(Surveyor.class);
 			Intent i = new Intent(getApplicationContext(), Surveyor.class);
 			i.putExtra("jsonsurvey",jsurv.toString());
+			try {
+				i.putExtra("token", token);
+			} catch (Exception e) {}
 			startActivity(i);
 			break;
 		case R.id.ulp_icon_link:
@@ -112,19 +117,30 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 //		startActivity(intent);
 //	}
 	
+	private void invalidateToken() {
+		AccountManager accountManager = AccountManager.get(this);
+		accountManager.invalidateAuthToken("com.google", token);
+		token = null;
+	}
+	
+	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-	    super.onActivityResult(requestCode, resultCode, data);
-	    switch (requestCode) {
-	    	case REQUEST_ACCOUNT_PICKER:
-		        if (resultCode == Activity.RESULT_OK && data != null && data.getExtras() != null) {
-		          String accountName = data.getExtras().getString(AccountManager.KEY_ACCOUNT_NAME);
-		          if (accountName != null) {
-		            credential.setSelectedAccountName(accountName);
-		          }
-		        }
-		        break;
-	    }
-	  }
+		super.onActivityResult(requestCode, resultCode, data);
+
+		if (resultCode == RESULT_OK) {
+			if (requestCode == AUTHORIZATION_CODE) {
+				requestToken();
+			} else if (requestCode == ACCOUNT_CODE) {
+				username = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
+				
+				// invalidate old tokens which might be cached. we want a fresh
+				// one, which is guaranteed to work
+				invalidateToken();
+
+				requestToken();
+			}
+		}
+	}
 
 	public void downloadFile(String urlstring) {
 		// File downloader, it needs android 2.3 (Gingerbread) or later to work and 3.2 (Honeycomb) to show progress bar.
@@ -166,7 +182,43 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 	}
 	
 	private void chooseAccount() {
-		startActivityForResult(credential.newChooseAccountIntent(), REQUEST_ACCOUNT_PICKER);
+		// use https://github.com/frakbot/Android-AccountChooser for
+		// compatibility with older devices
+		Intent intent = AccountManager.newChooseAccountIntent(null, null,
+				new String[] { "com.google" }, false, null, null, null, null);
+		startActivityForResult(intent, ACCOUNT_CODE);
 	}
 
+	private void requestToken() {
+		Account userAccount = null;
+		for (Account account : accountManager.getAccountsByType("com.google")) {
+			if (account.name.equals(username)) {
+				userAccount = account;
+
+				break;
+			}
+		}
+
+		accountManager.getAuthToken(userAccount, "oauth2:" + SCOPE, null, this,
+				new OnTokenAcquired(), null);
+	}
+	
+	private class OnTokenAcquired implements AccountManagerCallback<Bundle> {
+
+		@Override
+		public void run(AccountManagerFuture<Bundle> result) {
+			try {
+				Bundle bundle = result.getResult();
+
+				Intent launch = (Intent) bundle.get(AccountManager.KEY_INTENT);
+				if (launch != null) {
+					startActivityForResult(launch, AUTHORIZATION_CODE);
+				} else {
+					token = bundle.getString(AccountManager.KEY_AUTHTOKEN);
+				}
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
+	}
 }

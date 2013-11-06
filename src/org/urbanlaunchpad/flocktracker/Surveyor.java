@@ -1,5 +1,17 @@
 package org.urbanlaunchpad.flocktracker;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -47,6 +59,7 @@ public class Surveyor extends Activity implements
 	private Integer[] totalquestionsArray;
 	String jumpString = null;
 	String answerString = null;
+	String token = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +68,7 @@ public class Surveyor extends Activity implements
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
 			jsonsurveystring = extras.getString("jsonsurvey");
+			token = extras.getString("token");
 			try {
 				jsurv = new JSONObject(jsonsurveystring);
 				// toast = Toast.makeText(getApplicationContext(),
@@ -67,6 +81,21 @@ public class Surveyor extends Activity implements
 			}
 		}
 
+		new Thread(new Runnable() {
+		    public void run() {
+		    	try {
+					submitSurvey();
+				} catch (ClientProtocolException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+		    }
+		  }).start();
+		
+		
 		// Obtaining information about survey.
 
 		try {
@@ -345,4 +374,19 @@ public class Surveyor extends Activity implements
 		}
 	}
 
+	public void submitSurvey() throws ClientProtocolException, IOException {
+		String TABLE_ID = "11lGsm8B2SNNGmEsTmuGVrAy1gcJF9TQBo3G1Vw0";
+		String url = "https://www.googleapis.com/fusiontables/v1/query";
+		String query = "INSERT INTO " + TABLE_ID + " (testcolumn) VALUES (testInput)";
+        HttpClient httpclient = new DefaultHttpClient();
+        HttpPost httppost = new HttpPost(url);
+        httppost.setHeader("Authorization", token);  
+        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
+        nameValuePairs.add(new BasicNameValuePair("sql", query));
+        httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+        httpclient.execute(httppost);
+//        toast = Toast.makeText(getApplicationContext(),
+//				 "submitting survey", Toast.LENGTH_SHORT);
+//        toast.show();   
+	}
 }
