@@ -26,7 +26,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.urbanlaunchpad.flocktracker.R;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 
 public class Iniconfig extends Activity implements View.OnClickListener {
@@ -167,7 +166,7 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 	}
 	
 	private void chooseAccount() {
-	    startActivityForResult(credential.newChooseAccountIntent(), REQUEST_ACCOUNT_PICKER);
+		startActivityForResult(credential.newChooseAccountIntent(), REQUEST_ACCOUNT_PICKER);
 	}
 
 }
