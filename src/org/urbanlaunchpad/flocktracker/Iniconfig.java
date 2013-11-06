@@ -206,16 +206,10 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 	private class OnTokenAcquired implements AccountManagerCallback<Bundle> {
 
 		@Override
-		public void run(AccountManagerFuture<Bundle> result) {
+		public void run(AccountManagerFuture<Bundle> future) {
 			try {
-				Bundle bundle = result.getResult();
-
-				Intent launch = (Intent) bundle.get(AccountManager.KEY_INTENT);
-				if (launch != null) {
-					startActivityForResult(launch, AUTHORIZATION_CODE);
-				} else {
-					token = bundle.getString(AccountManager.KEY_AUTHTOKEN);
-				}
+				token = future.getResult().getString(
+				        AccountManager.KEY_AUTHTOKEN);
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
