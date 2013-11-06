@@ -1,6 +1,5 @@
 package org.urbanlaunchpad.flocktracker;
 
-import android.R;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;

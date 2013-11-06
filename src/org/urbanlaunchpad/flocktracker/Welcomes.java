@@ -1,17 +1,14 @@
 package org.urbanlaunchpad.flocktracker;
 
-import android.media.MediaPlayer;
-import android.os.Bundle;
-import android.app.Activity;
-import android.view.Menu;
-import android.view.View;
-
 import java.util.Timer;
 import java.util.TimerTask;
 
-import com.example.flocksourcingmx.R;
-
+import android.app.Activity;
 import android.content.Intent;
+import android.media.MediaPlayer;
+import android.os.Bundle;
+import android.view.Menu;
+import android.view.View;
 
 public class Welcomes extends Activity {
 

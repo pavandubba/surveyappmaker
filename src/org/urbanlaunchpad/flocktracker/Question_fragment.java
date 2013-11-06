@@ -1,27 +1,20 @@
 package org.urbanlaunchpad.flocktracker;
 
-import javax.security.auth.PrivateCredentialPermission;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import com.example.flocksourcingmx.R;
 
 import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.text.InputType;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 import android.view.inputmethod.EditorInfo;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
