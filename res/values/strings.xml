@@ -25,7 +25,6 @@
     <color name="text_green_a">#69930C</color>
     <color name="text_green_b">#DBB205</color>
     <color name="answer_selected">#FF8000</color>
-    
 
     <string name="couhes_esp">He tomado el curso de formación COUHES y me comprometo a cumplir con los mérodos y políticas que ahí se enuncian.</string>
     <string name="couhes_eng">I have taken the COUHES training course and agree to abide by the methods and policies set forth therein.</string>
@@ -49,8 +48,8 @@
     <string name="trip_duration_esp">Duración</string>
     <string name="trip_duration_eng">Duration</string>
     <string name="trip_time">0 min</string>
-    <string name="passengers_esp">Pasajeros</string>
     <string name="passengers_eng">Passengers</string>
+    <string name="passengers_esp">Pasajeros</string>
     <string name="passenger_count">0</string>
     <string name="surveys_esp">Encuestas</string>
     <string name="surveys_eng">Surveys</string>
@@ -74,6 +73,5 @@
     <string name="next_question">Siguiente pregunta/Next question</string>
     <string name="previous_question">Pregunta anterior/Previous question</string>
     <string name="submit_survey">Subir encuesta/Submit survey</string>
-    
 
 </resources>
