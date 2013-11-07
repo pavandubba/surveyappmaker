@@ -20,7 +20,10 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.Intent;
+import android.content.IntentSender;
 import android.content.res.Configuration;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
@@ -33,8 +36,14 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesClient;
+import com.google.android.gms.location.LocationClient;
+
 public class Surveyor extends Activity implements
-		Question_fragment.AnswerSelected, Question_fragment.PositionPasser {
+		Question_fragment.AnswerSelected, Question_fragment.PositionPasser,
+		GooglePlayServicesClient.ConnectionCallbacks, 
+        GooglePlayServicesClient.OnConnectionFailedListener{
 	private DrawerLayout ChapterDrawerLayout;
 	private ListView ChapterDrawerList;
 	private ActionBarDrawerToggle ChapterDrawerToggle;
@@ -63,6 +72,8 @@ public class Surveyor extends Activity implements
 	String token = null;
 	String columnnamesString;
 	String answerfinalString;
+	private LocationClient mLocationClient;
+	private final int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -198,8 +209,6 @@ public class Surveyor extends Activity implements
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
-				columnnamesString = getnames("id", "nq");
-				answerfinalString = getnames("Answer", "wq");
 				new Thread(new Runnable() {
 					public void run() {
 						try {
@@ -216,9 +225,70 @@ public class Surveyor extends Activity implements
 
 			}
 		});
-
+		
+		mLocationClient = new LocationClient(this, this, this);
 	}
 
+    /*
+     * Called when the Activity becomes visible.
+     */
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // Connect the client.
+        mLocationClient.connect();
+    }
+    
+    /*
+     * Called when the Activity is no longer visible.
+     */
+    @Override
+    protected void onStop() {
+        // Disconnecting the client invalidates it.
+        mLocationClient.disconnect();
+        super.onStop();
+    }
+	
+    /*
+     * Handle results returned to this Activity by other Activities started with
+     * startActivityForResult(). In particular, the method onConnectionFailed() in
+     * LocationUpdateRemover and LocationUpdateRequester may call startResolutionForResult() to
+     * start an Activity that handles Google Play services problems. The result of this
+     * call returns here, to onActivityResult.
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+
+        // Choose what to do based on the request code
+        switch (requestCode) {
+
+            // If the request code matches the code sent in onConnectionFailed
+            case CONNECTION_FAILURE_RESOLUTION_REQUEST :
+
+                switch (resultCode) {
+                    // If Google Play services resolved the problem
+                    case Activity.RESULT_OK:
+
+                        // Log the result
+                        Log.d("Location", "Resolved connection");
+                    break;
+
+                    // If any other result was returned by Google Play services
+                    default:
+                        // Log the result
+                        Log.e("Location", "Could not resolve connection");
+
+                    break;
+                }
+
+            // If any other request code was received
+            default:
+               // Report that this Activity received an unknown requestCode
+                Log.e("Surveyor activity", "unknown request code");
+               break;
+        }
+    }
+    
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// To make the action bar home/up action should open or close the
 		// drawer.
@@ -390,10 +460,16 @@ public class Surveyor extends Activity implements
 	}
 
 	public void submitSurvey() throws ClientProtocolException, IOException {
+		columnnamesString = getnames("id", "nq");
+		answerfinalString = getnames("Answer", "wq");
+		
+        Location currentLocation = mLocationClient.getLastLocation();
+        String latlng = LocationHelper.getLatLngAlt(currentLocation);
 		String TABLE_ID = "11lGsm8B2SNNGmEsTmuGVrAy1gcJF9TQBo3G1Vw0";
 		String url = "https://www.googleapis.com/fusiontables/v1/query";
 		String query = "INSERT INTO " + TABLE_ID + " (" + columnnamesString
-				+ ") VALUES (" + answerfinalString + ");";
+				+ ",Location,Lat,Lng,Alt) VALUES (" + answerfinalString + ",'<Point><coordinates>" + latlng + "</coordinates></Point>','" +
+				currentLocation.getLatitude() + "','" + currentLocation.getLongitude() + "','" + currentLocation.getAltitude() + "');";
 		String apiKey = "AIzaSyB4Nn1k2sML-0aBN2Fk3qOXLF-4zlaNwmg";
 		HttpClient httpclient = new DefaultHttpClient();
 		HttpPost httppost = new HttpPost(url);
@@ -442,10 +518,47 @@ public class Surveyor extends Activity implements
 				}
 			}
 		}
-		toast = Toast.makeText(this, "Names: " + namesString,
-				Toast.LENGTH_SHORT);
-		toast.show();
+//		toast = Toast.makeText(this, "Names: " + namesString,
+//				Toast.LENGTH_SHORT);
+//		toast.show();
 		return namesString;
+	}
+
+	@Override
+	public void onConnectionFailed(ConnectionResult connectionResult) {
+		if (connectionResult.hasResolution()) {
+            try {
+                // Start an Activity that tries to resolve the error
+                connectionResult.startResolutionForResult(
+                        this,
+                        CONNECTION_FAILURE_RESOLUTION_REQUEST );
+                /*
+                 * Thrown if Google Play services canceled the original
+                 * PendingIntent
+                 */
+            } catch (IntentSender.SendIntentException e) {
+                // Log the error
+                e.printStackTrace();
+            }
+        } else {
+            /*
+             * If no resolution is available, display a dialog to the
+             * user with the error.
+             */
+            Toast.makeText(this, connectionResult.getErrorCode(), Toast.LENGTH_SHORT).show();		
+        }	
+	}
+
+	@Override
+	public void onConnected(Bundle connectionHint) {
+        Toast.makeText(this, "Connected", Toast.LENGTH_SHORT).show();		
+	}
+
+	@Override
+	public void onDisconnected() {
+		// Display the connection status
+        Toast.makeText(this, "Disconnected. Please re-connect.",
+                Toast.LENGTH_SHORT).show();		
 	}
 
 }
