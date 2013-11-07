@@ -84,20 +84,6 @@ public class Surveyor extends Activity implements
 			}
 		}
 
-		new Thread(new Runnable() {
-			public void run() {
-				try {
-					submitSurvey();
-				} catch (ClientProtocolException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-			}
-		}).start();
-
 		// Obtaining information about survey.
 
 		try {
@@ -203,17 +189,31 @@ public class Surveyor extends Activity implements
 				onBackPressed();
 			}
 		});
-		
+
 		// Submit button behavior.
-		
+
 		submitbutton = (View) findViewById(R.id.submit_survey_button);
 		submitbutton.setOnClickListener(new View.OnClickListener() {
-			
+
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
-				columnnamesString = getnames("id");
-				answerfinalString = getnames("Answer");
+				columnnamesString = getnames("id", "nq");
+				answerfinalString = getnames("Answer", "wq");
+				new Thread(new Runnable() {
+					public void run() {
+						try {
+							submitSurvey();
+						} catch (ClientProtocolException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+					}
+				}).start();
+
 			}
 		});
 
@@ -392,8 +392,8 @@ public class Surveyor extends Activity implements
 	public void submitSurvey() throws ClientProtocolException, IOException {
 		String TABLE_ID = "11lGsm8B2SNNGmEsTmuGVrAy1gcJF9TQBo3G1Vw0";
 		String url = "https://www.googleapis.com/fusiontables/v1/query";
-		String query = "INSERT INTO " + TABLE_ID
-				+ " (testcolumn) VALUES ('testInput');";
+		String query = "INSERT INTO " + TABLE_ID + " (" + columnnamesString
+				+ ") VALUES (" + answerfinalString + ");";
 		String apiKey = "AIzaSyB4Nn1k2sML-0aBN2Fk3qOXLF-4zlaNwmg";
 		HttpClient httpclient = new DefaultHttpClient();
 		HttpPost httppost = new HttpPost(url);
@@ -404,36 +404,47 @@ public class Surveyor extends Activity implements
 		httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 		HttpResponse response = httpclient.execute(httppost);
 
-		Log.v("response code", response.getStatusLine()
-                .getStatusCode() + " " + response.getStatusLine().getReasonPhrase());
+		Log.v("response code", response.getStatusLine().getStatusCode() + " "
+				+ response.getStatusLine().getReasonPhrase());
 		// toast = Toast.makeText(getApplicationContext(),
 		// "submitting survey", Toast.LENGTH_SHORT);
 		// toast.show();
 	}
 
-	public String  getnames(String nametoget) {
+	public String getnames(String nametoget, String syntaxtype) {
+		// If syntaxtype equals wq , quotes are aded, if it's nq , no quotes are
+		// added.
 		String addString = null;
 		String namesString = null;
 		for (int i = 0; i < totalchapters; ++i) {
 			for (int j = 0; j < totalquestionsArray[i]; ++j) {
 				try {
-					addString = jsurv.getJSONArray("Survey").getJSONObject(i).getJSONArray("Questions").getJSONObject(j).getString(nametoget);
+					addString = jsurv.getJSONArray("Survey").getJSONObject(i)
+							.getJSONArray("Questions").getJSONObject(j)
+							.getString(nametoget);
 				} catch (JSONException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 					addString = "";
 				}
-				if (i==0 && j==0){
-					namesString = addString;
-				}else{
-					namesString = namesString + "," + addString;
+				if (i == 0 && j == 0) {
+					if (syntaxtype.equals("wq")) {
+						namesString = "'" + addString + "'";
+					} else {
+						namesString = addString;
+					}
+				} else {
+					if (syntaxtype.equals("wq")) {
+						namesString = namesString + ",'" + addString + "'";
+					} else {
+						namesString = namesString + "," + addString;
+					}
 				}
 			}
 		}
-//		 toast = Toast.makeText(this, "Names: " +
-//				 namesString,
-//		 Toast.LENGTH_SHORT);
-//		 toast.show();
+		toast = Toast.makeText(this, "Names: " + namesString,
+				Toast.LENGTH_SHORT);
+		toast.show();
 		return namesString;
 	}
 

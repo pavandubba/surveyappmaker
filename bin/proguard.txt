@@ -1,0 +1,39 @@
+# view res/layout/activity_surveyor.xml #generated:1
+-keep class android.support.v4.widget.DrawerLayout { <init>(...); }
+
+# view AndroidManifest.xml #generated:31
+-keep class org.urbanlaunchpad.flocktracker.Couhes { <init>(...); }
+
+# view AndroidManifest.xml #generated:85
+-keep class org.urbanlaunchpad.flocktracker.Gender_choice { <init>(...); }
+
+# view AndroidManifest.xml #generated:112
+-keep class org.urbanlaunchpad.flocktracker.Iniconfig { <init>(...); }
+
+# view AndroidManifest.xml #generated:103
+-keep class org.urbanlaunchpad.flocktracker.Passenger_counter { <init>(...); }
+
+# view AndroidManifest.xml #generated:58
+-keep class org.urbanlaunchpad.flocktracker.Start_trip { <init>(...); }
+
+# view AndroidManifest.xml #generated:94
+-keep class org.urbanlaunchpad.flocktracker.Survey { <init>(...); }
+
+# view AndroidManifest.xml #generated:76
+-keep class org.urbanlaunchpad.flocktracker.Survey_agree { <init>(...); }
+
+# view AndroidManifest.xml #generated:121
+-keep class org.urbanlaunchpad.flocktracker.Surveyor { <init>(...); }
+
+# view AndroidManifest.xml #generated:49
+-keep class org.urbanlaunchpad.flocktracker.Trip_info { <init>(...); }
+
+# view AndroidManifest.xml #generated:67
+-keep class org.urbanlaunchpad.flocktracker.Trip_started { <init>(...); }
+
+# view AndroidManifest.xml #generated:40
+-keep class org.urbanlaunchpad.flocktracker.Username { <init>(...); }
+
+# view AndroidManifest.xml #generated:22
+-keep class org.urbanlaunchpad.flocktracker.Welcomes { <init>(...); }
+
