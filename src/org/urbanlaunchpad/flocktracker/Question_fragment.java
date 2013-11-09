@@ -132,7 +132,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 			other = jquestion.getBoolean("Other");
 		} catch (JSONException e1) {
 			// TODO Auto-generated catch block
-			e1.printStackTrace();
+//			e1.printStackTrace();
 			other = false;
 		}
 
@@ -143,7 +143,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 			questionstring = jquestion.getString("Question");
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+//			e.printStackTrace();
 		}
 
 		// Generating question kind specific layouts.
@@ -333,7 +333,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 		} catch (JSONException e1) {
 			// TODO Auto-generated catch block
 			auxjump = null;
-			e1.printStackTrace();
+//			e1.printStackTrace();
 		}
 		// toast = Toast.makeText(getActivity(), "Jump: " + auxjump,
 		// Toast.LENGTH_SHORT);
@@ -368,7 +368,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 						}
 					} catch (JSONException e) {
 						// TODO Auto-generated catch block
-						e.printStackTrace();
+//						e.printStackTrace();
 					}
 					answerString = answerlist[i].toString(); // Sets the answer
 																// to be sent to

@@ -125,7 +125,7 @@ public class Surveyor extends Activity implements
 				totalquestionsArray[i] = aux.getJSONArray("Questions").length();
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+//				e.printStackTrace();
 				totalquestionsArray[i] = 0;
 			}
 			// toast = Toast.makeText(this, "No of questions on chapter " + i
@@ -504,7 +504,7 @@ public class Surveyor extends Activity implements
 							.getString(nametoget);
 				} catch (JSONException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+//					e.printStackTrace();
 					addString = "";
 				}
 				if (i == 0 && j == 0) {
