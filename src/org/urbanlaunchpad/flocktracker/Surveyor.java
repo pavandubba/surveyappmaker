@@ -10,6 +10,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
@@ -219,6 +220,15 @@ public class Surveyor extends Activity implements
 						} catch (IOException e1) {
 							// TODO Auto-generated catch block
 							e1.printStackTrace();
+						}
+						try {
+							createcolumn("TestColumn", "STRING");
+						} catch (ClientProtocolException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
 						}
 					}
 				}).start();
@@ -563,6 +573,32 @@ public class Surveyor extends Activity implements
 		// Display the connection status
 		Toast.makeText(this, "Disconnected. Please re-connect.",
 				Toast.LENGTH_SHORT).show();
+	}
+	
+	public void createcolumn(String name, String type) throws ClientProtocolException, IOException {
+		String TABLE_ID = "11lGsm8B2SNNGmEsTmuGVrAy1gcJF9TQBo3G1Vw0";
+		String apiKey = "AIzaSyB4Nn1k2sML-0aBN2Fk3qOXLF-4zlaNwmg";
+		String url = "https://www.googleapis.com/fusiontables/v1/tables/" + TABLE_ID
+			+ "/columns?key="+ apiKey;
+		
+		HttpClient httpclient = new DefaultHttpClient();
+		HttpPost httppost = new HttpPost(url);
+		httppost.setHeader("Authorization", "Bearer " + token);
+		httppost.setHeader("Content-Type", "application/json");
+	       JSONObject object = new JSONObject();
+	        try {
+	            object.put("name", name);
+	            object.put("type", type);
+	        } catch (Exception ex) {
+	        }
+	    String columnString = object.toString();
+		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(1);
+		nameValuePairs.add(new BasicNameValuePair("key", apiKey));
+		httppost.setEntity(new StringEntity(columnString, "UTF-8"));
+		HttpResponse response = httpclient.execute(httppost);
+
+		Log.v("response code", response.getStatusLine().getStatusCode() + " "
+				+ response.getStatusLine().getReasonPhrase());
 	}
 
 }
