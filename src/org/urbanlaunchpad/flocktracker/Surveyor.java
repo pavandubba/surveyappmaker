@@ -9,6 +9,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -223,6 +224,15 @@ public class Surveyor extends Activity implements
 						}
 						try {
 							createcolumn("TestColumn", "STRING");
+						} catch (ClientProtocolException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						try {
+							columnList();
 						} catch (ClientProtocolException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -600,5 +610,23 @@ public class Surveyor extends Activity implements
 		Log.v("response code", response.getStatusLine().getStatusCode() + " "
 				+ response.getStatusLine().getReasonPhrase());
 	}
+	public void columnList() throws ClientProtocolException, IOException {
+		String TABLE_ID = "11lGsm8B2SNNGmEsTmuGVrAy1gcJF9TQBo3G1Vw0";
+		String apiKey = "AIzaSyB4Nn1k2sML-0aBN2Fk3qOXLF-4zlaNwmg";
+		String url = "https://www.googleapis.com/fusiontables/v1/tables/" + TABLE_ID
+			+ "/columns?key="+ apiKey +"&maxResults=5000";
+		
+		HttpClient httpclient = new DefaultHttpClient();
+		HttpGet httpget = new HttpGet(url);
+		httpget.setHeader("Authorization", "Bearer " + token);
+		// httppost.setHeader("Content-Type", "application/json");
+//		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(1);
+//		nameValuePairs.add(new BasicNameValuePair("key", apiKey));
+		HttpResponse response = httpclient.execute(httpget);
+
+		Log.v("response code", response.getStatusLine().getStatusCode() + " "
+				+ response.getStatusLine().getReasonPhrase());
+	}
+	
 
 }
