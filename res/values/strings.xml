@@ -15,7 +15,9 @@
     <string name="passenger_button_desc">Pasenger button</string>
     <string name="flock_pin_desc">Flock button</string>
     <string name="survey_button_desc">Survey button</string>
-
+    <string name="stats_button_desc">Statistics button</string>
+    <string name="start_survey_button_desc">Start survey button</string>
+    
     <color name="text_bkgrd">#E6E6E6</color>
     <color name="text_color_light">#FFFFFF</color>
     <color name="text_color_dark">#1F1F1F</color>

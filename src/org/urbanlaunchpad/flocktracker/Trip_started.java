@@ -24,7 +24,7 @@ public class Trip_started extends Activity {
 				new View.OnClickListener() {
 					@Override
 					public void onClick(View view) {
-						startActivity(Start_trip.class);
+//						startActivity(Start_trip.class);
 					}
 				});
 		findViewById(R.id.survey_button).setOnClickListener(

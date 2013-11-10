@@ -24,7 +24,7 @@ public class Trip_info extends Activity {
 				new View.OnClickListener() {
 					@Override
 					public void onClick(View view) {
-						startActivity(Start_trip.class);
+//						startActivity(Start_trip.class);
 					}
 				});
 		ImageView ulp_link = (ImageView) findViewById(R.id.ulp_icon_link);

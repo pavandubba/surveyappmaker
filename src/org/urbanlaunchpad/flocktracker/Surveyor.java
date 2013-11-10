@@ -42,6 +42,8 @@ import com.google.android.gms.location.LocationClient;
 
 public class Surveyor extends Activity implements
 		Question_fragment.AnswerSelected, Question_fragment.PositionPasser,
+		Question_navigator_fragment.NavButtonCallback,
+		Start_trip_fragment.HubButtonCallback,
 		GooglePlayServicesClient.ConnectionCallbacks,
 		GooglePlayServicesClient.OnConnectionFailedListener {
 	private DrawerLayout ChapterDrawerLayout;
@@ -61,9 +63,6 @@ public class Surveyor extends Activity implements
 	JSONObject jquestion = null;
 	private JSONObject aux = null;
 	private Toast toast;
-	private View nextquestionbutton;
-	private View previousquestionbutton;
-	private View submitbutton;
 	private Integer questionposition;
 	private Integer chapterposition;
 	private Integer[] totalquestionsArray;
@@ -74,7 +73,8 @@ public class Surveyor extends Activity implements
 	String answerfinalString;
 	private LocationClient mLocationClient;
 	private final int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
-
+	private Fragment navButtons;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -100,9 +100,10 @@ public class Surveyor extends Activity implements
 		try {
 			jchapterlist = jsurv.getJSONArray("Survey");
 			totalchapters = jchapterlist.length();
-			ChapterTitles = new String[totalchapters];
-			for (int i = 0; i < totalchapters; ++i) {
-				aux = jchapterlist.getJSONObject(i);
+			ChapterTitles = new String[1+totalchapters];
+			ChapterTitles[0] = "Status Page";
+			for (int i = 1; i <= totalchapters; ++i) {
+				aux = jchapterlist.getJSONObject(i-1);
 				ChapterTitles[i] = aux.getString("Chapter");
 			}
 			// toast = Toast.makeText(getApplicationContext(), "Chapters " +
@@ -164,67 +165,12 @@ public class Surveyor extends Activity implements
 			}
 		};
 		ChapterDrawerLayout.setDrawerListener(ChapterDrawerToggle);
+		
+		navButtons = getFragmentManager().findFragmentById(R.id.survey_question_navigator_fragment);
 
 		if (savedInstanceState == null) {
-			chapterposition = 0;
-			questionposition = 0;
-			selectChapter(chapterposition, questionposition);
+			showHubPage();
 		}
-
-		// Next and previous question navigation.
-
-		nextquestionbutton = (View) findViewById(R.id.next_question_button);
-
-		nextquestionbutton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if (jumpString != null) {
-					jumpFinder(jumpString);
-				} else if (questionposition + 1 < totalquestionsArray[chapterposition]) {
-					++questionposition;
-				} else if (questionposition + 1 >= totalquestionsArray[chapterposition]) {
-					questionposition = 0;
-					++chapterposition;
-				}
-
-				selectChapter(chapterposition, questionposition);
-			}
-		});
-
-		previousquestionbutton = (View) findViewById(R.id.previous_question_button);
-
-		previousquestionbutton.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				onBackPressed();
-			}
-		});
-
-		// Submit button behavior.
-
-		submitbutton = (View) findViewById(R.id.submit_survey_button);
-		submitbutton.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				new Thread(new Runnable() {
-					public void run() {
-						try {
-							submitSurvey();
-						} catch (ClientProtocolException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						} catch (IOException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						}
-					}
-				}).start();
-
-			}
-		});
 
 		mLocationClient = new LocationClient(this, this, this);
 	}
@@ -307,15 +253,39 @@ public class Surveyor extends Activity implements
 				long id) {
 			chapterposition = position;
 			questionposition = 0;
-			selectChapter(chapterposition, questionposition);
+			if (position == 0)
+				showHubPage();
+			else
+				selectChapter(chapterposition, questionposition);
 		}
 	}
 
+	private void showHubPage() {
+		FragmentManager fragmentManager = getFragmentManager();
+		Fragment fragment = new Start_trip_fragment();
+
+		// hide navigation buttons and add hub page
+		FragmentTransaction transaction2 = fragmentManager.beginTransaction();
+		transaction2.hide(navButtons);
+		transaction2.commit();
+		
+		FragmentTransaction transaction = fragmentManager.beginTransaction();
+		transaction.replace(R.id.surveyor_frame, fragment);
+		transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+		transaction.addToBackStack(null);
+		transaction.commit();
+		
+		// update selected item and title, then close the drawer.
+		ChapterDrawerList.setItemChecked(0, true);
+		setTitle(ChapterTitles[0]);
+		ChapterDrawerLayout.closeDrawer(ChapterDrawerList);
+	}
+	
 	private void selectChapter(int position, int qposition) {
 		// update the main content by replacing fragments
 		jchapter = null;
 		try {
-			jchapter = jchapterlist.getJSONObject(position);
+			jchapter = jchapterlist.getJSONObject(position - 1);
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -330,7 +300,7 @@ public class Surveyor extends Activity implements
 		getQuestion(qposition);
 
 		// Starting question fragment and passing json question information.
-		ChangeQuestion(jquestion, chapterposition, questionposition);
+		ChangeQuestion(jquestion, position, qposition);
 
 	}
 
@@ -381,7 +351,12 @@ public class Surveyor extends Activity implements
 		FragmentManager fm = getFragmentManager();
 		if (fm.getBackStackEntryCount() > 0) {
 			Log.i("MainActivity", "popping backstack");
-			fm.popBackStack();
+			if (chapterposition == 0)
+				showHubPage();
+			else
+				selectChapter(chapterposition, questionposition);
+			fm.popBackStackImmediate();
+				
 		} else {
 			Log.i("MainActivity", "nothing on backstack, calling super");
 			super.onBackPressed();
@@ -395,48 +370,22 @@ public class Surveyor extends Activity implements
 		Bundle args = new Bundle();
 		args.putString(Question_fragment.ARG_JSON_QUESTION,
 				jquestion.toString());
-		args.putInt(Question_fragment.ARG_CHAPTER_POSITION, chapterposition);
+		args.putInt(Question_fragment.ARG_CHAPTER_POSITION, chapterposition - 1);
 		args.putInt(Question_fragment.ARG_QUESTION_POSITION, questionposition);
 		fragment.setArguments(args);
 
 		FragmentManager fragmentManager = getFragmentManager();
+		
+		// show navigation buttons and add new question
+		FragmentTransaction transaction2 = fragmentManager.beginTransaction();
+		transaction2.show(navButtons);
+		transaction2.commit();
+		
 		FragmentTransaction transaction = fragmentManager.beginTransaction();
 		transaction.replace(R.id.surveyor_frame, fragment);
 		transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
 		transaction.addToBackStack(null);
 		transaction.commit();
-
-	}
-
-	public void AnswerRecieve(String answerStringRecieve,
-			String jumpStringRecieve) {
-		answerString = answerStringRecieve;
-		jumpString = jumpStringRecieve;
-		if (answerString != null) {
-			try {
-				jsurv.getJSONArray("Survey").getJSONObject(chapterposition)
-						.getJSONArray("Questions")
-						.getJSONObject(questionposition)
-						.put("Answer", answerString);
-				// toast = Toast.makeText(this, "Answer passed: " +
-				// answerString,
-				// Toast.LENGTH_SHORT);
-				// toast.show();
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-
-		toast = Toast.makeText(this, "After: Jump: " + jumpString + "Answer: "
-				+ answerString, Toast.LENGTH_SHORT);
-		toast.show();
-	}
-
-	public void PositionRecieve(Integer chapterpositionrecieve,
-			Integer questionpositionrecieve) {
-		questionposition = questionpositionrecieve;
-		chapterposition = chapterpositionrecieve;
 	}
 
 	public void jumpFinder(String jumpString) {
@@ -453,7 +402,7 @@ public class Surveyor extends Activity implements
 					e.printStackTrace();
 				}
 				if (jumpString.equals(jumpAUX)) {
-					chapterposition = i;
+					chapterposition = i + 1;
 					questionposition = j;
 					break;
 				}
@@ -461,6 +410,7 @@ public class Surveyor extends Activity implements
 		}
 	}
 
+	
 	public void submitSurvey() throws ClientProtocolException, IOException {
 		columnnamesString = getnames("id", "nq");
 		answerfinalString = getnames("Answer", "wq");
@@ -528,6 +478,11 @@ public class Surveyor extends Activity implements
 		return namesString;
 	}
 
+	
+	/* 
+	 * Callback Handlers for Connecting to Google Play (Authentication)
+	 */
+	
 	@Override
 	public void onConnectionFailed(ConnectionResult connectionResult) {
 		if (connectionResult.hasResolution()) {
@@ -565,4 +520,95 @@ public class Surveyor extends Activity implements
 				Toast.LENGTH_SHORT).show();
 	}
 
+	
+	/* 
+	 * Fragment Event Listener Functions Below
+	 */
+	 
+	// Handler for which button was pressed in navigator fragment
+	
+	public void NavButtonPressed(NavButtonType type) {
+		switch (type) {
+		
+		case PREVIOUS: 
+			onBackPressed();
+			break;
+		case NEXT:
+			if (jumpString != null) {
+				jumpFinder(jumpString);
+			} else if (questionposition + 1 < totalquestionsArray[chapterposition - 1]) {
+				++questionposition;
+			} else if (questionposition + 1 >= totalquestionsArray[chapterposition - 1]) {
+				questionposition = 0;
+				++chapterposition;
+			}
+
+			selectChapter(chapterposition, questionposition);
+			break;
+		case SUBMIT:
+			new Thread(new Runnable() {
+				public void run() {
+					try {
+						submitSurvey();
+					} catch (ClientProtocolException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
+			}).start();
+			break;
+		}
+	}
+	
+	// Handler to handle answers to survey questions
+	public void AnswerRecieve(String answerStringRecieve,
+			String jumpStringRecieve) {
+		answerString = answerStringRecieve;
+		jumpString = jumpStringRecieve;
+		if (answerString != null) {
+			try {
+				jsurv.getJSONArray("Survey").getJSONObject(chapterposition - 1)
+						.getJSONArray("Questions")
+						.getJSONObject(questionposition)
+						.put("Answer", answerString);
+				// toast = Toast.makeText(this, "Answer passed: " +
+				// answerString,
+				// Toast.LENGTH_SHORT);
+				// toast.show();
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+		toast = Toast.makeText(this, "After: Jump: " + jumpString + "Answer: "
+				+ answerString, Toast.LENGTH_SHORT);
+		toast.show();
+	}
+
+	// Handler to handle new survey position after answer to question
+	public void PositionRecieve(Integer chapterpositionrecieve,
+			Integer questionpositionrecieve) {
+		questionposition = questionpositionrecieve;
+		chapterposition = chapterpositionrecieve + 1;
+	}
+
+	@Override
+	public void HubButtonPressed(HubButtonType type) {
+		switch (type) {
+		
+		case NEWSURVEY: 
+			chapterposition = 1;
+			questionposition = 0;
+			selectChapter(chapterposition, questionposition);
+			break;
+		case STATISTICS:
+			break;
+		}		
+	}
+
+	
 }

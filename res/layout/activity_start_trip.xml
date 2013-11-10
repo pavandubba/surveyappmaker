@@ -5,13 +5,14 @@
     android:layout_centerHorizontal="true"
     android:layout_centerVertical="true"
     android:background="@drawable/map_dark"
+    android:gravity="left|right"
     android:orientation="vertical"
     android:padding="0dp"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".Start_trip" >
+    tools:context=".Start_trip_fragment" >
 
     <FrameLayout
         android:layout_width="fill_parent"
@@ -116,12 +117,37 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:padding="15dp"
                 android:gravity="center"
+                android:padding="15dp"
                 android:text="@string/location"
                 android:textColor="@color/text_color_light"
                 android:textSize="15sp" />
+
         </TableRow>
+
+        <TableRow
+            android:id="@+id/tableRow5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <ImageButton
+                android:id="@+id/statsButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:contentDescription="@string/stats_button_desc"
+                android:src="@drawable/ft_surv" />
+
+            <ImageButton
+                android:id="@+id/startSurveyButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:contentDescription="@string/start_survey_button_desc"
+                android:src="@drawable/ft_prof" />
+
+        </TableRow>
+
     </TableLayout>
 
     <FrameLayout

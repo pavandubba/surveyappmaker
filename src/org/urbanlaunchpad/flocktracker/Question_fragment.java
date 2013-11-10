@@ -93,71 +93,74 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 			chapterposition = args.getInt(ARG_CHAPTER_POSITION);
 			questionposition = args.getInt(ARG_QUESTION_POSITION);
 		}
-		try {
-			jquestion = new JSONObject(jquestionstring);
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			toast = Toast.makeText(getActivity(),
-					"Question not recieved from main activity.",
-					Toast.LENGTH_SHORT);
-			toast.show();
+		
+		if (jquestionstring != null) {
+			try {
+				jquestion = new JSONObject(jquestionstring);
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				toast = Toast.makeText(getActivity(),
+						"Question not recieved from main activity.",
+						Toast.LENGTH_SHORT);
+				toast.show();
+			}
+	
+			// Setting up layout of fragment.
+	
+			answerlayout = (ViewGroup) rootView.findViewById(R.id.answerlayout); // Layout
+																					// for
+																					// the
+																					// dynamic
+																					// content
+																					// of
+																					// the
+																					// activity
+																					// (mainly
+																					// answers).
+	
+			try {
+				questionkind = jquestion.getString("Kind");
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				questionkind = "no kind";
+				toast = Toast.makeText(getActivity(),
+						"No question kind in question.", Toast.LENGTH_SHORT);
+				toast.show();
+			}
+	
+			try {
+				other = jquestion.getBoolean("Other");
+			} catch (JSONException e1) {
+				// TODO Auto-generated catch block
+	//			e1.printStackTrace();
+				other = false;
+			}
+	
+			jumpString = getJump(jquestion);
+			Callback.AnswerRecieve(answerString, jumpString);
+	
+			try {
+				questionstring = jquestion.getString("Question");
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+	//			e.printStackTrace();
+			}
+	
+			// Generating question kind specific layouts.
+			if (questionkind.equals("MC")) {
+				MultipleChoiceLayout();
+			} else if (questionkind.equals("OT") || questionkind.equals("ON")) {
+				OpenLayout();
+			} else if (questionkind.equals("CB")) {
+				CheckBoxLayout();
+			}
+	
+			TextView questionview = (TextView) rootView
+					.findViewById(R.id.questionview);
+			questionview.setText(questionstring);
 		}
-
-		// Setting up layout of fragment.
-
-		answerlayout = (ViewGroup) rootView.findViewById(R.id.answerlayout); // Layout
-																				// for
-																				// the
-																				// dynamic
-																				// content
-																				// of
-																				// the
-																				// activity
-																				// (mainly
-																				// answers).
-
-		try {
-			questionkind = jquestion.getString("Kind");
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			questionkind = "no kind";
-			toast = Toast.makeText(getActivity(),
-					"No question kind in question.", Toast.LENGTH_SHORT);
-			toast.show();
-		}
-
-		try {
-			other = jquestion.getBoolean("Other");
-		} catch (JSONException e1) {
-			// TODO Auto-generated catch block
-//			e1.printStackTrace();
-			other = false;
-		}
-
-		jumpString = getJump(jquestion);
-		Callback.AnswerRecieve(answerString, jumpString);
-
-		try {
-			questionstring = jquestion.getString("Question");
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-//			e.printStackTrace();
-		}
-
-		// Generating question kind specific layouts.
-		if (questionkind.equals("MC")) {
-			MultipleChoiceLayout();
-		} else if (questionkind.equals("OT") || questionkind.equals("ON")) {
-			OpenLayout();
-		} else if (questionkind.equals("CB")) {
-			CheckBoxLayout();
-		}
-
-		TextView questionview = (TextView) rootView
-				.findViewById(R.id.questionview);
-		questionview.setText(questionstring);
 
 		return rootView;
 
