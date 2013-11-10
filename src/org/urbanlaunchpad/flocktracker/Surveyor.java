@@ -14,6 +14,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -76,6 +77,7 @@ public class Surveyor extends Activity implements
 	String answerfinalString;
 	private LocationClient mLocationClient;
 	private final int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
+	String columnlistString;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -232,7 +234,7 @@ public class Surveyor extends Activity implements
 							e.printStackTrace();
 						}
 						try {
-							columnList();
+							columnlistString = getcolumnList("11lGsm8B2SNNGmEsTmuGVrAy1gcJF9TQBo3G1Vw0","AIzaSyB4Nn1k2sML-0aBN2Fk3qOXLF-4zlaNwmg");
 						} catch (ClientProtocolException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -610,23 +612,19 @@ public class Surveyor extends Activity implements
 		Log.v("response code", response.getStatusLine().getStatusCode() + " "
 				+ response.getStatusLine().getReasonPhrase());
 	}
-	public void columnList() throws ClientProtocolException, IOException {
-		String TABLE_ID = "11lGsm8B2SNNGmEsTmuGVrAy1gcJF9TQBo3G1Vw0";
-		String apiKey = "AIzaSyB4Nn1k2sML-0aBN2Fk3qOXLF-4zlaNwmg";
+	public String getcolumnList(String TABLE_ID, String apiKey) throws ClientProtocolException, IOException{
+		// Returns the column list (of maximum MAX items) of a given fusion tables table as a JSON string.
+		String MAX = "500";
 		String url = "https://www.googleapis.com/fusiontables/v1/tables/" + TABLE_ID
-			+ "/columns?key="+ apiKey +"&maxResults=5000";
-		
+			+ "/columns?key="+ apiKey +"&maxResults=" + MAX;		
 		HttpClient httpclient = new DefaultHttpClient();
 		HttpGet httpget = new HttpGet(url);
 		httpget.setHeader("Authorization", "Bearer " + token);
-		// httppost.setHeader("Content-Type", "application/json");
-//		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(1);
-//		nameValuePairs.add(new BasicNameValuePair("key", apiKey));
 		HttpResponse response = httpclient.execute(httpget);
-
+		String columnlist = EntityUtils.toString(response.getEntity());
 		Log.v("response code", response.getStatusLine().getStatusCode() + " "
 				+ response.getStatusLine().getReasonPhrase());
+		return columnlist;
 	}
-	
 
 }
