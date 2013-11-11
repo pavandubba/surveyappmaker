@@ -77,7 +77,12 @@ public class Surveyor extends Activity implements
 	String answerfinalString;
 	private LocationClient mLocationClient;
 	private final int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
-	String columnlistString;
+	String[] columnlistNameString;
+	String[] columnlistTypeString;
+	private String[] questionIdlistString;
+	private String[] questionKindlistString;
+	Integer numberofquestions;
+	Integer numberofcolumns;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -129,7 +134,7 @@ public class Surveyor extends Activity implements
 				totalquestionsArray[i] = aux.getJSONArray("Questions").length();
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
-//				e.printStackTrace();
+				// e.printStackTrace();
 				totalquestionsArray[i] = 0;
 			}
 			// toast = Toast.makeText(this, "No of questions on chapter " + i
@@ -218,30 +223,14 @@ public class Surveyor extends Activity implements
 						try {
 							submitSurvey();
 						} catch (ClientProtocolException e1) {
-							// TODO Auto-generated catch block
+
 							e1.printStackTrace();
 						} catch (IOException e1) {
-							// TODO Auto-generated catch block
+
 							e1.printStackTrace();
 						}
-						try {
-							createcolumn("TestColumn", "STRING");
-						} catch (ClientProtocolException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						try {
-							columnlistString = getcolumnList("11lGsm8B2SNNGmEsTmuGVrAy1gcJF9TQBo3G1Vw0","AIzaSyB4Nn1k2sML-0aBN2Fk3qOXLF-4zlaNwmg");
-						} catch (ClientProtocolException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
+
+						columnCheck();
 					}
 				}).start();
 
@@ -509,7 +498,9 @@ public class Surveyor extends Activity implements
 		httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 		HttpResponse response = httpclient.execute(httppost);
 
-		Log.v("response code", response.getStatusLine().getStatusCode() + " "
+		Log.v("Submit survey response code", response.getStatusLine()
+				.getStatusCode()
+				+ " "
 				+ response.getStatusLine().getReasonPhrase());
 	}
 
@@ -526,7 +517,7 @@ public class Surveyor extends Activity implements
 							.getString(nametoget);
 				} catch (JSONException e) {
 					// TODO Auto-generated catch block
-//					e.printStackTrace();
+					// e.printStackTrace();
 					addString = "";
 				}
 				if (i == 0 && j == 0) {
@@ -586,45 +577,205 @@ public class Surveyor extends Activity implements
 		Toast.makeText(this, "Disconnected. Please re-connect.",
 				Toast.LENGTH_SHORT).show();
 	}
-	
-	public void createcolumn(String name, String type) throws ClientProtocolException, IOException {
+
+	public void createcolumn(String name, String type)
+			throws ClientProtocolException, IOException {
 		String TABLE_ID = "11lGsm8B2SNNGmEsTmuGVrAy1gcJF9TQBo3G1Vw0";
 		String apiKey = "AIzaSyB4Nn1k2sML-0aBN2Fk3qOXLF-4zlaNwmg";
-		String url = "https://www.googleapis.com/fusiontables/v1/tables/" + TABLE_ID
-			+ "/columns?key="+ apiKey;
-		
+		String url = "https://www.googleapis.com/fusiontables/v1/tables/"
+				+ TABLE_ID + "/columns?key=" + apiKey;
+
 		HttpClient httpclient = new DefaultHttpClient();
 		HttpPost httppost = new HttpPost(url);
 		httppost.setHeader("Authorization", "Bearer " + token);
 		httppost.setHeader("Content-Type", "application/json");
-	       JSONObject object = new JSONObject();
-	        try {
-	            object.put("name", name);
-	            object.put("type", type);
-	        } catch (Exception ex) {
-	        }
-	    String columnString = object.toString();
+		JSONObject object = new JSONObject();
+		try {
+			object.put("name", name);
+			object.put("type", type);
+		} catch (Exception ex) {
+		}
+		String columnString = object.toString();
 		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(1);
 		nameValuePairs.add(new BasicNameValuePair("key", apiKey));
 		httppost.setEntity(new StringEntity(columnString, "UTF-8"));
 		HttpResponse response = httpclient.execute(httppost);
 
-		Log.v("response code", response.getStatusLine().getStatusCode() + " "
+		Log.v("Create column response code", response.getStatusLine()
+				.getStatusCode()
+				+ " "
 				+ response.getStatusLine().getReasonPhrase());
 	}
-	public String getcolumnList(String TABLE_ID, String apiKey) throws ClientProtocolException, IOException{
-		// Returns the column list (of maximum MAX items) of a given fusion tables table as a JSON string.
+
+	public String[] getcolumnList(String TABLE_ID, String apiKey,
+			String whatotogetString) throws ClientProtocolException,
+			IOException {
+		// Returns the column list (of maximum MAX items) of a given fusion
+		// tables table as a JSON string.
 		String MAX = "500";
-		String url = "https://www.googleapis.com/fusiontables/v1/tables/" + TABLE_ID
-			+ "/columns?key="+ apiKey +"&maxResults=" + MAX;		
+		String url = "https://www.googleapis.com/fusiontables/v1/tables/"
+				+ TABLE_ID + "/columns?key=" + apiKey + "&maxResults=" + MAX;
+		String[] columnlistStringArray = null;
+		JSONObject jcolumns = null;
 		HttpClient httpclient = new DefaultHttpClient();
 		HttpGet httpget = new HttpGet(url);
 		httpget.setHeader("Authorization", "Bearer " + token);
 		HttpResponse response = httpclient.execute(httpget);
-		String columnlist = EntityUtils.toString(response.getEntity());
-		Log.v("response code", response.getStatusLine().getStatusCode() + " "
+		String columnlistJSONString = EntityUtils
+				.toString(response.getEntity());
+		Log.v("Column list response code", response.getStatusLine()
+				.getStatusCode()
+				+ " "
 				+ response.getStatusLine().getReasonPhrase());
-		return columnlist;
+		Integer total = 0;
+		try {
+			jcolumns = new JSONObject(columnlistJSONString);
+			total = jcolumns.getInt("totalItems");
+			columnlistStringArray = new String[total];
+		} catch (JSONException e) {
+		}
+		if (total > 0) {
+			for (int i = 0; i < total; ++i) {
+				try {
+					columnlistStringArray[i] = jcolumns.getJSONArray("items")
+							.getJSONObject(i).getString(whatotogetString);
+				} catch (JSONException e) {
+					columnlistStringArray[i] = "";
+				}
+				// Log.v("ID", columnlistStringArray[i]);
+			}
+		}
+		Log.v("Number of columns", total.toString() + " " + whatotogetString);
+		return columnlistStringArray;
+	}
+
+	public String[] getquestionlist(JSONObject jsonsurv, String whattgetString) {
+		Integer numberofquestions = 0;
+		String[] questionStringArray;
+		for (int i = 0; i < totalchapters; ++i) {
+			for (int j = 0; j < totalquestionsArray[i]; ++j) {
+				++numberofquestions;
+			}
+		}
+		questionStringArray = new String[numberofquestions];
+		int auxcount = 0;
+		for (int i = 0; i < totalchapters; ++i) {
+			for (int j = 0; j < totalquestionsArray[i]; ++j) {
+				try {
+					questionStringArray[auxcount] = jsonsurv
+							.getJSONArray("Survey").getJSONObject(i)
+							.getJSONArray("Questions").getJSONObject(j)
+							.getString(whattgetString);
+					// Log.v("ID", questionIDArray[auxcount]);
+					++auxcount;
+				} catch (JSONException e) {
+					questionStringArray[auxcount] = "";
+				}
+			}
+		}
+		Log.v("Number of questions", numberofquestions.toString() + " "
+				+ whattgetString);
+		return questionStringArray;
+	}
+
+	public void columnCheck() {
+		Boolean existsBoolean;
+		String[] hardcolumnsStrings = { "Location", "Date", "Lat", "Alt", "Lng" }; // Columns
+																					// that
+																					// are
+																					// in
+																					// all
+																					// projects.
+		String[] hardcolumntypeStrings = { "LOCATION", "DATETIME", "NUMBER",
+				"NUMBER", "NUMBER" }; // Types for the columns that are in all
+										// projects.
+		try {
+			columnlistNameString = getcolumnList(
+					"11lGsm8B2SNNGmEsTmuGVrAy1gcJF9TQBo3G1Vw0",
+					"AIzaSyB4Nn1k2sML-0aBN2Fk3qOXLF-4zlaNwmg", "name");
+			columnlistTypeString = getcolumnList(
+					"11lGsm8B2SNNGmEsTmuGVrAy1gcJF9TQBo3G1Vw0",
+					"AIzaSyB4Nn1k2sML-0aBN2Fk3qOXLF-4zlaNwmg", "type");
+		} catch (ClientProtocolException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		int numberofhardcolumns = hardcolumnsStrings.length;
+		for (int i = 0; i < numberofhardcolumns; ++i) {
+			existsBoolean = searchinStringArray(columnlistNameString,
+					hardcolumnsStrings[i]);
+			if (existsBoolean == true) {
+				// If the question id and the column name is the same,
+				// checking if the column types are well set.
+				changecolumntype();
+			} else if (existsBoolean == false) {
+				try {
+					createcolumn(hardcolumnsStrings[i], hardcolumntypeStrings[i]);
+				} catch (ClientProtocolException e) {
+
+					e.printStackTrace();
+				} catch (IOException e) {
+
+					e.printStackTrace();
+				}
+			}
+		}
+
+		questionIdlistString = getquestionlist(jsurv, "id");
+		questionKindlistString = getquestionlist(jsurv, "Kind");
+		numberofquestions = questionIdlistString.length;
+		numberofcolumns = columnlistNameString.length;
+		String auxkind = null;
+		for (int i = 0; i < numberofquestions; ++i) {
+			if ((questionKindlistString[i].equals("MC") || questionKindlistString[i]
+					.equals("CB")) || questionKindlistString[i].equals("OT")) {
+				auxkind = "STRING";
+			} else if (questionKindlistString[i].equals("ON")) {
+				auxkind = "NUMBER";
+			} else {
+				auxkind = "STRING";
+			}
+			existsBoolean = searchinStringArray(columnlistNameString,
+					questionIdlistString[i]);
+			if (existsBoolean == true) {
+				// If the question id and the column name is the same,
+				// checking if the column types are well set.
+				changecolumntype();
+			} else if (existsBoolean == false) {
+				try {
+					createcolumn(questionIdlistString[i], auxkind);
+				} catch (ClientProtocolException e) {
+
+					e.printStackTrace();
+				} catch (IOException e) {
+
+					e.printStackTrace();
+				}
+			}
+
+		}
+
+	}
+
+	public Boolean searchinStringArray(String[] Array, String string) {
+		int lenght = Array.length;
+		if (lenght > 0) {
+			for (int i = 0; i < lenght; ++i) {
+				if (Array[i].equals(string)) {
+					break;
+				} else if (i + 1 == lenght) {
+					return false;
+				}
+			}
+		} else {
+			return false;
+		}
+		return true;
+	}
+
+	public void changecolumntype() {
+
 	}
 
 }
