@@ -76,7 +76,7 @@ public class Surveyor extends Activity implements
 	String answerfinalString;
 	private LocationClient mLocationClient;
 	private final int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
-	private Fragment navButtons;
+	private Fragment navButtons; //TODO make sure to pass in arguments of size of backstack here. Don't show prev question if would go to hub page
 	String[] columnlistNameString;
 	String[] columnlistTypeString;
 	private String[] questionIdlistString;
@@ -270,18 +270,18 @@ public class Surveyor extends Activity implements
 	}
 
 	private void showHubPage() {
+		navButtons.getView().findViewById(R.id.previous_question_button).setVisibility(View.INVISIBLE);
 		FragmentManager fragmentManager = getFragmentManager();
 		Fragment fragment = new Start_trip_fragment();
 
-		// hide navigation buttons and add hub page
-		FragmentTransaction transaction2 = fragmentManager.beginTransaction();
-		transaction2.hide(navButtons);
-		transaction2.commit();
-
+		FragmentTransaction transactionHide = fragmentManager.beginTransaction();
+		// hide navigation buttons
+		transactionHide.hide(navButtons);
+		transactionHide.commit();
+		
 		FragmentTransaction transaction = fragmentManager.beginTransaction();
 		transaction.replace(R.id.surveyor_frame, fragment);
-		transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-		transaction.addToBackStack(null);
+		transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);		
 		transaction.commit();
 
 		// update selected item and title, then close the drawer.
@@ -358,20 +358,27 @@ public class Surveyor extends Activity implements
 	@Override
 	public void onBackPressed() {
 		FragmentManager fm = getFragmentManager();
-		if (fm.getBackStackEntryCount() > 0) {
-			Log.i("MainActivity", "popping backstack");
-			if (chapterposition == 0)
-				showHubPage();
-			else
-				selectChapter(chapterposition, questionposition);
-			fm.popBackStackImmediate();
-
-		} else {
-			Log.i("MainActivity", "nothing on backstack, calling super");
-			super.onBackPressed();
+		if (navButtons.isVisible()) {
+			FragmentTransaction transactionHide = fm.beginTransaction();
+			// hide navigation buttons
+			transactionHide.hide(navButtons);
+			transactionHide.commit();
 		}
+		Log.i("MainActivity", "nothing on backstack, calling super");
+		super.onBackPressed();
 	}
 
+	public void onPrevQuestionPressed() {
+		FragmentManager fm = getFragmentManager();
+		if (fm.getBackStackEntryCount() > 2) {
+			Log.i("MainActivity", "popping backstack");
+			fm.popBackStack();
+		} else if (fm.getBackStackEntryCount() == 2){
+			navButtons.getView().findViewById(R.id.previous_question_button).setVisibility(View.INVISIBLE);
+			fm.popBackStack();
+		}
+	}
+	
 	public void ChangeQuestion(JSONObject jquestion, Integer chapterposition,
 			Integer questionposition) {
 		// Starting question fragment and passing json question information.
@@ -379,22 +386,24 @@ public class Surveyor extends Activity implements
 		Bundle args = new Bundle();
 		args.putString(Question_fragment.ARG_JSON_QUESTION,
 				jquestion.toString());
-		args.putInt(Question_fragment.ARG_CHAPTER_POSITION, chapterposition - 1);
+		args.putInt(Question_fragment.ARG_CHAPTER_POSITION, chapterposition);
 		args.putInt(Question_fragment.ARG_QUESTION_POSITION, questionposition);
 		fragment.setArguments(args);
 
 		FragmentManager fragmentManager = getFragmentManager();
+		FragmentTransaction transaction = fragmentManager.beginTransaction();
+		FragmentTransaction transactionShow = fragmentManager.beginTransaction();
 
 		// show navigation buttons and add new question
-		FragmentTransaction transaction2 = fragmentManager.beginTransaction();
-		transaction2.show(navButtons);
-		transaction2.commit();
+		if (!navButtons.isVisible()) {
+			transactionShow.show(navButtons);
+		}
 
-		FragmentTransaction transaction = fragmentManager.beginTransaction();
 		transaction.replace(R.id.surveyor_frame, fragment);
 		transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
 		transaction.addToBackStack(null);
 		transaction.commit();
+		transactionShow.commit();
 	}
 
 	public void jumpFinder(String jumpString) {
@@ -541,9 +550,10 @@ public class Surveyor extends Activity implements
 		switch (type) {
 
 		case PREVIOUS:
-			onBackPressed();
+			onPrevQuestionPressed();
 			break;
 		case NEXT:
+			navButtons.getView().findViewById(R.id.previous_question_button).setVisibility(View.VISIBLE);
 			if (jumpString != null) {
 				jumpFinder(jumpString);
 			} else if (questionposition + 1 < totalquestionsArray[chapterposition - 1]) {
@@ -603,7 +613,7 @@ public class Surveyor extends Activity implements
 	public void PositionRecieve(Integer chapterpositionrecieve,
 			Integer questionpositionrecieve) {
 		questionposition = questionpositionrecieve;
-		chapterposition = chapterpositionrecieve + 1;
+		chapterposition = chapterpositionrecieve;
 	}
 
 	@Override
