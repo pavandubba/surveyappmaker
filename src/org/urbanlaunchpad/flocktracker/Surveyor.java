@@ -9,9 +9,12 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -74,7 +77,13 @@ public class Surveyor extends Activity implements
 	private LocationClient mLocationClient;
 	private final int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 	private Fragment navButtons;
-	
+	String[] columnlistNameString;
+	String[] columnlistTypeString;
+	private String[] questionIdlistString;
+	private String[] questionKindlistString;
+	Integer numberofquestions;
+	Integer numberofcolumns;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -126,7 +135,7 @@ public class Surveyor extends Activity implements
 				totalquestionsArray[i] = aux.getJSONArray("Questions").length();
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
-//				e.printStackTrace();
+				// e.printStackTrace();
 				totalquestionsArray[i] = 0;
 			}
 			// toast = Toast.makeText(this, "No of questions on chapter " + i
@@ -165,7 +174,7 @@ public class Surveyor extends Activity implements
 			}
 		};
 		ChapterDrawerLayout.setDrawerListener(ChapterDrawerToggle);
-		
+
 		navButtons = getFragmentManager().findFragmentById(R.id.survey_question_navigator_fragment);
 
 		if (savedInstanceState == null) {
@@ -268,19 +277,19 @@ public class Surveyor extends Activity implements
 		FragmentTransaction transaction2 = fragmentManager.beginTransaction();
 		transaction2.hide(navButtons);
 		transaction2.commit();
-		
+
 		FragmentTransaction transaction = fragmentManager.beginTransaction();
 		transaction.replace(R.id.surveyor_frame, fragment);
 		transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
 		transaction.addToBackStack(null);
 		transaction.commit();
-		
+
 		// update selected item and title, then close the drawer.
 		ChapterDrawerList.setItemChecked(0, true);
 		setTitle(ChapterTitles[0]);
 		ChapterDrawerLayout.closeDrawer(ChapterDrawerList);
 	}
-	
+
 	private void selectChapter(int position, int qposition) {
 		// update the main content by replacing fragments
 		jchapter = null;
@@ -356,7 +365,7 @@ public class Surveyor extends Activity implements
 			else
 				selectChapter(chapterposition, questionposition);
 			fm.popBackStackImmediate();
-				
+
 		} else {
 			Log.i("MainActivity", "nothing on backstack, calling super");
 			super.onBackPressed();
@@ -375,12 +384,12 @@ public class Surveyor extends Activity implements
 		fragment.setArguments(args);
 
 		FragmentManager fragmentManager = getFragmentManager();
-		
+
 		// show navigation buttons and add new question
 		FragmentTransaction transaction2 = fragmentManager.beginTransaction();
 		transaction2.show(navButtons);
 		transaction2.commit();
-		
+
 		FragmentTransaction transaction = fragmentManager.beginTransaction();
 		transaction.replace(R.id.surveyor_frame, fragment);
 		transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
@@ -410,7 +419,7 @@ public class Surveyor extends Activity implements
 		}
 	}
 
-	
+
 	public void submitSurvey() throws ClientProtocolException, IOException {
 		columnnamesString = getnames("id", "nq");
 		answerfinalString = getnames("Answer", "wq");
@@ -437,7 +446,9 @@ public class Surveyor extends Activity implements
 		httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 		HttpResponse response = httpclient.execute(httppost);
 
-		Log.v("response code", response.getStatusLine().getStatusCode() + " "
+		Log.v("Submit survey response code", response.getStatusLine()
+				.getStatusCode()
+				+ " "
 				+ response.getStatusLine().getReasonPhrase());
 	}
 
@@ -454,7 +465,7 @@ public class Surveyor extends Activity implements
 							.getString(nametoget);
 				} catch (JSONException e) {
 					// TODO Auto-generated catch block
-//					e.printStackTrace();
+					// e.printStackTrace();
 					addString = "";
 				}
 				if (i == 0 && j == 0) {
@@ -478,11 +489,11 @@ public class Surveyor extends Activity implements
 		return namesString;
 	}
 
-	
-	/* 
+
+	/*
 	 * Callback Handlers for Connecting to Google Play (Authentication)
 	 */
-	
+
 	@Override
 	public void onConnectionFailed(ConnectionResult connectionResult) {
 		if (connectionResult.hasResolution()) {
@@ -520,17 +531,16 @@ public class Surveyor extends Activity implements
 				Toast.LENGTH_SHORT).show();
 	}
 
-	
-	/* 
+	/*
 	 * Fragment Event Listener Functions Below
 	 */
-	 
+
 	// Handler for which button was pressed in navigator fragment
-	
+
 	public void NavButtonPressed(NavButtonType type) {
 		switch (type) {
-		
-		case PREVIOUS: 
+
+		case PREVIOUS:
 			onBackPressed();
 			break;
 		case NEXT:
@@ -562,7 +572,7 @@ public class Surveyor extends Activity implements
 			break;
 		}
 	}
-	
+
 	// Handler to handle answers to survey questions
 	public void AnswerRecieve(String answerStringRecieve,
 			String jumpStringRecieve) {
@@ -599,16 +609,215 @@ public class Surveyor extends Activity implements
 	@Override
 	public void HubButtonPressed(HubButtonType type) {
 		switch (type) {
-		
-		case NEWSURVEY: 
+
+		case NEWSURVEY:
 			chapterposition = 1;
 			questionposition = 0;
 			selectChapter(chapterposition, questionposition);
 			break;
 		case STATISTICS:
 			break;
-		}		
+		}
 	}
 
-	
+	public void createcolumn(String name, String type)
+			throws ClientProtocolException, IOException {
+		String TABLE_ID = "11lGsm8B2SNNGmEsTmuGVrAy1gcJF9TQBo3G1Vw0";
+		String apiKey = "AIzaSyB4Nn1k2sML-0aBN2Fk3qOXLF-4zlaNwmg";
+		String url = "https://www.googleapis.com/fusiontables/v1/tables/"
+				+ TABLE_ID + "/columns?key=" + apiKey;
+
+		HttpClient httpclient = new DefaultHttpClient();
+		HttpPost httppost = new HttpPost(url);
+		httppost.setHeader("Authorization", "Bearer " + token);
+		httppost.setHeader("Content-Type", "application/json");
+		JSONObject object = new JSONObject();
+		try {
+			object.put("name", name);
+			object.put("type", type);
+		} catch (Exception ex) {
+		}
+		String columnString = object.toString();
+		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(1);
+		nameValuePairs.add(new BasicNameValuePair("key", apiKey));
+		httppost.setEntity(new StringEntity(columnString, "UTF-8"));
+		HttpResponse response = httpclient.execute(httppost);
+
+		Log.v("Create column response code", response.getStatusLine()
+				.getStatusCode()
+				+ " "
+				+ response.getStatusLine().getReasonPhrase());
+	}
+
+	public String[] getcolumnList(String TABLE_ID, String apiKey,
+			String whatotogetString) throws ClientProtocolException,
+			IOException {
+		// Returns the column list (of maximum MAX items) of a given fusion
+		// tables table as a JSON string.
+		String MAX = "500";
+		String url = "https://www.googleapis.com/fusiontables/v1/tables/"
+				+ TABLE_ID + "/columns?key=" + apiKey + "&maxResults=" + MAX;
+		String[] columnlistStringArray = null;
+		JSONObject jcolumns = null;
+		HttpClient httpclient = new DefaultHttpClient();
+		HttpGet httpget = new HttpGet(url);
+		httpget.setHeader("Authorization", "Bearer " + token);
+		HttpResponse response = httpclient.execute(httpget);
+		String columnlistJSONString = EntityUtils
+				.toString(response.getEntity());
+		Log.v("Column list response code", response.getStatusLine()
+				.getStatusCode()
+				+ " "
+				+ response.getStatusLine().getReasonPhrase());
+		Integer total = 0;
+		try {
+			jcolumns = new JSONObject(columnlistJSONString);
+			total = jcolumns.getInt("totalItems");
+			columnlistStringArray = new String[total];
+		} catch (JSONException e) {
+		}
+		if (total > 0) {
+			for (int i = 0; i < total; ++i) {
+				try {
+					columnlistStringArray[i] = jcolumns.getJSONArray("items")
+							.getJSONObject(i).getString(whatotogetString);
+				} catch (JSONException e) {
+					columnlistStringArray[i] = "";
+				}
+				// Log.v("ID", columnlistStringArray[i]);
+			}
+		}
+		Log.v("Number of columns", total.toString() + " " + whatotogetString);
+		return columnlistStringArray;
+	}
+
+	public String[] getquestionlist(JSONObject jsonsurv, String whattgetString) {
+		Integer numberofquestions = 0;
+		String[] questionStringArray;
+		for (int i = 0; i < totalchapters; ++i) {
+			for (int j = 0; j < totalquestionsArray[i]; ++j) {
+				++numberofquestions;
+			}
+		}
+		questionStringArray = new String[numberofquestions];
+		int auxcount = 0;
+		for (int i = 0; i < totalchapters; ++i) {
+			for (int j = 0; j < totalquestionsArray[i]; ++j) {
+				try {
+					questionStringArray[auxcount] = jsonsurv
+							.getJSONArray("Survey").getJSONObject(i)
+							.getJSONArray("Questions").getJSONObject(j)
+							.getString(whattgetString);
+					// Log.v("ID", questionIDArray[auxcount]);
+					++auxcount;
+				} catch (JSONException e) {
+					questionStringArray[auxcount] = "";
+				}
+			}
+		}
+		Log.v("Number of questions", numberofquestions.toString() + " "
+				+ whattgetString);
+		return questionStringArray;
+	}
+
+	public void columnCheck() {
+		Boolean existsBoolean;
+		String[] hardcolumnsStrings = { "Location", "Date", "Lat", "Alt", "Lng" }; // Columns
+																					// that
+																					// are
+																					// in
+																					// all
+																					// projects.
+		String[] hardcolumntypeStrings = { "LOCATION", "DATETIME", "NUMBER",
+				"NUMBER", "NUMBER" }; // Types for the columns that are in all
+										// projects.
+		try {
+			columnlistNameString = getcolumnList(
+					"11lGsm8B2SNNGmEsTmuGVrAy1gcJF9TQBo3G1Vw0",
+					"AIzaSyB4Nn1k2sML-0aBN2Fk3qOXLF-4zlaNwmg", "name");
+			columnlistTypeString = getcolumnList(
+					"11lGsm8B2SNNGmEsTmuGVrAy1gcJF9TQBo3G1Vw0",
+					"AIzaSyB4Nn1k2sML-0aBN2Fk3qOXLF-4zlaNwmg", "type");
+		} catch (ClientProtocolException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		int numberofhardcolumns = hardcolumnsStrings.length;
+		for (int i = 0; i < numberofhardcolumns; ++i) {
+			existsBoolean = searchinStringArray(columnlistNameString,
+					hardcolumnsStrings[i]);
+			if (existsBoolean == true) {
+				// If the question id and the column name is the same,
+				// checking if the column types are well set.
+				changecolumntype();
+			} else if (existsBoolean == false) {
+				try {
+					createcolumn(hardcolumnsStrings[i], hardcolumntypeStrings[i]);
+				} catch (ClientProtocolException e) {
+
+					e.printStackTrace();
+				} catch (IOException e) {
+
+					e.printStackTrace();
+				}
+			}
+		}
+
+		questionIdlistString = getquestionlist(jsurv, "id");
+		questionKindlistString = getquestionlist(jsurv, "Kind");
+		numberofquestions = questionIdlistString.length;
+		numberofcolumns = columnlistNameString.length;
+		String auxkind = null;
+		for (int i = 0; i < numberofquestions; ++i) {
+			if ((questionKindlistString[i].equals("MC") || questionKindlistString[i]
+					.equals("CB")) || questionKindlistString[i].equals("OT")) {
+				auxkind = "STRING";
+			} else if (questionKindlistString[i].equals("ON")) {
+				auxkind = "NUMBER";
+			} else {
+				auxkind = "STRING";
+			}
+			existsBoolean = searchinStringArray(columnlistNameString,
+					questionIdlistString[i]);
+			if (existsBoolean == true) {
+				// If the question id and the column name is the same,
+				// checking if the column types are well set.
+				changecolumntype();
+			} else if (existsBoolean == false) {
+				try {
+					createcolumn(questionIdlistString[i], auxkind);
+				} catch (ClientProtocolException e) {
+
+					e.printStackTrace();
+				} catch (IOException e) {
+
+					e.printStackTrace();
+				}
+			}
+
+		}
+
+	}
+
+	public Boolean searchinStringArray(String[] Array, String string) {
+		int lenght = Array.length;
+		if (lenght > 0) {
+			for (int i = 0; i < lenght; ++i) {
+				if (Array[i].equals(string)) {
+					break;
+				} else if (i + 1 == lenght) {
+					return false;
+				}
+			}
+		} else {
+			return false;
+		}
+		return true;
+	}
+
+	public void changecolumntype() {
+
+	}
+
 }
