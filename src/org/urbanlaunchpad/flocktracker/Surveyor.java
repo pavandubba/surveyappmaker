@@ -220,6 +220,7 @@ public class Surveyor extends Activity implements
 				// TODO Auto-generated method stub
 				new Thread(new Runnable() {
 					public void run() {
+						columnCheck();
 						try {
 							submitSurvey();
 						} catch (ClientProtocolException e1) {
@@ -229,8 +230,6 @@ public class Surveyor extends Activity implements
 
 							e1.printStackTrace();
 						}
-
-						columnCheck();
 					}
 				}).start();
 

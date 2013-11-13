@@ -132,7 +132,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 			other = jquestion.getBoolean("Other");
 		} catch (JSONException e1) {
 			// TODO Auto-generated catch block
-//			e1.printStackTrace();
+			// e1.printStackTrace();
 			other = false;
 		}
 
@@ -143,7 +143,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 			questionstring = jquestion.getString("Question");
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
-//			e.printStackTrace();
+			// e.printStackTrace();
 		}
 
 		// Generating question kind specific layouts.
@@ -333,7 +333,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 		} catch (JSONException e1) {
 			// TODO Auto-generated catch block
 			auxjump = null;
-//			e1.printStackTrace();
+			// e1.printStackTrace();
 		}
 		// toast = Toast.makeText(getActivity(), "Jump: " + auxjump,
 		// Toast.LENGTH_SHORT);
@@ -368,7 +368,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 						}
 					} catch (JSONException e) {
 						// TODO Auto-generated catch block
-//						e.printStackTrace();
+						// e.printStackTrace();
 					}
 					answerString = answerlist[i].toString(); // Sets the answer
 																// to be sent to
@@ -407,46 +407,46 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 	private void CheckBoxOnClick(View view) {
 		answerString = null;
 		for (int i = 0; i < totalanswers; ++i) {
-			TextView textView = (TextView) tvanswerlist[i];
-			CheckBox checkBox = (CheckBox) cbanswer[i];
-			if (view.getId() == textView.getId()) {
-				if (view instanceof TextView) {
+			TextView textView = tvanswerlist[i];
+			CheckBox checkBox = cbanswer[i];
+			if (view instanceof TextView) {
+				if (view.getId() == textView.getId()) {
 					if (checkBox.isChecked()) {
 						textView.setTextColor(getResources().getColor(
 								R.color.text_color_light));
 						checkBox.setChecked(false);
-
 					} else if (!checkBox.isChecked()) {
 						textView.setTextColor(getResources().getColor(
 								R.color.answer_selected));
 						checkBox.setChecked(true);
-						answerString = addanswer(answerString, answerlist[i].toString());
 					}
 
 				}
-			} else if (view instanceof CheckBox) {
-				if (checkBox.isChecked()) {
-					textView.setTextColor(getResources().getColor(
-							R.color.answer_selected));
-					answerString = addanswer(answerString, answerlist[i].toString());
-				} else if (!checkBox.isChecked()) {
-					textView.setTextColor(getResources().getColor(
-							R.color.text_color_light));
-				}
-
+			}
+			if (checkBox.isChecked()) {
+				textView.setTextColor(getResources().getColor(
+						R.color.answer_selected));
+				answerString = addanswer(answerString, answerlist[i].toString());
+			} else if (!checkBox.isChecked()) {
+				textView.setTextColor(getResources().getColor(
+						R.color.text_color_light));
 			}
 
 		}
-		Callback.AnswerRecieve("(" + answerString + ")", null);	
+		if (!(answerString == null)) {
+			Callback.AnswerRecieve("(" + answerString + ")", null);
+		} else {
+			Callback.AnswerRecieve(null, null);
+		}
 	}
-	
-	private String addanswer(String answerContainer, String answerAdded){
+
+	private String addanswer(String answerContainer, String answerAdded) {
 		if (answerContainer == null) {
 			answerContainer = answerAdded;
 		} else {
 			answerContainer = answerContainer + "," + answerAdded;
 		}
-		return answerContainer;		
+		return answerContainer;
 	}
 
 	private void OpenOnClick(View view) {
@@ -473,15 +473,6 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 			}
 		}
 	}
-
-	// public int findId(){
-	// Integer id = 1;
-	// View v = getActivity().findViewById(id);
-	// while (v != null){
-	// v = getActivity().findViewById(++id);
-	// }
-	// return id++;
-	// }
 
 	@Override
 	public void onAttach(Activity activity) {
