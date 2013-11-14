@@ -76,7 +76,7 @@ public class Surveyor extends Activity implements
 	String answerfinalString;
 	private LocationClient mLocationClient;
 	private final int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
-	private Fragment navButtons; //TODO make sure to pass in arguments of size of backstack here. Don't show prev question if would go to hub page
+	private Fragment navButtons;
 	String[] columnlistNameString;
 	String[] columnlistTypeString;
 	private String[] questionIdlistString;
@@ -358,12 +358,23 @@ public class Surveyor extends Activity implements
 	@Override
 	public void onBackPressed() {
 		FragmentManager fm = getFragmentManager();
+		if (fm.getBackStackEntryCount() > 1) {
+			onPrevQuestionPressed();
+			return;
+		}
+		
 		if (navButtons.isVisible()) {
 			FragmentTransaction transactionHide = fm.beginTransaction();
 			// hide navigation buttons
 			transactionHide.hide(navButtons);
 			transactionHide.commit();
 		}
+		
+		// update title
+		ChapterDrawerList.setItemChecked(0, true);
+		setTitle(ChapterTitles[0]);
+		ChapterDrawerLayout.closeDrawer(ChapterDrawerList);
+		
 		Log.i("MainActivity", "nothing on backstack, calling super");
 		super.onBackPressed();
 	}
