@@ -211,7 +211,7 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 				token = future.getResult().getString(
 				        AccountManager.KEY_AUTHTOKEN);
 			} catch (Exception e) {
-				throw new RuntimeException(e);
+//				throw new RuntimeException(e);
 			}
 		}
 	}

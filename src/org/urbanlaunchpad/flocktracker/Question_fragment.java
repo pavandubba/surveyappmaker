@@ -33,7 +33,6 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 	private Integer totalanswers;
 	private TextView[] tvanswerlist = null;
 	private Integer[] tvansweridlist = null;
-	private Integer[] cbansweridlist = null;
 	private String answerString;
 	private String jumpString = null;
 	private String answerjumpString = null;
@@ -98,7 +97,6 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 			try {
 				jquestion = new JSONObject(jquestionstring);
 			} catch (JSONException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 				toast = Toast.makeText(getActivity(),
 						"Question not recieved from main activity.",
@@ -122,7 +120,6 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 			try {
 				questionkind = jquestion.getString("Kind");
 			} catch (JSONException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 				questionkind = "no kind";
 				toast = Toast.makeText(getActivity(),
@@ -133,8 +130,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 			try {
 				other = jquestion.getBoolean("Other");
 			} catch (JSONException e1) {
-				// TODO Auto-generated catch block
-	//			e1.printStackTrace();
+				// e1.printStackTrace();
 				other = false;
 			}
 
@@ -144,8 +140,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 			try {
 				questionstring = jquestion.getString("Question");
 			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-	//			e.printStackTrace();
+				// e.printStackTrace();
 			}
 
 			// Generating question kind specific layouts.
@@ -163,16 +158,6 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 		}
 		return rootView;
 
-		// Changing background image, for debugging purpose.
-		// int imageId = getResources().getIdentifier(
-		// chapter.toLowerCase(Locale.getDefault()), "drawable",
-		// getActivity().getPackageName());
-		// ((ImageView) rootView.findViewById(R.id.image))
-		// .setImageResource(imageId);
-		//
-		// // Setting activity titles as the chapter.
-		// getActivity().setTitle(chapter);
-		// return rootView;
 	}
 
 	@Override
@@ -211,7 +196,6 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 				tvanswerlist[i].setOnClickListener(this);
 			}
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			totalanswers = 0;
 			toast = Toast.makeText(getActivity(),
@@ -279,9 +263,13 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 				cbanswer[i].setId(i + totalanswers);
 				tvanswerlist[i].setOnClickListener(Question_fragment.this);
 				cbanswer[i].setOnClickListener(Question_fragment.this);
+				cbanswer[i].setButtonDrawable(R.drawable.custom_checkbox);
+				cbanswer[i].setScaleX((float) 0.5);
+				cbanswer[i].setScaleY((float) 0.5);
+				// TODO Generate Scale factors dependent on screen size.
+				// cbanswer[i].setWidth(30);
 			}
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			totalanswers = 0;
 			toast = Toast.makeText(getActivity(),
@@ -333,7 +321,6 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 		try {
 			auxjump = Obj.getString("Jump");
 		} catch (JSONException e1) {
-			// TODO Auto-generated catch block
 			auxjump = null;
 			// e1.printStackTrace();
 		}
@@ -369,7 +356,6 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 							jumpString = answerjumpString;
 						}
 					} catch (JSONException e) {
-						// TODO Auto-generated catch block
 						// e.printStackTrace();
 					}
 					answerString = answerlist[i].toString(); // Sets the answer
@@ -452,7 +438,6 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 	}
 
 	private void OpenOnClick(View view) {
-		// TODO Auto-generated method stub
 		if (view instanceof TextView) {
 			for (int i = 0; i < opentotal; ++i) {
 				TextView textView = (TextView) rootView.findViewById(i);

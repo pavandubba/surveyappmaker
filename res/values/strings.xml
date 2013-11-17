@@ -20,7 +20,10 @@
     <string name="previous_question_desc">Previous question</string>
     <string name="next_question_desc">Next question</string>
     <string name="submit_question_desc">Submit survey</string>
-    
+    <string name="app_big_icon_desc">Flock tracker</string>
+    <string name="mobility_futures_colaborative_desc">Mobility Futures Colaborative</string>
+    <string name="mit_desc">Massachusetts Institute of Technology</string>
+    <string name="urban_launchpad_desc">Urban Launchpad</string>
     <color name="text_bkgrd">#E6E6E6</color>
     <color name="text_color_light">#FFFFFF</color>
     <color name="text_color_dark">#1F1F1F</color>
