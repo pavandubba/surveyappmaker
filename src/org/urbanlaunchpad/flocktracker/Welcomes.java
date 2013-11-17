@@ -11,6 +11,8 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.Window;
+import android.view.WindowManager;
 
 public class Welcomes extends Activity implements OnClickListener {
 
@@ -20,7 +22,15 @@ public class Welcomes extends Activity implements OnClickListener {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		// Remove title bar
+		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+		// Remove notification bar
+		this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+				WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		
 		setContentView(R.layout.activity_welcomes);
+
 		final MediaPlayer cuca_play = MediaPlayer.create(Welcomes.this,
 				R.raw.cucaracha);
 		findViewById(R.id.app_big_icon_button).setOnClickListener(
@@ -65,7 +75,8 @@ public class Welcomes extends Activity implements OnClickListener {
 		intent.addCategory(Intent.CATEGORY_BROWSABLE);
 		switch (v.getId()) {
 		case R.id.mobility_futures_colaborative_button:
-			intent.setData(Uri.parse("http://dusp.mit.edu/transportation/project/mobility-futures-collaborative"));
+			intent.setData(Uri
+					.parse("http://dusp.mit.edu/transportation/project/mobility-futures-collaborative"));
 			startActivity(intent);
 			break;
 		case R.id.mit_button:
