@@ -399,11 +399,14 @@ public class Surveyor extends Activity implements
 		FragmentManager fm = getFragmentManager();
 		if (fm.getBackStackEntryCount() > 2) {
 			Log.i("MainActivity", "popping backstack");
-			fm.popBackStack();
+			fm.popBackStackImmediate();
 		} else if (fm.getBackStackEntryCount() == 2){
 			navButtons.getView().findViewById(R.id.previous_question_button).setVisibility(View.INVISIBLE);
-			fm.popBackStack();
+			fm.popBackStackImmediate();
 		}
+		ChapterDrawerList.setItemChecked(chapterposition, true);
+		setTitle(ChapterTitles[chapterposition]);
+		ChapterDrawerLayout.closeDrawer(ChapterDrawerList);
 	}
 	
 	public void ChangeQuestion(JSONObject jquestion, Integer chapterposition,
