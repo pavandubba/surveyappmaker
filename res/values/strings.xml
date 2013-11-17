@@ -20,6 +20,14 @@
     <string name="previous_question_desc">Previous question</string>
     <string name="next_question_desc">Next question</string>
     <string name="submit_question_desc">Submit survey</string>
+    <string name="person_count_default">0</string>
+    <string name="more_men_button_desc">More men button</string>
+    <string name="fewer_men_button_desc">Fewer men button</string>
+    <string name="more_women_button_desc">More women button</string>
+    <string name="fewer_women_button_desc">Fewer women button</string>
+    <string name="men_icon_desc">Men icon</string>
+    <string name="women_icon_desc">Women icon</string>
+    
     
     <color name="text_bkgrd">#E6E6E6</color>
     <color name="text_color_light">#FFFFFF</color>
@@ -32,7 +40,9 @@
     <color name="answer_selected">#FF8000</color>
     <color name="blue_background">#383498</color>
     <color name="blue_drawer">#364154</color>
-
+    <color name="blue_men">#27AAE1</color>
+    <color name="pink_women">#EC008C</color>
+    
     <string name="couhes_esp">He tomado el curso de formación COUHES y me comprometo a cumplir con los mérodos y políticas que ahí se enuncian.</string>
     <string name="couhes_eng">I have taken the COUHES training course and agree to abide by the methods and policies set forth therein.</string>
     <string name="survey_agree_esp">¿Está de acuerdo con tomar una encuesta de seguridad en el transporte?</string>

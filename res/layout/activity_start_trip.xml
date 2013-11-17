@@ -4,7 +4,6 @@
     android:layout_height="match_parent"
     android:layout_centerHorizontal="true"
     android:layout_centerVertical="true"
-
     android:gravity="left|right"
     android:orientation="vertical"
     android:padding="0dp"
@@ -28,144 +27,171 @@
             android:layout_gravity="center"
             android:contentDescription="@string/start_trip_bus_desc"
             android:padding="5dp"
-            android:src="@drawable/start_trip_bus" />
+            android:src="@drawable/ft_red_st" />
     </FrameLayout>
 
-    <TableLayout
+    <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="0dp"
-        android:layout_margin="0dp"
-        android:layout_weight="3.5"
-        android:gravity="top"
-        android:padding="0dp" >
+        android:layout_weight="1" >
 
-        <TableRow
-            android:id="@+id/tableRow1"
+        <ImageButton
+            android:id="@+id/startSurveyButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="left"
-            android:padding="0dp" >
+            android:layout_weight="1"
+            android:background="@drawable/ft_surv"
+            android:contentDescription="@string/start_survey_button_desc" />
 
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="right"
-                android:padding="15dp"
-                android:text="@string/start_trip_esp"
-                android:textColor="@color/text_color_light"
-                android:textSize="15sp" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:padding="15dp"
-                android:text="@string/start_trip_eng"
-                android:textColor="@color/text_color_light"
-                android:textSize="15sp" />
-        </TableRow>
-
-        <TableRow
-            android:id="@+id/tableRow2"
+        <ImageButton
+            android:id="@+id/statsButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:padding="0dp" >
-
-            <DigitalClock
-                android:id="@+id/digitalClock1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/text_color_light" />
-        </TableRow>
-
-        <TableRow
-            android:id="@+id/tableRow3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="left"
-            android:padding="0dp" >
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="right"
-                android:padding="15dp"
-                android:text="@string/curr_loc_esp"
-                android:textColor="@color/text_color_light"
-                android:textSize="15sp" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:padding="15dp"
-                android:text="@string/curr_loc_eng"
-                android:textColor="@color/text_color_light"
-                android:textSize="15sp" />
-        </TableRow>
-
-        <TableRow
-            android:id="@+id/tableRow4"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:padding="10dp" >
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:padding="15dp"
-                android:text="@string/location"
-                android:textColor="@color/text_color_light"
-                android:textSize="15sp" />
-
-        </TableRow>
-
-        <TableRow
-            android:id="@+id/tableRow5"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-
-            <ImageButton
-                android:id="@+id/statsButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:contentDescription="@string/stats_button_desc"
-                android:src="@drawable/ft_surv" />
-
-            <ImageButton
-                android:id="@+id/startSurveyButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:contentDescription="@string/start_survey_button_desc"
-                android:src="@drawable/ft_prof" />
-
-        </TableRow>
-
-    </TableLayout>
-
-    <FrameLayout
-        android:layout_width="fill_parent"
-        android:layout_height="0dp"
-        android:layout_margin="0dp"
-        android:layout_weight="1.0"
-        android:background="@color/ulp_bkgrd"
-        android:padding="0dp" >
-
-        <ImageView
-            android:id="@+id/ulp_icon_link"
-            android:layout_width="match_parent"
-            android:layout_height="fill_parent"
             android:layout_gravity="center"
-            android:contentDescription="@string/ulp_icon_desc"
-            android:padding="15dp"
-            android:src="@drawable/ulpicon" />
-    </FrameLayout>
+            android:layout_weight="1"
+            android:background="@drawable/ft_prof"
+            android:contentDescription="@string/stats_button_desc"
+            android:padding="5dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1.5" >
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical" >
+
+            <ImageButton
+                android:id="@+id/moreMenButton"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:background="@drawable/ft_arrow_blu_up"
+                android:contentDescription="@string/more_men_button_desc" />
+
+            <TextView
+                android:id="@+id/maleCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/person_count_default"
+                android:textColor="@color/blue_men"
+                android:textSize="30sp" />
+
+            <ImageButton
+                android:id="@+id/fewerMenButton"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:background="@drawable/ft_arrow_blu_dn"
+                android:contentDescription="@string/fewer_men_button_desc" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:weightSum="2" >
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.5" />
+
+            <ImageView
+                android:id="@+id/menIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:contentDescription="@string/men_icon_desc"
+                android:gravity="center"
+                android:src="@drawable/ft_fig_male" />
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.5" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/totalPersonCount"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:gravity="center"
+                android:text="@string/person_count_default"
+                android:textColor="@color/text_color_light"
+                android:textSize="30sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:weightSum="2" >
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.5" />
+
+            <ImageView
+                android:id="@+id/womenIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:contentDescription="@string/women_icon_desc"
+                android:gravity="center"
+                android:src="@drawable/ft_fig_fem" />
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.5" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical" >
+
+            <ImageButton
+                android:id="@+id/moreWomenButton"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:background="@drawable/ft_arrow_pnk_up"
+                android:contentDescription="@string/more_women_button_desc" />
+
+            <TextView
+                android:id="@+id/femaleCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/person_count_default"
+                android:textColor="@color/pink_women"
+                android:textSize="30sp" />
+
+            <ImageButton
+                android:id="@+id/fewerWomenButton"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:background="@drawable/ft_arrow_pnk_dn"
+                android:contentDescription="@string/fewer_women_button_desc" />
+        </LinearLayout>
+    </LinearLayout>
 
 </LinearLayout>
