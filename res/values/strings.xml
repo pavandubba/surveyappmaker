@@ -17,6 +17,9 @@
     <string name="survey_button_desc">Survey button</string>
     <string name="stats_button_desc">Statistics button</string>
     <string name="start_survey_button_desc">Start survey button</string>
+    <string name="previous_question_desc">Previous question</string>
+    <string name="next_question_desc">Next question</string>
+    <string name="submit_question_desc">Submit survey</string>
     
     <color name="text_bkgrd">#E6E6E6</color>
     <color name="text_color_light">#FFFFFF</color>
@@ -27,6 +30,8 @@
     <color name="text_green_a">#69930C</color>
     <color name="text_green_b">#DBB205</color>
     <color name="answer_selected">#FF8000</color>
+    <color name="blue_background">#383498</color>
+    <color name="blue_drawer">#364154</color>
 
     <string name="couhes_esp">He tomado el curso de formación COUHES y me comprometo a cumplir con los mérodos y políticas que ahí se enuncian.</string>
     <string name="couhes_eng">I have taken the COUHES training course and agree to abide by the methods and policies set forth therein.</string>

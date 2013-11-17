@@ -2,27 +2,25 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/chapter_drawer_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:background="@color/blue_background" >
 
-    <!--
-         As the main content view, the view below consumes the entire
-         space available using match_parent in both dimensions.
-    -->
+
 
     <LinearLayout
         android:id="@+id/surveyor_all"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical" >
+
         <FrameLayout
             android:id="@+id/surveyor_frame"
             android:layout_width="match_parent"
             android:layout_height="0dip"
-            android:layout_weight="3"
-            android:background="@drawable/map_dark" >
+            android:layout_weight="3" >
         </FrameLayout>
 
-         <fragment
+        <fragment
             android:id="@+id/survey_question_navigator_fragment"
             android:name="org.urbanlaunchpad.flocktracker.Question_navigator_fragment"
             android:layout_width="match_parent"
@@ -35,7 +33,7 @@
         android:layout_width="240dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:background="@color/menu_green_a"
+        android:background="@color/blue_drawer"
         android:choiceMode="singleChoice"
         android:divider="@android:color/transparent"
         android:dividerHeight="0dp" />

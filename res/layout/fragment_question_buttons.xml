@@ -2,25 +2,42 @@
     android:id="@+id/questionButtons"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" 
-	android:background="@color/menu_green_b" 
-	>
-     <Button
-         android:id="@+id/previous_question_button"
-         android:layout_width="wrap_content"
-         android:layout_height="wrap_content"
-         android:text="@string/previous_question" >
-     </Button>
-     <Button
-         android:id="@+id/next_question_button"
-         android:layout_width="wrap_content"
-         android:layout_height="wrap_content"
-         android:text="@string/next_question" >
-     </Button>
-     <Button
-         android:id="@+id/submit_survey_button"
-         android:layout_width="wrap_content"
-         android:layout_height="wrap_content"
-         android:text="@string/submit_survey" >
-     </Button>
+    android:gravity="bottom"
+    android:orientation="horizontal" >
+
+    <ImageView
+        android:id="@+id/previous_question_button"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:layout_weight="1"
+        android:contentDescription="@string/previous_question_desc"
+        android:padding="5dp"
+        android:src="@drawable/prev" >
+    </ImageView>
+    
+        <ImageView
+        android:id="@+id/submit_survey_button"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:layout_weight="1"
+        android:contentDescription="@string/submit_question_desc"
+        android:padding="5dp"
+        android:src="@drawable/submit" >
+    </ImageView>
+
+    <ImageView
+        android:id="@+id/next_question_button"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:layout_weight="1"
+        android:contentDescription="@string/next_question_desc"
+        android:padding="5dp"
+        android:src="@drawable/next" >
+    </ImageView>
+
+
+
 </LinearLayout>
