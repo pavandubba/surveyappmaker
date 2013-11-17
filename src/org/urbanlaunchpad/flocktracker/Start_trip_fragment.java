@@ -17,7 +17,7 @@ public class Start_trip_fragment extends Fragment {
 	// deliver messages
 	public interface HubButtonCallback {
 		public enum HubButtonType {
-			NEWSURVEY, STATISTICS
+			NEWSURVEY, STATISTICS, MOREMEN, FEWERMEN, MOREWOMEN, FEWERWOMEN
 		}
 		/** Called by Fragment when an button is selected */
 		public void HubButtonPressed(HubButtonType typeButton);
@@ -48,6 +48,46 @@ public class Start_trip_fragment extends Fragment {
 			@Override
 			public void onClick(View v) {
 				callback.HubButtonPressed(HubButtonCallback.HubButtonType.STATISTICS);
+			}
+		});
+		
+		// more men button callback
+		View moreMenButton = (View) rootView.findViewById(R.id.moreMenButton);
+
+		moreMenButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				callback.HubButtonPressed(HubButtonCallback.HubButtonType.MOREMEN);
+			}
+		});
+		
+		// fewer men button callback
+		View fewerMenButton = (View) rootView.findViewById(R.id.fewerMenButton);
+
+		fewerMenButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				callback.HubButtonPressed(HubButtonCallback.HubButtonType.FEWERMEN);
+			}
+		});
+		
+		// more women button callback
+		View moreWomenButton = (View) rootView.findViewById(R.id.moreWomenButton);
+
+		moreWomenButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				callback.HubButtonPressed(HubButtonCallback.HubButtonType.MOREWOMEN);
+			}
+		});
+		
+		// fewer men button callback
+		View fewerWomenButton = (View) rootView.findViewById(R.id.fewerWomenButton);
+
+		fewerWomenButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				callback.HubButtonPressed(HubButtonCallback.HubButtonType.FEWERWOMEN);
 			}
 		});
 		

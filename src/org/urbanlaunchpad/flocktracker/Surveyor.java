@@ -37,6 +37,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -83,6 +84,8 @@ public class Surveyor extends Activity implements
 	private String[] questionKindlistString;
 	Integer numberofquestions;
 	Integer numberofcolumns;
+	private Integer maleCount;
+	private Integer femaleCount;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -176,12 +179,15 @@ public class Surveyor extends Activity implements
 		ChapterDrawerLayout.setDrawerListener(ChapterDrawerToggle);
 
 		navButtons = getFragmentManager().findFragmentById(R.id.survey_question_navigator_fragment);
-
+		maleCount = 0;
+		femaleCount = 0;
+		
 		if (savedInstanceState == null) {
 			showHubPage();
 		}
 
 		mLocationClient = new LocationClient(this, this, this);
+
 	}
 
 	/*
@@ -288,6 +294,18 @@ public class Surveyor extends Activity implements
 		ChapterDrawerList.setItemChecked(0, true);
 		setTitle(ChapterTitles[0]);
 		ChapterDrawerLayout.closeDrawer(ChapterDrawerList);
+
+		// update count
+		new Thread(new Runnable() {
+			boolean flag = false;
+
+			public void run() {
+				while (!flag) {
+					flag = updateCount("male");
+					updateCount("female");
+				}
+			}
+		}).start();
 	}
 
 	private void selectChapter(int position, int qposition) {
@@ -383,11 +401,14 @@ public class Surveyor extends Activity implements
 		FragmentManager fm = getFragmentManager();
 		if (fm.getBackStackEntryCount() > 2) {
 			Log.i("MainActivity", "popping backstack");
-			fm.popBackStack();
+			fm.popBackStackImmediate();
 		} else if (fm.getBackStackEntryCount() == 2){
 			navButtons.getView().findViewById(R.id.previous_question_button).setVisibility(View.INVISIBLE);
-			fm.popBackStack();
+			fm.popBackStackImmediate();
 		}
+		ChapterDrawerList.setItemChecked(chapterposition, true);
+		setTitle(ChapterTitles[chapterposition]);
+		ChapterDrawerLayout.closeDrawer(ChapterDrawerList);
 	}
 	
 	public void ChangeQuestion(JSONObject jquestion, Integer chapterposition,
@@ -638,9 +659,49 @@ public class Surveyor extends Activity implements
 			break;
 		case STATISTICS:
 			break;
+		case FEWERMEN:
+			if (maleCount > 0) {
+				maleCount--;
+				updateCount("male");
+			}
+			break;
+		case FEWERWOMEN:
+			if (femaleCount > 0) {
+				femaleCount--;
+				updateCount("female");
+			}
+			break;
+		case MOREMEN:
+			maleCount++;
+			updateCount("male");
+			break;
+		case MOREWOMEN:
+			femaleCount++;
+			updateCount("female");
+			break;
+		default:
+			break;
 		}
 	}
 
+	public boolean updateCount(String gender) {
+		TextView totalCount = (TextView) findViewById(R.id.totalPersonCount);
+		if (totalCount == null)
+			return false;
+		if (gender.equals("male")) {
+			// update male count
+			TextView maleCountView = (TextView) findViewById(R.id.maleCount);
+			maleCountView.setText(maleCount.toString());
+		} else if (gender.equals("female")){
+			// update female count
+			TextView femaleCountView = (TextView) findViewById(R.id.femaleCount);
+			femaleCountView.setText(femaleCount.toString());
+		}
+		// update total count
+		totalCount.setText("" + (maleCount + femaleCount));
+		return true;
+	}
+	
 	public void createcolumn(String name, String type)
 			throws ClientProtocolException, IOException {
 		String TABLE_ID = "11lGsm8B2SNNGmEsTmuGVrAy1gcJF9TQBo3G1Vw0";
