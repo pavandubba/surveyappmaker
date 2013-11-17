@@ -295,12 +295,14 @@ public class Surveyor extends Activity implements
 		setTitle(ChapterTitles[0]);
 		ChapterDrawerLayout.closeDrawer(ChapterDrawerList);
 
+		// update count
 		new Thread(new Runnable() {
+			boolean flag = false;
+
 			public void run() {
-				boolean flag = false;
 				while (!flag) {
-					updateCount("male");
-					flag = updateCount("female");
+					flag = updateCount("male");
+					updateCount("female");
 				}
 			}
 		}).start();
