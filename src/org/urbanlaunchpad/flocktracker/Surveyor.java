@@ -28,6 +28,8 @@ import android.content.IntentSender;
 import android.content.res.Configuration;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -86,6 +88,30 @@ public class Surveyor extends Activity implements
 	Integer numberofcolumns;
 	private Integer maleCount;
 	private Integer femaleCount;
+	private enum counter_update {
+		MALE_UPDATE, FEMALE_UPDATE
+	}
+	
+	private Handler messageHandler = new Handler() {
+
+		public void handleMessage(Message msg) {
+			if (msg.what == counter_update.MALE_UPDATE.ordinal()) {
+				// update male count
+    			TextView maleCountView = (TextView) findViewById(R.id.maleCount);
+    			maleCountView.setText(maleCount.toString());
+    			// update total count
+    			TextView totalCount = (TextView) findViewById(R.id.totalPersonCount);
+    			totalCount.setText("" + (maleCount + femaleCount));
+			} else if (msg.what == counter_update.FEMALE_UPDATE.ordinal()) {
+				// update male count
+    			TextView femaleCountView = (TextView) findViewById(R.id.femaleCount);
+    			femaleCountView.setText(femaleCount.toString());
+    			// update total count
+    			TextView totalCount = (TextView) findViewById(R.id.totalPersonCount);
+    			totalCount.setText("" + (maleCount + femaleCount));
+			}
+		}
+	};
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -296,16 +322,8 @@ public class Surveyor extends Activity implements
 		ChapterDrawerLayout.closeDrawer(ChapterDrawerList);
 
 		// update count
-		new Thread(new Runnable() {
-			boolean flag = false;
-
-			public void run() {
-				while (!flag) {
-					flag = updateCount("male");
-					updateCount("female");
-				}
-			}
-		}).start();
+		updateCount("male");
+    	updateCount("female");
 	}
 
 	private void selectChapter(int position, int qposition) {
@@ -684,22 +702,12 @@ public class Surveyor extends Activity implements
 		}
 	}
 
-	public boolean updateCount(String gender) {
-		TextView totalCount = (TextView) findViewById(R.id.totalPersonCount);
-		if (totalCount == null)
-			return false;
+	public void updateCount(String gender) {
 		if (gender.equals("male")) {
-			// update male count
-			TextView maleCountView = (TextView) findViewById(R.id.maleCount);
-			maleCountView.setText(maleCount.toString());
+			messageHandler.sendEmptyMessage(counter_update.MALE_UPDATE.ordinal());
 		} else if (gender.equals("female")){
-			// update female count
-			TextView femaleCountView = (TextView) findViewById(R.id.femaleCount);
-			femaleCountView.setText(femaleCount.toString());
+			messageHandler.sendEmptyMessage(counter_update.FEMALE_UPDATE.ordinal());
 		}
-		// update total count
-		totalCount.setText("" + (maleCount + femaleCount));
-		return true;
 	}
 	
 	public void createcolumn(String name, String type)
