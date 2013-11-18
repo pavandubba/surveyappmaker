@@ -20,14 +20,13 @@
         android:layout_weight="1.5"
         android:padding="0dp" >
 
-        <ImageButton
+        <ImageView
             android:id="@+id/start_trip_button"
             android:layout_width="match_parent"
             android:layout_height="fill_parent"
             android:layout_gravity="center"
             android:contentDescription="@string/start_trip_bus_desc"
             android:padding="5dp"
-            android:scaleType="fitCenter"
             android:src="@drawable/ft_red_st" />
     </FrameLayout>
 
@@ -36,23 +35,21 @@
         android:layout_height="0dp"
         android:layout_weight="1" >
 
-        <ImageButton
+        <ImageView
             android:id="@+id/startSurveyButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:src="@drawable/ft_surv"
-            android:scaleType="fitCenter"
             android:contentDescription="@string/start_survey_button_desc" />
 
-        <ImageButton
+        <ImageView
             android:id="@+id/statsButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="1"
             android:src="@drawable/ft_prof"
-			android:scaleType="fitCenter"
             android:contentDescription="@string/stats_button_desc"
             android:padding="5dp" />
     </LinearLayout>
@@ -68,12 +65,12 @@
             android:layout_weight="1"
             android:orientation="vertical" >
 
-            <ImageButton
+            <ImageView
                 android:id="@+id/moreMenButton"
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
                 android:layout_weight="1"
-                android:background="@drawable/ft_arrow_blu_up"
+                android:src="@drawable/ft_arrow_blu_up"
                 android:contentDescription="@string/more_men_button_desc" />
 
             <TextView
@@ -85,12 +82,12 @@
                 android:textColor="@color/blue_men"
                 android:textSize="30sp" />
 
-            <ImageButton
+            <ImageView
                 android:id="@+id/fewerMenButton"
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
                 android:layout_weight="1"
-                android:background="@drawable/ft_arrow_blu_dn"
+                android:src="@drawable/ft_arrow_blu_dn"
                 android:contentDescription="@string/fewer_men_button_desc" />
         </LinearLayout>
 
@@ -170,12 +167,12 @@
             android:layout_weight="1"
             android:orientation="vertical" >
 
-            <ImageButton
+            <ImageView
                 android:id="@+id/moreWomenButton"
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
                 android:layout_weight="1"
-                android:background="@drawable/ft_arrow_pnk_up"
+                android:src="@drawable/ft_arrow_pnk_up"
                 android:contentDescription="@string/more_women_button_desc" />
 
             <TextView
@@ -187,12 +184,12 @@
                 android:textColor="@color/pink_women"
                 android:textSize="30sp" />
 
-            <ImageButton
+            <ImageView
                 android:id="@+id/fewerWomenButton"
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
                 android:layout_weight="1"
-                android:background="@drawable/ft_arrow_pnk_dn"
+                android:src="@drawable/ft_arrow_pnk_dn"
                 android:contentDescription="@string/fewer_women_button_desc" />
         </LinearLayout>
     </LinearLayout>

@@ -46,15 +46,13 @@ import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.location.LocationClient;
-import com.google.android.gms.location.LocationListener;
 
 public class Surveyor extends Activity implements
 		Question_fragment.AnswerSelected, Question_fragment.PositionPasser,
 		Question_navigator_fragment.NavButtonCallback,
 		Start_trip_fragment.HubButtonCallback,
 		GooglePlayServicesClient.ConnectionCallbacks,
-		GooglePlayServicesClient.OnConnectionFailedListener,
-		LocationListener {
+		GooglePlayServicesClient.OnConnectionFailedListener {
 	private DrawerLayout ChapterDrawerLayout;
 	private ListView ChapterDrawerList;
 	private ActionBarDrawerToggle ChapterDrawerToggle;
@@ -1006,11 +1004,19 @@ public class Surveyor extends Activity implements
 	public void changecolumntype() {
 
 	}
+	
+	public String createID() {
+	 	String ID = null;
+	 	Integer randy;
+	 	for (int i = 0; i < 7; ++i) {
+	 	 randy = (int) (Math.random() * ((9) + 1));
+	 	 if (i == 0) {
+	 	 ID = randy.toString();
+	 	 } else {
+	 	 ID = ID + randy.toString();
+	 	 }
+	 	}
 
-	@Override
-	public void onLocationChanged(Location location) {
-		// TODO Auto-generated method stub
-		
-	}
-
+	 	return ID;
+	 }
 }
