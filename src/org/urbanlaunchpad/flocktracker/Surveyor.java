@@ -90,6 +90,7 @@ public class Surveyor extends Activity implements
 	private Integer maleCount;
 	private Integer femaleCount;
 	private String surveyID;
+	private String tripID;
 	private boolean isTripStarted = false;
 
 	private enum EVENT_TYPE {
@@ -240,10 +241,6 @@ public class Surveyor extends Activity implements
 			}
 		}).start();
 
-
-
-
-
 		// location tracking
 		new Thread(new Runnable() {
 			public void run() {
@@ -292,30 +289,26 @@ public class Surveyor extends Activity implements
 
 	public void startTrip() {
 		isTripStarted = true;
-		// TODO generate new trip ID
+		tripID = "T" + createID();
 
 		// TODO change icon to green and animate
 		messageHandler.sendEmptyMessage(EVENT_TYPE.START_TRIP.ordinal());
-
-		// TODO enable location tracking and every 5 minutes send to fusion table GPS
-
 	}
 
 	public void submitLocation() throws ClientProtocolException, IOException {
 		Location currentLocation = mLocationClient.getLastLocation();
 		String latlng = LocationHelper.getLatLngAlt(currentLocation);
 		String TABLE_ID = "11lGsm8B2SNNGmEsTmuGVrAy1gcJF9TQBo3G1Vw0";
-		String trip_id = "T1234";
 		String url = "https://www.googleapis.com/fusiontables/v1/query";
 		String dateString = (String) android.text.format.DateFormat.format(
 				"yyyy-MM-dd hh:mm:ss", new java.util.Date());
 		String query = "INSERT INTO " + TABLE_ID + " ("
-				+ "Location,Lat,Lng,Alt,Date,trip_id) VALUES ("
+				+ "Location,Lat,Lng,Alt,Date,TripID) VALUES ("
 				+ "'<Point><coordinates>" + latlng
 				+ "</coordinates></Point>','" + currentLocation.getLatitude()
 				+ "','" + currentLocation.getLongitude() + "','"
 				+ currentLocation.getAltitude() + "','" + dateString + "','"
-				+ trip_id + "');";
+				+ tripID + "');";
 		String apiKey = "AIzaSyB4Nn1k2sML-0aBN2Fk3qOXLF-4zlaNwmg";
 		HttpClient httpclient = new DefaultHttpClient();
 		HttpPost httppost = new HttpPost(url);
@@ -334,8 +327,8 @@ public class Surveyor extends Activity implements
 
 	public void stopTrip() {
 		isTripStarted = false;
-		// TODO remove trip ID
-
+		tripID = "";
+		
 		// TODO change icon to red
 		messageHandler.sendEmptyMessage(EVENT_TYPE.END_TRIP.ordinal());
 	}
@@ -603,11 +596,12 @@ public class Surveyor extends Activity implements
 		String dateString = (String) android.text.format.DateFormat.format(
 				"yyyy-MM-dd hh:mm:ss", new java.util.Date());
 		String query = "INSERT INTO " + TABLE_ID + " (" + columnnamesString
-				+ ",Location,Lat,Lng,Alt,Date,SurveyID) VALUES (" + answerfinalString
+				+ ",Location,Lat,Lng,Alt,Date,SurveyID,TripID) VALUES (" + answerfinalString
 				+ ",'<Point><coordinates>" + latlng
 				+ "</coordinates></Point>','" + currentLocation.getLatitude()
 				+ "','" + currentLocation.getLongitude() + "','"
-				+ currentLocation.getAltitude() + "','" + dateString + "','" + surveyID + "');";
+				+ currentLocation.getAltitude() + "','" + dateString + "','" + surveyID
+				+ "','" + tripID + "');";
 		String apiKey = "AIzaSyB4Nn1k2sML-0aBN2Fk3qOXLF-4zlaNwmg";
 		HttpClient httpclient = new DefaultHttpClient();
 		HttpPost httppost = new HttpPost(url);
@@ -932,14 +926,14 @@ public class Surveyor extends Activity implements
 	public void columnCheck() {
 		Boolean existsBoolean;
 		String[] hardcolumnsStrings = { "Location", "Date", "Lat", "Alt",
-				"Lng", "SurveyID" }; // Columns
+				"Lng", "SurveyID", "TripID" }; // Columns
 		// that
 		// are
 		// in
 		// all
 		// projects.
 		String[] hardcolumntypeStrings = { "LOCATION", "DATETIME", "NUMBER",
-				"NUMBER", "NUMBER", "STRING" }; // Types for the columns that are in all
+				"NUMBER", "NUMBER", "STRING", "STRING" }; // Types for the columns that are in all
 										// projects.
 		try {
 			columnlistNameString = getcolumnList(
