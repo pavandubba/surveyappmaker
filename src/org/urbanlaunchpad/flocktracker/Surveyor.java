@@ -38,6 +38,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -45,13 +46,15 @@ import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.location.LocationClient;
+import com.google.android.gms.location.LocationListener;
 
 public class Surveyor extends Activity implements
 		Question_fragment.AnswerSelected, Question_fragment.PositionPasser,
 		Question_navigator_fragment.NavButtonCallback,
 		Start_trip_fragment.HubButtonCallback,
 		GooglePlayServicesClient.ConnectionCallbacks,
-		GooglePlayServicesClient.OnConnectionFailedListener {
+		GooglePlayServicesClient.OnConnectionFailedListener,
+		LocationListener {
 	private DrawerLayout ChapterDrawerLayout;
 	private ListView ChapterDrawerList;
 	private ActionBarDrawerToggle ChapterDrawerToggle;
@@ -88,27 +91,35 @@ public class Surveyor extends Activity implements
 	Integer numberofcolumns;
 	private Integer maleCount;
 	private Integer femaleCount;
-	private enum counter_update {
-		MALE_UPDATE, FEMALE_UPDATE
+	private boolean isTripStarted = false;
+	
+	private enum EVENT_TYPE {
+		MALE_UPDATE, FEMALE_UPDATE, START_TRIP, END_TRIP
 	}
 	
 	private Handler messageHandler = new Handler() {
 
 		public void handleMessage(Message msg) {
-			if (msg.what == counter_update.MALE_UPDATE.ordinal()) {
+			if (msg.what == EVENT_TYPE.MALE_UPDATE.ordinal()) {
 				// update male count
     			TextView maleCountView = (TextView) findViewById(R.id.maleCount);
     			maleCountView.setText(maleCount.toString());
     			// update total count
     			TextView totalCount = (TextView) findViewById(R.id.totalPersonCount);
     			totalCount.setText("" + (maleCount + femaleCount));
-			} else if (msg.what == counter_update.FEMALE_UPDATE.ordinal()) {
+			} else if (msg.what == EVENT_TYPE.FEMALE_UPDATE.ordinal()) {
 				// update male count
     			TextView femaleCountView = (TextView) findViewById(R.id.femaleCount);
     			femaleCountView.setText(femaleCount.toString());
     			// update total count
     			TextView totalCount = (TextView) findViewById(R.id.totalPersonCount);
     			totalCount.setText("" + (maleCount + femaleCount));
+			} else if (msg.what == EVENT_TYPE.START_TRIP.ordinal()) {
+    			ImageView gear = (ImageView) findViewById(R.id.start_trip_button);
+    			gear.setImageResource(R.drawable.ft_grn_st1);
+			} else if (msg.what == EVENT_TYPE.END_TRIP.ordinal()) {
+				ImageView gear = (ImageView) findViewById(R.id.start_trip_button);
+    			gear.setImageResource(R.drawable.ft_red_st);
 			}
 		}
 	};
@@ -214,6 +225,30 @@ public class Surveyor extends Activity implements
 
 		mLocationClient = new LocationClient(this, this, this);
 
+		// location tracking
+		new Thread(new Runnable() {
+			public void run() {
+				while (true) {
+					try {
+						if (isTripStarted) {
+							submitLocation();
+							Thread.sleep(60000);
+						} else {
+							Thread.sleep(5000);
+						}
+					} catch (ClientProtocolException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+		}).start();
 	}
 
 	/*
@@ -236,6 +271,56 @@ public class Surveyor extends Activity implements
 		super.onStop();
 	}
 
+	public void startTrip() {
+		isTripStarted = true;
+		// TODO generate new trip ID
+		
+		// TODO change icon to green and animate
+		messageHandler.sendEmptyMessage(EVENT_TYPE.START_TRIP.ordinal());
+		
+		// TODO enable location tracking and every 5 minutes send to fusion table GPS
+		
+	}
+	
+	public void submitLocation() throws ClientProtocolException, IOException {
+		Location currentLocation = mLocationClient.getLastLocation();
+		String latlng = LocationHelper.getLatLngAlt(currentLocation);
+		String TABLE_ID = "11lGsm8B2SNNGmEsTmuGVrAy1gcJF9TQBo3G1Vw0";
+		String trip_id = "T1234";
+		String url = "https://www.googleapis.com/fusiontables/v1/query";
+		String dateString = (String) android.text.format.DateFormat.format(
+				"yyyy-MM-dd hh:mm:ss", new java.util.Date());
+		String query = "INSERT INTO " + TABLE_ID + " ("
+				+ "Location,Lat,Lng,Alt,Date,trip_id) VALUES ("
+				+ "'<Point><coordinates>" + latlng
+				+ "</coordinates></Point>','" + currentLocation.getLatitude()
+				+ "','" + currentLocation.getLongitude() + "','"
+				+ currentLocation.getAltitude() + "','" + dateString + "','"
+				+ trip_id + "');";
+		String apiKey = "AIzaSyB4Nn1k2sML-0aBN2Fk3qOXLF-4zlaNwmg";
+		HttpClient httpclient = new DefaultHttpClient();
+		HttpPost httppost = new HttpPost(url);
+		httppost.setHeader("Authorization", "Bearer " + token);
+		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
+		nameValuePairs.add(new BasicNameValuePair("sql", query));
+		nameValuePairs.add(new BasicNameValuePair("key", apiKey));
+		httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+		HttpResponse response = httpclient.execute(httppost);
+
+		Log.v("Submit survey response code", response.getStatusLine()
+				.getStatusCode()
+				+ " "
+				+ response.getStatusLine().getReasonPhrase());
+	}
+	
+	public void stopTrip() {
+		isTripStarted = false;
+		// TODO remove trip ID
+		
+		// TODO change icon to red
+		messageHandler.sendEmptyMessage(EVENT_TYPE.END_TRIP.ordinal());
+	}
+	
 	/*
 	 * Handle results returned to this Activity by other Activities started with
 	 * startActivityForResult(). In particular, the method onConnectionFailed()
@@ -324,6 +409,12 @@ public class Surveyor extends Activity implements
 		// update count
 		updateCount("male");
     	updateCount("female");
+
+    	// update gear
+    	if (isTripStarted)
+    		startTrip();
+    	else
+    		stopTrip();
 	}
 
 	private void selectChapter(int position, int qposition) {
@@ -670,6 +761,12 @@ public class Surveyor extends Activity implements
 	public void HubButtonPressed(HubButtonType type) {
 		switch (type) {
 
+		case TOGGLETRIP:
+			if (isTripStarted)
+				stopTrip();
+			else
+				startTrip();
+			break;
 		case NEWSURVEY:
 			chapterposition = 1;
 			questionposition = 0;
@@ -704,9 +801,9 @@ public class Surveyor extends Activity implements
 
 	public void updateCount(String gender) {
 		if (gender.equals("male")) {
-			messageHandler.sendEmptyMessage(counter_update.MALE_UPDATE.ordinal());
+			messageHandler.sendEmptyMessage(EVENT_TYPE.MALE_UPDATE.ordinal());
 		} else if (gender.equals("female")){
-			messageHandler.sendEmptyMessage(counter_update.FEMALE_UPDATE.ordinal());
+			messageHandler.sendEmptyMessage(EVENT_TYPE.FEMALE_UPDATE.ordinal());
 		}
 	}
 	
@@ -908,6 +1005,12 @@ public class Surveyor extends Activity implements
 
 	public void changecolumntype() {
 
+	}
+
+	@Override
+	public void onLocationChanged(Location location) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

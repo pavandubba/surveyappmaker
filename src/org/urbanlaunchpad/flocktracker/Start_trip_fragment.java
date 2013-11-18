@@ -17,7 +17,7 @@ public class Start_trip_fragment extends Fragment {
 	// deliver messages
 	public interface HubButtonCallback {
 		public enum HubButtonType {
-			NEWSURVEY, STATISTICS, MOREMEN, FEWERMEN, MOREWOMEN, FEWERWOMEN
+			NEWSURVEY, STATISTICS, MOREMEN, FEWERMEN, MOREWOMEN, FEWERWOMEN, TOGGLETRIP
 		}
 		/** Called by Fragment when an button is selected */
 		public void HubButtonPressed(HubButtonType typeButton);
@@ -30,6 +30,16 @@ public class Start_trip_fragment extends Fragment {
 		rootView = inflater.inflate(R.layout.activity_start_trip, container,
 				false);
 		
+		
+		// start new survey button callback
+		View startTripButton = (View) rootView.findViewById(R.id.start_trip_button);
+
+		startTripButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				callback.HubButtonPressed(HubButtonCallback.HubButtonType.TOGGLETRIP);
+			}
+		});
 		
 		// start new survey button callback
 		View startSurveyButton = (View) rootView.findViewById(R.id.startSurveyButton);

@@ -20,13 +20,14 @@
         android:layout_weight="1.5"
         android:padding="0dp" >
 
-        <ImageView
+        <ImageButton
             android:id="@+id/start_trip_button"
             android:layout_width="match_parent"
             android:layout_height="fill_parent"
             android:layout_gravity="center"
             android:contentDescription="@string/start_trip_bus_desc"
             android:padding="5dp"
+            android:scaleType="fitCenter"
             android:src="@drawable/ft_red_st" />
     </FrameLayout>
 
@@ -40,7 +41,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@drawable/ft_surv"
+            android:src="@drawable/ft_surv"
+            android:scaleType="fitCenter"
             android:contentDescription="@string/start_survey_button_desc" />
 
         <ImageButton
@@ -49,7 +51,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:background="@drawable/ft_prof"
+            android:src="@drawable/ft_prof"
+			android:scaleType="fitCenter"
             android:contentDescription="@string/stats_button_desc"
             android:padding="5dp" />
     </LinearLayout>
