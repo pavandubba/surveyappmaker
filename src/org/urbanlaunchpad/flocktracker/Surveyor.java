@@ -89,12 +89,13 @@ public class Surveyor extends Activity implements
 	Integer numberofcolumns;
 	private Integer maleCount;
 	private Integer femaleCount;
+	private String surveyID;
 	private boolean isTripStarted = false;
-	
+
 	private enum EVENT_TYPE {
 		MALE_UPDATE, FEMALE_UPDATE, START_TRIP, END_TRIP
 	}
-	
+
 	private Handler messageHandler = new Handler() {
 
 		public void handleMessage(Message msg) {
@@ -122,6 +123,7 @@ public class Surveyor extends Activity implements
 		}
 	};
 
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -142,15 +144,16 @@ public class Surveyor extends Activity implements
 			}
 		}
 
+
 		// Obtaining information about survey.
 
 		try {
 			jchapterlist = jsurv.getJSONArray("Survey");
 			totalchapters = jchapterlist.length();
-			ChapterTitles = new String[1+totalchapters];
+			ChapterTitles = new String[1 + totalchapters];
 			ChapterTitles[0] = "Status Page";
 			for (int i = 1; i <= totalchapters; ++i) {
-				aux = jchapterlist.getJSONObject(i-1);
+				aux = jchapterlist.getJSONObject(i - 1);
 				ChapterTitles[i] = aux.getString("Chapter");
 			}
 			// toast = Toast.makeText(getApplicationContext(), "Chapters " +
@@ -164,6 +167,9 @@ public class Surveyor extends Activity implements
 					Toast.LENGTH_SHORT);
 			toast.show();
 		}
+
+
+
 
 		// Filling number of questions per chapter.
 		totalquestionsArray = new Integer[totalchapters];
@@ -213,15 +219,30 @@ public class Surveyor extends Activity implements
 		};
 		ChapterDrawerLayout.setDrawerListener(ChapterDrawerToggle);
 
-		navButtons = getFragmentManager().findFragmentById(R.id.survey_question_navigator_fragment);
+		navButtons = getFragmentManager().findFragmentById(
+				R.id.survey_question_navigator_fragment);
 		maleCount = 0;
 		femaleCount = 0;
-		
+
 		if (savedInstanceState == null) {
 			showHubPage();
 		}
 
 		mLocationClient = new LocationClient(this, this, this);
+
+		surveyID = "S" + createID();
+		toast = Toast.makeText(getApplicationContext(),
+				"Survey ID " + surveyID, Toast.LENGTH_SHORT);
+		toast.show();
+		new Thread(new Runnable() {
+			public void run() {
+				columnCheck();
+			}
+		}).start();
+
+
+
+
 
 		// location tracking
 		new Thread(new Runnable() {
@@ -272,14 +293,14 @@ public class Surveyor extends Activity implements
 	public void startTrip() {
 		isTripStarted = true;
 		// TODO generate new trip ID
-		
+
 		// TODO change icon to green and animate
 		messageHandler.sendEmptyMessage(EVENT_TYPE.START_TRIP.ordinal());
-		
+
 		// TODO enable location tracking and every 5 minutes send to fusion table GPS
-		
+
 	}
-	
+
 	public void submitLocation() throws ClientProtocolException, IOException {
 		Location currentLocation = mLocationClient.getLastLocation();
 		String latlng = LocationHelper.getLatLngAlt(currentLocation);
@@ -310,15 +331,15 @@ public class Surveyor extends Activity implements
 				+ " "
 				+ response.getStatusLine().getReasonPhrase());
 	}
-	
+
 	public void stopTrip() {
 		isTripStarted = false;
 		// TODO remove trip ID
-		
+
 		// TODO change icon to red
 		messageHandler.sendEmptyMessage(EVENT_TYPE.END_TRIP.ordinal());
 	}
-	
+
 	/*
 	 * Handle results returned to this Activity by other Activities started with
 	 * startActivityForResult(). In particular, the method onConnectionFailed()
@@ -385,18 +406,20 @@ public class Surveyor extends Activity implements
 	}
 
 	private void showHubPage() {
-		navButtons.getView().findViewById(R.id.previous_question_button).setVisibility(View.INVISIBLE);
+		navButtons.getView().findViewById(R.id.previous_question_button)
+				.setVisibility(View.INVISIBLE);
 		FragmentManager fragmentManager = getFragmentManager();
 		Fragment fragment = new Start_trip_fragment();
 
-		FragmentTransaction transactionHide = fragmentManager.beginTransaction();
+		FragmentTransaction transactionHide = fragmentManager
+				.beginTransaction();
 		// hide navigation buttons
 		transactionHide.hide(navButtons);
 		transactionHide.commit();
-		
+
 		FragmentTransaction transaction = fragmentManager.beginTransaction();
 		transaction.replace(R.id.surveyor_frame, fragment);
-		transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);		
+		transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
 		transaction.commit();
 
 		// update selected item and title, then close the drawer.
@@ -406,13 +429,13 @@ public class Surveyor extends Activity implements
 
 		// update count
 		updateCount("male");
-    	updateCount("female");
+  	updateCount("female");
 
-    	// update gear
-    	if (isTripStarted)
-    		startTrip();
-    	else
-    		stopTrip();
+  	// update gear
+  	if (isTripStarted)
+  		startTrip();
+  	else
+  		stopTrip();
 	}
 
 	private void selectChapter(int position, int qposition) {
@@ -487,19 +510,19 @@ public class Surveyor extends Activity implements
 			onPrevQuestionPressed();
 			return;
 		}
-		
+
 		if (navButtons.isVisible()) {
 			FragmentTransaction transactionHide = fm.beginTransaction();
 			// hide navigation buttons
 			transactionHide.hide(navButtons);
 			transactionHide.commit();
 		}
-		
+
 		// update title
 		ChapterDrawerList.setItemChecked(0, true);
 		setTitle(ChapterTitles[0]);
 		ChapterDrawerLayout.closeDrawer(ChapterDrawerList);
-		
+
 		Log.i("MainActivity", "nothing on backstack, calling super");
 		super.onBackPressed();
 	}
@@ -509,15 +532,16 @@ public class Surveyor extends Activity implements
 		if (fm.getBackStackEntryCount() > 2) {
 			Log.i("MainActivity", "popping backstack");
 			fm.popBackStackImmediate();
-		} else if (fm.getBackStackEntryCount() == 2){
-			navButtons.getView().findViewById(R.id.previous_question_button).setVisibility(View.INVISIBLE);
+		} else if (fm.getBackStackEntryCount() == 2) {
+			navButtons.getView().findViewById(R.id.previous_question_button)
+					.setVisibility(View.INVISIBLE);
 			fm.popBackStackImmediate();
 		}
 		ChapterDrawerList.setItemChecked(chapterposition, true);
 		setTitle(ChapterTitles[chapterposition]);
 		ChapterDrawerLayout.closeDrawer(ChapterDrawerList);
 	}
-	
+
 	public void ChangeQuestion(JSONObject jquestion, Integer chapterposition,
 			Integer questionposition) {
 		// Starting question fragment and passing json question information.
@@ -531,7 +555,8 @@ public class Surveyor extends Activity implements
 
 		FragmentManager fragmentManager = getFragmentManager();
 		FragmentTransaction transaction = fragmentManager.beginTransaction();
-		FragmentTransaction transactionShow = fragmentManager.beginTransaction();
+		FragmentTransaction transactionShow = fragmentManager
+				.beginTransaction();
 
 		// show navigation buttons and add new question
 		if (!navButtons.isVisible()) {
@@ -567,7 +592,6 @@ public class Surveyor extends Activity implements
 		}
 	}
 
-
 	public void submitSurvey() throws ClientProtocolException, IOException {
 		columnnamesString = getnames("id", "nq");
 		answerfinalString = getnames("Answer", "wq");
@@ -579,11 +603,11 @@ public class Surveyor extends Activity implements
 		String dateString = (String) android.text.format.DateFormat.format(
 				"yyyy-MM-dd hh:mm:ss", new java.util.Date());
 		String query = "INSERT INTO " + TABLE_ID + " (" + columnnamesString
-				+ ",Location,Lat,Lng,Alt,Date) VALUES (" + answerfinalString
+				+ ",Location,Lat,Lng,Alt,Date,SurveyID) VALUES (" + answerfinalString
 				+ ",'<Point><coordinates>" + latlng
 				+ "</coordinates></Point>','" + currentLocation.getLatitude()
 				+ "','" + currentLocation.getLongitude() + "','"
-				+ currentLocation.getAltitude() + "','" + dateString + "');";
+				+ currentLocation.getAltitude() + "','" + dateString + "','" + surveyID + "');";
 		String apiKey = "AIzaSyB4Nn1k2sML-0aBN2Fk3qOXLF-4zlaNwmg";
 		HttpClient httpclient = new DefaultHttpClient();
 		HttpPost httppost = new HttpPost(url);
@@ -636,7 +660,6 @@ public class Surveyor extends Activity implements
 		// toast.show();
 		return namesString;
 	}
-
 
 	/*
 	 * Callback Handlers for Connecting to Google Play (Authentication)
@@ -692,7 +715,8 @@ public class Surveyor extends Activity implements
 			onPrevQuestionPressed();
 			break;
 		case NEXT:
-			navButtons.getView().findViewById(R.id.previous_question_button).setVisibility(View.VISIBLE);
+			navButtons.getView().findViewById(R.id.previous_question_button)
+					.setVisibility(View.VISIBLE);
 			if (jumpString != null) {
 				jumpFinder(jumpString);
 			} else if (questionposition + 1 < totalquestionsArray[chapterposition - 1]) {
@@ -804,7 +828,7 @@ public class Surveyor extends Activity implements
 			messageHandler.sendEmptyMessage(EVENT_TYPE.FEMALE_UPDATE.ordinal());
 		}
 	}
-	
+
 	public void createcolumn(String name, String type)
 			throws ClientProtocolException, IOException {
 		String TABLE_ID = "11lGsm8B2SNNGmEsTmuGVrAy1gcJF9TQBo3G1Vw0";
@@ -907,14 +931,15 @@ public class Surveyor extends Activity implements
 
 	public void columnCheck() {
 		Boolean existsBoolean;
-		String[] hardcolumnsStrings = { "Location", "Date", "Lat", "Alt", "Lng" }; // Columns
-																					// that
-																					// are
-																					// in
-																					// all
-																					// projects.
+		String[] hardcolumnsStrings = { "Location", "Date", "Lat", "Alt",
+				"Lng", "SurveyID" }; // Columns
+		// that
+		// are
+		// in
+		// all
+		// projects.
 		String[] hardcolumntypeStrings = { "LOCATION", "DATETIME", "NUMBER",
-				"NUMBER", "NUMBER" }; // Types for the columns that are in all
+				"NUMBER", "NUMBER", "STRING" }; // Types for the columns that are in all
 										// projects.
 		try {
 			columnlistNameString = getcolumnList(
@@ -938,7 +963,8 @@ public class Surveyor extends Activity implements
 				changecolumntype();
 			} else if (existsBoolean == false) {
 				try {
-					createcolumn(hardcolumnsStrings[i], hardcolumntypeStrings[i]);
+					createcolumn(hardcolumnsStrings[i],
+							hardcolumntypeStrings[i]);
 				} catch (ClientProtocolException e) {
 
 					e.printStackTrace();
@@ -1004,19 +1030,20 @@ public class Surveyor extends Activity implements
 	public void changecolumntype() {
 
 	}
-	
-	public String createID() {
-	 	String ID = null;
-	 	Integer randy;
-	 	for (int i = 0; i < 7; ++i) {
-	 	 randy = (int) (Math.random() * ((9) + 1));
-	 	 if (i == 0) {
-	 	 ID = randy.toString();
-	 	 } else {
-	 	 ID = ID + randy.toString();
-	 	 }
-	 	}
 
-	 	return ID;
-	 }
+	public String createID() {
+		String ID = null;
+		Integer randy;
+		for (int i = 0; i < 7; ++i) {
+			randy = (int) (Math.random() * ((9) + 1));
+			if (i == 0) {
+				ID = randy.toString();
+			} else {
+				ID = ID + randy.toString();
+			}
+		}
+
+		return ID;
+	}
+
 }
