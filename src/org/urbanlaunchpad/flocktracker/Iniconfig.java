@@ -64,8 +64,8 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 
 	@Override
 	public void onClick(View view) {
-		switch (view.getId()) {
-		case R.id.bdownload:
+		Integer id = view.getId();
+		if (id == R.id.bdownload){
 			String jsonsurveystring = null;
 			url = urlfield.getText().toString();
 			filefeedback.setText("Downloading file: " + url
@@ -77,7 +77,6 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 				jsonsurveystring = readFileAsString(Environment.getExternalStorageDirectory().getAbsolutePath() + "/FlockTracker/survey.json");
 				filefeedback.setText("Contents of file: \n" + jsonsurveystring);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 				filefeedback.setText("Error reading file.");
 				
@@ -91,23 +90,19 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 		            filefeedback.setText("Survey file not parsed, contains errors.");
 		        }
 			 
-			break;
-		case R.id.bcontinue:
-//			startActivity(Surveyor.class);
+		} else if (id == R.id.bcontinue){
 			Intent i = new Intent(getApplicationContext(), Surveyor.class);
 			i.putExtra("jsonsurvey",jsurv.toString());
 			try {
 				i.putExtra("token", token);
 			} catch (Exception e) {}
 			startActivity(i);
-			break;
-		case R.id.ulp_icon_link:
+		} else if (id == R.id.ulp_icon_link){
 			Intent intent = new Intent();
 			intent.setAction(Intent.ACTION_VIEW);
 			intent.addCategory(Intent.CATEGORY_BROWSABLE);
 			intent.setData(Uri.parse("http://www.urbanlaunchpad.org/"));
 			startActivity(intent);
-			break;
 		}
 	}
 

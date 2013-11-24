@@ -161,7 +161,6 @@ public class Surveyor extends Activity implements
 			// totalchapters, Toast.LENGTH_SHORT);
 			// toast.show();
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			toast = Toast.makeText(getApplicationContext(),
 					"Chapters not parsed, check survey file.",
@@ -179,7 +178,6 @@ public class Surveyor extends Activity implements
 				aux = jchapterlist.getJSONObject(i);
 				totalquestionsArray[i] = aux.getJSONArray("Questions").length();
 			} catch (JSONException e) {
-				// TODO Auto-generated catch block
 				// e.printStackTrace();
 				totalquestionsArray[i] = 0;
 			}
@@ -253,13 +251,10 @@ public class Surveyor extends Activity implements
 							Thread.sleep(5000);
 						}
 					} catch (ClientProtocolException e1) {
-						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					} catch (IOException e1) {
-						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
@@ -437,7 +432,6 @@ public class Surveyor extends Activity implements
 		try {
 			jchapter = jchapterlist.getJSONObject(position - 1);
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -459,7 +453,6 @@ public class Surveyor extends Activity implements
 			jquestion = jchapter.getJSONArray("Questions").getJSONObject(
 					position);
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			toast = Toast.makeText(this, "Question " + position
 					+ " does not exist in chapter.", Toast.LENGTH_SHORT);
@@ -468,7 +461,6 @@ public class Surveyor extends Activity implements
 			try {
 				jquestion = new JSONObject(nullquestionhelper);
 			} catch (JSONException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 
@@ -573,7 +565,6 @@ public class Surveyor extends Activity implements
 							.getJSONArray("Questions").getJSONObject(j)
 							.getString("id");
 				} catch (JSONException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				if (jumpString.equals(jumpAUX)) {
@@ -630,7 +621,6 @@ public class Surveyor extends Activity implements
 							.getJSONArray("Questions").getJSONObject(j)
 							.getString(nametoget);
 				} catch (JSONException e) {
-					// TODO Auto-generated catch block
 					// e.printStackTrace();
 					addString = "";
 				}
@@ -728,10 +718,8 @@ public class Surveyor extends Activity implements
 					try {
 						submitSurvey();
 					} catch (ClientProtocolException e1) {
-						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					} catch (IOException e1) {
-						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
 				}
@@ -756,7 +744,6 @@ public class Surveyor extends Activity implements
 				// Toast.LENGTH_SHORT);
 				// toast.show();
 			} catch (JSONException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}

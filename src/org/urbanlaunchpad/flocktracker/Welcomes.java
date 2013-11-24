@@ -70,23 +70,20 @@ public class Welcomes extends Activity implements OnClickListener {
 
 	@Override
 	public void onClick(View v) {
+		Integer ID = v.getId();
 		Intent intent = new Intent();
 		intent.setAction(Intent.ACTION_VIEW);
 		intent.addCategory(Intent.CATEGORY_BROWSABLE);
-		switch (v.getId()) {
-		case R.id.mobility_futures_colaborative_button:
+		if (ID == R.id.mobility_futures_colaborative_button){
 			intent.setData(Uri
 					.parse("http://dusp.mit.edu/transportation/project/mobility-futures-collaborative"));
 			startActivity(intent);
-			break;
-		case R.id.mit_button:
+		} else if (ID==R.id.mit_button ){
 			intent.setData(Uri.parse("http://web.mit.edu/"));
 			startActivity(intent);
-			break;
-		case R.id.urban_launchpad_button:
+		} else if (ID == R.id.urban_launchpad_button){
 			intent.setData(Uri.parse("http://www.urbanlaunchpad.org/"));
 			startActivity(intent);
-			break;
 		}
 	}
 
