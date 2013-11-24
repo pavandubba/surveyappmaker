@@ -19,20 +19,21 @@ public class Start_trip_fragment extends Fragment {
 		public enum HubButtonType {
 			NEWSURVEY, STATISTICS, MOREMEN, FEWERMEN, MOREWOMEN, FEWERWOMEN, TOGGLETRIP
 		}
+
 		/** Called by Fragment when an button is selected */
 		public void HubButtonPressed(HubButtonType typeButton);
 	}
-	
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		rootView = inflater.inflate(R.layout.activity_start_trip, container,
 				false);
-		
-		
+
 		// start new survey button callback
-		View startTripButton = (View) rootView.findViewById(R.id.start_trip_button);
+		View startTripButton = (View) rootView
+				.findViewById(R.id.start_trip_button);
 
 		startTripButton.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -40,9 +41,10 @@ public class Start_trip_fragment extends Fragment {
 				callback.HubButtonPressed(HubButtonCallback.HubButtonType.TOGGLETRIP);
 			}
 		});
-		
+
 		// start new survey button callback
-		View startSurveyButton = (View) rootView.findViewById(R.id.startSurveyButton);
+		View startSurveyButton = (View) rootView
+				.findViewById(R.id.startSurveyButton);
 
 		startSurveyButton.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -50,7 +52,7 @@ public class Start_trip_fragment extends Fragment {
 				callback.HubButtonPressed(HubButtonCallback.HubButtonType.NEWSURVEY);
 			}
 		});
-		
+
 		// statistics button callback
 		View statisticsButton = (View) rootView.findViewById(R.id.statsButton);
 
@@ -60,7 +62,7 @@ public class Start_trip_fragment extends Fragment {
 				callback.HubButtonPressed(HubButtonCallback.HubButtonType.STATISTICS);
 			}
 		});
-		
+
 		// more men button callback
 		View moreMenButton = (View) rootView.findViewById(R.id.moreMenButton);
 
@@ -70,7 +72,7 @@ public class Start_trip_fragment extends Fragment {
 				callback.HubButtonPressed(HubButtonCallback.HubButtonType.MOREMEN);
 			}
 		});
-		
+
 		// fewer men button callback
 		View fewerMenButton = (View) rootView.findViewById(R.id.fewerMenButton);
 
@@ -80,9 +82,10 @@ public class Start_trip_fragment extends Fragment {
 				callback.HubButtonPressed(HubButtonCallback.HubButtonType.FEWERMEN);
 			}
 		});
-		
+
 		// more women button callback
-		View moreWomenButton = (View) rootView.findViewById(R.id.moreWomenButton);
+		View moreWomenButton = (View) rootView
+				.findViewById(R.id.moreWomenButton);
 
 		moreWomenButton.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -90,9 +93,10 @@ public class Start_trip_fragment extends Fragment {
 				callback.HubButtonPressed(HubButtonCallback.HubButtonType.MOREWOMEN);
 			}
 		});
-		
+
 		// fewer men button callback
-		View fewerWomenButton = (View) rootView.findViewById(R.id.fewerWomenButton);
+		View fewerWomenButton = (View) rootView
+				.findViewById(R.id.fewerWomenButton);
 
 		fewerWomenButton.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -100,10 +104,10 @@ public class Start_trip_fragment extends Fragment {
 				callback.HubButtonPressed(HubButtonCallback.HubButtonType.FEWERWOMEN);
 			}
 		});
-		
+
 		return rootView;
 	}
-	
+
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);

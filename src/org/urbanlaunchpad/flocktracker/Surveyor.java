@@ -20,9 +20,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.res.Configuration;
@@ -102,28 +104,27 @@ public class Surveyor extends Activity implements
 		public void handleMessage(Message msg) {
 			if (msg.what == EVENT_TYPE.MALE_UPDATE.ordinal()) {
 				// update male count
-    			TextView maleCountView = (TextView) findViewById(R.id.maleCount);
-    			maleCountView.setText(maleCount.toString());
-    			// update total count
-    			TextView totalCount = (TextView) findViewById(R.id.totalPersonCount);
-    			totalCount.setText("" + (maleCount + femaleCount));
+				TextView maleCountView = (TextView) findViewById(R.id.maleCount);
+				maleCountView.setText(maleCount.toString());
+				// update total count
+				TextView totalCount = (TextView) findViewById(R.id.totalPersonCount);
+				totalCount.setText("" + (maleCount + femaleCount));
 			} else if (msg.what == EVENT_TYPE.FEMALE_UPDATE.ordinal()) {
 				// update male count
-    			TextView femaleCountView = (TextView) findViewById(R.id.femaleCount);
-    			femaleCountView.setText(femaleCount.toString());
-    			// update total count
-    			TextView totalCount = (TextView) findViewById(R.id.totalPersonCount);
-    			totalCount.setText("" + (maleCount + femaleCount));
+				TextView femaleCountView = (TextView) findViewById(R.id.femaleCount);
+				femaleCountView.setText(femaleCount.toString());
+				// update total count
+				TextView totalCount = (TextView) findViewById(R.id.totalPersonCount);
+				totalCount.setText("" + (maleCount + femaleCount));
 			} else if (msg.what == EVENT_TYPE.START_TRIP.ordinal()) {
-    			ImageView gear = (ImageView) findViewById(R.id.start_trip_button);
-    			gear.setImageResource(R.drawable.ft_grn_st1);
+				ImageView gear = (ImageView) findViewById(R.id.start_trip_button);
+				gear.setImageResource(R.drawable.ft_grn_st1);
 			} else if (msg.what == EVENT_TYPE.END_TRIP.ordinal()) {
 				ImageView gear = (ImageView) findViewById(R.id.start_trip_button);
-    			gear.setImageResource(R.drawable.ft_red_st);
+				gear.setImageResource(R.drawable.ft_red_st);
 			}
 		}
 	};
-
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -144,7 +145,6 @@ public class Surveyor extends Activity implements
 						+ e.toString());
 			}
 		}
-
 
 		// Obtaining information about survey.
 
@@ -167,9 +167,6 @@ public class Surveyor extends Activity implements
 					Toast.LENGTH_SHORT);
 			toast.show();
 		}
-
-
-
 
 		// Filling number of questions per chapter.
 		totalquestionsArray = new Integer[totalchapters];
@@ -229,10 +226,13 @@ public class Surveyor extends Activity implements
 
 		mLocationClient = new LocationClient(this, this, this);
 
+		// Creating a random survey ID
+
 		surveyID = "S" + createID();
-		toast = Toast.makeText(getApplicationContext(),
-				"Survey ID " + surveyID, Toast.LENGTH_SHORT);
-		toast.show();
+//		toast = Toast.makeText(getApplicationContext(), getResources()
+//				.getString(R.string.survey_id) + " " + surveyID,
+//				Toast.LENGTH_SHORT);
+//		toast.show();
 		new Thread(new Runnable() {
 			public void run() {
 				columnCheck();
@@ -323,7 +323,7 @@ public class Surveyor extends Activity implements
 	public void stopTrip() {
 		isTripStarted = false;
 		tripID = "";
-		
+
 		// TODO change icon to red
 		messageHandler.sendEmptyMessage(EVENT_TYPE.END_TRIP.ordinal());
 	}
@@ -417,13 +417,13 @@ public class Surveyor extends Activity implements
 
 		// update count
 		updateCount("male");
-  	updateCount("female");
+		updateCount("female");
 
-  	// update gear
-  	if (isTripStarted)
-  		startTrip();
-  	else
-  		stopTrip();
+		// update gear
+		if (isTripStarted)
+			startTrip();
+		else
+			stopTrip();
 	}
 
 	private void selectChapter(int position, int qposition) {
@@ -587,12 +587,12 @@ public class Surveyor extends Activity implements
 		String dateString = (String) android.text.format.DateFormat.format(
 				"yyyy-MM-dd hh:mm:ss", new java.util.Date());
 		String query = "INSERT INTO " + TABLE_ID + " (" + columnnamesString
-				+ ",Location,Lat,Lng,Alt,Date,SurveyID,TripID) VALUES (" + answerfinalString
-				+ ",'<Point><coordinates>" + latlng
+				+ ",Location,Lat,Lng,Alt,Date,SurveyID,TripID) VALUES ("
+				+ answerfinalString + ",'<Point><coordinates>" + latlng
 				+ "</coordinates></Point>','" + currentLocation.getLatitude()
 				+ "','" + currentLocation.getLongitude() + "','"
-				+ currentLocation.getAltitude() + "','" + dateString + "','" + surveyID
-				+ "','" + tripID + "');";
+				+ currentLocation.getAltitude() + "','" + dateString + "','"
+				+ surveyID + "','" + tripID + "');";
 		String apiKey = "AIzaSyB4Nn1k2sML-0aBN2Fk3qOXLF-4zlaNwmg";
 		HttpClient httpclient = new DefaultHttpClient();
 		HttpPost httppost = new HttpPost(url);
@@ -713,17 +713,51 @@ public class Surveyor extends Activity implements
 			selectChapter(chapterposition, questionposition);
 			break;
 		case SUBMIT:
-			new Thread(new Runnable() {
-				public void run() {
-					try {
-						submitSurvey();
-					} catch (ClientProtocolException e1) {
-						e1.printStackTrace();
-					} catch (IOException e1) {
-						e1.printStackTrace();
+
+			DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					switch (which) {
+					case DialogInterface.BUTTON_POSITIVE:
+						// Yes button clicked
+						toast = Toast.makeText(
+								getApplicationContext(),
+								getResources().getString(
+										R.string.submitting_survey),
+								Toast.LENGTH_SHORT);
+						toast.show();
+						new Thread(new Runnable() {
+							public void run() {
+								try {
+									submitSurvey();
+								} catch (ClientProtocolException e1) {
+									e1.printStackTrace();
+								} catch (IOException e1) {
+									e1.printStackTrace();
+								}
+							}
+						}).start();
+						toast = Toast.makeText(
+								getApplicationContext(),
+								getResources().getString(
+										R.string.survey_submitted),
+								Toast.LENGTH_SHORT);
+						toast.show();
+						resetSurvey();
+						showHubPage();
+						break;
+					case DialogInterface.BUTTON_NEGATIVE:
+						// No button clicked
+						break;
 					}
 				}
-			}).start();
+			};
+
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.setMessage("Are you sure?")
+					.setPositiveButton("Yes", dialogClickListener)
+					.setNegativeButton("No", dialogClickListener).show();
+
 			break;
 		}
 	}
@@ -748,9 +782,9 @@ public class Surveyor extends Activity implements
 			}
 		}
 
-		toast = Toast.makeText(this, "After: Jump: " + jumpString + "Answer: "
-				+ answerString, Toast.LENGTH_SHORT);
-		toast.show();
+//		toast = Toast.makeText(this, "After: Jump: " + jumpString + "Answer: "
+//				+ answerString, Toast.LENGTH_SHORT);
+//		toast.show();
 	}
 
 	// Handler to handle new survey position after answer to question
@@ -805,7 +839,7 @@ public class Surveyor extends Activity implements
 	public void updateCount(String gender) {
 		if (gender.equals("male")) {
 			messageHandler.sendEmptyMessage(EVENT_TYPE.MALE_UPDATE.ordinal());
-		} else if (gender.equals("female")){
+		} else if (gender.equals("female")) {
 			messageHandler.sendEmptyMessage(EVENT_TYPE.FEMALE_UPDATE.ordinal());
 		}
 	}
@@ -920,8 +954,10 @@ public class Surveyor extends Activity implements
 		// all
 		// projects.
 		String[] hardcolumntypeStrings = { "LOCATION", "DATETIME", "NUMBER",
-				"NUMBER", "NUMBER", "STRING", "STRING" }; // Types for the columns that are in all
-										// projects.
+				"NUMBER", "NUMBER", "STRING", "STRING" }; // Types for the
+															// columns that are
+															// in all
+		// projects.
 		try {
 			columnlistNameString = getcolumnList(
 					"11lGsm8B2SNNGmEsTmuGVrAy1gcJF9TQBo3G1Vw0",
@@ -1025,6 +1061,25 @@ public class Surveyor extends Activity implements
 		}
 
 		return ID;
+	}
+
+	public void resetSurvey() {
+		surveyID = "S" + createID();
+//		toast = Toast.makeText(getApplicationContext(), getResources()
+//				.getString(R.string.survey_id) + " " + surveyID,
+//				Toast.LENGTH_SHORT);
+//		toast.show();
+		for (int i = 0; i < totalchapters; ++i) {
+			for (int j = 0; j < totalquestionsArray[i]; j++) {
+				try {
+					jsurv.getJSONArray("Survey").getJSONObject(i)
+							.getJSONArray("Questions").getJSONObject(j)
+							.remove("Answer");
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 
 }
