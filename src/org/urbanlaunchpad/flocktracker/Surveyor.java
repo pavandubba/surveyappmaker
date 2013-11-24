@@ -229,10 +229,10 @@ public class Surveyor extends Activity implements
 		// Creating a random survey ID
 
 		surveyID = "S" + createID();
-//		toast = Toast.makeText(getApplicationContext(), getResources()
-//				.getString(R.string.survey_id) + " " + surveyID,
-//				Toast.LENGTH_SHORT);
-//		toast.show();
+		// toast = Toast.makeText(getApplicationContext(), getResources()
+		// .getString(R.string.survey_id) + " " + surveyID,
+		// Toast.LENGTH_SHORT);
+		// toast.show();
 		new Thread(new Runnable() {
 			public void run() {
 				columnCheck();
@@ -713,7 +713,6 @@ public class Surveyor extends Activity implements
 			selectChapter(chapterposition, questionposition);
 			break;
 		case SUBMIT:
-
 			DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
@@ -752,12 +751,13 @@ public class Surveyor extends Activity implements
 					}
 				}
 			};
-
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			builder.setMessage("Are you sure?")
-					.setPositiveButton("Yes", dialogClickListener)
-					.setNegativeButton("No", dialogClickListener).show();
-
+			builder.setMessage(
+					getResources().getString(R.string.submit_survey_question))
+					.setPositiveButton(getResources().getString(R.string.yes),
+							dialogClickListener)
+					.setNegativeButton(getResources().getString(R.string.no),
+							dialogClickListener).show();
 			break;
 		}
 	}
@@ -782,9 +782,10 @@ public class Surveyor extends Activity implements
 			}
 		}
 
-//		toast = Toast.makeText(this, "After: Jump: " + jumpString + "Answer: "
-//				+ answerString, Toast.LENGTH_SHORT);
-//		toast.show();
+		// toast = Toast.makeText(this, "After: Jump: " + jumpString +
+		// "Answer: "
+		// + answerString, Toast.LENGTH_SHORT);
+		// toast.show();
 	}
 
 	// Handler to handle new survey position after answer to question
@@ -1065,10 +1066,10 @@ public class Surveyor extends Activity implements
 
 	public void resetSurvey() {
 		surveyID = "S" + createID();
-//		toast = Toast.makeText(getApplicationContext(), getResources()
-//				.getString(R.string.survey_id) + " " + surveyID,
-//				Toast.LENGTH_SHORT);
-//		toast.show();
+		// toast = Toast.makeText(getApplicationContext(), getResources()
+		// .getString(R.string.survey_id) + " " + surveyID,
+		// Toast.LENGTH_SHORT);
+		// toast.show();
 		for (int i = 0; i < totalchapters; ++i) {
 			for (int j = 0; j < totalquestionsArray[i]; j++) {
 				try {
