@@ -208,7 +208,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 			otherfield.setOrientation(LinearLayout.VERTICAL);
 			answerlayout.addView(otherfield);
 			otherET = new EditText(rootView.getContext());
-			otherET.setHint("Otro/Other");
+			otherET.setHint(getResources().getString(R.string.other_hint));
 			otherET.setImeOptions(EditorInfo.IME_ACTION_DONE);
 			otherET.setSingleLine();
 			otherET.setTextColor(getResources().getColor(
@@ -285,7 +285,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 		answerfield.setOrientation(LinearLayout.VERTICAL);
 		answerlayout.addView(answerfield);
 		openET = new EditText(rootView.getContext());
-		openET.setHint("Answer/Respuesta");
+		openET.setHint(getResources().getString(R.string.answer_hint));
 		openET.setImeOptions(EditorInfo.IME_ACTION_DONE);
 		if (questionkind.equals("ON")) {
 			openET.setInputType(InputType.TYPE_CLASS_NUMBER

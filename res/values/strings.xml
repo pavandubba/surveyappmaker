@@ -38,8 +38,10 @@
     <string name="survey_submitted">Survey submitted</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
-    <string name="submit_survey_question">Do you want to upload the survey and reset the answers stored? (This cannot be undone)</string>
-
+    <string name="submit_survey_question">Do you want to upload the survey to the cloud and reset the answers stored in the device? (This cannot be undone)</string>
+	<string name="other_hint">Other</string>
+	<string name="answer_hint">Answer</string>
+    
     <color name="text_bkgrd">#E6E6E6</color>
     <color name="text_color_light">#FFFFFF</color>
     <color name="text_color_dark">#1F1F1F</color>

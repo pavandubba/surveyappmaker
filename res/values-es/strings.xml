@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Flock Tracker</string>
+    <string name="action_settings">Configuración</string>
+    <string name="title_activity_couhes">Couhes</string>
+    <string name="hello_world">¡Hola mundo!</string>
+    <string name="iagree">Estoy de acuerdo</string>
+    <string name="username_hint">Usuario</string>
+    <string name="ulp_icon_desc">Ícono de Urban Launchpad</string>
+    <string name="flock_icon_desc">Ícono de continuar Flock</string>
+    <string name="start_trip_bus_desc">Ícono de iniciar viaje</string>
+    <string name="bus_icon_desc">Ícono de autobús continuar</string>
+    <string name="stop_trip_bus_desc">Ícono de finalizar el viaje</string>
+    <string name="passenger_button_desc">Botón de pasajeros</string>
+    <string name="flock_pin_desc">Botón de Flock</string>
+    <string name="survey_button_desc">Botón de encuesta</string>
+    <string name="stats_button_desc">Botón de estadísticas</string>
+    <string name="start_survey_button_desc">Botón de iniciar encuesta</string>
+    <string name="previous_question_desc">Pregunta anterior</string>
+    <string name="next_question_desc">Siguiente pregunta</string>
+    <string name="submit_question_desc">Subir encuesta</string>
+    <string name="app_big_icon_desc">Flock tracker</string>
+    <string name="mobility_futures_colaborative_desc">Mobility Futures Colaborative</string>
+    <string name="mit_desc">Massachusetts Institute of Technology</string>
+    <string name="urban_launchpad_desc">Urban Launchpad</string>
+    <string name="person_count_default">0</string>
+    <string name="more_men_button_desc">Botón de más hombres</string>
+    <string name="fewer_men_button_desc">Botón de menos hombres</string>
+    <string name="more_women_button_desc">Botón de más mujeres</string>
+    <string name="fewer_women_button_desc">Botón de menos mujeres</string>
+    <string name="men_icon_desc">Ícono de Hombres</string>
+    <string name="women_icon_desc">Ícono de Mujeres</string>
+    <string name="survey_id">ID de encuesta</string>
+    <string name="title_activity_iniconfig">Configuración</string>
+    <string name="title_activity_surveyor">Encuestador</string>
+    <string name="submitting_survey">Subiendo encuesta</string>
+    <string name="survey_submitted">Encuesta subida</string>
+    <string name="yes">Sí</string>
+    <string name="no">No</string>
+    <string name="submit_survey_question">Quieres subir la encuesta a la nube y reiniciar los valores de la encuesta? (Esto no se puede deshacer)</string>
+	<string name="other_hint">Otro</string>
+	<string name="answer_hint">Respuesta</string>
+
+</resources>
