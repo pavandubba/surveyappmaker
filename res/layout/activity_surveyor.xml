@@ -17,15 +17,16 @@
             android:id="@+id/surveyor_frame"
             android:layout_width="match_parent"
             android:layout_height="0dip"
-            android:layout_weight="3" >
+            android:layout_weight="5" >
         </FrameLayout>
-
+		
         <fragment
             android:id="@+id/survey_question_navigator_fragment"
             android:name="org.urbanlaunchpad.flocktracker.Question_navigator_fragment"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            tools:layout="@layout/fragment_question_buttons" />
+            android:layout_height="0dp"
+            tools:layout="@layout/fragment_question_buttons"
+            android:layout_weight="1" />
     </LinearLayout>
 
     <ListView
