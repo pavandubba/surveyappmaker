@@ -28,6 +28,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.res.Configuration;
+import android.graphics.Matrix;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
@@ -38,9 +39,13 @@ import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
+import android.view.animation.RotateAnimation;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -119,9 +124,16 @@ public class Surveyor extends Activity implements
 			} else if (msg.what == EVENT_TYPE.START_TRIP.ordinal()) {
 				ImageView gear = (ImageView) findViewById(R.id.start_trip_button);
 				gear.setImageResource(R.drawable.ft_grn_st1);
+				RotateAnimation anim = new RotateAnimation(0.0f, 360.0f, Animation.RELATIVE_TO_SELF , 0.5f, Animation.RELATIVE_TO_SELF , 0.5f);
+				anim.setInterpolator(new LinearInterpolator());
+				anim.setRepeatCount(Animation.INFINITE);
+				anim.setDuration(700);
+				// Start animating the image
+				gear.startAnimation(anim);
 			} else if (msg.what == EVENT_TYPE.END_TRIP.ordinal()) {
 				ImageView gear = (ImageView) findViewById(R.id.start_trip_button);
 				gear.setImageResource(R.drawable.ft_red_st);
+				gear.setAnimation(null);
 			}
 		}
 	};
