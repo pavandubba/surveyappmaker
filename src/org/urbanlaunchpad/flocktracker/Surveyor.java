@@ -289,7 +289,7 @@ public class Surveyor extends Activity implements
 		// TODO change icon to green and animate
 		messageHandler.sendEmptyMessage(EVENT_TYPE.START_TRIP.ordinal());
 	}
-
+	
 	public void submitLocation() throws ClientProtocolException, IOException {
 		Location currentLocation = mLocationClient.getLastLocation();
 		String latlng = LocationHelper.getLatLngAlt(currentLocation);
