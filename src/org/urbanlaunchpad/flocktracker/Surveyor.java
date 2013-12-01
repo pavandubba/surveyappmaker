@@ -99,6 +99,13 @@ public class Surveyor extends Activity implements
 	private String surveyID;
 	private String tripID;
 	private boolean isTripStarted = false;
+	private String TRIP_TABLE_ID = "1Q2mr8ni5LTxtZRRi3PNSYxAYS8HWikWqlfoIUK4";
+	private String SURVEY_TABLE_ID = "11lGsm8B2SNNGmEsTmuGVrAy1gcJF9TQBo3G1Vw0";
+	private String API_KEY = "AIzaSyB4Nn1k2sML-0aBN2Fk3qOXLF-4zlaNwmg";
+	String[] surveyhardcolumnsStrings = { "Location", "Date", "Lat", "Alt", "Lng",
+			"SurveyID", "TripID" }; // Columns that are in all projects.
+	String[] surveyhardcolumntypeStrings = { "LOCATION", "DATETIME", "NUMBER",
+			"NUMBER", "NUMBER", "STRING", "STRING" }; // Types for the columns that are in all projects.
 
 	private enum EVENT_TYPE {
 		MALE_UPDATE, FEMALE_UPDATE, START_TRIP, END_TRIP
@@ -124,7 +131,9 @@ public class Surveyor extends Activity implements
 			} else if (msg.what == EVENT_TYPE.START_TRIP.ordinal()) {
 				ImageView gear = (ImageView) findViewById(R.id.start_trip_button);
 				gear.setImageResource(R.drawable.ft_grn_st1);
-				RotateAnimation anim = new RotateAnimation(0.0f, 360.0f, Animation.RELATIVE_TO_SELF , 0.5f, Animation.RELATIVE_TO_SELF , 0.5f);
+				RotateAnimation anim = new RotateAnimation(0.0f, 360.0f,
+						Animation.RELATIVE_TO_SELF, 0.5f,
+						Animation.RELATIVE_TO_SELF, 0.5f);
 				anim.setInterpolator(new LinearInterpolator());
 				anim.setRepeatCount(Animation.INFINITE);
 				anim.setDuration(700);
@@ -245,6 +254,9 @@ public class Surveyor extends Activity implements
 		// .getString(R.string.survey_id) + " " + surveyID,
 		// Toast.LENGTH_SHORT);
 		// toast.show();
+
+		// Checking existence of columns in the Fusion Table.
+
 		new Thread(new Runnable() {
 			public void run() {
 				columnCheck();
@@ -301,15 +313,15 @@ public class Surveyor extends Activity implements
 		// TODO change icon to green and animate
 		messageHandler.sendEmptyMessage(EVENT_TYPE.START_TRIP.ordinal());
 	}
-	
+
 	public void submitLocation() throws ClientProtocolException, IOException {
 		Location currentLocation = mLocationClient.getLastLocation();
 		String latlng = LocationHelper.getLatLngAlt(currentLocation);
-		String TABLE_ID = "11lGsm8B2SNNGmEsTmuGVrAy1gcJF9TQBo3G1Vw0";
+		// String TABLE_ID = "11lGsm8B2SNNGmEsTmuGVrAy1gcJF9TQBo3G1Vw0";
 		String url = "https://www.googleapis.com/fusiontables/v1/query";
 		String dateString = (String) android.text.format.DateFormat.format(
 				"yyyy-MM-dd hh:mm:ss", new java.util.Date());
-		String query = "INSERT INTO " + TABLE_ID + " ("
+		String query = "INSERT INTO " + TRIP_TABLE_ID + " ("
 				+ "Location,Lat,Lng,Alt,Date,TripID) VALUES ("
 				+ "'<Point><coordinates>" + latlng
 				+ "</coordinates></Point>','" + currentLocation.getLatitude()
@@ -326,7 +338,7 @@ public class Surveyor extends Activity implements
 		httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 		HttpResponse response = httpclient.execute(httppost);
 
-		Log.v("Submit survey response code", response.getStatusLine()
+		Log.v("Submit trip response code", response.getStatusLine()
 				.getStatusCode()
 				+ " "
 				+ response.getStatusLine().getReasonPhrase());
@@ -594,24 +606,23 @@ public class Surveyor extends Activity implements
 
 		Location currentLocation = mLocationClient.getLastLocation();
 		String latlng = LocationHelper.getLatLngAlt(currentLocation);
-		String TABLE_ID = "11lGsm8B2SNNGmEsTmuGVrAy1gcJF9TQBo3G1Vw0";
 		String url = "https://www.googleapis.com/fusiontables/v1/query";
 		String dateString = (String) android.text.format.DateFormat.format(
 				"yyyy-MM-dd hh:mm:ss", new java.util.Date());
-		String query = "INSERT INTO " + TABLE_ID + " (" + columnnamesString
+		String query = "INSERT INTO " + SURVEY_TABLE_ID + " ("
+				+ columnnamesString
 				+ ",Location,Lat,Lng,Alt,Date,SurveyID,TripID) VALUES ("
 				+ answerfinalString + ",'<Point><coordinates>" + latlng
 				+ "</coordinates></Point>','" + currentLocation.getLatitude()
 				+ "','" + currentLocation.getLongitude() + "','"
 				+ currentLocation.getAltitude() + "','" + dateString + "','"
 				+ surveyID + "','" + tripID + "');";
-		String apiKey = "AIzaSyB4Nn1k2sML-0aBN2Fk3qOXLF-4zlaNwmg";
 		HttpClient httpclient = new DefaultHttpClient();
 		HttpPost httppost = new HttpPost(url);
 		httppost.setHeader("Authorization", "Bearer " + token);
 		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
 		nameValuePairs.add(new BasicNameValuePair("sql", query));
-		nameValuePairs.add(new BasicNameValuePair("key", apiKey));
+		nameValuePairs.add(new BasicNameValuePair("key", API_KEY));
 		httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 		HttpResponse response = httpclient.execute(httppost);
 
@@ -857,12 +868,10 @@ public class Surveyor extends Activity implements
 		}
 	}
 
-	public void createcolumn(String name, String type)
+	public void createcolumn(String name, String type, String TABLE_ID)
 			throws ClientProtocolException, IOException {
-		String TABLE_ID = "11lGsm8B2SNNGmEsTmuGVrAy1gcJF9TQBo3G1Vw0";
-		String apiKey = "AIzaSyB4Nn1k2sML-0aBN2Fk3qOXLF-4zlaNwmg";
 		String url = "https://www.googleapis.com/fusiontables/v1/tables/"
-				+ TABLE_ID + "/columns?key=" + apiKey;
+				+ TABLE_ID + "/columns?key=" + API_KEY;
 
 		HttpClient httpclient = new DefaultHttpClient();
 		HttpPost httppost = new HttpPost(url);
@@ -876,7 +885,7 @@ public class Surveyor extends Activity implements
 		}
 		String columnString = object.toString();
 		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(1);
-		nameValuePairs.add(new BasicNameValuePair("key", apiKey));
+		nameValuePairs.add(new BasicNameValuePair("key", API_KEY));
 		httppost.setEntity(new StringEntity(columnString, "UTF-8"));
 		HttpResponse response = httpclient.execute(httppost);
 
@@ -972,12 +981,10 @@ public class Surveyor extends Activity implements
 															// in all
 		// projects.
 		try {
-			columnlistNameString = getcolumnList(
-					"11lGsm8B2SNNGmEsTmuGVrAy1gcJF9TQBo3G1Vw0",
-					"AIzaSyB4Nn1k2sML-0aBN2Fk3qOXLF-4zlaNwmg", "name");
-			columnlistTypeString = getcolumnList(
-					"11lGsm8B2SNNGmEsTmuGVrAy1gcJF9TQBo3G1Vw0",
-					"AIzaSyB4Nn1k2sML-0aBN2Fk3qOXLF-4zlaNwmg", "type");
+			columnlistNameString = getcolumnList(SURVEY_TABLE_ID, API_KEY,
+					"name");
+			columnlistTypeString = getcolumnList(SURVEY_TABLE_ID, API_KEY,
+					"type");
 		} catch (ClientProtocolException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -994,7 +1001,7 @@ public class Surveyor extends Activity implements
 			} else if (existsBoolean == false) {
 				try {
 					createcolumn(hardcolumnsStrings[i],
-							hardcolumntypeStrings[i]);
+							hardcolumntypeStrings[i], SURVEY_TABLE_ID);
 				} catch (ClientProtocolException e) {
 
 					e.printStackTrace();
@@ -1027,7 +1034,8 @@ public class Surveyor extends Activity implements
 				changecolumntype();
 			} else if (existsBoolean == false) {
 				try {
-					createcolumn(questionIdlistString[i], auxkind);
+					createcolumn(questionIdlistString[i], auxkind,
+							SURVEY_TABLE_ID);
 				} catch (ClientProtocolException e) {
 
 					e.printStackTrace();
