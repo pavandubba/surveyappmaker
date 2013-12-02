@@ -102,7 +102,7 @@ public class Surveyor extends Activity implements
 	private String TRIP_TABLE_ID = "1Q2mr8ni5LTxtZRRi3PNSYxAYS8HWikWqlfoIUK4";
 	private String SURVEY_TABLE_ID = "11lGsm8B2SNNGmEsTmuGVrAy1gcJF9TQBo3G1Vw0";
 	private String API_KEY = "AIzaSyB4Nn1k2sML-0aBN2Fk3qOXLF-4zlaNwmg";
-	private JSONArray trackerquestions;
+	private JSONArray jtrackerquestions;
 
 	private enum EVENT_TYPE {
 		MALE_UPDATE, FEMALE_UPDATE, START_TRIP, END_TRIP
@@ -163,11 +163,25 @@ public class Surveyor extends Activity implements
 						+ e.toString());
 			}
 		}
+		
+		// Obtaining Fusion Table IDs.
+		
+		try {
+			TRIP_TABLE_ID = jsurv.getJSONObject("Tracker").getString("TableID");
+			SURVEY_TABLE_ID = jsurv.getJSONObject("Survey").getString("TableID");
+		} catch (JSONException e3) {
+			toast = Toast.makeText(getApplicationContext(),
+					"Your project has messy Fusion Table IDs, uploading won't work.",
+					Toast.LENGTH_SHORT);
+			toast.show();
+			e3.printStackTrace();
+		}
+		
 
 		// Obtaining information about survey.
 
 		try {
-			jchapterlist = jsurv.getJSONArray("Survey");
+			jchapterlist = jsurv.getJSONObject("Survey").getJSONArray("Chapters");
 			totalsurveychapters = jchapterlist.length();
 			ChapterTitles = new String[1 + totalsurveychapters];
 			ChapterTitles[0] = "Status Page";
@@ -189,7 +203,7 @@ public class Surveyor extends Activity implements
 		// Obtaining information about tracking.
 		
 			try {
-				trackerquestions= jsurv.getJSONObject("Tracker").getJSONArray("Questions");
+				jtrackerquestions= jsurv.getJSONObject("Tracker").getJSONArray("Questions");
 			} catch (JSONException e2) {
 				e2.printStackTrace();
 				toast = Toast.makeText(getApplicationContext(),
@@ -596,7 +610,7 @@ public class Surveyor extends Activity implements
 			for (int j = 0; j < totalquestionsArray[i]; ++j) {
 				String jumpAUX = null;
 				try {
-					jumpAUX = jsurv.getJSONArray("Survey").getJSONObject(i)
+					jumpAUX = jsurv.getJSONObject("Survey").getJSONArray("Chapters").getJSONObject(i)
 							.getJSONArray("Questions").getJSONObject(j)
 							.getString("id");
 				} catch (JSONException e) {
@@ -651,7 +665,7 @@ public class Surveyor extends Activity implements
 		for (int i = 0; i < totalsurveychapters; ++i) {
 			for (int j = 0; j < totalquestionsArray[i]; ++j) {
 				try {
-					addString = jsurv.getJSONArray("Survey").getJSONObject(i)
+					addString = jsurv.getJSONObject("Survey").getJSONArray("Chapters").getJSONObject(i)
 							.getJSONArray("Questions").getJSONObject(j)
 							.getString(nametoget);
 				} catch (JSONException e) {
@@ -803,7 +817,7 @@ public class Surveyor extends Activity implements
 		jumpString = jumpStringRecieve;
 		if (answerString != null) {
 			try {
-				jsurv.getJSONArray("Survey").getJSONObject(chapterposition - 1)
+				jsurv.getJSONObject("Survey").getJSONArray("Chapters").getJSONObject(chapterposition - 1)
 						.getJSONArray("Questions")
 						.getJSONObject(questionposition)
 						.put("Answer", answerString);
@@ -948,7 +962,7 @@ public class Surveyor extends Activity implements
 		return columnlistStringArray;
 	}
 
-	public String[] getquestionlist(JSONObject jsonsurv, String whattgetString,
+	public String[] getquestionlist(JSONArray jsonsurv, String whattgetString,
 			String survortrip) {
 		Integer numberofquestions = 0;
 		String[] questionStringArray;
@@ -962,8 +976,7 @@ public class Surveyor extends Activity implements
 		for (int i = 0; i < totalsurveychapters; ++i) {
 			for (int j = 0; j < totalquestionsArray[i]; ++j) {
 				try {
-					questionStringArray[auxcount] = jsonsurv
-							.getJSONArray("Survey").getJSONObject(i)
+					questionStringArray[auxcount] = jsonsurv.getJSONObject(i)
 							.getJSONArray("Questions").getJSONObject(j)
 							.getString(whattgetString);
 					// Log.v("ID", questionIDArray[auxcount]);
@@ -979,21 +992,26 @@ public class Surveyor extends Activity implements
 	}
 
 	public void columnCheck(String TABLE_ID, String survortrip) {
+		// If survortrip euals "survey" it will check the survey table, if it's "trip" it will check the tracker table.
 		Boolean existsBoolean;
 		String[] hardcolumnsStrings = null; // Columns that are in all projects.
 		String[] hardcolumntypeStrings = null; // Types for the columns that are
 												// in all projects.
+		JSONArray whereTheQuestionsAre = null;
 		if (survortrip.equals("survey")) {
 			hardcolumnsStrings = new String[] { "Location", "Date", "Lat",
 					"Alt", "Lng", "SurveyID", "TripID" };
 			hardcolumntypeStrings = new String[] { "LOCATION", "DATETIME",
 					"NUMBER", "NUMBER", "NUMBER", "STRING", "STRING" };
+					whereTheQuestionsAre = jchapterlist;
 		} else if (survortrip.equals("trip")) {
 			hardcolumnsStrings = new String[] { "Location", "Date", "Lat",
 					"Alt", "Lng", "TripID" };
 			hardcolumntypeStrings = new String[] { "LOCATION", "DATETIME",
 					"NUMBER", "NUMBER", "NUMBER", "STRING" };
+					whereTheQuestionsAre = jtrackerquestions;
 		}
+		// Getting the types and names of the columns in the fusion table.
 		try {
 			columnlistNameString = getcolumnList(TABLE_ID, API_KEY, "name");
 			columnlistTypeString = getcolumnList(TABLE_ID, API_KEY, "type");
@@ -1002,6 +1020,7 @@ public class Surveyor extends Activity implements
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		// Checking for the existence of the hard columns on Fusion table.
 		int numberofhardcolumns = hardcolumnsStrings.length;
 		for (int i = 0; i < numberofhardcolumns; ++i) {
 			existsBoolean = searchinStringArray(columnlistNameString,
@@ -1023,8 +1042,9 @@ public class Surveyor extends Activity implements
 				}
 			}
 		}
-		questionIdlistString = getquestionlist(jsurv, "id", survortrip);
-		questionKindlistString = getquestionlist(jsurv, "Kind", survortrip);
+		// Checking for the existence of question columns on Fusion table.
+		questionIdlistString = getquestionlist(whereTheQuestionsAre, "id", survortrip);
+		questionKindlistString = getquestionlist(whereTheQuestionsAre, "Kind", survortrip);
 		numberofquestions = questionIdlistString.length;
 		numberofcolumns = columnlistNameString.length;
 		String auxkind = null;
@@ -1103,7 +1123,7 @@ public class Surveyor extends Activity implements
 		for (int i = 0; i < totalsurveychapters; ++i) {
 			for (int j = 0; j < totalquestionsArray[i]; j++) {
 				try {
-					jsurv.getJSONArray("Survey").getJSONObject(i)
+					jsurv.getJSONObject("Survey").getJSONArray("Chapters").getJSONObject(i)
 							.getJSONArray("Questions").getJSONObject(j)
 							.remove("Answer");
 				} catch (JSONException e) {
