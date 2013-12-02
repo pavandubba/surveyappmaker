@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.security.auth.PrivateCredentialPermission;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
@@ -28,7 +30,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.res.Configuration;
-import android.graphics.Matrix;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
@@ -45,7 +46,6 @@ import android.view.animation.RotateAnimation;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -70,7 +70,7 @@ public class Surveyor extends Activity implements
 
 	private String jsonsurveystring;
 	private JSONObject jsurv = null;
-	private int totalchapters;
+	private int totalsurveychapters;
 	private JSONArray jchapterlist = null;
 	JSONArray jquestionlist = null;
 	JSONObject jchapter;
@@ -102,10 +102,7 @@ public class Surveyor extends Activity implements
 	private String TRIP_TABLE_ID = "1Q2mr8ni5LTxtZRRi3PNSYxAYS8HWikWqlfoIUK4";
 	private String SURVEY_TABLE_ID = "11lGsm8B2SNNGmEsTmuGVrAy1gcJF9TQBo3G1Vw0";
 	private String API_KEY = "AIzaSyB4Nn1k2sML-0aBN2Fk3qOXLF-4zlaNwmg";
-	String[] surveyhardcolumnsStrings = { "Location", "Date", "Lat", "Alt", "Lng",
-			"SurveyID", "TripID" }; // Columns that are in all projects.
-	String[] surveyhardcolumntypeStrings = { "LOCATION", "DATETIME", "NUMBER",
-			"NUMBER", "NUMBER", "STRING", "STRING" }; // Types for the columns that are in all projects.
+	private JSONArray trackerquestions;
 
 	private enum EVENT_TYPE {
 		MALE_UPDATE, FEMALE_UPDATE, START_TRIP, END_TRIP
@@ -171,10 +168,10 @@ public class Surveyor extends Activity implements
 
 		try {
 			jchapterlist = jsurv.getJSONArray("Survey");
-			totalchapters = jchapterlist.length();
-			ChapterTitles = new String[1 + totalchapters];
+			totalsurveychapters = jchapterlist.length();
+			ChapterTitles = new String[1 + totalsurveychapters];
 			ChapterTitles[0] = "Status Page";
-			for (int i = 1; i <= totalchapters; ++i) {
+			for (int i = 1; i <= totalsurveychapters; ++i) {
 				aux = jchapterlist.getJSONObject(i - 1);
 				ChapterTitles[i] = aux.getString("Chapter");
 			}
@@ -188,10 +185,24 @@ public class Surveyor extends Activity implements
 					Toast.LENGTH_SHORT);
 			toast.show();
 		}
+		
+		// Obtaining information about tracking.
+		
+			try {
+				trackerquestions= jsurv.getJSONObject("Tracker").getJSONArray("Questions");
+			} catch (JSONException e2) {
+				e2.printStackTrace();
+				toast = Toast.makeText(getApplicationContext(),
+						"Project does not contain tracker questions or questions were created erroneusly.",
+						Toast.LENGTH_SHORT);
+				toast.show();
+			}
+		
+		
 
 		// Filling number of questions per chapter.
-		totalquestionsArray = new Integer[totalchapters];
-		for (int i = 0; i < totalchapters; ++i) {
+		totalquestionsArray = new Integer[totalsurveychapters];
+		for (int i = 0; i < totalsurveychapters; ++i) {
 			try {
 				aux = jchapterlist.getJSONObject(i);
 				totalquestionsArray[i] = aux.getJSONArray("Questions").length();
@@ -259,7 +270,7 @@ public class Surveyor extends Activity implements
 
 		new Thread(new Runnable() {
 			public void run() {
-				columnCheck();
+				columnCheck(SURVEY_TABLE_ID, "survey");
 			}
 		}).start();
 
@@ -581,7 +592,7 @@ public class Surveyor extends Activity implements
 
 	public void jumpFinder(String jumpString) {
 		// Searches for a question with the same id as the jumpString value
-		for (int i = 0; i < totalchapters; ++i) {
+		for (int i = 0; i < totalsurveychapters; ++i) {
 			for (int j = 0; j < totalquestionsArray[i]; ++j) {
 				String jumpAUX = null;
 				try {
@@ -637,7 +648,7 @@ public class Surveyor extends Activity implements
 		// added.
 		String addString = null;
 		String namesString = null;
-		for (int i = 0; i < totalchapters; ++i) {
+		for (int i = 0; i < totalsurveychapters; ++i) {
 			for (int j = 0; j < totalquestionsArray[i]; ++j) {
 				try {
 					addString = jsurv.getJSONArray("Survey").getJSONObject(i)
@@ -937,17 +948,18 @@ public class Surveyor extends Activity implements
 		return columnlistStringArray;
 	}
 
-	public String[] getquestionlist(JSONObject jsonsurv, String whattgetString) {
+	public String[] getquestionlist(JSONObject jsonsurv, String whattgetString,
+			String survortrip) {
 		Integer numberofquestions = 0;
 		String[] questionStringArray;
-		for (int i = 0; i < totalchapters; ++i) {
+		for (int i = 0; i < totalsurveychapters; ++i) {
 			for (int j = 0; j < totalquestionsArray[i]; ++j) {
 				++numberofquestions;
 			}
 		}
 		questionStringArray = new String[numberofquestions];
 		int auxcount = 0;
-		for (int i = 0; i < totalchapters; ++i) {
+		for (int i = 0; i < totalsurveychapters; ++i) {
 			for (int j = 0; j < totalquestionsArray[i]; ++j) {
 				try {
 					questionStringArray[auxcount] = jsonsurv
@@ -966,25 +978,25 @@ public class Surveyor extends Activity implements
 		return questionStringArray;
 	}
 
-	public void columnCheck() {
+	public void columnCheck(String TABLE_ID, String survortrip) {
 		Boolean existsBoolean;
-		String[] hardcolumnsStrings = { "Location", "Date", "Lat", "Alt",
-				"Lng", "SurveyID", "TripID" }; // Columns
-		// that
-		// are
-		// in
-		// all
-		// projects.
-		String[] hardcolumntypeStrings = { "LOCATION", "DATETIME", "NUMBER",
-				"NUMBER", "NUMBER", "STRING", "STRING" }; // Types for the
-															// columns that are
-															// in all
-		// projects.
+		String[] hardcolumnsStrings = null; // Columns that are in all projects.
+		String[] hardcolumntypeStrings = null; // Types for the columns that are
+												// in all projects.
+		if (survortrip.equals("survey")) {
+			hardcolumnsStrings = new String[] { "Location", "Date", "Lat",
+					"Alt", "Lng", "SurveyID", "TripID" };
+			hardcolumntypeStrings = new String[] { "LOCATION", "DATETIME",
+					"NUMBER", "NUMBER", "NUMBER", "STRING", "STRING" };
+		} else if (survortrip.equals("trip")) {
+			hardcolumnsStrings = new String[] { "Location", "Date", "Lat",
+					"Alt", "Lng", "TripID" };
+			hardcolumntypeStrings = new String[] { "LOCATION", "DATETIME",
+					"NUMBER", "NUMBER", "NUMBER", "STRING" };
+		}
 		try {
-			columnlistNameString = getcolumnList(SURVEY_TABLE_ID, API_KEY,
-					"name");
-			columnlistTypeString = getcolumnList(SURVEY_TABLE_ID, API_KEY,
-					"type");
+			columnlistNameString = getcolumnList(TABLE_ID, API_KEY, "name");
+			columnlistTypeString = getcolumnList(TABLE_ID, API_KEY, "type");
 		} catch (ClientProtocolException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -1001,7 +1013,7 @@ public class Surveyor extends Activity implements
 			} else if (existsBoolean == false) {
 				try {
 					createcolumn(hardcolumnsStrings[i],
-							hardcolumntypeStrings[i], SURVEY_TABLE_ID);
+							hardcolumntypeStrings[i], TABLE_ID);
 				} catch (ClientProtocolException e) {
 
 					e.printStackTrace();
@@ -1011,9 +1023,8 @@ public class Surveyor extends Activity implements
 				}
 			}
 		}
-
-		questionIdlistString = getquestionlist(jsurv, "id");
-		questionKindlistString = getquestionlist(jsurv, "Kind");
+		questionIdlistString = getquestionlist(jsurv, "id", survortrip);
+		questionKindlistString = getquestionlist(jsurv, "Kind", survortrip);
 		numberofquestions = questionIdlistString.length;
 		numberofcolumns = columnlistNameString.length;
 		String auxkind = null;
@@ -1034,8 +1045,7 @@ public class Surveyor extends Activity implements
 				changecolumntype();
 			} else if (existsBoolean == false) {
 				try {
-					createcolumn(questionIdlistString[i], auxkind,
-							SURVEY_TABLE_ID);
+					createcolumn(questionIdlistString[i], auxkind, TABLE_ID);
 				} catch (ClientProtocolException e) {
 
 					e.printStackTrace();
@@ -1090,7 +1100,7 @@ public class Surveyor extends Activity implements
 		// .getString(R.string.survey_id) + " " + surveyID,
 		// Toast.LENGTH_SHORT);
 		// toast.show();
-		for (int i = 0; i < totalchapters; ++i) {
+		for (int i = 0; i < totalsurveychapters; ++i) {
 			for (int j = 0; j < totalquestionsArray[i]; j++) {
 				try {
 					jsurv.getJSONArray("Survey").getJSONObject(i)
