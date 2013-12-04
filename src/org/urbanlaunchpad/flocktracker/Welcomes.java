@@ -17,7 +17,7 @@ import android.view.WindowManager;
 public class Welcomes extends Activity implements OnClickListener {
 
 	// private long splashDelay = 1000; // 1 second for debugging.
-	private long splashDelay = 6000; // 6 seconds.
+	private long splashDelay = 5000; // 6 seconds.
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -41,18 +41,6 @@ public class Welcomes extends Activity implements OnClickListener {
 					}
 				});
 
-		TimerTask finish_splash = new TimerTask() {
-			@Override
-			public void run() {
-				Intent Iniconfig = new Intent().setClass(Welcomes.this,
-						Iniconfig.class);
-				startActivity(Iniconfig);
-				finish();
-			}
-		};
-
-		Timer timer = new Timer();
-		timer.schedule(finish_splash, splashDelay);
 
 		findViewById(R.id.mobility_futures_colaborative_button)
 				.setOnClickListener(this);
@@ -60,6 +48,23 @@ public class Welcomes extends Activity implements OnClickListener {
 		findViewById(R.id.urban_launchpad_button).setOnClickListener(this);
 
 	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		TimerTask finish_splash = new TimerTask() {
+			@Override
+			public void run() {
+				Intent Iniconfig = new Intent().setClass(Welcomes.this,
+						Iniconfig.class);
+				startActivity(Iniconfig);
+//				finish();
+			}
+		};
+
+		Timer timer = new Timer();
+		timer.schedule(finish_splash, splashDelay);		
+	};
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {

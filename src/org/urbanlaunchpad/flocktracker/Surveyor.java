@@ -19,6 +19,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
@@ -106,7 +107,8 @@ public class Surveyor extends Activity implements
 	private enum EVENT_TYPE {
 		MALE_UPDATE, FEMALE_UPDATE, START_TRIP, END_TRIP
 	}
-
+		
+	@SuppressLint("HandlerLeak")
 	private Handler messageHandler = new Handler() {
 
 		public void handleMessage(Message msg) {
