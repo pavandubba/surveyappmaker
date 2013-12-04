@@ -77,8 +77,9 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 			} else if (msg.what == EVENT_TYPE.INPUT_NAME.ordinal()) {
 				input.setText(projectName);
 				alert.setView(input);
-				// want to display alert to get name
+				// want to display alert to get project name
 				alert.show();
+				input.requestFocus();
 			} else {
 				Log.e("Survey Parser", "Error parsing survey");
 			}
