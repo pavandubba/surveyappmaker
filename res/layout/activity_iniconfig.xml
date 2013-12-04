@@ -2,7 +2,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/blue_background"
     android:orientation="vertical"
     android:padding="0dp"
     android:paddingBottom="@dimen/activity_vertical_margin"
@@ -16,78 +15,127 @@
         android:layout_height="0dp"
         android:layout_margin="0dp"
         android:layout_weight="5"
+        android:background="@color/blue_background"
         android:gravity="top"
         android:padding="0dp" >
 
+        <TextView
+            android:id="@+id/usernameTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:paddingBottom="10dp"
+            android:paddingLeft="30dp"
+            android:paddingTop="30dp"
+            android:text="@string/usernameTitle"
+            android:textColor="#fff"
+            android:textSize="20sp" />
+
         <TableRow
-            android:id="@+id/tableRow1"
+            android:id="@+id/usernameRow"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="left"
             android:padding="0sp" >
 
             <TextView
-                android:id="@+id/textView1"
-                android:layout_width="wrap_content"
+                android:id="@+id/usernameText"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Ingrese la URL del archivo de la encuesta/Enter the survey file URL/" />
+                android:layout_weight="2"
+                android:fontFamily="sans-serif-light"
+                android:paddingBottom="20dp"
+                android:paddingLeft="30dp"
+                android:paddingRight="30dp"
+                android:paddingTop="10dp"
+                android:text="@string/usernameText"
+                android:textColor="#fff"
+                android:textSize="20sp" />
 
+            <ImageView
+                android:contentDescription="@string/usernameButtonDesc"
+                android:id="@+id/imageView1"
+                android:layout_width="0dp"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:paddingBottom="10dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="30dp"
+                android:src="@drawable/ft_adduser" />
         </TableRow>
-
-        <TableRow
-            android:id="@+id/tableRow3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="right"
-            android:padding="0sp" >
-
-            <EditText
-                android:id="@+id/eturlfield"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:ems="10" >
-
-                <requestFocus />
-            </EditText>
-
-        </TableRow>
-
-        <Button
-            android:id="@+id/bdownload"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Descargar/Download" />
 
         <TextView
-            android:id="@+id/filefeedback"
+            android:id="@+id/projectNameTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Esperando/Waiting" />
+            android:gravity="left"
+            android:paddingBottom="10dp"
+            android:paddingLeft="30dp"
+            android:paddingTop="30dp"
+            android:text="@string/projectNameTitle"
+            android:textColor="#fff"
+            android:textSize="20sp" />
 
-        <Button
-            android:id="@+id/bcontinue"
+        <TableRow
+            android:id="@+id/projectNameRow"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Continuar/Continue" />
+            android:gravity="left"
+            android:padding="0sp" >
 
+            <TextView
+                android:id="@+id/projectNameText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:fontFamily="sans-serif-light"
+                android:paddingBottom="20dp"
+                android:paddingLeft="30dp"
+                android:paddingRight="30dp"
+                android:paddingTop="10dp"
+                android:text="@string/projectNameText"
+                android:textColor="#fff"
+                android:textSize="20sp" />
+
+            <ImageView
+                android:contentDescription="@string/projectNameButtonDesc"
+                android:id="@+id/projectNameButton"
+                android:layout_width="0dp"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:paddingBottom="10dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="30dp"
+                android:src="@drawable/ft_addproj" />
+        </TableRow>
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent" >
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:paddingBottom="20dp"
+                android:paddingRight="10dp" >
+
+                <Space
+                    android:layout_weight="2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content" />
+
+                <ImageView
+                    android:contentDescription="@string/flock_icon_desc"
+                    android:id="@+id/bcontinue"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="70dp"
+                    android:paddingLeft="30dp"
+                    android:paddingRight="30dp"
+                    android:src="@drawable/ft_arrow_rt" />
+            </TableRow>
+        </RelativeLayout>
     </TableLayout>
-
-    <FrameLayout
-        android:layout_width="fill_parent"
-        android:layout_height="0dp"
-        android:layout_margin="0dp"
-        android:layout_weight="1"
-        android:background="@color/ulp_bkgrd"
-        android:padding="0dp" >
-
-        <ImageView
-            android:id="@+id/ulp_icon_link"
-            android:layout_width="match_parent"
-            android:layout_height="fill_parent"
-            android:layout_gravity="center"
-            android:contentDescription="@string/ulp_icon_desc"
-            android:padding="15dp"
-            android:src="@drawable/ulpicon" />
-    </FrameLayout>
 
 </LinearLayout>
