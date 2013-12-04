@@ -51,7 +51,7 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 	AlertDialog.Builder alert;
 
 	private enum EVENT_TYPE {
-		GOT_USERNAME, GOT_PROJECT_NAME, PARSED_CORRECTLY, INPUT_NAME
+		GOT_USERNAME, GOT_PROJECT_NAME, PARSED_CORRECTLY, PARSED_INCORRECTLY, INPUT_NAME
 	}
 
 	@SuppressLint("HandlerLeak")
@@ -68,6 +68,11 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 				// got survey!
 				Toast toast = Toast.makeText(getApplicationContext(),
 						"survey parsed!", Toast.LENGTH_SHORT);
+				toast.show();
+			}  else if (msg.what == EVENT_TYPE.PARSED_INCORRECTLY.ordinal()) {
+				// got bad/no survey!
+				Toast toast = Toast.makeText(getApplicationContext(),
+						"Could not get survey", Toast.LENGTH_SHORT);
 				toast.show();
 			} else if (msg.what == EVENT_TYPE.INPUT_NAME.ordinal()) {
 				input.setText(projectName);
@@ -136,6 +141,9 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 								} catch (JSONException e) {
 									Log.e("JSON Parser", "Error parsing data "
 											+ e.toString());
+									messageHandler
+											.sendEmptyMessage(EVENT_TYPE.PARSED_INCORRECTLY
+													.ordinal());
 								}
 							} catch (ClientProtocolException e1) {
 								e1.printStackTrace();
@@ -178,7 +186,7 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 				toast.show();
 				return;
 			}
-	
+
 			input = new EditText(this);
 			alert.setView(input);
 
