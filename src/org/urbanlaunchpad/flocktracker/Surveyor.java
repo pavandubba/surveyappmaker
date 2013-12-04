@@ -758,7 +758,13 @@ public class Surveyor extends Activity implements
 		case NEXT:
 			navButtons.getView().findViewById(R.id.previous_question_button)
 					.setVisibility(View.VISIBLE);
-			if (jumpString != null) {
+			if ((questionposition +1 == totalquestionsArray[chapterposition - 1]) && (chapterposition +1 -1 == totalsurveychapters)){
+				Toast.makeText(this, "You've reached the end of the survey.",
+						Toast.LENGTH_SHORT).show();
+				submitSurveyInterface();
+				break;
+			}
+			else if (jumpString != null) {
 				jumpFinder(jumpString);
 			} else if (questionposition + 1 < totalquestionsArray[chapterposition - 1]) {
 				++questionposition;
@@ -770,51 +776,7 @@ public class Surveyor extends Activity implements
 			selectChapter(chapterposition, questionposition);
 			break;
 		case SUBMIT:
-			DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					switch (which) {
-					case DialogInterface.BUTTON_POSITIVE:
-						// Yes button clicked
-						toast = Toast.makeText(
-								getApplicationContext(),
-								getResources().getString(
-										R.string.submitting_survey),
-								Toast.LENGTH_SHORT);
-						toast.show();
-						new Thread(new Runnable() {
-							public void run() {
-								try {
-									submitSurvey();
-								} catch (ClientProtocolException e1) {
-									e1.printStackTrace();
-								} catch (IOException e1) {
-									e1.printStackTrace();
-								}
-							}
-						}).start();
-						toast = Toast.makeText(
-								getApplicationContext(),
-								getResources().getString(
-										R.string.survey_submitted),
-								Toast.LENGTH_SHORT);
-						toast.show();
-						resetSurvey();
-						showHubPage();
-						break;
-					case DialogInterface.BUTTON_NEGATIVE:
-						// No button clicked
-						break;
-					}
-				}
-			};
-			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			builder.setMessage(
-					getResources().getString(R.string.submit_survey_question))
-					.setPositiveButton(getResources().getString(R.string.yes),
-							dialogClickListener)
-					.setNegativeButton(getResources().getString(R.string.no),
-							dialogClickListener).show();
+				submitSurveyInterface();
 			break;
 		}
 	}
@@ -1159,6 +1121,54 @@ public class Surveyor extends Activity implements
 				}
 			}
 		}
+	}
+	
+	public void submitSurveyInterface(){
+		DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				switch (which) {
+				case DialogInterface.BUTTON_POSITIVE:
+					// Yes button clicked
+					toast = Toast.makeText(
+							getApplicationContext(),
+							getResources().getString(
+									R.string.submitting_survey),
+							Toast.LENGTH_SHORT);
+					toast.show();
+					new Thread(new Runnable() {
+						public void run() {
+							try {
+								submitSurvey();
+							} catch (ClientProtocolException e1) {
+								e1.printStackTrace();
+							} catch (IOException e1) {
+								e1.printStackTrace();
+							}
+						}
+					}).start();
+					toast = Toast.makeText(
+							getApplicationContext(),
+							getResources().getString(
+									R.string.survey_submitted),
+							Toast.LENGTH_SHORT);
+					toast.show();
+					resetSurvey();
+					showHubPage();
+					break;
+				case DialogInterface.BUTTON_NEGATIVE:
+					// No button clicked
+					break;
+				}
+			}
+		};
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setMessage(
+				getResources().getString(R.string.submit_survey_question))
+				.setPositiveButton(getResources().getString(R.string.yes),
+						dialogClickListener)
+				.setNegativeButton(getResources().getString(R.string.no),
+						dialogClickListener).show();
 	}
 
 }
