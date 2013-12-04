@@ -212,6 +212,7 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 			// Go to survey
 			Intent i = new Intent(getApplicationContext(), Surveyor.class);
 			i.putExtra("jsonsurvey", jsurv.toString());
+			i.putExtra("username", username);
 			try {
 				i.putExtra("token", token);
 			} catch (Exception e) {

@@ -101,6 +101,7 @@ public class Surveyor extends Activity implements
 	private String SURVEY_TABLE_ID = "11lGsm8B2SNNGmEsTmuGVrAy1gcJF9TQBo3G1Vw0";
 	private String API_KEY = "AIzaSyB4Nn1k2sML-0aBN2Fk3qOXLF-4zlaNwmg";
 	private JSONArray jtrackerquestions;
+	private String username;
 
 	private enum EVENT_TYPE {
 		MALE_UPDATE, FEMALE_UPDATE, START_TRIP, END_TRIP
@@ -148,6 +149,7 @@ public class Surveyor extends Activity implements
 		setContentView(R.layout.activity_surveyor);
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
+			username = extras.getString("username");
 			jsonsurveystring = extras.getString("jsonsurvey");
 			token = extras.getString("token");
 			try {
@@ -350,12 +352,12 @@ public class Surveyor extends Activity implements
 		String dateString = (String) android.text.format.DateFormat.format(
 				"yyyy-MM-dd hh:mm:ss", new java.util.Date());
 		String query = "INSERT INTO " + TRIP_TABLE_ID + " ("
-				+ "Location,Lat,Lng,Alt,Date,TripID) VALUES ("
+				+ "Location,Lat,Lng,Alt,Date,TripID,Username) VALUES ("
 				+ "'<Point><coordinates>" + latlng
 				+ "</coordinates></Point>','" + currentLocation.getLatitude()
 				+ "','" + currentLocation.getLongitude() + "','"
 				+ currentLocation.getAltitude() + "','" + dateString + "','"
-				+ tripID + "');";
+				+ tripID + "','" + username + "');";
 		String apiKey = "AIzaSyB4Nn1k2sML-0aBN2Fk3qOXLF-4zlaNwmg";
 		HttpClient httpclient = new DefaultHttpClient();
 		HttpPost httppost = new HttpPost(url);
@@ -640,12 +642,12 @@ public class Surveyor extends Activity implements
 				"yyyy-MM-dd hh:mm:ss", new java.util.Date());
 		String query = "INSERT INTO " + SURVEY_TABLE_ID + " ("
 				+ columnnamesString
-				+ ",Location,Lat,Lng,Alt,Date,SurveyID,TripID) VALUES ("
+				+ ",Location,Lat,Lng,Alt,Date,SurveyID,TripID,Username) VALUES ("
 				+ answerfinalString + ",'<Point><coordinates>" + latlng
 				+ "</coordinates></Point>','" + currentLocation.getLatitude()
 				+ "','" + currentLocation.getLongitude() + "','"
 				+ currentLocation.getAltitude() + "','" + dateString + "','"
-				+ surveyID + "','" + tripID + "');";
+				+ surveyID + "','" + tripID + "','" + username + "');";
 		HttpClient httpclient = new DefaultHttpClient();
 		HttpPost httppost = new HttpPost(url);
 		httppost.setHeader("Authorization", "Bearer " + token);
