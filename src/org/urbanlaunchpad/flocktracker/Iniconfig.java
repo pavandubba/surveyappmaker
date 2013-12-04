@@ -21,6 +21,7 @@ import android.accounts.AccountManagerFuture;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -28,6 +29,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -80,7 +82,8 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 				alert.setView(input);
 				// want to display alert to get project name
 				alert.show();
-				input.requestFocus();
+				InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
 			} else {
 				Log.e("Survey Parser", "Error parsing survey");
 			}
@@ -109,6 +112,8 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 				// save the project name
 				projectName = input.getText().toString().trim();
 
+				InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(input.getWindowToken(), 0);
 				dialog.dismiss();
 
 				if (!projectName.isEmpty()) {
@@ -161,6 +166,8 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 		alert.setNegativeButton("Cancel",
 				new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
+						InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(input.getWindowToken(), 0);
 						dialog.dismiss();
 					}
 				});
