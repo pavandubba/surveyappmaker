@@ -38,6 +38,7 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 	TextView usernameField;
 	TextView projectNameField;
 	ImageView cont;
+	EditText input;
 	String projectName;
 	String jsonsurveystring;
 	JSONObject jsurv = null;
@@ -46,7 +47,7 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 	private static final int AUTHORIZATION_CODE = 1993;
 	private static final int ACCOUNT_CODE = 1601;
 	private String token = null;
-	private String username = null;
+	private String username = "";
 	AlertDialog.Builder alert;
 
 	private enum EVENT_TYPE {
@@ -65,10 +66,12 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 				projectNameField.setText(projectName);
 			} else if (msg.what == EVENT_TYPE.PARSED_CORRECTLY.ordinal()) {
 				// got survey!
-				Toast toast = Toast.makeText(getApplicationContext(), "survey parsed!"
-						, Toast.LENGTH_SHORT);
+				Toast toast = Toast.makeText(getApplicationContext(),
+						"survey parsed!", Toast.LENGTH_SHORT);
 				toast.show();
 			} else if (msg.what == EVENT_TYPE.INPUT_NAME.ordinal()) {
+				input.setText(username);
+				alert.setView(input);
 				// want to display alert to get name
 				alert.show();
 			} else {
@@ -82,64 +85,75 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_iniconfig);
 		accountManager = AccountManager.get(this);
-		
+
 		// initialize fields
 		usernameField = (TextView) findViewById(R.id.usernameText);
 		projectNameField = (TextView) findViewById(R.id.projectNameText);
-		
+
 		// initialize dialog for inputting project name
 		alert = new AlertDialog.Builder(this);
 		alert.setTitle("Select project");
-		final EditText input = new EditText(this);
+		input = new EditText(this);
 		alert.setView(input);
 
 		// set listener for ok when user inputs project name
 		alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int whichButton) {
 				// save the project name
-				projectName = input.getText().toString();
+				projectName = input.getText().toString().trim();
 
-				// update our interface with project name
-				messageHandler.sendEmptyMessage(EVENT_TYPE.GOT_PROJECT_NAME
-						.ordinal());
+				dialog.dismiss();
 
-				// get and parse survey
-				new Thread(new Runnable() {
-					public void run() {
-						try {
-							jsonsurveystring = getSurvey(projectName);
-							Log.v("response", jsonsurveystring);
+				if (!projectName.isEmpty()) {
+					// update our interface with project name
+					messageHandler.sendEmptyMessage(EVENT_TYPE.GOT_PROJECT_NAME
+							.ordinal());
 
+					// get and parse survey
+					new Thread(new Runnable() {
+						public void run() {
 							try {
-								JSONObject array = new JSONObject(
-										jsonsurveystring);
-								String rows = array.getJSONArray("rows")
-										.toString();
-								String jsonRows = rows.substring(
-										rows.indexOf("{"),
-										rows.lastIndexOf("}") + 1);
+								jsonsurveystring = getSurvey(projectName);
+								Log.v("response", jsonsurveystring);
 
-								// properly format downloaded string
-								jsonRows = jsonRows.replaceAll("\\\\n", "");
-								jsonRows = jsonRows.replace("\\", "");
-								Log.v("JSON Parser string", jsonRows);
-								jsurv = new JSONObject(jsonRows);
-								messageHandler
-										.sendEmptyMessage(EVENT_TYPE.PARSED_CORRECTLY
-												.ordinal());
-							} catch (JSONException e) {
-								Log.e("JSON Parser",
-										"Error parsing data " + e.toString());
+								try {
+									JSONObject array = new JSONObject(
+											jsonsurveystring);
+									String rows = array.getJSONArray("rows")
+											.toString();
+									String jsonRows = rows.substring(
+											rows.indexOf("{"),
+											rows.lastIndexOf("}") + 1);
+
+									// properly format downloaded string
+									jsonRows = jsonRows.replaceAll("\\\\n", "");
+									jsonRows = jsonRows.replace("\\", "");
+									Log.v("JSON Parser string", jsonRows);
+									jsurv = new JSONObject(jsonRows);
+									messageHandler
+											.sendEmptyMessage(EVENT_TYPE.PARSED_CORRECTLY
+													.ordinal());
+								} catch (JSONException e) {
+									Log.e("JSON Parser", "Error parsing data "
+											+ e.toString());
+								}
+							} catch (ClientProtocolException e1) {
+								e1.printStackTrace();
+							} catch (IOException e1) {
+								e1.printStackTrace();
 							}
-						} catch (ClientProtocolException e1) {
-							e1.printStackTrace();
-						} catch (IOException e1) {
-							e1.printStackTrace();
 						}
-					}
-				}).start();
+					}).start();
+				}
 			}
 		});
+
+		alert.setNegativeButton("Cancel",
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int whichButton) {
+						dialog.dismiss();
+					}
+				});
 
 		// set listeners for rows and disable continue button
 		View projectNameSelectRow = findViewById(R.id.projectNameRow);
@@ -158,16 +172,26 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 			// Google credentials
 			chooseAccount();
 		} else if (id == R.id.projectNameRow) {
+			if (username.isEmpty()) {
+				Toast toast = Toast.makeText(getApplicationContext(),
+						"Select user first please", Toast.LENGTH_SHORT);
+				toast.show();
+				return;
+			}
+	
+			input = new EditText(this);
+			alert.setView(input);
+
 			// Show the popup dialog to get the project name
 			messageHandler.sendEmptyMessage(EVENT_TYPE.INPUT_NAME.ordinal());
 		} else if (id == R.id.bcontinue) {
 			if (jsurv == null) {
-				Toast toast = Toast.makeText(getApplicationContext(), "Missing user/project!"
-						, Toast.LENGTH_SHORT);
+				Toast toast = Toast.makeText(getApplicationContext(),
+						"Invalid user/project!", Toast.LENGTH_SHORT);
 				toast.show();
 				return;
 			}
-			
+
 			// Go to survey
 			Intent i = new Intent(getApplicationContext(), Surveyor.class);
 			i.putExtra("jsonsurvey", jsurv.toString());
