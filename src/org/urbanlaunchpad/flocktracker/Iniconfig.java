@@ -39,7 +39,7 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 	TextView projectNameField;
 	ImageView cont;
 	EditText input;
-	String projectName;
+	String projectName = "";
 	String jsonsurveystring;
 	JSONObject jsurv = null;
 	private AccountManager accountManager;
@@ -70,7 +70,7 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 						"survey parsed!", Toast.LENGTH_SHORT);
 				toast.show();
 			} else if (msg.what == EVENT_TYPE.INPUT_NAME.ordinal()) {
-				input.setText(username);
+				input.setText(projectName);
 				alert.setView(input);
 				// want to display alert to get name
 				alert.show();
