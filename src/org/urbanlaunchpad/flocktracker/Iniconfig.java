@@ -74,6 +74,7 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 				Toast toast = Toast.makeText(getApplicationContext(),
 						"Could not get survey", Toast.LENGTH_SHORT);
 				toast.show();
+				jsurv = null;
 			} else if (msg.what == EVENT_TYPE.INPUT_NAME.ordinal()) {
 				input.setText(projectName);
 				alert.setView(input);
