@@ -103,11 +103,13 @@ public class Surveyor extends Activity implements
 	private String API_KEY = "AIzaSyB4Nn1k2sML-0aBN2Fk3qOXLF-4zlaNwmg";
 	private JSONArray jtrackerquestions;
 	private String username;
+	private Integer trackerWait = 30000;
+	private  Integer tripQuestionposition = 0;
 
 	private enum EVENT_TYPE {
 		MALE_UPDATE, FEMALE_UPDATE, START_TRIP, END_TRIP
 	}
-		
+
 	@SuppressLint("HandlerLeak")
 	private Handler messageHandler = new Handler() {
 
@@ -302,7 +304,7 @@ public class Surveyor extends Activity implements
 					try {
 						if (isTripStarted) {
 							submitLocation();
-							Thread.sleep(60000);
+							Thread.sleep(trackerWait);
 						} else {
 							Thread.sleep(5000);
 						}
@@ -497,16 +499,17 @@ public class Surveyor extends Activity implements
 		ChapterDrawerLayout.closeDrawer(ChapterDrawerList);
 
 		// Obtaining the question desired to send to fragment
-		getQuestion(qposition);
+		jquestion = getQuestion(qposition, jchapter);
 
 		// Starting question fragment and passing json question information.
 		ChangeQuestion(jquestion, position, qposition);
 
 	}
 
-	private void getQuestion(int position) {
+	private JSONObject getQuestion(int position, JSONObject chapter) {
+		JSONObject question = null;
 		try {
-			jquestion = jchapter.getJSONArray("Questions").getJSONObject(
+			question = chapter.getJSONArray("Questions").getJSONObject(
 					position);
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -515,13 +518,13 @@ public class Surveyor extends Activity implements
 			toast.show();
 			String nullquestionhelper = "{\"Question\":\"No questions on chapter\"}";
 			try {
-				jquestion = new JSONObject(nullquestionhelper);
+				question = new JSONObject(nullquestionhelper);
 			} catch (JSONException e1) {
 				e1.printStackTrace();
 			}
 
 		}
-
+		return question;
 	}
 
 	@Override
@@ -642,7 +645,9 @@ public class Surveyor extends Activity implements
 		String url = "https://www.googleapis.com/fusiontables/v1/query";
 		String dateString = (String) android.text.format.DateFormat.format(
 				"yyyy-MM-dd hh:mm:ss", new java.util.Date());
-		String query = "INSERT INTO " + SURVEY_TABLE_ID + " ("
+		String query = "INSERT INTO "
+				+ SURVEY_TABLE_ID
+				+ " ("
 				+ columnnamesString
 				+ ",Location,Lat,Lng,Alt,Date,SurveyID,TripID,Username) VALUES ("
 				+ answerfinalString + ",'<Point><coordinates>" + latlng
@@ -758,13 +763,13 @@ public class Surveyor extends Activity implements
 		case NEXT:
 			navButtons.getView().findViewById(R.id.previous_question_button)
 					.setVisibility(View.VISIBLE);
-			if ((questionposition +1 == totalquestionsArray[chapterposition - 1]) && (chapterposition +1 -1 == totalsurveychapters)){
+			if ((questionposition + 1 == totalquestionsArray[chapterposition - 1])
+					&& (chapterposition + 1 - 1 == totalsurveychapters)) {
 				Toast.makeText(this, "You've reached the end of the survey.",
 						Toast.LENGTH_SHORT).show();
 				submitSurveyInterface();
 				break;
-			}
-			else if (jumpString != null) {
+			} else if (jumpString != null) {
 				jumpFinder(jumpString);
 			} else if (questionposition + 1 < totalquestionsArray[chapterposition - 1]) {
 				++questionposition;
@@ -776,7 +781,7 @@ public class Surveyor extends Activity implements
 			selectChapter(chapterposition, questionposition);
 			break;
 		case SUBMIT:
-				submitSurveyInterface();
+			submitSurveyInterface();
 			break;
 		}
 	}
@@ -818,12 +823,19 @@ public class Surveyor extends Activity implements
 	@Override
 	public void HubButtonPressed(HubButtonType type) {
 		switch (type) {
-
 		case TOGGLETRIP:
 			if (isTripStarted)
 				stopTrip();
 			else
 				startTrip();
+				// Obtaining the question desired to send to fragment
+				try {
+					jquestion = jtrackerquestions.getJSONObject(tripQuestionposition);
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+				// Starting question fragment and passing json question information.
+				ChangeQuestion(jquestion, 0, tripQuestionposition);
 			break;
 		case NEWSURVEY:
 			chapterposition = 1;
@@ -966,8 +978,9 @@ public class Surveyor extends Activity implements
 			}
 		} else if (survortrip.equals("trip")) {
 			for (int i = 0; i < numberofquestions; ++i) {
-				 try {
-					questionStringArray[i]= herearethequestions.getJSONObject(i).getString(whattogetString);
+				try {
+					questionStringArray[i] = herearethequestions.getJSONObject(
+							i).getString(whattogetString);
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
@@ -1122,18 +1135,17 @@ public class Surveyor extends Activity implements
 			}
 		}
 	}
-	
-	public void submitSurveyInterface(){
+
+	public void submitSurveyInterface() {
 		DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				switch (which) {
 				case DialogInterface.BUTTON_POSITIVE:
 					// Yes button clicked
-					toast = Toast.makeText(
-							getApplicationContext(),
-							getResources().getString(
-									R.string.submitting_survey),
+					toast = Toast.makeText(getApplicationContext(),
+							getResources()
+									.getString(R.string.submitting_survey),
 							Toast.LENGTH_SHORT);
 					toast.show();
 					new Thread(new Runnable() {
@@ -1147,11 +1159,10 @@ public class Surveyor extends Activity implements
 							}
 						}
 					}).start();
-					toast = Toast.makeText(
-							getApplicationContext(),
-							getResources().getString(
-									R.string.survey_submitted),
-							Toast.LENGTH_SHORT);
+					toast = Toast
+							.makeText(getApplicationContext(), getResources()
+									.getString(R.string.survey_submitted),
+									Toast.LENGTH_SHORT);
 					toast.show();
 					resetSurvey();
 					showHubPage();
