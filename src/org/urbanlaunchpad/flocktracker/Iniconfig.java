@@ -51,6 +51,7 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 	private String token = null;
 	private String username = "";
 	AlertDialog.Builder alert;
+	private boolean debison = true; // If true, a test project will be loaded by default.
 
 	private enum EVENT_TYPE {
 		GOT_USERNAME, GOT_PROJECT_NAME, PARSED_CORRECTLY, PARSED_INCORRECTLY, INPUT_NAME
@@ -71,7 +72,7 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 				Toast toast = Toast.makeText(getApplicationContext(),
 						"survey parsed!", Toast.LENGTH_SHORT);
 				toast.show();
-			}  else if (msg.what == EVENT_TYPE.PARSED_INCORRECTLY.ordinal()) {
+			} else if (msg.what == EVENT_TYPE.PARSED_INCORRECTLY.ordinal()) {
 				// got bad/no survey!
 				Toast toast = Toast.makeText(getApplicationContext(),
 						"Could not get survey", Toast.LENGTH_SHORT);
@@ -83,7 +84,7 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 				// want to display alert to get project name
 				alert.show();
 				InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+				imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
 			} else {
 				Log.e("Survey Parser", "Error parsing survey");
 			}
@@ -113,7 +114,7 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 				projectName = input.getText().toString().trim();
 
 				InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(input.getWindowToken(), 0);
+				imm.hideSoftInputFromWindow(input.getWindowToken(), 0);
 				dialog.dismiss();
 
 				if (!projectName.isEmpty()) {
@@ -167,7 +168,7 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 				new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
 						InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                        imm.hideSoftInputFromWindow(input.getWindowToken(), 0);
+						imm.hideSoftInputFromWindow(input.getWindowToken(), 0);
 						dialog.dismiss();
 					}
 				});
@@ -179,6 +180,10 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 		usernameSelectRow.setOnClickListener(this);
 		projectNameSelectRow.setOnClickListener(this);
 		cont.setOnClickListener(this);
+		
+		// Debug mode, passes project without internet connection.
+		DebuggingIsOn(debison);
+		
 	}
 
 	@Override
@@ -335,6 +340,29 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 			} catch (Exception e) {
 				// throw new RuntimeException(e);
 			}
+		}
+	}
+	
+	private void DebuggingIsOn(boolean deb){
+		// Debug mode, passes project without internet connection.
+		// Stuff for debugging without internet connection.		
+		if (deb){
+			projectName = "My fake project is back";
+			username = "fakeuser123@youdontknowwhere.us";
+			try {
+				jsurv = new JSONObject(
+						"{ \"Tracker\": { \"Questions\": [ { \"id\": \"q1\", \"Question\": \"Camión\", \"Kind\": \"MC\", \"Other\": true, \"Answers\": [ { \"Answer\": \"Ruta 56\" }, { \"Answer\": \"Ruta 15\" } ] } ], \"TableID\": \"1Q2mr8ni5LTxtZRRi3PNSYxAYS8HWikWqlfoIUK4\" }, \"Survey\": { \"Chapters\": [ { \"Chapter\": \"SITUACIÓN DEL LOTE Y VIVIENDA\", \"Questions\": [ { \"id\": \"q1\", \"Question\": \"¿Cuál es el uso de su lote?\", \"Kind\": \"MC\", \"Other\": true, \"Answers\": [ { \"Answer\": \"Habitacional\" }, { \"Answer\": \"Mixto\" } ] }, { \"id\": \"q2\", \"Question\": \"¿Cuál es la superficie del lote?\", \"Kind\": \"ON\" }, { \"id\": \"q3\", \"Question\": \"¿Cuál es la superficie construida de su lote?\", \"Kind\": \"ON\" }, { \"id\": \"q4\", \"Question\": \"¿Cuántas viviendas están construidas en este predio?\", \"Kind\": \"ON\" }, { \"id\": \"q5\", \"Question\": \"¿Cuántas familias comparten esta vivienda?\", \"Kind\": \"ON\" }, { \"id\": \"q6\", \"Question\": \"Este predio es:\", \"Kind\": \"MC\", \"Other\": true, \"Jump\": \"q6d\", \"Answers\": [ { \"Answer\": \"Propio\" }, { \"Answer\": \"Rentado 6b\", \"Jump\": \"q6b\" }, { \"Answer\": \"Prestado 6d\" }, { \"Answer\": \"Compartido 6d\" }, { \"Answer\": \"Lo cuida 6d\" }, { \"Answer\": \"Secesión de derechos 6d\" }, { \"Answer\": \"Otra tenencia 6d\" } ] }, { \"id\": \"q6a\", \"Question\": \"¿A través de quién adquirió/rentó/ocupó el lote? 6d\", \"Kind\": \"MC\", \"Other\": true, \"Jump\": \"q6d\", \"Answers\": [ { \"Answer\": \"Fraccionador 6d\" }, { \"Answer\": \"Lider 6d\" }, { \"Answer\": \"Comunitario 6d\" }, { \"Answer\": \"Ejidatario o comunero 6d\" }, { \"Answer\": \"Funcionario 6d\" } ] }, { \"id\": \"q6b\", \"Question\": \"Si renta, ¿Cuánto paga mensualmente? 7\", \"Kind\": \"OT\" }, { \"id\": \"q6d\", \"Question\": \"¿Qué documentos de posesión y/o propiedad tiene?\", \"Kind\": \"OT\" }, { \"id\": \"q7\", \"Question\": \"¿Cuánto tiempo lleva viviendo aquí?\", \"Kind\": \"ON\" }, { \"id\": \"q8\", \"Question\": \"¿Está el predio en algún proceso de regularización?\", \"Kind\": \"MC\", \"Other\": true, \"Answers\": [ { \"Answer\": \"Sí\" }, { \"Answer\": \"No\" } ] }, { \"id\": \"q9\", \"Question\": \"¿Sabe que adquirió un lote en zona no apta para vivienda?\", \"Kind\": \"MC\", \"Other\": true, \"Answers\": [ { \"Answer\": \"Sí\" }, { \"Answer\": \"No\" } ] } ] } ], \"TableID\": \"11lGsm8B2SNNGmEsTmuGVrAy1gcJF9TQBo3G1Vw0\" } }");
+			} catch (JSONException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
+			messageHandler
+			.sendEmptyMessage(EVENT_TYPE.PARSED_CORRECTLY
+					.ordinal());
+			messageHandler.sendEmptyMessage(EVENT_TYPE.GOT_USERNAME
+					.ordinal());
+			messageHandler.sendEmptyMessage(EVENT_TYPE.GOT_PROJECT_NAME
+					.ordinal());
 		}
 	}
 }
