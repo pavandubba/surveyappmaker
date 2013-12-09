@@ -47,7 +47,14 @@
 	<string name="usernameTitle">Username</string>
 	<string name="projectNameButtonDesc">Select project</string>
 	<string name="usernameButtonDesc">Select user</string>	
-					
+	<string name="total_time">00:00</string>	
+	<string name="default_greeting">Hi user_name!</string>
+	<string name="surveys_completed">surveys completed</string>
+	<string name="rides_completed">rides completed</string>
+	<string name="total_distance">total distance (km)</string>
+	<string name="current_address">current address</string>
+	<string name="default_address">No address found</string>
+								
     <color name="text_bkgrd">#E6E6E6</color>
     <color name="text_color_light">#FFFFFF</color>
     <color name="text_color_dark">#1F1F1F</color>

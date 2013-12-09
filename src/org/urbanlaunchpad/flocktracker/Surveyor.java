@@ -481,6 +481,33 @@ public class Surveyor extends Activity implements
 		else
 			stopTrip();
 	}
+	
+	private void showStatusPage() {
+		navButtons.getView().findViewById(R.id.previous_question_button)
+				.setVisibility(View.INVISIBLE);
+		FragmentManager fragmentManager = getFragmentManager();
+		Fragment fragment = new Status_page_fragment();
+
+		FragmentTransaction transactionHide = fragmentManager
+				.beginTransaction();
+		// hide navigation buttons
+		transactionHide.hide(navButtons);
+		transactionHide.commit();
+
+		FragmentTransaction transaction = fragmentManager.beginTransaction();
+		transaction.replace(R.id.surveyor_frame, fragment);
+		transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+		transaction.commit();
+
+		// update selected item and title, then close the drawer.
+		ChapterDrawerList.setItemChecked(0, true);
+		setTitle(ChapterTitles[0]);
+		ChapterDrawerLayout.closeDrawer(ChapterDrawerList);
+
+		// update counts
+//		updateCount("male");
+//		updateCount("female");
+	}
 
 	private void selectChapter(int position, int qposition) {
 		// update the main content by replacing fragments
@@ -831,6 +858,7 @@ public class Surveyor extends Activity implements
 			selectChapter(chapterposition, questionposition);
 			break;
 		case STATISTICS:
+			showStatusPage();
 			break;
 		case FEWERMEN:
 			if (maleCount > 0) {
