@@ -2,7 +2,9 @@ package org.urbanlaunchpad.flocktracker;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -29,6 +31,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.res.Configuration;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
@@ -104,10 +108,18 @@ public class Surveyor extends Activity implements
 	private JSONArray jtrackerquestions;
 	private String username;
 	private Integer trackerWait = 30000;
-	private  Integer tripQuestionposition = 0;
-
+	private Integer tripQuestionposition = 0;
+	private Calendar startTripTime = null; 
+	private double tripDistance = 0;
+	private double totalDistanceBefore = 0;
+	private int ridesCompleted = 0;
+	private int surveysCompleted = 0;
+	private Location startLocation;
+	private Activity thisActivity;
+	private boolean _initialized = false;
+	
 	private enum EVENT_TYPE {
-		MALE_UPDATE, FEMALE_UPDATE, START_TRIP, END_TRIP
+		MALE_UPDATE, FEMALE_UPDATE, START_TRIP, END_TRIP, UPDATE_STATS_PAGE
 	}
 
 	@SuppressLint("HandlerLeak")
@@ -143,6 +155,55 @@ public class Surveyor extends Activity implements
 				ImageView gear = (ImageView) findViewById(R.id.start_trip_button);
 				gear.setImageResource(R.drawable.ft_red_st);
 				gear.setAnimation(null);
+			} else if (msg.what == EVENT_TYPE.UPDATE_STATS_PAGE.ordinal()) {
+				TextView tripTimeText = (TextView) findViewById(R.id.tripTime);
+				TextView tripDistanceText = (TextView) findViewById(R.id.tripDistance);
+				TextView surveysCompletedText = (TextView) findViewById(R.id.surveysCompleted);
+				TextView ridesCompletedText = (TextView) findViewById(R.id.ridesCompleted);
+				TextView totalDistanceText = (TextView) findViewById(R.id.totalDistance);
+				TextView currentAddressText = (TextView) findViewById(R.id.currentAddress);
+
+				if (startTripTime != null) {
+					Calendar difference = Calendar.getInstance();
+					difference.setTimeInMillis(difference.getTimeInMillis() - startTripTime.getTimeInMillis());
+					tripTimeText.setText(difference.getTime().getMinutes() + ":" + difference.getTime().getSeconds());
+				} else {
+					tripTimeText.setText(R.string.total_time);
+				}
+				ridesCompletedText.setText("" + ridesCompleted);
+				totalDistanceText.setText("" + totalDistanceBefore + tripDistance);
+				tripDistanceText.setText("" + tripDistance);
+				surveysCompletedText.setText("" + surveysCompleted);
+				
+				Geocoder geocoder = new Geocoder(thisActivity, Locale.getDefault());
+				Location current = mLocationClient.getLastLocation();
+				List<Address> addresses = null;
+				try {
+					addresses = geocoder.getFromLocation(current.getLatitude(), current.getLongitude(), 1);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				if (addresses != null && addresses.size() > 0) {
+		                // Get the first address
+		                Address address = addresses.get(0);
+		                /*
+		                 * Format the first line of address (if available),
+		                 * city, and country name.
+		                 */
+		                String addressText = String.format(
+		                        "%s, %s, %s",
+		                        // If there's a street address, add it
+		                        address.getMaxAddressLineIndex() > 0 ?
+		                                address.getAddressLine(0) : "",
+		                        // Locality is usually a city
+		                        address.getLocality(),
+		                        // The country of the address
+		                        address.getCountryName());
+		                currentAddressText.setText(addressText);
+		                
+		        } else 
+					currentAddressText.setText(R.string.current_address);
 			}
 		}
 	};
@@ -152,6 +213,7 @@ public class Surveyor extends Activity implements
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_surveyor);
 		Bundle extras = getIntent().getExtras();
+		thisActivity = this;
 		if (extras != null) {
 			username = extras.getString("username");
 			jsonsurveystring = extras.getString("jsonsurvey");
@@ -350,6 +412,9 @@ public class Surveyor extends Activity implements
 
 	public void submitLocation() throws ClientProtocolException, IOException {
 		Location currentLocation = mLocationClient.getLastLocation();
+		tripDistance += startLocation.distanceTo(currentLocation);
+		startLocation = currentLocation;
+		
 		String latlng = LocationHelper.getLatLngAlt(currentLocation);
 		// String TABLE_ID = "11lGsm8B2SNNGmEsTmuGVrAy1gcJF9TQBo3G1Vw0";
 		String url = "https://www.googleapis.com/fusiontables/v1/query";
@@ -382,8 +447,12 @@ public class Surveyor extends Activity implements
 		isTripStarted = false;
 		tripID = "";
 
-		// TODO change icon to red
-		messageHandler.sendEmptyMessage(EVENT_TYPE.END_TRIP.ordinal());
+		if (_initialized) {
+			// TODO change icon to red
+			messageHandler.sendEmptyMessage(EVENT_TYPE.END_TRIP.ordinal());
+		} else {
+			_initialized = true;
+		}
 	}
 
 	/*
@@ -490,15 +559,10 @@ public class Surveyor extends Activity implements
 		FragmentManager fragmentManager = getFragmentManager();
 		Fragment fragment = new Status_page_fragment();
 
-		FragmentTransaction transactionHide = fragmentManager
-				.beginTransaction();
-		// hide navigation buttons
-		transactionHide.hide(navButtons);
-		transactionHide.commit();
-
 		FragmentTransaction transaction = fragmentManager.beginTransaction();
 		transaction.replace(R.id.surveyor_frame, fragment);
 		transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+		transaction.addToBackStack(null);
 		transaction.commit();
 
 		// update selected item and title, then close the drawer.
@@ -506,9 +570,7 @@ public class Surveyor extends Activity implements
 		setTitle(ChapterTitles[0]);
 		ChapterDrawerLayout.closeDrawer(ChapterDrawerList);
 
-		// update counts
-//		updateCount("male");
-//		updateCount("female");
+		messageHandler.sendEmptyMessage(EVENT_TYPE.UPDATE_STATS_PAGE.ordinal());
 	}
 
 	private void selectChapter(int position, int qposition) {
@@ -690,7 +752,10 @@ public class Surveyor extends Activity implements
 		nameValuePairs.add(new BasicNameValuePair("key", API_KEY));
 		httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 		HttpResponse response = httpclient.execute(httppost);
-
+		if (response.getStatusLine().getStatusCode() == 200) {
+			surveysCompleted++;
+		}
+		
 		Log.v("Submit survey response code", response.getStatusLine()
 				.getStatusCode()
 				+ " "
@@ -851,9 +916,16 @@ public class Surveyor extends Activity implements
 	public void HubButtonPressed(HubButtonType type) {
 		switch (type) {
 		case TOGGLETRIP:
-			if (isTripStarted)
+			if (isTripStarted) {
 				stopTrip();
-			else
+				tripDistance += startLocation.distanceTo(mLocationClient.getLastLocation());
+				ridesCompleted++;
+				totalDistanceBefore += tripDistance;
+				tripDistance = 0;
+			}
+			else {
+				startLocation = mLocationClient.getLastLocation();
+				startTripTime = Calendar.getInstance();
 				startTrip();
 				// Obtaining the question desired to send to fragment
 				try {
@@ -863,6 +935,7 @@ public class Surveyor extends Activity implements
 				}
 				// Starting question fragment and passing json question information.
 				ChangeQuestion(jquestion, 0, tripQuestionposition);
+			}
 			break;
 		case NEWSURVEY:
 			chapterposition = 1;
