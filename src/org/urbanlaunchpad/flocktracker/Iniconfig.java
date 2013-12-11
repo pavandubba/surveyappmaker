@@ -51,7 +51,7 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 	private String token = null;
 	private String username = "";
 	AlertDialog.Builder alert;
-	private boolean debison = true; // If true, a test project will be loaded by default.
+	private boolean debison = false; // If true, a test project will be loaded by default.
 
 	private enum EVENT_TYPE {
 		GOT_USERNAME, GOT_PROJECT_NAME, PARSED_CORRECTLY, PARSED_INCORRECTLY, INPUT_NAME
