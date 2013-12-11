@@ -117,7 +117,9 @@ public class Surveyor extends Activity implements
 	private Location startLocation;
 	private Activity thisActivity;
 	private boolean _initialized = false;
-	
+	private Boolean askingTripQuestions = false;
+	private Integer totalTripQuestions = 0;
+
 	private enum EVENT_TYPE {
 		MALE_UPDATE, FEMALE_UPDATE, START_TRIP, END_TRIP, UPDATE_STATS_PAGE
 	}
@@ -274,6 +276,7 @@ public class Surveyor extends Activity implements
 		try {
 			jtrackerquestions = jsurv.getJSONObject("Tracker").getJSONArray(
 					"Questions");
+			totalTripQuestions = jtrackerquestions.length();
 		} catch (JSONException e2) {
 			e2.printStackTrace();
 			toast = Toast
@@ -552,7 +555,7 @@ public class Surveyor extends Activity implements
 		else
 			stopTrip();
 	}
-	
+
 	private void showStatusPage() {
 		navButtons.getView().findViewById(R.id.previous_question_button)
 				.setVisibility(View.INVISIBLE);
@@ -574,6 +577,8 @@ public class Surveyor extends Activity implements
 	}
 
 	private void selectChapter(int position, int qposition) {
+		navButtons.getView().findViewById(R.id.submit_survey_button)
+				.setVisibility(View.VISIBLE);
 		// update the main content by replacing fragments
 		jchapter = null;
 		try {
@@ -598,8 +603,8 @@ public class Surveyor extends Activity implements
 	private JSONObject getQuestion(int position, JSONObject chapter) {
 		JSONObject question = null;
 		try {
-			question = chapter.getJSONArray("Questions").getJSONObject(
-					position);
+			question = chapter.getJSONArray("Questions")
+					.getJSONObject(position);
 		} catch (JSONException e) {
 			e.printStackTrace();
 			toast = Toast.makeText(this, "Question " + position
@@ -850,27 +855,55 @@ public class Surveyor extends Activity implements
 		switch (type) {
 
 		case PREVIOUS:
+			if (askingTripQuestions == true) {
+				tripQuestionposition = tripQuestionposition - 1;
+			}
 			onPrevQuestionPressed();
 			break;
 		case NEXT:
 			navButtons.getView().findViewById(R.id.previous_question_button)
 					.setVisibility(View.VISIBLE);
-			if ((questionposition + 1 == totalquestionsArray[chapterposition - 1])
-					&& (chapterposition + 1 - 1 == totalsurveychapters)) {
-				Toast.makeText(this, "You've reached the end of the survey.",
-						Toast.LENGTH_SHORT).show();
-				submitSurveyInterface();
-				break;
-			} else if (jumpString != null) {
-				jumpFinder(jumpString);
-			} else if (questionposition + 1 < totalquestionsArray[chapterposition - 1]) {
-				++questionposition;
-			} else if (questionposition + 1 >= totalquestionsArray[chapterposition - 1]) {
-				questionposition = 0;
-				++chapterposition;
+			if (askingTripQuestions == true) {
+				if (tripQuestionposition + 1 == totalTripQuestions) {
+					Toast.makeText(this, "Tracking is on!", Toast.LENGTH_SHORT)
+							.show();
+					askingTripQuestions = false;
+					tripQuestionposition = 0;
+					showHubPage();
+					startTrip();
+					break;
+				} else if (jumpString != null) {
+					// TODO Define a jump behavior.
+					jumpFinder(jumpString);
+				} else if (tripQuestionposition + 1 < totalTripQuestions) {
+					++tripQuestionposition;
+				}
+				try {
+					jquestion = jtrackerquestions
+							.getJSONObject(tripQuestionposition);
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+				ChangeQuestion(jquestion, 0, tripQuestionposition);
+			} else if (askingTripQuestions == false) {
+				if ((questionposition + 1 == totalquestionsArray[chapterposition - 1])
+						&& (chapterposition + 1 - 1 == totalsurveychapters)) {
+					Toast.makeText(this,
+							"You've reached the end of the survey.",
+							Toast.LENGTH_SHORT).show();
+					submitSurveyInterface();
+					break;
+				} else if (jumpString != null) {
+					jumpFinder(jumpString);
+				} else if (questionposition + 1 < totalquestionsArray[chapterposition - 1]) {
+					++questionposition;
+				} else if (questionposition + 1 >= totalquestionsArray[chapterposition - 1]) {
+					questionposition = 0;
+					++chapterposition;
+				}
+				selectChapter(chapterposition, questionposition);
 			}
 
-			selectChapter(chapterposition, questionposition);
 			break;
 		case SUBMIT:
 			submitSurveyInterface();
@@ -884,18 +917,35 @@ public class Surveyor extends Activity implements
 		answerString = answerStringRecieve;
 		jumpString = jumpStringRecieve;
 		if (answerString != null) {
-			try {
-				jsurv.getJSONObject("Survey").getJSONArray("Chapters")
-						.getJSONObject(chapterposition - 1)
-						.getJSONArray("Questions")
-						.getJSONObject(questionposition)
-						.put("Answer", answerString);
-				// toast = Toast.makeText(this, "Answer passed: " +
-				// answerString,
-				// Toast.LENGTH_SHORT);
-				// toast.show();
-			} catch (JSONException e) {
-				e.printStackTrace();
+			if (askingTripQuestions == false) {
+				try {
+					jsurv.getJSONObject("Survey").getJSONArray("Chapters")
+							.getJSONObject(chapterposition - 1)
+							.getJSONArray("Questions")
+							.getJSONObject(questionposition)
+							.put("Answer", answerString);
+					// toast = Toast.makeText(this, "Answer passed: " +
+					// answerString,
+					// Toast.LENGTH_SHORT);
+					// toast.show();
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			} else if (askingTripQuestions == true){
+				try {
+					jsurv.getJSONObject("Tracker")
+					.getJSONArray("Questions")
+					.getJSONObject(tripQuestionposition)
+					.put("Answer", answerString);
+//					 toast = Toast.makeText(this, "Answer passed: " +
+//							 jsurv.getJSONObject("Tracker")
+//								.getJSONArray("Questions")
+//								.getJSONObject(tripQuestionposition).getString("Answer"),
+//					 Toast.LENGTH_SHORT);
+//					 toast.show();
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 
@@ -927,13 +977,19 @@ public class Surveyor extends Activity implements
 				startLocation = mLocationClient.getLastLocation();
 				startTripTime = Calendar.getInstance();
 				startTrip();
+
 				// Obtaining the question desired to send to fragment
 				try {
-					jquestion = jtrackerquestions.getJSONObject(tripQuestionposition);
+					jquestion = jtrackerquestions
+							.getJSONObject(tripQuestionposition);
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
-				// Starting question fragment and passing json question information.
+				askingTripQuestions = true;
+				// Starting question fragment and passing json question
+				// information.
+				navButtons.getView().findViewById(R.id.submit_survey_button)
+						.setVisibility(View.INVISIBLE);
 				ChangeQuestion(jquestion, 0, tripQuestionposition);
 			}
 			break;
