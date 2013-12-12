@@ -86,8 +86,6 @@ public class Surveyor extends Activity implements
 	String jumpString = null;
 	String answerString = null;
 	String token = null;
-	String columnnamesString;
-	String answerfinalString;
 	private LocationClient mLocationClient;
 	private final int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 	private Fragment navButtons;
@@ -109,7 +107,7 @@ public class Surveyor extends Activity implements
 	private String username;
 	private Integer trackerWait = 30000;
 	private Integer tripQuestionposition = 0;
-	private Calendar startTripTime = null; 
+	private Calendar startTripTime = null;
 	private double tripDistance = 0;
 	private double totalDistanceBefore = 0;
 	private int ridesCompleted = 0;
@@ -167,44 +165,49 @@ public class Surveyor extends Activity implements
 
 				if (startTripTime != null) {
 					Calendar difference = Calendar.getInstance();
-					difference.setTimeInMillis(difference.getTimeInMillis() - startTripTime.getTimeInMillis());
-					tripTimeText.setText(difference.getTime().getMinutes() + ":" + difference.getTime().getSeconds());
+					difference.setTimeInMillis(difference.getTimeInMillis()
+							- startTripTime.getTimeInMillis());
+					tripTimeText.setText(difference.getTime().getMinutes()
+							+ ":" + difference.getTime().getSeconds());
 				} else {
 					tripTimeText.setText(R.string.total_time);
 				}
 				ridesCompletedText.setText("" + ridesCompleted);
-				totalDistanceText.setText("" + totalDistanceBefore + tripDistance);
+				totalDistanceText.setText("" + totalDistanceBefore
+						+ tripDistance);
 				tripDistanceText.setText("" + tripDistance);
 				surveysCompletedText.setText("" + surveysCompleted);
-				
-				Geocoder geocoder = new Geocoder(thisActivity, Locale.getDefault());
+
+				Geocoder geocoder = new Geocoder(thisActivity,
+						Locale.getDefault());
 				Location current = mLocationClient.getLastLocation();
 				List<Address> addresses = null;
 				try {
-					addresses = geocoder.getFromLocation(current.getLatitude(), current.getLongitude(), 1);
+					addresses = geocoder.getFromLocation(current.getLatitude(),
+							current.getLongitude(), 1);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				if (addresses != null && addresses.size() > 0) {
-		                // Get the first address
-		                Address address = addresses.get(0);
-		                /*
-		                 * Format the first line of address (if available),
-		                 * city, and country name.
-		                 */
-		                String addressText = String.format(
-		                        "%s, %s, %s",
-		                        // If there's a street address, add it
-		                        address.getMaxAddressLineIndex() > 0 ?
-		                                address.getAddressLine(0) : "",
-		                        // Locality is usually a city
-		                        address.getLocality(),
-		                        // The country of the address
-		                        address.getCountryName());
-		                currentAddressText.setText(addressText);
-		                
-		        } else 
+					// Get the first address
+					Address address = addresses.get(0);
+					/*
+					 * Format the first line of address (if available), city,
+					 * and country name.
+					 */
+					String addressText = String.format(
+							"%s, %s, %s",
+							// If there's a street address, add it
+							address.getMaxAddressLineIndex() > 0 ? address
+									.getAddressLine(0) : "",
+							// Locality is usually a city
+							address.getLocality(),
+							// The country of the address
+							address.getCountryName());
+					currentAddressText.setText(addressText);
+
+				} else
 					currentAddressText.setText(R.string.current_address);
 			}
 		}
@@ -414,18 +417,21 @@ public class Surveyor extends Activity implements
 	}
 
 	public void submitLocation() throws ClientProtocolException, IOException {
+		String columnnamesString = getnames("id", "nq", "Trip");
+		String answerfinalString = getnames("Answer", "wq", "Trip");
 		Location currentLocation = mLocationClient.getLastLocation();
 		tripDistance += startLocation.distanceTo(currentLocation);
 		startLocation = currentLocation;
-		
+
 		String latlng = LocationHelper.getLatLngAlt(currentLocation);
 		// String TABLE_ID = "11lGsm8B2SNNGmEsTmuGVrAy1gcJF9TQBo3G1Vw0";
 		String url = "https://www.googleapis.com/fusiontables/v1/query";
 		String dateString = (String) android.text.format.DateFormat.format(
 				"yyyy-MM-dd hh:mm:ss", new java.util.Date());
 		String query = "INSERT INTO " + TRIP_TABLE_ID + " ("
-				+ "Location,Lat,Lng,Alt,Date,TripID,Username) VALUES ("
-				+ "'<Point><coordinates>" + latlng
+				+ columnnamesString
+				+ ",Location,Lat,Lng,Alt,Date,TripID,Username) VALUES ("
+				+ answerfinalString + ",'<Point><coordinates>" + latlng
 				+ "</coordinates></Point>','" + currentLocation.getLatitude()
 				+ "','" + currentLocation.getLongitude() + "','"
 				+ currentLocation.getAltitude() + "','" + dateString + "','"
@@ -731,8 +737,8 @@ public class Surveyor extends Activity implements
 	}
 
 	public void submitSurvey() throws ClientProtocolException, IOException {
-		columnnamesString = getnames("id", "nq");
-		answerfinalString = getnames("Answer", "wq");
+		String columnnamesString = getnames("id", "nq", "Survey");
+		String answerfinalString = getnames("Answer", "wq", "Survey");
 
 		Location currentLocation = mLocationClient.getLastLocation();
 		String latlng = LocationHelper.getLatLngAlt(currentLocation);
@@ -760,25 +766,50 @@ public class Surveyor extends Activity implements
 		if (response.getStatusLine().getStatusCode() == 200) {
 			surveysCompleted++;
 		}
-		
+
 		Log.v("Submit survey response code", response.getStatusLine()
 				.getStatusCode()
 				+ " "
 				+ response.getStatusLine().getReasonPhrase());
 	}
 
-	public String getnames(String nametoget, String syntaxtype) {
+	public String getnames(String nametoget, String syntaxtype,
+			String triporsurvey) {
 		// If syntaxtype equals wq , quotes are aded, if it's nq , no quotes are
 		// added.
 		String addString = null;
 		String namesString = null;
-		for (int i = 0; i < totalsurveychapters; ++i) {
-			for (int j = 0; j < totalquestionsArray[i]; ++j) {
+		JSONArray questionsArray = null;
+		Integer totalchapters = null;
+		Integer totalquestions = null;
+		if (triporsurvey.equals("Survey")) {
+			totalchapters = totalsurveychapters;
+		} else if (triporsurvey.equals("Trip")) {
+			totalchapters = 1;
+		}
+		for (int i = 0; i < totalchapters; ++i) {
+			if (triporsurvey.equals("Survey")) {
 				try {
-					addString = jsurv.getJSONObject("Survey")
+					questionsArray = jsurv.getJSONObject("Survey")
 							.getJSONArray("Chapters").getJSONObject(i)
-							.getJSONArray("Questions").getJSONObject(j)
-							.getString(nametoget);
+							.getJSONArray("Questions");
+					totalquestions = questionsArray.length();
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			} else if (triporsurvey.equals("Trip")) {
+				try {
+					questionsArray = jsurv.getJSONObject("Tracker")
+							.getJSONArray("Questions");
+					totalquestions = questionsArray.length();
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+			for (int j = 0; j < totalquestions; ++j) {
+				try {
+					addString = questionsArray.getJSONObject(j).getString(
+							nametoget);
 				} catch (JSONException e) {
 					// e.printStackTrace();
 					addString = "";
@@ -786,18 +817,19 @@ public class Surveyor extends Activity implements
 				if (i == 0 && j == 0) {
 					if (syntaxtype.equals("wq")) {
 						namesString = "'" + addString + "'";
-					} else {
+					} else if (syntaxtype.equals("nq")) {
 						namesString = addString;
 					}
 				} else {
 					if (syntaxtype.equals("wq")) {
 						namesString = namesString + ",'" + addString + "'";
-					} else {
+					} else if (syntaxtype.equals("nq")) {
 						namesString = namesString + "," + addString;
 					}
 				}
 			}
 		}
+		Log.v("Names", triporsurvey + " " + namesString);
 		// toast = Toast.makeText(this, "Names: " + namesString,
 		// Toast.LENGTH_SHORT);
 		// toast.show();
@@ -931,18 +963,17 @@ public class Surveyor extends Activity implements
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
-			} else if (askingTripQuestions == true){
+			} else if (askingTripQuestions == true) {
 				try {
-					jsurv.getJSONObject("Tracker")
-					.getJSONArray("Questions")
-					.getJSONObject(tripQuestionposition)
-					.put("Answer", answerString);
-//					 toast = Toast.makeText(this, "Answer passed: " +
-//							 jsurv.getJSONObject("Tracker")
-//								.getJSONArray("Questions")
-//								.getJSONObject(tripQuestionposition).getString("Answer"),
-//					 Toast.LENGTH_SHORT);
-//					 toast.show();
+					jsurv.getJSONObject("Tracker").getJSONArray("Questions")
+							.getJSONObject(tripQuestionposition)
+							.put("Answer", answerString);
+					// toast = Toast.makeText(this, "Answer passed: " +
+					// jsurv.getJSONObject("Tracker")
+					// .getJSONArray("Questions")
+					// .getJSONObject(tripQuestionposition).getString("Answer"),
+					// Toast.LENGTH_SHORT);
+					// toast.show();
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
@@ -968,12 +999,12 @@ public class Surveyor extends Activity implements
 		case TOGGLETRIP:
 			if (isTripStarted) {
 				stopTrip();
-				tripDistance += startLocation.distanceTo(mLocationClient.getLastLocation());
+				tripDistance += startLocation.distanceTo(mLocationClient
+						.getLastLocation());
 				ridesCompleted++;
 				totalDistanceBefore += tripDistance;
 				tripDistance = 0;
-			}
-			else {
+			} else {
 				startLocation = mLocationClient.getLastLocation();
 				startTripTime = Calendar.getInstance();
 				startTrip();
