@@ -1,26 +1,14 @@
 package org.urbanlaunchpad.flocktracker;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.urbanlaunchpad.flocktracker.Status_page_fragment.StatusPageUpdate;
+import org.urbanlaunchpad.flocktracker.SurveyHelper.nextQuestionResult;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -70,10 +58,8 @@ public class Surveyor extends Activity implements
 
 	private CharSequence ChapterDrawerTitle;
 	private CharSequence Title;
-	private static String[] ChapterTitles;
 	private String username;
 
-	private Toast toast;
 	private LocationClient mLocationClient;
 	private final int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 	private Fragment navButtons;
@@ -136,7 +122,7 @@ public class Surveyor extends Activity implements
 
 				// update selected item and title, then close the drawer.
 				ChapterDrawerList.setItemChecked(0, true);
-				setTitle(ChapterTitles[0]);
+				setTitle(surveyHelper.getChapterTitles()[0]);
 				ChapterDrawerLayout.closeDrawer(ChapterDrawerList);
 
 				// update male count
@@ -230,6 +216,7 @@ public class Surveyor extends Activity implements
 		}
 	};
 
+	
 	/*
 	 * Activity Lifecycle Handlers
 	 */
@@ -258,7 +245,7 @@ public class Surveyor extends Activity implements
 				GravityCompat.START);
 		// set up the drawer's list view with items and click listener
 		ChapterDrawerList.setAdapter(new ArrayAdapter<String>(this,
-				R.layout.chapter_drawer_list_item, ChapterTitles));
+				R.layout.chapter_drawer_list_item, surveyHelper.getChapterTitles()));
 		ChapterDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 		getActionBar().setHomeButtonEnabled(true);
@@ -312,6 +299,11 @@ public class Surveyor extends Activity implements
 		}).start();
 	}
 
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+	    //No call for super(). Bug on API Level > 11.
+	}
+	
 	@Override
 	protected void onStart() {
 		super.onStart();
@@ -381,7 +373,7 @@ public class Surveyor extends Activity implements
 
 		messageHandler.sendEmptyMessage(EVENT_TYPE.UPDATE_HUB_PAGE.ordinal());
 	}
-	
+
 	public String createID() {
 		String ID = null;
 		Integer randy;
@@ -504,7 +496,7 @@ public class Surveyor extends Activity implements
 	private void showHubPage() {
 		// update title
 		ChapterDrawerList.setItemChecked(0, true);
-		setTitle(ChapterTitles[0]);
+		setTitle(surveyHelper.getChapterTitles()[0]);
 		ChapterDrawerLayout.closeDrawer(ChapterDrawerList);
 
 		// Update fragments
@@ -535,7 +527,7 @@ public class Surveyor extends Activity implements
 
 		// update selected item and title, then close the drawer.
 		ChapterDrawerList.setItemChecked(0, true);
-		setTitle(ChapterTitles[0]);
+		setTitle(surveyHelper.getChapterTitles()[0]);
 		ChapterDrawerLayout.closeDrawer(ChapterDrawerList);
 
 		messageHandler.sendEmptyMessage(EVENT_TYPE.UPDATE_STATS_PAGE.ordinal());
@@ -570,7 +562,7 @@ public class Surveyor extends Activity implements
 
 			// update selected item and title, then close the drawer.
 			ChapterDrawerList.setItemChecked(chapterPosition, true);
-			setTitle(ChapterTitles[chapterPosition]);
+			setTitle(surveyHelper.getChapterTitles()[chapterPosition]);
 			ChapterDrawerLayout.closeDrawer(ChapterDrawerList);
 
 			// Get current question
@@ -676,54 +668,29 @@ public class Surveyor extends Activity implements
 			showCurrentQuestion();
 			break;
 		case NEXT:
-			if (askingTripQuestions == true) {
-				boolean reachedEndOfSurvey = surveyHelper.onNextQuestionPressed(askingTripQuestions);
-				if (reachedEndOfSurvey) {
+			nextQuestionResult result = surveyHelper
+					.onNextQuestionPressed(askingTripQuestions);
+
+			if (askingTripQuestions) {
+				if (result == nextQuestionResult.END) {
 					Toast.makeText(this, "Tracking is on!", Toast.LENGTH_SHORT)
 							.show();
 					askingTripQuestions = false;
 					showHubPage();
 					startTrip();
 					break;
-				} else if (jumpString != null) {
-					// TODO Define a jump behavior.
-					jumpFinder(jumpString);
-				} else if (tripQuestionposition + 1 < totalTripQuestions) {
-					++tripQuestionposition;
 				}
-				try {
-					jquestion = jtrackerquestions
-							.getJSONObject(tripQuestionposition);
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
-				navButtons.getView()
-						.findViewById(R.id.previous_question_button)
-						.setVisibility(View.VISIBLE);
-				ChangeQuestion(jquestion, 0, tripQuestionposition);
-			} else if (askingTripQuestions == false) {
-				navButtons.getView()
-						.findViewById(R.id.previous_question_button)
-						.setVisibility(View.VISIBLE);
-
-				if ((questionposition + 1 == totalquestionsArray[chapterposition - 1])
-						&& (chapterposition + 1 - 1 == totalsurveychapters)) {
+			} else {
+				if (result == nextQuestionResult.END) {
 					Toast.makeText(this,
 							"You've reached the end of the survey.",
 							Toast.LENGTH_SHORT).show();
 					submitSurveyInterface();
 					break;
-				} else if (jumpString != null) {
-					jumpFinder(jumpString);
-				} else if (questionposition + 1 < totalquestionsArray[chapterposition - 1]) {
-					++questionposition;
-				} else if (questionposition + 1 >= totalquestionsArray[chapterposition - 1]) {
-					questionposition = 0;
-					++chapterposition;
 				}
-				selectChapter(chapterposition, questionposition);
 			}
 
+			showCurrentQuestion();
 			break;
 		case SUBMIT:
 			submitSurveyInterface();
@@ -732,14 +699,18 @@ public class Surveyor extends Activity implements
 	}
 
 	// Handler to handle answers to current survey question
-	public void AnswerRecieve(String answerStringRecieve,
-			String jumpStringRecieve) {
-		if (answerStringRecieve != null) {
+	public void AnswerRecieve(String answerStringReceive,
+			String jumpStringReceive) {
+		if (answerStringReceive != null) {
 			if (!askingTripQuestions) {
-				surveyHelper.answerCurrentQuestion(answerStringRecieve);
+				surveyHelper.answerCurrentQuestion(answerStringReceive);
 			} else {
-				surveyHelper.answerCurrentTrackerQuestion(answerStringRecieve);
+				surveyHelper.answerCurrentTrackerQuestion(answerStringReceive);
 			}
+		}
+
+		if (jumpStringReceive != null) {
+			surveyHelper.updateJumpString(jumpStringReceive);
 		}
 	}
 
@@ -795,7 +766,7 @@ public class Surveyor extends Activity implements
 				startTrip();
 
 				askingTripQuestions = true;
-				
+
 				// Starting question fragment and passing json question
 				// information.
 				surveyHelper.updateSurveyPosition(0, 0);
@@ -842,8 +813,6 @@ public class Surveyor extends Activity implements
 		}
 	}
 
-
-
 	public void submitSurveyInterface() {
 		DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
 			@Override
@@ -851,7 +820,7 @@ public class Surveyor extends Activity implements
 				switch (which) {
 				case DialogInterface.BUTTON_POSITIVE:
 					// Yes button clicked
-					toast = Toast.makeText(getApplicationContext(),
+					Toast toast = Toast.makeText(getApplicationContext(),
 							getResources()
 									.getString(R.string.submitting_survey),
 							Toast.LENGTH_SHORT);

@@ -40,6 +40,7 @@ public class SurveyHelper {
 	private Integer chapterPosition = null;
 	private Integer questionPosition = null;
 	private Integer tripQuestionPosition = 0;
+	private String jumpString = null;
 
 	public SurveyHelper(String username, String token, String jsonSurvey,
 			Context context) {
@@ -94,7 +95,7 @@ public class SurveyHelper {
 			jchapterlist = jsurv.getJSONObject("Survey").getJSONArray(
 					"Chapters");
 			ChapterTitles = new String[1 + jchapterlist.length()];
-			ChapterTitles[0] = "Status Page";
+			ChapterTitles[0] = "Hub Page";
 			for (int i = 1; i <= jchapterlist.length(); ++i) {
 				ChapterTitles[i] = jchapterlist.getJSONObject(i - 1).getString(
 						"Chapter");
@@ -529,25 +530,25 @@ public class SurveyHelper {
 	public int getQuestionPosition() {
 		return questionPosition;
 	}
-	
+
 	public int getTripQuestionPosition() {
 		return tripQuestionPosition;
 	}
 
 	public JSONObject getCurrentQuestion() throws JSONException {
 		return jsurv.getJSONObject("Survey").getJSONArray("Chapters")
-				.getJSONObject(chapterPosition).getJSONArray("Questions")
+				.getJSONObject(chapterPosition - 1).getJSONArray("Questions")
 				.getJSONObject(questionPosition);
 	}
-	
+
 	public JSONObject getCurrentTripQuestion() throws JSONException {
 		return jtrackerquestions.getJSONObject(tripQuestionPosition);
 	}
-	
+
 	public int getTripQuestionCount() {
 		return jtrackerquestions.length();
 	}
-	
+
 	public void onPrevQuestionPressed(Boolean askingTripQuestions) {
 		if (askingTripQuestions) {
 			tripQuestionPosition--;
@@ -555,27 +556,40 @@ public class SurveyHelper {
 			questionPosition--;
 		}
 	}
-	
-	// updates positions to get next question. returns true if end of survey reached
-	public boolean onNextQuestionPressed(Boolean askingTripQuestions) {
+
+	public enum nextQuestionResult {
+		NORMAL, END, JUMPSTRING
+	}
+
+	// updates positions to get next question. returns true if end of survey
+	// reached
+	public nextQuestionResult onNextQuestionPressed(Boolean askingTripQuestions) {
 		if (askingTripQuestions) {
 			tripQuestionPosition++;
-			if (tripQuestionPosition == jtrackerquestions.length())
-				return true;
+			if (tripQuestionPosition == jtrackerquestions.length()) {
+				tripQuestionPosition = 0;
+				return nextQuestionResult.END;
+			}
 		} else {
 			questionPosition++;
-			if (questionPosition == totalquestionsArray[chapterPosition]) {
+			if (questionPosition == totalquestionsArray[chapterPosition - 1]) {
 				chapterPosition++;
 				questionPosition = 0;
-				
-				if (chapterPosition == jchapterlist.length())
-					return true;
-			}		
+
+				if (chapterPosition > jchapterlist.length())
+					return nextQuestionResult.END;
+			}
 		}
-		
-		return false;
+
+		if (jumpString == null) {
+			return nextQuestionResult.NORMAL;
+		} else {
+			jumpFinder(jumpString);
+			jumpString = null;
+			return nextQuestionResult.JUMPSTRING;
+		}
 	}
-	
+
 	public void jumpFinder(String jumpString) {
 		// Searches for a question with the same id as the jumpString value
 		for (int i = 0; i < jchapterlist.length(); ++i) {
@@ -596,5 +610,13 @@ public class SurveyHelper {
 				}
 			}
 		}
+	}
+
+	public void updateJumpString(String jumpStringReceive) {
+		jumpString = jumpStringReceive;
+	}
+
+	public String[] getChapterTitles() {
+		return ChapterTitles;
 	}
 }
