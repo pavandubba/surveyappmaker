@@ -1,5 +1,9 @@
 package org.urbanlaunchpad.flocktracker;
 
+import java.util.TimerTask;
+
+import org.urbanlaunchpad.flocktracker.Status_page_fragment.StatusPageUpdate;
+
 import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
@@ -17,7 +21,7 @@ public class Start_trip_fragment extends Fragment {
 	// deliver messages
 	public interface HubButtonCallback {
 		public enum HubButtonType {
-			NEWSURVEY, STATISTICS, MOREMEN, FEWERMEN, MOREWOMEN, FEWERWOMEN, TOGGLETRIP
+			NEWSURVEY, STATISTICS, MOREMEN, FEWERMEN, MOREWOMEN, FEWERWOMEN, TOGGLETRIP, UPDATE_PAGE
 		}
 
 		/** Called by Fragment when an button is selected */
@@ -107,6 +111,21 @@ public class Start_trip_fragment extends Fragment {
 
 		return rootView;
 	}
+	
+	@Override
+	public void onStart() {
+		super.onStart();
+
+		// This makes sure that the container activity has implemented
+		// the callback interface. If not, it throws an exception.
+		try {
+			callback = (HubButtonCallback) getActivity();
+			callback.HubButtonPressed(HubButtonCallback.HubButtonType.UPDATE_PAGE);
+		} catch (ClassCastException e) {
+			throw new ClassCastException(getActivity().toString()
+					+ " must implement HubButtonPressed");
+		}
+	}
 
 	@Override
 	public void onAttach(Activity activity) {
@@ -116,6 +135,7 @@ public class Start_trip_fragment extends Fragment {
 		// the callback interface. If not, it throws an exception.
 		try {
 			callback = (HubButtonCallback) activity;
+			callback.HubButtonPressed(HubButtonCallback.HubButtonType.UPDATE_PAGE);
 		} catch (ClassCastException e) {
 			throw new ClassCastException(activity.toString()
 					+ " must implement HubButtonPressed");

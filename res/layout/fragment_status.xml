@@ -4,7 +4,6 @@
     android:layout_height="match_parent"
     android:layout_centerHorizontal="true"
     android:layout_centerVertical="true"
-    android:gravity="left|right"
     android:orientation="vertical"
     android:padding="0dp"
     android:paddingBottom="@dimen/activity_vertical_margin"
@@ -14,20 +13,21 @@
 
     <LinearLayout
         android:layout_width="fill_parent"
-        android:layout_height="90dp"
+        android:layout_height="0dp"
+        android:layout_weight="1.5"
         android:paddingTop="20dp" >
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:gravity="center"
+            android:gravity="center_vertical|right"
             android:orientation="vertical" >
 
             <ImageView
                 android:layout_width="50dp"
                 android:layout_height="30dp"
-                android:layout_gravity="right"
+                android:layout_marginTop="10dp"
                 android:contentDescription="@string/start_survey_button_desc"
                 android:gravity="center"
                 android:src="@drawable/ft_survcomp" />
@@ -58,7 +58,8 @@
 
     <LinearLayout
         android:layout_width="fill_parent"
-        android:layout_height="90dp"
+        android:layout_height="0dp"
+        android:layout_weight="1.5"
         android:paddingBottom="10dp"
         android:paddingTop="10dp" >
 
@@ -66,13 +67,13 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:gravity="center"
+            android:gravity="center_vertical|right"
             android:orientation="vertical" >
 
             <ImageView
                 android:layout_width="50dp"
                 android:layout_height="30dp"
-                android:layout_gravity="right"
+                android:layout_marginTop="10dp"
                 android:contentDescription="@string/start_survey_button_desc"
                 android:src="@drawable/ft_survcomp" />
         </LinearLayout>
@@ -81,7 +82,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="2"
-            android:gravity="center"
+            android:gravity="bottom"
             android:orientation="vertical" >
 
             <TextView
@@ -100,18 +101,24 @@
             android:layout_weight="1" />
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/user_greeting"
+    <LinearLayout
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:fontFamily="sans-serif-light"
-        android:gravity="left"
-        android:paddingBottom="10dp"
-        android:paddingLeft="40dp"
-        android:paddingTop="10dp"
-        android:text="@string/default_greeting"
-        android:textColor="#fff"
-        android:textSize="20sp" />
+        android:layout_height="0dp"
+        android:layout_weight="1" >
+
+        <TextView
+            android:id="@+id/user_greeting"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-light"
+            android:gravity="left"
+            android:paddingBottom="10dp"
+            android:paddingLeft="40dp"
+            android:paddingTop="10dp"
+            android:text="@string/default_greeting"
+            android:textColor="#fff"
+            android:textSize="20sp" />
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="fill_parent"
