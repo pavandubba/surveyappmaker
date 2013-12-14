@@ -25,6 +25,7 @@ public class Status_page_fragment extends Fragment {
 	public interface StatusPageUpdate {
 		/** Called by Fragment when an button is selected */
 		public void updateStatusPage();
+		public void leftStatusPage();
 	}
 
 	@Override
@@ -45,7 +46,7 @@ public class Status_page_fragment extends Fragment {
 		try {
 			updateHandler = (StatusPageUpdate) getActivity();
 			int period = 1000; // repeat every sec.
-
+			timer = new Timer();
 			timer.scheduleAtFixedRate(new TimerTask() {
 				public void run() {
 					updateHandler.updateStatusPage();
@@ -58,29 +59,19 @@ public class Status_page_fragment extends Fragment {
 	}
 	
 	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
+	public void onStop() {
+		super.onStop();
 
 		// This makes sure that the container activity has implemented
 		// the callback interface. If not, it throws an exception.
 		try {
-			updateHandler = (StatusPageUpdate) activity;
-			int period = 1000; // repeat every sec.
-
-			timer.scheduleAtFixedRate(new TimerTask() {
-				public void run() {
-					updateHandler.updateStatusPage();
-				}
-			}, 0, period);
+			updateHandler = (StatusPageUpdate) getActivity();
+			timer.cancel();
+			updateHandler.leftStatusPage();
 		} catch (ClassCastException e) {
-			throw new ClassCastException(activity.toString()
+			throw new ClassCastException(getActivity().toString()
 					+ " must implement StatusPageUpdate");
 		}
 	}
-	
-	@Override
-	public void onDetach() {
-		super.onDetach();
-		timer.cancel();
-	}
+
 }

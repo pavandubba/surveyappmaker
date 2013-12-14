@@ -117,16 +117,26 @@ public class Surveyor extends Activity implements
 	private Activity thisActivity;
 	private Boolean askingTripQuestions = false;
 	private Integer totalTripQuestions = 0;
+	private boolean showingStatusPage = false;
+	private boolean showingHubPage = false;
 
 	private enum EVENT_TYPE {
-		MALE_UPDATE, FEMALE_UPDATE, UPDATE_STATS_PAGE, UPDATE_HUB_PAGE
+		MALE_UPDATE, FEMALE_UPDATE, UPDATE_STATS_PAGE, UPDATE_HUB_PAGE, SHOW_NAV_BUTTONS
 	}
 
 	@SuppressLint("HandlerLeak")
 	private Handler messageHandler = new Handler() {
 
 		public void handleMessage(Message msg) {
-			if (msg.what == EVENT_TYPE.MALE_UPDATE.ordinal()) {
+			if (msg.what == EVENT_TYPE.SHOW_NAV_BUTTONS.ordinal()) {
+				if (!showingStatusPage && !showingHubPage) {
+					FragmentManager fragmentManager = getFragmentManager();
+					FragmentTransaction transactionShow = fragmentManager
+							.beginTransaction();
+					transactionShow.show(navButtons);
+					transactionShow.commit();	
+				}
+			} else if (msg.what == EVENT_TYPE.MALE_UPDATE.ordinal()) {
 				// update male count
 				TextView maleCountView = (TextView) findViewById(R.id.maleCount);
 				maleCountView.setText(maleCount.toString());
@@ -141,9 +151,6 @@ public class Surveyor extends Activity implements
 				TextView totalCount = (TextView) findViewById(R.id.totalPersonCount);
 				totalCount.setText("" + (maleCount + femaleCount));
 			} else if (msg.what == EVENT_TYPE.UPDATE_HUB_PAGE.ordinal()) {
-				navButtons.getView().findViewById(R.id.previous_question_button)
-				.setVisibility(View.INVISIBLE);
-				
 				// hide navigation buttons
 				FragmentManager fragmentManager = getFragmentManager();
 
@@ -151,12 +158,12 @@ public class Surveyor extends Activity implements
 						.beginTransaction();
 				transactionHide.hide(navButtons);
 				transactionHide.commit();
-				
+
 				// update selected item and title, then close the drawer.
 				ChapterDrawerList.setItemChecked(0, true);
 				setTitle(ChapterTitles[0]);
 				ChapterDrawerLayout.closeDrawer(ChapterDrawerList);
-				
+
 				// update male count
 				TextView maleCountView = (TextView) findViewById(R.id.maleCount);
 				maleCountView.setText(maleCount.toString());
@@ -166,7 +173,7 @@ public class Surveyor extends Activity implements
 				// update total count
 				TextView totalCount = (TextView) findViewById(R.id.totalPersonCount);
 				totalCount.setText("" + (maleCount + femaleCount));
-				
+
 				if (isTripStarted) {
 					ImageView gear = (ImageView) findViewById(R.id.start_trip_button);
 					gear.setImageResource(R.drawable.ft_grn_st1);
@@ -181,7 +188,7 @@ public class Surveyor extends Activity implements
 				} else {
 					ImageView gear = (ImageView) findViewById(R.id.start_trip_button);
 					gear.setImageResource(R.drawable.ft_red_st);
-					gear.setAnimation(null);	
+					gear.setAnimation(null);
 				}
 			} else if (msg.what == EVENT_TYPE.UPDATE_STATS_PAGE.ordinal()) {
 				TextView tripTimeText = (TextView) findViewById(R.id.tripTime);
@@ -446,7 +453,6 @@ public class Surveyor extends Activity implements
 	public void startTrip() {
 		isTripStarted = true;
 		tripID = "T" + createID();
-		FragmentManager fragmentManager = getFragmentManager();
 	}
 
 	public void submitLocation() throws ClientProtocolException, IOException {
@@ -456,7 +462,7 @@ public class Surveyor extends Activity implements
 			Location currentLocation = mLocationClient.getLastLocation();
 			tripDistance += startLocation.distanceTo(currentLocation);
 			startLocation = currentLocation;
-	
+
 			String latlng = LocationHelper.getLatLngAlt(currentLocation);
 			// String TABLE_ID = "11lGsm8B2SNNGmEsTmuGVrAy1gcJF9TQBo3G1Vw0";
 			String url = "https://www.googleapis.com/fusiontables/v1/query";
@@ -466,10 +472,11 @@ public class Surveyor extends Activity implements
 					+ columnnamesString
 					+ ",Location,Lat,Lng,Alt,Date,TripID,Username) VALUES ("
 					+ answerfinalString + ",'<Point><coordinates>" + latlng
-					+ "</coordinates></Point>','" + currentLocation.getLatitude()
-					+ "','" + currentLocation.getLongitude() + "','"
-					+ currentLocation.getAltitude() + "','" + dateString + "','"
-					+ tripID + "','" + username + "');";
+					+ "</coordinates></Point>','"
+					+ currentLocation.getLatitude() + "','"
+					+ currentLocation.getLongitude() + "','"
+					+ currentLocation.getAltitude() + "','" + dateString
+					+ "','" + tripID + "','" + username + "');";
 			String apiKey = "AIzaSyB4Nn1k2sML-0aBN2Fk3qOXLF-4zlaNwmg";
 			HttpClient httpclient = new DefaultHttpClient();
 			HttpPost httppost = new HttpPost(url);
@@ -479,7 +486,7 @@ public class Surveyor extends Activity implements
 			nameValuePairs.add(new BasicNameValuePair("key", apiKey));
 			httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 			HttpResponse response = httpclient.execute(httppost);
-	
+
 			Log.v("Submit trip response code", response.getStatusLine()
 					.getStatusCode()
 					+ " "
@@ -555,8 +562,15 @@ public class Surveyor extends Activity implements
 			questionposition = 0;
 			if (position == 0)
 				showHubPage();
-			else
+			else {
+				navButtons.getView()
+						.findViewById(R.id.previous_question_button)
+						.setVisibility(View.INVISIBLE);
+				showingHubPage = false;
+				showingStatusPage = false;
+				messageHandler.sendEmptyMessage(EVENT_TYPE.SHOW_NAV_BUTTONS.ordinal());
 				selectChapter(chapterposition, questionposition);
+			}
 		}
 	}
 
@@ -576,6 +590,8 @@ public class Surveyor extends Activity implements
 	}
 
 	private void showStatusPage() {
+		showingStatusPage = true;
+		
 		FragmentManager fragmentManager = getFragmentManager();
 		Fragment fragment = new Status_page_fragment();
 
@@ -688,6 +704,7 @@ public class Surveyor extends Activity implements
 					.setVisibility(View.INVISIBLE);
 			fm.popBackStackImmediate();
 		}
+
 		ChapterDrawerList.setItemChecked(chapterposition, true);
 		setTitle(ChapterTitles[chapterposition]);
 		ChapterDrawerLayout.closeDrawer(ChapterDrawerList);
@@ -709,10 +726,8 @@ public class Surveyor extends Activity implements
 
 		// show navigation buttons and add new question
 		if (!navButtons.isVisible()) {
-			FragmentTransaction transactionShow = fragmentManager
-					.beginTransaction();
-			transactionShow.show(navButtons);
-			transactionShow.commit();
+			messageHandler.sendEmptyMessage(EVENT_TYPE.SHOW_NAV_BUTTONS
+					.ordinal());
 		}
 
 		transaction.replace(R.id.surveyor_frame, fragment);
@@ -899,10 +914,13 @@ public class Surveyor extends Activity implements
 				tripQuestionposition = tripQuestionposition - 1;
 			}
 			onPrevQuestionPressed();
+			if (questionposition == 0) {
+				navButtons.getView()
+						.findViewById(R.id.previous_question_button)
+						.setVisibility(View.INVISIBLE);
+			}
 			break;
 		case NEXT:
-			navButtons.getView().findViewById(R.id.previous_question_button)
-					.setVisibility(View.VISIBLE);
 			if (askingTripQuestions == true) {
 				if (tripQuestionposition + 1 == totalTripQuestions) {
 					Toast.makeText(this, "Tracking is on!", Toast.LENGTH_SHORT)
@@ -924,8 +942,15 @@ public class Surveyor extends Activity implements
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
+				navButtons.getView()
+						.findViewById(R.id.previous_question_button)
+						.setVisibility(View.VISIBLE);
 				ChangeQuestion(jquestion, 0, tripQuestionposition);
 			} else if (askingTripQuestions == false) {
+				navButtons.getView()
+						.findViewById(R.id.previous_question_button)
+						.setVisibility(View.VISIBLE);
+
 				if ((questionposition + 1 == totalquestionsArray[chapterposition - 1])
 						&& (chapterposition + 1 - 1 == totalsurveychapters)) {
 					Toast.makeText(this,
@@ -1003,14 +1028,34 @@ public class Surveyor extends Activity implements
 
 	@Override
 	public void updateStatusPage() {
+		// hide navigation buttons
+		FragmentManager fragmentManager = getFragmentManager();
+
+		FragmentTransaction transactionHide = fragmentManager
+				.beginTransaction();
+		transactionHide.hide(navButtons);
+		transactionHide.commit();
+		
 		messageHandler.sendEmptyMessage(EVENT_TYPE.UPDATE_STATS_PAGE.ordinal());
 	}
 
 	@Override
+	public void leftStatusPage() {
+		showingStatusPage = false;
+	}
+	
+	@Override
 	public void HubButtonPressed(HubButtonType type) {
 		switch (type) {
+		case SHOW_NAV_BUTTONS:
+			showingHubPage = false;
+			messageHandler.sendEmptyMessage(EVENT_TYPE.SHOW_NAV_BUTTONS
+					.ordinal());
+			break;
 		case UPDATE_PAGE:
-			messageHandler.sendEmptyMessage(EVENT_TYPE.UPDATE_HUB_PAGE.ordinal());
+			showingHubPage = true;
+			messageHandler.sendEmptyMessage(EVENT_TYPE.UPDATE_HUB_PAGE
+					.ordinal());
 			break;
 		case TOGGLETRIP:
 			if (isTripStarted) {
@@ -1035,8 +1080,9 @@ public class Surveyor extends Activity implements
 				askingTripQuestions = true;
 				// Starting question fragment and passing json question
 				// information.
-				navButtons.getView().findViewById(R.id.previous_question_button)
-				.setVisibility(View.INVISIBLE);
+				navButtons.getView()
+						.findViewById(R.id.previous_question_button)
+						.setVisibility(View.INVISIBLE);
 				navButtons.getView().findViewById(R.id.submit_survey_button)
 						.setVisibility(View.INVISIBLE);
 				ChangeQuestion(jquestion, 0, tripQuestionposition);
@@ -1045,6 +1091,8 @@ public class Surveyor extends Activity implements
 		case NEWSURVEY:
 			chapterposition = 1;
 			questionposition = 0;
+			navButtons.getView().findViewById(R.id.previous_question_button)
+					.setVisibility(View.INVISIBLE);
 			selectChapter(chapterposition, questionposition);
 			break;
 		case STATISTICS:
@@ -1387,5 +1435,5 @@ public class Surveyor extends Activity implements
 				.setNegativeButton(getResources().getString(R.string.no),
 						dialogClickListener).show();
 	}
-
+	
 }
