@@ -216,7 +216,6 @@ public class Surveyor extends Activity implements
 		}
 	};
 
-	
 	/*
 	 * Activity Lifecycle Handlers
 	 */
@@ -245,7 +244,8 @@ public class Surveyor extends Activity implements
 				GravityCompat.START);
 		// set up the drawer's list view with items and click listener
 		ChapterDrawerList.setAdapter(new ArrayAdapter<String>(this,
-				R.layout.chapter_drawer_list_item, surveyHelper.getChapterTitles()));
+				R.layout.chapter_drawer_list_item, surveyHelper
+						.getChapterTitles()));
 		ChapterDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 		getActionBar().setHomeButtonEnabled(true);
@@ -301,9 +301,9 @@ public class Surveyor extends Activity implements
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
-	    //No call for super(). Bug on API Level > 11.
+		// No call for super(). Bug on API Level > 11.
 	}
-	
+
 	@Override
 	protected void onStart() {
 		super.onStart();
@@ -351,9 +351,12 @@ public class Surveyor extends Activity implements
 			return;
 		}
 
-		Log.i("MainActivity", "nothing on backstack, calling super");
-		if (fm.getBackStackEntryCount() == 0)
+		if (showingHubPage && surveyHelper.getChapterPosition() == 1
+				&& surveyHelper.getQuestionPosition() == 0)
 			finish();
+
+		Log.i("MainActivity", "nothing on backstack, calling super");
+
 		super.onBackPressed();
 	}
 
