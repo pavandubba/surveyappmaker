@@ -30,7 +30,7 @@
                 android:layout_marginTop="10dp"
                 android:contentDescription="@string/start_survey_button_desc"
                 android:gravity="center"
-                android:src="@drawable/ft_survcomp" />
+                android:src="@drawable/ft_triptime" />
         </LinearLayout>
 
         <LinearLayout
@@ -75,7 +75,7 @@
                 android:layout_height="30dp"
                 android:layout_marginTop="10dp"
                 android:contentDescription="@string/start_survey_button_desc"
-                android:src="@drawable/ft_survcomp" />
+                android:src="@drawable/ft_tripdist" />
         </LinearLayout>
 
         <LinearLayout
@@ -188,7 +188,7 @@
                 android:layout_height="fill_parent"
                 android:layout_gravity="right"
                 android:contentDescription="@string/start_survey_button_desc"
-                android:src="@drawable/ft_survcomp" />
+                android:src="@drawable/ft_ridercomp" />
         </LinearLayout>
 
         <LinearLayout
@@ -240,7 +240,7 @@
                 android:layout_height="fill_parent"
                 android:layout_gravity="right"
                 android:contentDescription="@string/start_survey_button_desc"
-                android:src="@drawable/ft_survcomp" />
+                android:src="@drawable/ft_distcomp" />
         </LinearLayout>
 
         <LinearLayout
@@ -293,7 +293,7 @@
                 android:layout_height="30dp"
                 android:layout_gravity="right"
                 android:contentDescription="@string/start_survey_button_desc"
-                android:src="@drawable/ft_survcomp" />
+                android:src="@drawable/ft_location" />
         </LinearLayout>
 
         <LinearLayout
