@@ -490,6 +490,7 @@ public class Surveyor extends Activity implements
 	public void stopTrip() {
 		isTripStarted = false;
 		tripID = "";
+		startTripTime = null;
 
 		messageHandler.sendEmptyMessage(EVENT_TYPE.UPDATE_HUB_PAGE.ordinal());
 	}
