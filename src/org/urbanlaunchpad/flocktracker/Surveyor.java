@@ -91,7 +91,6 @@ public class Surveyor extends Activity implements
 	private Location startLocation;
 	private Activity thisActivity;
 	private Boolean askingTripQuestions = false;
-	private Integer totalTripQuestions = 0;
 	private boolean showingStatusPage = false;
 	private boolean showingHubPage = false;
 	private SurveyHelper surveyHelper;
@@ -234,7 +233,7 @@ public class Surveyor extends Activity implements
 	/*
 	 * Activity Lifecycle Handlers
 	 */
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -333,7 +332,7 @@ public class Surveyor extends Activity implements
 		// Sync the toggle state after onRestoreInstanceState has occurred.
 		ChapterDrawerToggle.syncState();
 	}
-	
+
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
@@ -344,17 +343,18 @@ public class Surveyor extends Activity implements
 	@Override
 	public void onBackPressed() {
 		FragmentManager fm = getFragmentManager();
-		
+
 		if (!showingHubPage && !showingStatusPage) {
 			int chapterPosition = surveyHelper.getChapterPosition();
 			int questionPosition = surveyHelper.getQuestionPosition();
-			
+
 			if (questionPosition == 0) {
 				showHubPage();
 				return;
 			}
-			
-			surveyHelper.updateSurveyPosition(chapterPosition, questionPosition - 1);
+
+			surveyHelper.updateSurveyPosition(chapterPosition,
+					questionPosition - 1);
 			showCurrentQuestion();
 			return;
 		}
@@ -364,18 +364,16 @@ public class Surveyor extends Activity implements
 			finish();
 		super.onBackPressed();
 	}
-	
-	
+
 	/*
 	 * Starting and stopping trip logic
 	 */
-	
+
 	public void startTrip() {
 		isTripStarted = true;
 		tripID = "T" + createID();
 	}
 
-	
 	public void stopTrip() {
 		isTripStarted = false;
 		tripID = "";
@@ -384,16 +382,36 @@ public class Surveyor extends Activity implements
 		messageHandler.sendEmptyMessage(EVENT_TYPE.UPDATE_HUB_PAGE.ordinal());
 	}
 	
-	
+	public String createID() {
+		String ID = null;
+		Integer randy;
+		for (int i = 0; i < 7; ++i) {
+			randy = (int) (Math.random() * ((9) + 1));
+			if (i == 0) {
+				ID = randy.toString();
+			} else {
+				ID = ID + randy.toString();
+			}
+		}
+
+		return ID;
+	}
+
+	public void resetSurvey() {
+		surveyID = "S" + createID();
+		surveyHelper.resetSurvey();
+	}
+
 	/*
 	 * Submitting survey and location logic
 	 */
-	
+
 	public void submitSurvey() throws ClientProtocolException, IOException {
-		if (surveyHelper.submitSurvey(mLocationClient.getLastLocation(), surveyID, tripID))
+		if (surveyHelper.submitSurvey(mLocationClient.getLastLocation(),
+				surveyID, tripID))
 			surveysCompleted++;
 	}
-	
+
 	public void submitLocation() {
 		if (mLocationClient.isConnected()) {
 			Location currentLocation = mLocationClient.getLastLocation();
@@ -410,12 +428,11 @@ public class Surveyor extends Activity implements
 			}
 		}
 	}
-	
 
 	/*
 	 * Drawer Logic
 	 */
-	
+
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode,
 			Intent intent) {
@@ -458,7 +475,7 @@ public class Surveyor extends Activity implements
 		}
 		return true;
 	}
-		
+
 	private class DrawerItemClickListener implements
 			ListView.OnItemClickListener {
 		@Override
@@ -480,18 +497,16 @@ public class Surveyor extends Activity implements
 		}
 	}
 
-	
-	
 	/*
 	 * Displaying different pages
 	 */
-	
+
 	private void showHubPage() {
 		// update title
 		ChapterDrawerList.setItemChecked(0, true);
 		setTitle(ChapterTitles[0]);
 		ChapterDrawerLayout.closeDrawer(ChapterDrawerList);
-		
+
 		// Update fragments
 		FragmentManager fragmentManager = getFragmentManager();
 		Fragment fragment = new Start_trip_fragment();
@@ -530,27 +545,34 @@ public class Surveyor extends Activity implements
 		navButtons.getView().findViewById(R.id.submit_survey_button)
 				.setVisibility(View.VISIBLE);
 
+		int chapterPosition;
 		int questionPosition;
 		String currentQuestion = null;
-		
+
 		if (askingTripQuestions) {
+			chapterPosition = 0;
 			questionPosition = surveyHelper.getChapterPosition();
-			
+
 			// get current trip question
 			try {
-				currentQuestion = surveyHelper.getCurrentTripQuestion().toString();
+				currentQuestion = surveyHelper.getCurrentTripQuestion()
+						.toString();
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
+
+			// Hide submit
+			navButtons.getView().findViewById(R.id.submit_survey_button)
+					.setVisibility(View.INVISIBLE);
 		} else {
-			int chapterPosition = surveyHelper.getChapterPosition();
-			questionPosition = surveyHelper.getQuestionPosition();	
-			
+			chapterPosition = surveyHelper.getChapterPosition();
+			questionPosition = surveyHelper.getQuestionPosition();
+
 			// update selected item and title, then close the drawer.
 			ChapterDrawerList.setItemChecked(chapterPosition, true);
 			setTitle(ChapterTitles[chapterPosition]);
 			ChapterDrawerLayout.closeDrawer(ChapterDrawerList);
-			
+
 			// Get current question
 			try {
 				currentQuestion = surveyHelper.getCurrentQuestion().toString();
@@ -558,12 +580,7 @@ public class Surveyor extends Activity implements
 				e.printStackTrace();
 			}
 		}
-		
-		
 
-
-
-		
 		// Starting question fragment and passing json question information.
 		Fragment fragment = new Question_fragment();
 		Bundle args = new Bundle();
@@ -581,14 +598,14 @@ public class Surveyor extends Activity implements
 			messageHandler.sendEmptyMessage(EVENT_TYPE.SHOW_NAV_BUTTONS
 					.ordinal());
 		}
-		
+
 		// selectively show previous question button
 		if (questionPosition == 0) {
 			navButtons.getView().findViewById(R.id.previous_question_button)
-			.setVisibility(View.INVISIBLE);
+					.setVisibility(View.INVISIBLE);
 		} else {
 			navButtons.getView().findViewById(R.id.previous_question_button)
-			.setVisibility(View.VISIBLE);
+					.setVisibility(View.VISIBLE);
 		}
 
 		transaction.replace(R.id.surveyor_frame, fragment);
@@ -603,7 +620,6 @@ public class Surveyor extends Activity implements
 		Title = title;
 		getActionBar().setTitle(Title);
 	}
-
 
 	/*
 	 * Callback Handlers for Connecting to Google Play (Authentication)
@@ -646,7 +662,6 @@ public class Surveyor extends Activity implements
 				Toast.LENGTH_SHORT).show();
 	}
 
-	
 	/*
 	 * Fragment Event Listener Functions Below
 	 */
@@ -657,22 +672,16 @@ public class Surveyor extends Activity implements
 		switch (type) {
 
 		case PREVIOUS:
-			if (askingTripQuestions == true) {
-				tripQuestionposition = tripQuestionposition - 1;
-			}
-			if (questionposition == 0) {
-				navButtons.getView()
-						.findViewById(R.id.previous_question_button)
-						.setVisibility(View.INVISIBLE);
-			}
+			surveyHelper.onPrevQuestionPressed(askingTripQuestions);
+			showCurrentQuestion();
 			break;
 		case NEXT:
 			if (askingTripQuestions == true) {
-				if (tripQuestionposition + 1 == totalTripQuestions) {
+				boolean reachedEndOfSurvey = surveyHelper.onNextQuestionPressed(askingTripQuestions);
+				if (reachedEndOfSurvey) {
 					Toast.makeText(this, "Tracking is on!", Toast.LENGTH_SHORT)
 							.show();
 					askingTripQuestions = false;
-					tripQuestionposition = 0;
 					showHubPage();
 					startTrip();
 					break;
@@ -727,9 +736,9 @@ public class Surveyor extends Activity implements
 			String jumpStringRecieve) {
 		if (answerStringRecieve != null) {
 			if (!askingTripQuestions) {
-				surveyHelper.answerQuestion(answerStringRecieve);
+				surveyHelper.answerCurrentQuestion(answerStringRecieve);
 			} else {
-				surveyHelper.answerTrackerQuestion(answerStringRecieve);
+				surveyHelper.answerCurrentTrackerQuestion(answerStringRecieve);
 			}
 		}
 	}
@@ -737,7 +746,8 @@ public class Surveyor extends Activity implements
 	// Handler to handle new survey position after answer to question
 	public void PositionRecieve(Integer chapterpositionrecieve,
 			Integer questionpositionrecieve) {
-		surveyHelper.updateSurveyPosition(chapterpositionrecieve, questionpositionrecieve);
+		surveyHelper.updateSurveyPosition(chapterpositionrecieve,
+				questionpositionrecieve);
 	}
 
 	@Override
@@ -784,29 +794,17 @@ public class Surveyor extends Activity implements
 				startTripTime = Calendar.getInstance();
 				startTrip();
 
-				// Obtaining the question desired to send to fragment
-				try {
-					jquestion = jtrackerquestions
-							.getJSONObject(tripQuestionposition);
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
 				askingTripQuestions = true;
+				
 				// Starting question fragment and passing json question
 				// information.
-				navButtons.getView()
-						.findViewById(R.id.previous_question_button)
-						.setVisibility(View.INVISIBLE);
-				navButtons.getView().findViewById(R.id.submit_survey_button)
-						.setVisibility(View.INVISIBLE);
-				ChangeQuestion(jquestion, 0, tripQuestionposition);
+				surveyHelper.updateSurveyPosition(0, 0);
+				showCurrentQuestion();
 			}
 			break;
 		case NEWSURVEY:
 			surveyHelper.updateSurveyPosition(1, 0);
-			navButtons.getView().findViewById(R.id.previous_question_button)
-					.setVisibility(View.INVISIBLE);
-			selectChapter(chapterposition, questionposition);
+			showCurrentQuestion();
 			break;
 		case STATISTICS:
 			showStatusPage();
@@ -844,25 +842,7 @@ public class Surveyor extends Activity implements
 		}
 	}
 
-	public String createID() {
-		String ID = null;
-		Integer randy;
-		for (int i = 0; i < 7; ++i) {
-			randy = (int) (Math.random() * ((9) + 1));
-			if (i == 0) {
-				ID = randy.toString();
-			} else {
-				ID = ID + randy.toString();
-			}
-		}
 
-		return ID;
-	}
-
-	public void resetSurvey() {
-		surveyID = "S" + createID();
-		surveyHelper.resetSurvey();
-	}
 
 	public void submitSurveyInterface() {
 		DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {

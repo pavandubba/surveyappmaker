@@ -544,6 +544,38 @@ public class SurveyHelper {
 		return jtrackerquestions.getJSONObject(tripQuestionPosition);
 	}
 	
+	public int getTripQuestionCount() {
+		return jtrackerquestions.length();
+	}
+	
+	public void onPrevQuestionPressed(Boolean askingTripQuestions) {
+		if (askingTripQuestions) {
+			tripQuestionPosition--;
+		} else {
+			questionPosition--;
+		}
+	}
+	
+	// updates positions to get next question. returns true if end of survey reached
+	public boolean onNextQuestionPressed(Boolean askingTripQuestions) {
+		if (askingTripQuestions) {
+			tripQuestionPosition++;
+			if (tripQuestionPosition == jtrackerquestions.length())
+				return true;
+		} else {
+			questionPosition++;
+			if (questionPosition == totalquestionsArray[chapterPosition]) {
+				chapterPosition++;
+				questionPosition = 0;
+				
+				if (chapterPosition == jchapterlist.length())
+					return true;
+			}		
+		}
+		
+		return false;
+	}
+	
 	public void jumpFinder(String jumpString) {
 		// Searches for a question with the same id as the jumpString value
 		for (int i = 0; i < jchapterlist.length(); ++i) {
