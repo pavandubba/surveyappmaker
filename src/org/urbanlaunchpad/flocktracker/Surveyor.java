@@ -568,6 +568,7 @@ public class Surveyor extends Activity implements
 		FragmentTransaction transaction = fragmentManager.beginTransaction();
 		transaction.replace(R.id.surveyor_frame, fragment);
 		transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+		transaction.addToBackStack(null);
 		transaction.commit();
 
 		// update ui
