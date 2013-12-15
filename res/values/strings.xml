@@ -114,5 +114,7 @@
     <string name="next_question">Siguiente pregunta/Next question</string>
     <string name="previous_question">Pregunta anterior/Previous question</string>
     <string name="submit_survey">Subir encuesta/Submit survey</string>
-
+    <string name="zero">0</string>
+    
+    
 </resources>
