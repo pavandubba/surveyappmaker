@@ -60,7 +60,7 @@
                 android:value="org.urbanlaunchpad.flocktracker.Username" />
         </activity>
         <activity
-            android:name="org.urbanlaunchpad.flocktracker.Start_trip_fragment"
+            android:name="org.urbanlaunchpad.flocktracker.Hub_page_fragment"
             android:label="@string/title_activity_start_trip"
             android:parentActivityName="org.urbanlaunchpad.flocktracker.Trip_info"
             android:screenOrientation="portrait" >
@@ -71,7 +71,7 @@
         <activity
             android:name="org.urbanlaunchpad.flocktracker.Trip_started"
             android:label="@string/title_activity_trip_started"
-            android:parentActivityName="org.urbanlaunchpad.flocktracker.Start_trip_fragment"
+            android:parentActivityName="org.urbanlaunchpad.flocktracker.Hub_page_fragment"
             android:screenOrientation="portrait" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

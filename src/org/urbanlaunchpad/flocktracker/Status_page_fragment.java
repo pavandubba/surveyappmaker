@@ -3,8 +3,8 @@ package org.urbanlaunchpad.flocktracker;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.urbanlaunchpad.flocktracker.Start_trip_fragment.HubButtonCallback;
-import org.urbanlaunchpad.flocktracker.Start_trip_fragment.HubButtonCallback.HubButtonType;
+import org.urbanlaunchpad.flocktracker.Hub_page_fragment.HubButtonCallback;
+import org.urbanlaunchpad.flocktracker.Hub_page_fragment.HubButtonCallback.HubButtonType;
 
 import android.app.Activity;
 import android.app.Fragment;

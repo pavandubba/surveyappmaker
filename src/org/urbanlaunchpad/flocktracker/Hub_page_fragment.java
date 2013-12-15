@@ -7,7 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class Start_trip_fragment extends Fragment {
+public class Hub_page_fragment extends Fragment {
 	private View rootView;
 
 	// Passes Answer to activity.
@@ -28,7 +28,7 @@ public class Start_trip_fragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		rootView = inflater.inflate(R.layout.activity_start_trip, container,
+		rootView = inflater.inflate(R.layout.fragment_hub_page, container,
 				false);
 
 		// start new survey button callback

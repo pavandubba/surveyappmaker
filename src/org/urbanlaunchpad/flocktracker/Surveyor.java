@@ -49,7 +49,7 @@ import com.google.android.gms.location.LocationClient;
 public class Surveyor extends Activity implements
 		Question_fragment.AnswerSelected, Question_fragment.PositionPasser,
 		Question_navigator_fragment.NavButtonCallback,
-		Start_trip_fragment.HubButtonCallback, StatusPageUpdate,
+		Hub_page_fragment.HubButtonCallback, StatusPageUpdate,
 		GooglePlayServicesClient.ConnectionCallbacks,
 		GooglePlayServicesClient.OnConnectionFailedListener {
 	private DrawerLayout ChapterDrawerLayout;
@@ -504,7 +504,7 @@ public class Surveyor extends Activity implements
 
 		// Update fragments
 		FragmentManager fragmentManager = getFragmentManager();
-		Fragment fragment = new Start_trip_fragment();
+		Fragment fragment = new Hub_page_fragment();
 
 		FragmentTransaction transaction = fragmentManager.beginTransaction();
 		transaction.replace(R.id.surveyor_frame, fragment);
