@@ -470,6 +470,7 @@ public class Surveyor extends Activity implements
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// To make the action bar home/up action should open or close the
 		// drawer.
+		ChapterDrawerToggle.onOptionsItemSelected(item);
 		return true;
 	}
 
