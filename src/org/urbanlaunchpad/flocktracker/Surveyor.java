@@ -8,7 +8,7 @@ import java.util.Locale;
 import org.apache.http.client.ClientProtocolException;
 import org.json.JSONException;
 import org.urbanlaunchpad.flocktracker.Status_page_fragment.StatusPageUpdate;
-import org.urbanlaunchpad.flocktracker.SurveyHelper.nextQuestionResult;
+import org.urbanlaunchpad.flocktracker.SurveyHelper.NextQuestionResult;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -161,6 +161,7 @@ public class Surveyor extends Activity implements
 					TextView currentAddressText = (TextView) findViewById(R.id.currentAddress);
 					TextView usernameText = (TextView) findViewById(R.id.user_greeting);
 
+					// Get time difference
 					if (startTripTime != null) {
 						Calendar difference = Calendar.getInstance();
 						difference.setTimeInMillis(difference.getTimeInMillis()
@@ -170,15 +171,8 @@ public class Surveyor extends Activity implements
 					} else {
 						tripTimeText.setText(R.string.total_time);
 					}
-					ridesCompletedText.setText("" + ridesCompleted);
-					totalDistanceText.setText(""
-							+ String.format("%.2f", totalDistanceBefore
-									+ tripDistance));
-					tripDistanceText.setText(""
-							+ String.format("%.2f", tripDistance));
-					surveysCompletedText.setText("" + surveysCompleted);
-					usernameText.setText("Hi " + username + "!");
 
+					// Get address
 					Geocoder geocoder = new Geocoder(thisActivity,
 							Locale.getDefault());
 					Location current = mLocationClient.getLastLocation();
@@ -191,6 +185,17 @@ public class Surveyor extends Activity implements
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
+
+					// Update our views
+					ridesCompletedText.setText("" + ridesCompleted);
+					totalDistanceText.setText(""
+							+ String.format("%.2f", totalDistanceBefore
+									+ tripDistance));
+					tripDistanceText.setText(""
+							+ String.format("%.2f", tripDistance));
+					surveysCompletedText.setText("" + surveysCompleted);
+					usernameText.setText("Hi " + username + "!");
+
 					if (addresses != null && addresses.size() > 0) {
 						// Get the first address
 						Address address = addresses.get(0);
@@ -209,8 +214,9 @@ public class Surveyor extends Activity implements
 								address.getCountryName());
 						currentAddressText.setText(addressText);
 
-					} else
+					} else {
 						currentAddressText.setText(R.string.current_address);
+					}
 				}
 			}
 		}
@@ -253,8 +259,7 @@ public class Surveyor extends Activity implements
 		ChapterDrawerLayout, /* DrawerLayout object */
 		R.drawable.ic_drawer, /* nav drawer image to replace 'Up' caret */
 		R.string.chapter_drawer_open, /* For accessibility */
-		R.string.chapter_drawer_close /* For accessibility */
-		) {
+		R.string.chapter_drawer_close /* For accessibility */) {
 			public void onDrawerClosed(View view) {
 				getActionBar().setTitle(Title);
 			}
@@ -263,6 +268,7 @@ public class Surveyor extends Activity implements
 				getActionBar().setTitle(ChapterDrawerTitle);
 			}
 		};
+
 		ChapterDrawerLayout.setDrawerListener(ChapterDrawerToggle);
 
 		navButtons = getFragmentManager().findFragmentById(
@@ -334,8 +340,6 @@ public class Surveyor extends Activity implements
 
 	@Override
 	public void onBackPressed() {
-		FragmentManager fm = getFragmentManager();
-
 		if (!showingHubPage && !showingStatusPage) {
 			int chapterPosition = surveyHelper.getChapterPosition();
 			int questionPosition = surveyHelper.getQuestionPosition();
@@ -354,8 +358,6 @@ public class Surveyor extends Activity implements
 		if (showingHubPage && surveyHelper.getChapterPosition() == 1
 				&& surveyHelper.getQuestionPosition() == 0)
 			finish();
-
-		Log.i("MainActivity", "nothing on backstack, calling super");
 
 		super.onBackPressed();
 	}
@@ -409,9 +411,12 @@ public class Surveyor extends Activity implements
 
 	public void submitLocation() {
 		if (mLocationClient.isConnected()) {
+			// Update status page information
 			Location currentLocation = mLocationClient.getLastLocation();
 			tripDistance += startLocation.distanceTo(currentLocation);
 			startLocation = currentLocation;
+
+			// Submit location
 			try {
 				surveyHelper.submitLocation(currentLocation, tripID);
 			} catch (ClientProtocolException e) {
@@ -465,9 +470,6 @@ public class Surveyor extends Activity implements
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// To make the action bar home/up action should open or close the
 		// drawer.
-		if (ChapterDrawerToggle.onOptionsItemSelected(item)) {
-			return true;
-		}
 		return true;
 	}
 
@@ -477,12 +479,10 @@ public class Surveyor extends Activity implements
 		public void onItemClick(AdapterView<?> parent, View view, int position,
 				long id) {
 			surveyHelper.updateSurveyPosition(position, 0);
+
 			if (position == 0)
 				showHubPage();
 			else {
-				navButtons.getView()
-						.findViewById(R.id.previous_question_button)
-						.setVisibility(View.INVISIBLE);
 				showingHubPage = false;
 				showingStatusPage = false;
 				messageHandler.sendEmptyMessage(EVENT_TYPE.SHOW_NAV_BUTTONS
@@ -658,10 +658,8 @@ public class Surveyor extends Activity implements
 	}
 
 	/*
-	 * Fragment Event Listener Functions Below
+	 * Question Navigation Event Handlers
 	 */
-
-	// Handler for which button was pressed in navigator fragment
 
 	public void NavButtonPressed(NavButtonType type) {
 		switch (type) {
@@ -671,11 +669,11 @@ public class Surveyor extends Activity implements
 			showCurrentQuestion();
 			break;
 		case NEXT:
-			nextQuestionResult result = surveyHelper
+			NextQuestionResult result = surveyHelper
 					.onNextQuestionPressed(askingTripQuestions);
 
 			if (askingTripQuestions) {
-				if (result == nextQuestionResult.END) {
+				if (result == NextQuestionResult.END) {
 					Toast.makeText(this, "Tracking is on!", Toast.LENGTH_SHORT)
 							.show();
 					askingTripQuestions = false;
@@ -684,7 +682,7 @@ public class Surveyor extends Activity implements
 					break;
 				}
 			} else {
-				if (result == nextQuestionResult.END) {
+				if (result == NextQuestionResult.END) {
 					Toast.makeText(this,
 							"You've reached the end of the survey.",
 							Toast.LENGTH_SHORT).show();
@@ -701,7 +699,10 @@ public class Surveyor extends Activity implements
 		}
 	}
 
-	// Handler to handle answers to current survey question
+	/*
+	 * Question Event Handlers
+	 */
+	
 	public void AnswerRecieve(String answerStringReceive,
 			String jumpStringReceive) {
 		if (answerStringReceive != null) {
@@ -717,13 +718,17 @@ public class Surveyor extends Activity implements
 		}
 	}
 
-	// Handler to handle new survey position after answer to question
 	public void PositionRecieve(Integer chapterpositionrecieve,
 			Integer questionpositionrecieve) {
 		surveyHelper.updateSurveyPosition(chapterpositionrecieve,
 				questionpositionrecieve);
 	}
 
+	
+	/*
+	 *  Status Page Event Handlers
+	 */
+	
 	@Override
 	public void updateStatusPage() {
 		// hide navigation buttons
@@ -741,6 +746,10 @@ public class Surveyor extends Activity implements
 	public void leftStatusPage() {
 		showingStatusPage = false;
 	}
+	
+	/*
+	 * Hub Page Event Handlers
+	 */
 
 	@Override
 	public void HubButtonPressed(HubButtonType type) {
@@ -758,6 +767,8 @@ public class Surveyor extends Activity implements
 		case TOGGLETRIP:
 			if (isTripStarted) {
 				stopTrip();
+
+				// Update status page info
 				tripDistance += startLocation.distanceTo(mLocationClient
 						.getLastLocation());
 				ridesCompleted++;
