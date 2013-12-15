@@ -189,10 +189,10 @@ public class Surveyor extends Activity implements
 					// Update our views
 					ridesCompletedText.setText("" + ridesCompleted);
 					totalDistanceText.setText(""
-							+ String.format("%.2f", totalDistanceBefore
-									+ tripDistance));
+							+ String.format("%.2f", (totalDistanceBefore
+									+ tripDistance)/1000.0));
 					tripDistanceText.setText(""
-							+ String.format("%.2f", tripDistance));
+							+ String.format("%.2f", tripDistance/1000.0));
 					surveysCompletedText.setText("" + surveysCompleted);
 					usernameText.setText("Hi " + username + "!");
 
