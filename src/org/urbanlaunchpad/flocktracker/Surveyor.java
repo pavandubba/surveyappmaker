@@ -80,6 +80,7 @@ public class Surveyor extends Activity implements
 	private boolean showingStatusPage = false;
 	private boolean showingHubPage = false;
 	private SurveyHelper surveyHelper;
+	private GoogleDriveHelper driveHelper;
 
 	private enum EVENT_TYPE {
 		MALE_UPDATE, FEMALE_UPDATE, UPDATE_STATS_PAGE, UPDATE_HUB_PAGE, SHOW_NAV_BUTTONS
@@ -188,11 +189,13 @@ public class Surveyor extends Activity implements
 
 					// Update our views
 					ridesCompletedText.setText("" + ridesCompleted);
-					totalDistanceText.setText(""
-							+ String.format("%.2f", (totalDistanceBefore
-									+ tripDistance)/1000.0));
+					totalDistanceText
+							.setText(""
+									+ String.format(
+											"%.2f",
+											(totalDistanceBefore + tripDistance) / 1000.0));
 					tripDistanceText.setText(""
-							+ String.format("%.2f", tripDistance/1000.0));
+							+ String.format("%.2f", tripDistance / 1000.0));
 					surveysCompletedText.setText("" + surveysCompleted);
 					usernameText.setText("Hi " + username + "!");
 
@@ -238,6 +241,7 @@ public class Surveyor extends Activity implements
 					extras.getString("token"), extras.getString("jsonsurvey"),
 					getApplicationContext());
 		}
+		driveHelper = new GoogleDriveHelper(this);
 
 		// Navigation drawer information.
 		Title = ChapterDrawerTitle = getTitle();
@@ -439,6 +443,27 @@ public class Surveyor extends Activity implements
 
 		// Choose what to do based on the request code
 		switch (requestCode) {
+
+		case GoogleDriveHelper.REQUEST_ACCOUNT_PICKER:
+			if (resultCode == RESULT_OK && intent != null
+					&& intent.getExtras() != null) {
+				driveHelper.requestAccountPicker(intent);
+			}
+			break;
+		case GoogleDriveHelper.REQUEST_AUTHORIZATION:
+			if (resultCode == Activity.RESULT_OK) {
+				driveHelper.saveFileToDrive();
+			} else {
+				startActivityForResult(
+						driveHelper.credential.newChooseAccountIntent(),
+						GoogleDriveHelper.REQUEST_ACCOUNT_PICKER);
+			}
+			break;
+		case GoogleDriveHelper.CAPTURE_IMAGE:
+			if (resultCode == Activity.RESULT_OK) {
+				driveHelper.saveFileToDrive();
+			}
+			break;
 
 		// If the request code matches the code sent in onConnectionFailed
 		case CONNECTION_FAILURE_RESOLUTION_REQUEST:
@@ -703,7 +728,7 @@ public class Surveyor extends Activity implements
 	/*
 	 * Question Event Handlers
 	 */
-	
+
 	public void AnswerRecieve(String answerStringReceive,
 			String jumpStringReceive) {
 		if (answerStringReceive != null) {
@@ -725,11 +750,10 @@ public class Surveyor extends Activity implements
 				questionpositionrecieve);
 	}
 
-	
 	/*
-	 *  Status Page Event Handlers
+	 * Status Page Event Handlers
 	 */
-	
+
 	@Override
 	public void updateStatusPage() {
 		// hide navigation buttons
@@ -747,7 +771,7 @@ public class Surveyor extends Activity implements
 	public void leftStatusPage() {
 		showingStatusPage = false;
 	}
-	
+
 	/*
 	 * Hub Page Event Handlers
 	 */
