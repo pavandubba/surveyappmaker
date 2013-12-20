@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URLEncoder;
+import java.util.Arrays;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -14,10 +15,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.accounts.Account;
 import android.accounts.AccountManager;
-import android.accounts.AccountManagerCallback;
-import android.accounts.AccountManagerFuture;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -35,6 +33,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.auth.GoogleAuthException;
+import com.google.android.gms.auth.UserRecoverableAuthException;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.services.drive.DriveScopes;
+
 public class Iniconfig extends Activity implements View.OnClickListener {
 
 	TextView usernameField;
@@ -44,14 +47,15 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 	String projectName = "";
 	String jsonsurveystring;
 	JSONObject jsurv = null;
-	private AccountManager accountManager;
-	final String SCOPE = "https://www.googleapis.com/auth/fusiontables";
-	private static final int AUTHORIZATION_CODE = 1993;
-	private static final int ACCOUNT_CODE = 1601;
-	private String token = null;
 	private String username = "";
 	AlertDialog.Builder alert;
-	private boolean debison = false; // If true, a test project will be loaded by default.
+	private boolean debison = false; // If true, a test project will be loaded
+										// by default.
+	public static GoogleAccountCredential credential;
+
+	static final int REQUEST_ACCOUNT_PICKER = 1;
+	static final int REQUEST_PERMISSIONS = 2;
+	static final String FUSION_TABLE_SCOPE = "https://www.googleapis.com/auth/fusiontables";
 
 	private enum EVENT_TYPE {
 		GOT_USERNAME, GOT_PROJECT_NAME, PARSED_CORRECTLY, PARSED_INCORRECTLY, INPUT_NAME
@@ -95,7 +99,6 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_iniconfig);
-		accountManager = AccountManager.get(this);
 
 		// initialize fields
 		usernameField = (TextView) findViewById(R.id.usernameText);
@@ -122,44 +125,7 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 					messageHandler.sendEmptyMessage(EVENT_TYPE.GOT_PROJECT_NAME
 							.ordinal());
 
-					// get and parse survey
-					new Thread(new Runnable() {
-						public void run() {
-							try {
-								jsonsurveystring = getSurvey(projectName);
-								Log.v("response", jsonsurveystring);
-
-								try {
-									JSONObject array = new JSONObject(
-											jsonsurveystring);
-									String rows = array.getJSONArray("rows")
-											.toString();
-									String jsonRows = rows.substring(
-											rows.indexOf("{"),
-											rows.lastIndexOf("}") + 1);
-
-									// properly format downloaded string
-									jsonRows = jsonRows.replaceAll("\\\\n", "");
-									jsonRows = jsonRows.replace("\\", "");
-									Log.v("JSON Parser string", jsonRows);
-									jsurv = new JSONObject(jsonRows);
-									messageHandler
-											.sendEmptyMessage(EVENT_TYPE.PARSED_CORRECTLY
-													.ordinal());
-								} catch (JSONException e) {
-									Log.e("JSON Parser", "Error parsing data "
-											+ e.toString());
-									messageHandler
-											.sendEmptyMessage(EVENT_TYPE.PARSED_INCORRECTLY
-													.ordinal());
-								}
-							} catch (ClientProtocolException e1) {
-								e1.printStackTrace();
-							} catch (IOException e1) {
-								e1.printStackTrace();
-							}
-						}
-					}).start();
+					parseSurvey();
 				}
 			}
 		});
@@ -180,10 +146,16 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 		usernameSelectRow.setOnClickListener(this);
 		projectNameSelectRow.setOnClickListener(this);
 		cont.setOnClickListener(this);
-		
+
 		// Debug mode, passes project without internet connection.
 		DebuggingIsOn(debison);
-		
+
+		// get credential with scopes
+		credential = GoogleAccountCredential.usingOAuth2(
+				getApplicationContext(),
+				Arrays.asList(new String[] { FUSION_TABLE_SCOPE,
+						DriveScopes.DRIVE }));
+
 	}
 
 	@Override
@@ -192,7 +164,9 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 
 		if (id == R.id.usernameRow) {
 			// Google credentials
-			chooseAccount();
+			// chooseAccount();
+			startActivityForResult(credential.newChooseAccountIntent(),
+					REQUEST_ACCOUNT_PICKER);
 		} else if (id == R.id.projectNameRow) {
 			if (username.isEmpty()) {
 				Toast toast = Toast.makeText(getApplicationContext(),
@@ -218,10 +192,6 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 			Intent i = new Intent(getApplicationContext(), Surveyor.class);
 			i.putExtra("jsonsurvey", jsurv.toString());
 			i.putExtra("username", username);
-			try {
-				i.putExtra("token", token);
-			} catch (Exception e) {
-			}
 			startActivity(i);
 		}
 	}
@@ -243,22 +213,34 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 
 		HttpClient httpclient = new DefaultHttpClient();
 		HttpGet httpget = new HttpGet(url);
-		httpget.setHeader("Authorization", "Bearer " + token);
-		HttpResponse response = httpclient.execute(httpget);
+		try {
+			httpget.setHeader("Authorization",
+					"Bearer " + credential.getToken());
+			HttpResponse response = httpclient.execute(httpget);
 
-		Log.v("Get survey response code", response.getStatusLine()
-				.getStatusCode()
-				+ " "
-				+ response.getStatusLine().getReasonPhrase());
+			Log.v("Token", credential.getToken());
+			Log.v("Get survey response code", response.getStatusLine()
+					.getStatusCode()
+					+ " "
+					+ response.getStatusLine().getReasonPhrase());
 
-		// receive response as inputStream
-		InputStream inputStream = response.getEntity().getContent();
+			// receive response as inputStream
+			InputStream inputStream = response.getEntity().getContent();
 
-		// convert inputstream to string
-		if (inputStream != null)
-			return convertInputStreamToString(inputStream);
-		else
-			return null;
+			// convert inputstream to string
+			if (inputStream != null)
+				return convertInputStreamToString(inputStream);
+			else
+				return null;
+		} catch (UserRecoverableAuthException e) {
+			UserRecoverableAuthException exception = (UserRecoverableAuthException) e;
+			Intent authorizationIntent = exception.getIntent();
+			startActivityForResult(authorizationIntent, REQUEST_PERMISSIONS);
+		} catch (GoogleAuthException e) {
+			e.printStackTrace();
+		}
+		
+		return null;
 	}
 
 	// convert inputstream to String
@@ -275,92 +257,93 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 		return result;
 	}
 
+	public void parseSurvey() {
+		// get and parse survey
+		new Thread(new Runnable() {
+			public void run() {
+				try {
+					jsonsurveystring = getSurvey(projectName);
+					Log.v("response", jsonsurveystring);
+
+					try {
+						JSONObject array = new JSONObject(
+								jsonsurveystring);
+						String rows = array.getJSONArray("rows")
+								.toString();
+						String jsonRows = rows.substring(
+								rows.indexOf("{"),
+								rows.lastIndexOf("}") + 1);
+
+						// properly format downloaded string
+						jsonRows = jsonRows.replaceAll("\\\\n", "");
+						jsonRows = jsonRows.replace("\\", "");
+						Log.v("JSON Parser string", jsonRows);
+						jsurv = new JSONObject(jsonRows);
+						messageHandler
+								.sendEmptyMessage(EVENT_TYPE.PARSED_CORRECTLY
+										.ordinal());
+					} catch (JSONException e) {
+						Log.e("JSON Parser", "Error parsing data "
+								+ e.toString());
+						messageHandler
+								.sendEmptyMessage(EVENT_TYPE.PARSED_INCORRECTLY
+										.ordinal());
+					}
+				} catch (ClientProtocolException e1) {
+					e1.printStackTrace();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			}
+		}).start();
+	}
+	
 	/*
 	 * Username selection helper functions
 	 */
-
-	private void chooseAccount() {
-		// use https://github.com/frakbot/Android-AccountChooser for
-		// compatibility with older devices
-		Intent intent = AccountManager.newChooseAccountIntent(null, null,
-				new String[] { "com.google" }, false, null, null, null, null);
-		startActivityForResult(intent, ACCOUNT_CODE);
-	}
-
-	private void invalidateToken() {
-		AccountManager accountManager = AccountManager.get(this);
-		accountManager.invalidateAuthToken("com.google", token);
-		token = null;
-	}
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 
-		if (resultCode == RESULT_OK) {
-			if (requestCode == AUTHORIZATION_CODE) {
-				requestToken();
-			} else if (requestCode == ACCOUNT_CODE) {
+		switch (requestCode) {
+		case REQUEST_ACCOUNT_PICKER:
+			if (resultCode == RESULT_OK && data != null
+					&& data.getExtras() != null) {
 				username = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
+				credential.setSelectedAccountName(username);
 
 				// update our username field
 				messageHandler.sendEmptyMessage(EVENT_TYPE.GOT_USERNAME
 						.ordinal());
-
-				// invalidate old tokens which might be cached. we want a fresh
-				// one, which is guaranteed to work
-				invalidateToken();
-
-				requestToken();
 			}
+			break;
+		case REQUEST_PERMISSIONS:
+			if (resultCode == RESULT_OK)
+				parseSurvey();
+			else {
+		        startActivityForResult(credential.newChooseAccountIntent(), REQUEST_ACCOUNT_PICKER);
+			}
+			break;
 		}
 	}
 
-	private void requestToken() {
-		Account userAccount = null;
-		for (Account account : accountManager.getAccountsByType("com.google")) {
-			if (account.name.equals(username)) {
-				userAccount = account;
-
-				break;
-			}
-		}
-
-		accountManager.getAuthToken(userAccount, "oauth2:" + SCOPE, null, this,
-				new OnTokenAcquired(), null);
-	}
-
-	private class OnTokenAcquired implements AccountManagerCallback<Bundle> {
-
-		@Override
-		public void run(AccountManagerFuture<Bundle> future) {
-			try {
-				token = future.getResult().getString(
-						AccountManager.KEY_AUTHTOKEN);
-			} catch (Exception e) {
-				// throw new RuntimeException(e);
-			}
-		}
-	}
-	
-	private void DebuggingIsOn(boolean deb){
+	private void DebuggingIsOn(boolean deb) {
 		// Debug mode, passes project without internet connection.
-		// Stuff for debugging without internet connection.		
-		if (deb){
+		// Stuff for debugging without internet connection.
+		if (deb) {
 			projectName = "My fake project is back";
 			username = "fakeuser123@youdontknowwhere.us";
 			try {
 				jsurv = new JSONObject(
-						"{ \"Tracker\": { \"Questions\": [ { \"id\": \"q1\", \"Question\": \"Camión\", \"Kind\": \"MC\", \"Other\": true, \"Answers\": [ { \"Answer\": \"Ruta 56\" }, { \"Answer\": \"Ruta 15\" } ] } ], \"TableID\": \"1Q2mr8ni5LTxtZRRi3PNSYxAYS8HWikWqlfoIUK4\" }, \"Survey\": { \"Chapters\": [ { \"Chapter\": \"SITUACIÓN DEL LOTE Y VIVIENDA\", \"Questions\": [ { \"id\": \"q1\", \"Question\": \"¿Cuál es el uso de su lote?\", \"Kind\": \"MC\", \"Other\": true, \"Answers\": [ { \"Answer\": \"Habitacional\" }, { \"Answer\": \"Mixto\" } ] }, { \"id\": \"q2\", \"Question\": \"¿Cuál es la superficie del lote?\", \"Kind\": \"ON\" }, { \"id\": \"q3\", \"Question\": \"¿Cuál es la superficie construida de su lote?\", \"Kind\": \"ON\" }, { \"id\": \"q4\", \"Question\": \"¿Cuántas viviendas están construidas en este predio?\", \"Kind\": \"ON\" }, { \"id\": \"q5\", \"Question\": \"¿Cuántas familias comparten esta vivienda?\", \"Kind\": \"ON\" }, { \"id\": \"q6\", \"Question\": \"Este predio es:\", \"Kind\": \"MC\", \"Other\": true, \"Jump\": \"q6d\", \"Answers\": [ { \"Answer\": \"Propio\" }, { \"Answer\": \"Rentado 6b\", \"Jump\": \"q6b\" }, { \"Answer\": \"Prestado 6d\" }, { \"Answer\": \"Compartido 6d\" }, { \"Answer\": \"Lo cuida 6d\" }, { \"Answer\": \"Secesión de derechos 6d\" }, { \"Answer\": \"Otra tenencia 6d\" } ] }, { \"id\": \"q6a\", \"Question\": \"¿A través de quién adquirió/rentó/ocupó el lote? 6d\", \"Kind\": \"MC\", \"Other\": true, \"Jump\": \"q6d\", \"Answers\": [ { \"Answer\": \"Fraccionador 6d\" }, { \"Answer\": \"Lider 6d\" }, { \"Answer\": \"Comunitario 6d\" }, { \"Answer\": \"Ejidatario o comunero 6d\" }, { \"Answer\": \"Funcionario 6d\" } ] }, { \"id\": \"q6b\", \"Question\": \"Si renta, ¿Cuánto paga mensualmente? 7\", \"Kind\": \"OT\" }, { \"id\": \"q6d\", \"Question\": \"¿Qué documentos de posesión y/o propiedad tiene?\", \"Kind\": \"OT\" }, { \"id\": \"q7\", \"Question\": \"¿Cuánto tiempo lleva viviendo aquí?\", \"Kind\": \"ON\" }, { \"id\": \"q8\", \"Question\": \"¿Está el predio en algún proceso de regularización?\", \"Kind\": \"MC\", \"Other\": true, \"Answers\": [ { \"Answer\": \"Sí\" }, { \"Answer\": \"No\" } ] }, { \"id\": \"q9\", \"Question\": \"¿Sabe que adquirió un lote en zona no apta para vivienda?\", \"Kind\": \"MC\", \"Other\": true, \"Answers\": [ { \"Answer\": \"Sí\" }, { \"Answer\": \"No\" } ] } ] } ], \"TableID\": \"11lGsm8B2SNNGmEsTmuGVrAy1gcJF9TQBo3G1Vw0\" } }");
+						"{ \"Tracker\": { \"Questions\": [ { \"id\": \"q1\", \"Question\": \"Camiï¿½n\", \"Kind\": \"MC\", \"Other\": true, \"Answers\": [ { \"Answer\": \"Ruta 56\" }, { \"Answer\": \"Ruta 15\" } ] } ], \"TableID\": \"1Q2mr8ni5LTxtZRRi3PNSYxAYS8HWikWqlfoIUK4\" }, \"Survey\": { \"Chapters\": [ { \"Chapter\": \"SITUACIï¿½N DEL LOTE Y VIVIENDA\", \"Questions\": [ { \"id\": \"q1\", \"Question\": \"ï¿½Cuï¿½l es el uso de su lote?\", \"Kind\": \"MC\", \"Other\": true, \"Answers\": [ { \"Answer\": \"Habitacional\" }, { \"Answer\": \"Mixto\" } ] }, { \"id\": \"q2\", \"Question\": \"ï¿½Cuï¿½l es la superficie del lote?\", \"Kind\": \"ON\" }, { \"id\": \"q3\", \"Question\": \"ï¿½Cuï¿½l es la superficie construida de su lote?\", \"Kind\": \"ON\" }, { \"id\": \"q4\", \"Question\": \"ï¿½Cuï¿½ntas viviendas estï¿½n construidas en este predio?\", \"Kind\": \"ON\" }, { \"id\": \"q5\", \"Question\": \"ï¿½Cuï¿½ntas familias comparten esta vivienda?\", \"Kind\": \"ON\" }, { \"id\": \"q6\", \"Question\": \"Este predio es:\", \"Kind\": \"MC\", \"Other\": true, \"Jump\": \"q6d\", \"Answers\": [ { \"Answer\": \"Propio\" }, { \"Answer\": \"Rentado 6b\", \"Jump\": \"q6b\" }, { \"Answer\": \"Prestado 6d\" }, { \"Answer\": \"Compartido 6d\" }, { \"Answer\": \"Lo cuida 6d\" }, { \"Answer\": \"Secesiï¿½n de derechos 6d\" }, { \"Answer\": \"Otra tenencia 6d\" } ] }, { \"id\": \"q6a\", \"Question\": \"ï¿½A travï¿½s de quiï¿½n adquiriï¿½/rentï¿½/ocupï¿½ el lote? 6d\", \"Kind\": \"MC\", \"Other\": true, \"Jump\": \"q6d\", \"Answers\": [ { \"Answer\": \"Fraccionador 6d\" }, { \"Answer\": \"Lider 6d\" }, { \"Answer\": \"Comunitario 6d\" }, { \"Answer\": \"Ejidatario o comunero 6d\" }, { \"Answer\": \"Funcionario 6d\" } ] }, { \"id\": \"q6b\", \"Question\": \"Si renta, ï¿½Cuï¿½nto paga mensualmente? 7\", \"Kind\": \"OT\" }, { \"id\": \"q6d\", \"Question\": \"ï¿½Quï¿½ documentos de posesiï¿½n y/o propiedad tiene?\", \"Kind\": \"OT\" }, { \"id\": \"q7\", \"Question\": \"ï¿½Cuï¿½nto tiempo lleva viviendo aquï¿½?\", \"Kind\": \"ON\" }, { \"id\": \"q8\", \"Question\": \"ï¿½Estï¿½ el predio en algï¿½n proceso de regularizaciï¿½n?\", \"Kind\": \"MC\", \"Other\": true, \"Answers\": [ { \"Answer\": \"Sï¿½\" }, { \"Answer\": \"No\" } ] }, { \"id\": \"q9\", \"Question\": \"ï¿½Sabe que adquiriï¿½ un lote en zona no apta para vivienda?\", \"Kind\": \"MC\", \"Other\": true, \"Answers\": [ { \"Answer\": \"Sï¿½\" }, { \"Answer\": \"No\" } ] } ] } ], \"TableID\": \"11lGsm8B2SNNGmEsTmuGVrAy1gcJF9TQBo3G1Vw0\" } }");
 			} catch (JSONException e2) {
 				// TODO Auto-generated catch block
 				e2.printStackTrace();
 			}
-			messageHandler
-			.sendEmptyMessage(EVENT_TYPE.PARSED_CORRECTLY
+			messageHandler.sendEmptyMessage(EVENT_TYPE.PARSED_CORRECTLY
 					.ordinal());
-			messageHandler.sendEmptyMessage(EVENT_TYPE.GOT_USERNAME
-					.ordinal());
+			messageHandler.sendEmptyMessage(EVENT_TYPE.GOT_USERNAME.ordinal());
 			messageHandler.sendEmptyMessage(EVENT_TYPE.GOT_PROJECT_NAME
 					.ordinal());
 		}

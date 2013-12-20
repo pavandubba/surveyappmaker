@@ -307,6 +307,7 @@ public class Surveyor extends Activity implements
 				}
 			}
 		}).start();
+
 	}
 
 	@Override
@@ -455,7 +456,7 @@ public class Surveyor extends Activity implements
 				driveHelper.saveFileToDrive();
 			} else {
 				startActivityForResult(
-						driveHelper.credential.newChooseAccountIntent(),
+						Iniconfig.credential.newChooseAccountIntent(),
 						GoogleDriveHelper.REQUEST_ACCOUNT_PICKER);
 			}
 			break;

@@ -28,12 +28,10 @@ public class GoogleDriveHelper {
 
 	private static Uri fileUri;
 	public static Drive service;
-	public GoogleAccountCredential credential;
 	private Activity activity;
 
 	public GoogleDriveHelper(Activity mainActivity) {
 		this.activity = mainActivity;
-		// TODO Auto-generated constructor stub
 	}
 
 	public void startCameraIntent() {
@@ -101,10 +99,10 @@ public class GoogleDriveHelper {
 		String accountName = intent
 				.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
 		if (accountName != null) {
-			credential.setSelectedAccountName(accountName);
-			service = getDriveService(credential);
+			Iniconfig.credential.setSelectedAccountName(accountName);
+			service = getDriveService(Iniconfig.credential);
 			startCameraIntent();
 		}
 	}
-	
+
 }
