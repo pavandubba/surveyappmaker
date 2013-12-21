@@ -36,85 +36,9 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="org.urbanlaunchpad.flocktracker.Couhes"
-            android:label="@string/title_activity_couhes"
-            android:parentActivityName="org.urbanlaunchpad.flocktracker.Iniconfig"
-            android:screenOrientation="portrait" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="org.urbanlaunchpad.flocktracker.Iniconfig" />
-        </activity>
-        <activity
-            android:name="org.urbanlaunchpad.flocktracker.Username"
-            android:label="@string/title_activity_username"
-            android:parentActivityName="org.urbanlaunchpad.flocktracker.Couhes"
-            android:screenOrientation="portrait" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="org.urbanlaunchpad.flocktracker.Couhes" />
-        </activity>
-        <activity
-            android:name="org.urbanlaunchpad.flocktracker.Trip_info"
-            android:label="@string/title_activity_trip_info"
-            android:parentActivityName="org.urbanlaunchpad.flocktracker.Username"
-            android:screenOrientation="portrait" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="org.urbanlaunchpad.flocktracker.Username" />
-        </activity>
-        <activity
             android:name="org.urbanlaunchpad.flocktracker.Hub_page_fragment"
             android:label="@string/title_activity_start_trip"
-            android:parentActivityName="org.urbanlaunchpad.flocktracker.Trip_info"
             android:screenOrientation="portrait" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="org.urbanlaunchpad.flocktracker.Trip_info" />
-        </activity>
-        <activity
-            android:name="org.urbanlaunchpad.flocktracker.Trip_started"
-            android:label="@string/title_activity_trip_started"
-            android:parentActivityName="org.urbanlaunchpad.flocktracker.Hub_page_fragment"
-            android:screenOrientation="portrait" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="org.urbanlaunchpad.flocktracker.Start_trip" />
-        </activity>
-        <activity
-            android:name="org.urbanlaunchpad.flocktracker.Survey_agree"
-            android:label="@string/title_activity_survey_agree"
-            android:parentActivityName="org.urbanlaunchpad.flocktracker.Trip_started"
-            android:screenOrientation="portrait" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="org.urbanlaunchpad.flocktracker.Trip_started" />
-        </activity>
-        <activity
-            android:name="org.urbanlaunchpad.flocktracker.Gender_choice"
-            android:label="@string/title_activity_gender_choice"
-            android:parentActivityName="org.urbanlaunchpad.flocktracker.Survey_agree"
-            android:screenOrientation="portrait" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="org.urbanlaunchpad.flocktracker.Survey_agree" />
-        </activity>
-        <activity
-            android:name="org.urbanlaunchpad.flocktracker.Survey"
-            android:label="@string/title_activity_survey"
-            android:parentActivityName="org.urbanlaunchpad.flocktracker.Gender_choice"
-            android:screenOrientation="portrait" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="org.urbanlaunchpad.flocktracker.Gender_choice" />
-        </activity>
-        <activity
-            android:name="org.urbanlaunchpad.flocktracker.Passenger_counter"
-            android:label="@string/title_activity_passenger_counter"
-            android:parentActivityName="org.urbanlaunchpad.flocktracker.Trip_started" >
-            android:screenOrientation="portrait"
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="org.urbanlaunchpad.flocktracker.Trip_started" />
         </activity>
         <activity
             android:name="org.urbanlaunchpad.flocktracker.Iniconfig"

@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -72,7 +73,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 	// Passes position information to activity. Will be called when fragment
 	// resumes.
 	PositionPasser Posback;
-
+	
 	public interface PositionPasser {
 		/** Called by Fragment when an answer is selected */
 		public void PositionRecieve(Integer chapterposition,
@@ -150,6 +151,8 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 				OpenLayout();
 			} else if (questionkind.equals("CB")) {
 				CheckBoxLayout();
+			} else if (questionkind.equals("IM")) {
+				ImageLayout();
 			}
 
 			TextView questionview = (TextView) rootView
@@ -316,6 +319,13 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 
 	}
 
+	public void ImageLayout() {
+		ImageView cameraButton = new ImageView(rootView.getContext());
+		cameraButton.setImageResource(R.drawable.ft_ridercomp);
+		cameraButton.setOnClickListener(this);
+		answerlayout.addView(cameraButton);
+	}
+
 	public String getJump(JSONObject Obj) {
 		String auxjump;
 		try {
@@ -338,6 +348,8 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 			OpenOnClick(view);
 		} else if (questionkind.equals("CB")) {
 			CheckBoxOnClick(view);
+		} else if (questionkind.equals("IM")) {
+			ImageOnClick(view);
 		}
 
 	}
@@ -461,6 +473,10 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 		}
 	}
 
+	private void ImageOnClick(View view) {
+		Surveyor.driveHelper.startCameraIntent(jumpString);
+	}
+	
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);

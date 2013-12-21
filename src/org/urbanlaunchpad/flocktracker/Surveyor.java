@@ -80,7 +80,7 @@ public class Surveyor extends Activity implements
 	private boolean showingStatusPage = false;
 	private boolean showingHubPage = false;
 	private SurveyHelper surveyHelper;
-	private GoogleDriveHelper driveHelper;
+	public static GoogleDriveHelper driveHelper;
 
 	private enum EVENT_TYPE {
 		MALE_UPDATE, FEMALE_UPDATE, UPDATE_STATS_PAGE, UPDATE_HUB_PAGE, SHOW_NAV_BUTTONS
@@ -306,9 +306,6 @@ public class Surveyor extends Activity implements
 				}
 			}
 		}).start();
-
-		// TEST CAMERA UPLOAD
-		driveHelper.startCameraIntent();
 	}
 
 	@Override

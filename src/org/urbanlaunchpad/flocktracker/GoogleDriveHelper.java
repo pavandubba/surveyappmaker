@@ -7,7 +7,6 @@ import java.util.Date;
 import java.util.Locale;
 
 import android.accounts.AccountManager;
-import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Environment;
@@ -31,13 +30,31 @@ public class GoogleDriveHelper {
 
 	private static Uri fileUri;
 	public static Drive service;
-	private Activity activity;
+	private Surveyor activity;
+	private String jumpString = null;
 
-	public GoogleDriveHelper(Activity mainActivity) {
+	public GoogleDriveHelper(Surveyor mainActivity) {
 		this.activity = mainActivity;
 		service = getDriveService(Iniconfig.credential);
 	}
 
+	public void startCameraIntent(String jumpString) {
+		String mediaStorageDir = Environment.getExternalStoragePublicDirectory(
+				Environment.DIRECTORY_PICTURES).getPath();
+		String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US)
+				.format(new Date());
+		fileUri = Uri.fromFile(new java.io.File(mediaStorageDir
+				+ java.io.File.separator + "IMG_" + timeStamp + ".jpg"));
+
+		Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+		cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
+		
+		this.jumpString = jumpString;
+		
+		activity.startActivityForResult(cameraIntent, CAPTURE_IMAGE);
+	}
+	
+	// If we just wish to start the intent without changing jump string
 	public void startCameraIntent() {
 		String mediaStorageDir = Environment.getExternalStoragePublicDirectory(
 				Environment.DIRECTORY_PICTURES).getPath();
@@ -48,6 +65,7 @@ public class GoogleDriveHelper {
 
 		Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 		cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
+				
 		activity.startActivityForResult(cameraIntent, CAPTURE_IMAGE);
 	}
 
@@ -72,8 +90,10 @@ public class GoogleDriveHelper {
 					File file = service.files().insert(body, mediaContent)
 							.execute();
 					
-					// To get link to image, use below line of code
-					file.getWebContentLink();
+					// Notify that we have captured an image					
+					activity.AnswerRecieve(file.getWebContentLink(), jumpString);
+					jumpString = null;
+
 					if (file != null) {
 						showToast("Photo uploaded: " + file.getTitle());
 					}
