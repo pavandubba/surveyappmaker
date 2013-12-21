@@ -238,8 +238,7 @@ public class Surveyor extends Activity implements
 		if (extras != null) {
 			username = extras.getString("username");
 			surveyHelper = new SurveyHelper(username,
-					extras.getString("token"), extras.getString("jsonsurvey"),
-					getApplicationContext());
+					extras.getString("jsonsurvey"), getApplicationContext());
 		}
 		driveHelper = new GoogleDriveHelper(this);
 
@@ -308,6 +307,8 @@ public class Surveyor extends Activity implements
 			}
 		}).start();
 
+		// TEST CAMERA UPLOAD
+//		driveHelper.startCameraIntent();
 	}
 
 	@Override
@@ -869,6 +870,7 @@ public class Surveyor extends Activity implements
 						public void run() {
 							try {
 								submitSurvey();
+								resetSurvey();
 							} catch (ClientProtocolException e1) {
 								e1.printStackTrace();
 							} catch (IOException e1) {
@@ -881,7 +883,6 @@ public class Surveyor extends Activity implements
 									.getString(R.string.survey_submitted),
 									Toast.LENGTH_SHORT);
 					toast.show();
-					resetSurvey();
 					showHubPage();
 					break;
 				case DialogInterface.BUTTON_NEGATIVE:

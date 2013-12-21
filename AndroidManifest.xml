@@ -111,7 +111,7 @@
             android:name="org.urbanlaunchpad.flocktracker.Passenger_counter"
             android:label="@string/title_activity_passenger_counter"
             android:parentActivityName="org.urbanlaunchpad.flocktracker.Trip_started" >
-            android:screenOrientation="portrait"
+            android:screenOrientation="portrait"
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.urbanlaunchpad.flocktracker.Trip_started" />
@@ -134,6 +134,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.urbanlaunchpad.flocktracker.Iniconfig" />
         </activity>
+
+        <meta-data
+            android:name="com.google.android.apps.drive.APP_ID"
+            android:value="id=AIzaSyB4Nn1k2sML-0aBN2Fk3qOXLF-4zlaNwmg" />
     </application>
 
 </manifest>

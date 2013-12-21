@@ -32,6 +32,7 @@ public class GoogleDriveHelper {
 
 	public GoogleDriveHelper(Activity mainActivity) {
 		this.activity = mainActivity;
+		service = getDriveService(Iniconfig.credential);
 	}
 
 	public void startCameraIntent() {

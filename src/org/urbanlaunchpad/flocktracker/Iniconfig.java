@@ -1,17 +1,9 @@
 package org.urbanlaunchpad.flocktracker;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URLEncoder;
 import java.util.Arrays;
 
-import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -33,10 +25,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.auth.GoogleAuthException;
-import com.google.android.gms.auth.UserRecoverableAuthException;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.DriveScopes;
+import com.google.api.services.fusiontables.Fusiontables;
+import com.google.api.services.fusiontables.Fusiontables.Query.Sql;
+import com.google.api.services.fusiontables.model.Sqlresponse;
 
 public class Iniconfig extends Activity implements View.OnClickListener {
 
@@ -52,11 +49,19 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 	private boolean debison = false; // If true, a test project will be loaded
 										// by default.
 	public static GoogleAccountCredential credential;
+	public static Fusiontables fusiontables;
+
+	/** Global instance of the HTTP transport. */
+	private static final HttpTransport HTTP_TRANSPORT = new NetHttpTransport();
+
+	/** Global instance of the JSON factory. */
+	private static final JsonFactory JSON_FACTORY = new JacksonFactory();
 
 	static final int REQUEST_ACCOUNT_PICKER = 1;
 	static final int REQUEST_PERMISSIONS = 2;
 	static final String FUSION_TABLE_SCOPE = "https://www.googleapis.com/auth/fusiontables";
-
+	static final String API_KEY = "AIzaSyB4Nn1k2sML-0aBN2Fk3qOXLF-4zlaNwmg";
+	
 	private enum EVENT_TYPE {
 		GOT_USERNAME, GOT_PROJECT_NAME, PARSED_CORRECTLY, PARSED_INCORRECTLY, INPUT_NAME
 	}
@@ -151,11 +156,8 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 		DebuggingIsOn(debison);
 
 		// get credential with scopes
-		credential = GoogleAccountCredential.usingOAuth2(
-				getApplicationContext(),
-				Arrays.asList(new String[] { FUSION_TABLE_SCOPE,
-						DriveScopes.DRIVE }));
-
+		credential = GoogleAccountCredential.usingOAuth2(this,
+				Arrays.asList(FUSION_TABLE_SCOPE, DriveScopes.DRIVE));
 	}
 
 	@Override
@@ -164,7 +166,6 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 
 		if (id == R.id.usernameRow) {
 			// Google credentials
-			// chooseAccount();
 			startActivityForResult(credential.newChooseAccountIntent(),
 					REQUEST_ACCOUNT_PICKER);
 		} else if (id == R.id.projectNameRow) {
@@ -200,61 +201,17 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 	 * Survey getting helper functions
 	 */
 
-	public String getSurvey(String tableId) throws ClientProtocolException,
+	public void getSurvey(String tableId) throws ClientProtocolException,
 			IOException {
 		String MASTER_TABLE_ID = "1isCCC51fe6nWx27aYWKfZWmk9w2Zj6a4yTyQ5c4";
-		String query = URLEncoder.encode("SELECT survey_json FROM "
-				+ MASTER_TABLE_ID + " WHERE table_id = '" + tableId + "'",
-				"UTF-8");
-		String apiKey = "AIzaSyB4Nn1k2sML-0aBN2Fk3qOXLF-4zlaNwmg";
-		String url = "https://www.googleapis.com/fusiontables/v1/query?key="
-				+ apiKey + "&sql=" + query;
-		Log.v("Get survey query", url);
-
-		HttpClient httpclient = new DefaultHttpClient();
-		HttpGet httpget = new HttpGet(url);
-		try {
-			httpget.setHeader("Authorization",
-					"Bearer " + credential.getToken());
-			HttpResponse response = httpclient.execute(httpget);
-
-			Log.v("Token", credential.getToken());
-			Log.v("Get survey response code", response.getStatusLine()
-					.getStatusCode()
-					+ " "
-					+ response.getStatusLine().getReasonPhrase());
-
-			// receive response as inputStream
-			InputStream inputStream = response.getEntity().getContent();
-
-			// convert inputstream to string
-			if (inputStream != null)
-				return convertInputStreamToString(inputStream);
-			else
-				return null;
-		} catch (UserRecoverableAuthException e) {
-			UserRecoverableAuthException exception = (UserRecoverableAuthException) e;
-			Intent authorizationIntent = exception.getIntent();
-			startActivityForResult(authorizationIntent, REQUEST_PERMISSIONS);
-		} catch (GoogleAuthException e) {
-			e.printStackTrace();
-		}
+		Sql sql = fusiontables.query().sql(
+				"SELECT survey_json FROM " + MASTER_TABLE_ID
+						+ " WHERE table_id = '" + tableId + "'");
+		sql.setKey(API_KEY);
 		
-		return null;
-	}
+		Sqlresponse response = sql.execute();
 
-	// convert inputstream to String
-	private static String convertInputStreamToString(InputStream inputStream)
-			throws IOException {
-		BufferedReader bufferedReader = new BufferedReader(
-				new InputStreamReader(inputStream, "UTF-8"));
-		String line = "";
-		String result = "";
-		while ((line = bufferedReader.readLine()) != null)
-			result += line;
-
-		inputStream.close();
-		return result;
+		jsonsurveystring = response.getRows().get(0).get(0).toString();
 	}
 
 	public void parseSurvey() {
@@ -262,42 +219,32 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 		new Thread(new Runnable() {
 			public void run() {
 				try {
-					jsonsurveystring = getSurvey(projectName);
+					getSurvey(projectName);
 					Log.v("response", jsonsurveystring);
 
 					try {
-						JSONObject array = new JSONObject(
-								jsonsurveystring);
-						String rows = array.getJSONArray("rows")
-								.toString();
-						String jsonRows = rows.substring(
-								rows.indexOf("{"),
-								rows.lastIndexOf("}") + 1);
-
-						// properly format downloaded string
-						jsonRows = jsonRows.replaceAll("\\\\n", "");
-						jsonRows = jsonRows.replace("\\", "");
-						Log.v("JSON Parser string", jsonRows);
-						jsurv = new JSONObject(jsonRows);
+						jsurv = new JSONObject(jsonsurveystring);
 						messageHandler
 								.sendEmptyMessage(EVENT_TYPE.PARSED_CORRECTLY
 										.ordinal());
 					} catch (JSONException e) {
-						Log.e("JSON Parser", "Error parsing data "
-								+ e.toString());
+						Log.e("JSON Parser",
+								"Error parsing data " + e.toString());
 						messageHandler
 								.sendEmptyMessage(EVENT_TYPE.PARSED_INCORRECTLY
 										.ordinal());
 					}
 				} catch (ClientProtocolException e1) {
+					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				} catch (IOException e1) {
+					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 			}
 		}).start();
 	}
-	
+
 	/*
 	 * Username selection helper functions
 	 */
@@ -313,16 +260,20 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 				username = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
 				credential.setSelectedAccountName(username);
 
+				fusiontables = new Fusiontables.Builder(HTTP_TRANSPORT,
+						JSON_FACTORY, credential).setApplicationName("UXMexico").build();
+
 				// update our username field
 				messageHandler.sendEmptyMessage(EVENT_TYPE.GOT_USERNAME
 						.ordinal());
 			}
 			break;
 		case REQUEST_PERMISSIONS:
-			if (resultCode == RESULT_OK)
+			if (resultCode == RESULT_OK) {
 				parseSurvey();
-			else {
-		        startActivityForResult(credential.newChooseAccountIntent(), REQUEST_ACCOUNT_PICKER);
+			} else {
+				startActivityForResult(credential.newChooseAccountIntent(),
+						REQUEST_ACCOUNT_PICKER);
 			}
 			break;
 		}
