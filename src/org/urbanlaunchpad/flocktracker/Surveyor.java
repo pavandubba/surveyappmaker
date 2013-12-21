@@ -308,7 +308,7 @@ public class Surveyor extends Activity implements
 		}).start();
 
 		// TEST CAMERA UPLOAD
-//		driveHelper.startCameraIntent();
+		driveHelper.startCameraIntent();
 	}
 
 	@Override

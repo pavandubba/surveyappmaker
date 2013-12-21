@@ -2,6 +2,7 @@ package org.urbanlaunchpad.flocktracker;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
 
@@ -20,11 +21,13 @@ import com.google.api.client.http.FileContent;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
+import com.google.api.services.drive.model.ParentReference;
 
 public class GoogleDriveHelper {
 	static final int REQUEST_ACCOUNT_PICKER = 1;
 	static final int REQUEST_AUTHORIZATION = 2;
 	static final int CAPTURE_IMAGE = 3;
+	static final String PHOTO_FOLDER_ID = "0BzQnDGTR4fYbQUdLeUUwcXFVOUE";
 
 	private static Uri fileUri;
 	public static Drive service;
@@ -63,12 +66,16 @@ public class GoogleDriveHelper {
 					File body = new File();
 					body.setTitle(fileContent.getName());
 					body.setMimeType("image/jpeg");
+					body.setParents(Arrays.asList(new ParentReference()
+							.setId(PHOTO_FOLDER_ID)));
 
 					File file = service.files().insert(body, mediaContent)
 							.execute();
+					
+					// To get link to image, use below line of code
+					file.getWebContentLink();
 					if (file != null) {
 						showToast("Photo uploaded: " + file.getTitle());
-						startCameraIntent();
 					}
 				} catch (UserRecoverableAuthIOException e) {
 					activity.startActivityForResult(e.getIntent(),
