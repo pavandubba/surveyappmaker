@@ -12,12 +12,17 @@ import org.urbanlaunchpad.flocktracker.SurveyHelper.NextQuestionResult;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.res.Configuration;
 import android.location.Address;
@@ -26,7 +31,9 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.PowerManager;
 import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
@@ -68,7 +75,7 @@ public class Surveyor extends Activity implements
 	private String surveyID;
 	private String tripID;
 	private boolean isTripStarted = false;
-	private Integer trackerWait = 30000;
+	private Integer trackerWait = 5000;
 	private Calendar startTripTime = null;
 	private double tripDistance = 0;
 	private double totalDistanceBefore = 0;
@@ -80,7 +87,8 @@ public class Surveyor extends Activity implements
 	private boolean showingStatusPage = false;
 	private boolean showingHubPage = false;
 	private SurveyHelper surveyHelper;
-
+	private Tracker tracker = null;
+	
 	private enum EVENT_TYPE {
 		MALE_UPDATE, FEMALE_UPDATE, UPDATE_STATS_PAGE, UPDATE_HUB_PAGE, SHOW_NAV_BUTTONS
 	}
@@ -182,17 +190,18 @@ public class Surveyor extends Activity implements
 								current.getLatitude(), current.getLongitude(),
 								1);
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 
 					// Update our views
 					ridesCompletedText.setText("" + ridesCompleted);
-					totalDistanceText.setText(""
-							+ String.format("%.2f", (totalDistanceBefore
-									+ tripDistance)/1000.0));
+					totalDistanceText
+							.setText(""
+									+ String.format(
+											"%.2f",
+											(totalDistanceBefore + tripDistance) / 1000.0));
 					tripDistanceText.setText(""
-							+ String.format("%.2f", tripDistance/1000.0));
+							+ String.format("%.2f", tripDistance / 1000.0));
 					surveysCompletedText.setText("" + surveysCompleted);
 					usernameText.setText("Hi " + username + "!");
 
@@ -287,22 +296,23 @@ public class Surveyor extends Activity implements
 		surveyID = "S" + createID();
 
 		// location tracking
-		new Thread(new Runnable() {
-			public void run() {
-				while (true) {
-					try {
-						if (isTripStarted) {
-							submitLocation();
-							Thread.sleep(trackerWait);
-						} else {
-							Thread.sleep(5000);
-						}
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		}).start();
+
+		// new Thread(new Runnable() {
+		// public void run() {
+		// while (true) {
+		// try {
+		// if (isTripStarted) {
+		// submitLocation();
+		// Thread.sleep(trackerWait);
+		// } else {
+		// Thread.sleep(5000);
+		// }
+		// } catch (InterruptedException e) {
+		// e.printStackTrace();
+		// }
+		// }
+		// }
+		// }).start();
 	}
 
 	@Override
@@ -369,9 +379,19 @@ public class Surveyor extends Activity implements
 	public void startTrip() {
 		isTripStarted = true;
 		tripID = "T" + createID();
+		newThreasubmitlocation();
+		tracker = new Tracker(); 
+		IntentFilter callInterceptorIntentFilter = new IntentFilter("android.intent.action.ANY_ACTION");
+	    registerReceiver(tracker, callInterceptorIntentFilter);
+		tracker.SetTracker(this, Surveyor.this);
+		
+//		tracker = new Tracker();
+//		tracker.SetTracker(getBaseContext());
 	}
 
 	public void stopTrip() {
+		newThreasubmitlocation();
+		tracker.CancelTracker(this);
 		isTripStarted = false;
 		tripID = "";
 		startTripTime = null;
@@ -420,10 +440,8 @@ public class Surveyor extends Activity implements
 			try {
 				surveyHelper.submitLocation(currentLocation, tripID);
 			} catch (ClientProtocolException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -703,7 +721,7 @@ public class Surveyor extends Activity implements
 	/*
 	 * Question Event Handlers
 	 */
-	
+
 	public void AnswerRecieve(String answerStringReceive,
 			String jumpStringReceive) {
 		if (answerStringReceive != null) {
@@ -725,11 +743,10 @@ public class Surveyor extends Activity implements
 				questionpositionrecieve);
 	}
 
-	
 	/*
-	 *  Status Page Event Handlers
+	 * Status Page Event Handlers
 	 */
-	
+
 	@Override
 	public void updateStatusPage() {
 		// hide navigation buttons
@@ -747,7 +764,7 @@ public class Surveyor extends Activity implements
 	public void leftStatusPage() {
 		showingStatusPage = false;
 	}
-	
+
 	/*
 	 * Hub Page Event Handlers
 	 */
@@ -778,7 +795,7 @@ public class Surveyor extends Activity implements
 			} else {
 				startLocation = mLocationClient.getLastLocation();
 				startTripTime = Calendar.getInstance();
-				startTrip();
+				// startTrip();
 
 				askingTripQuestions = true;
 
@@ -873,5 +890,81 @@ public class Surveyor extends Activity implements
 				.setNegativeButton(getResources().getString(R.string.no),
 						dialogClickListener).show();
 	}
+	
+	public void newThreasubmitlocation(){
+		new Thread(new Runnable() {
+			public void run() {
+				submitLocation();
+			}
+		}).start();
+	}
+	public void dummy(){
+		Log.d("Dummy", "LOL");
+	}
+	
+	@Override
+	protected void onDestroy() {
+		tracker.CancelTracker(this);
+		super.onDestroy();
+	}
+	
+//		public void SetTracker() {
+//			Toast.makeText(this, "Setting tracker!", Toast.LENGTH_LONG)
+//			.show();
+//			Log.d("Tracker", "Setting tracker");
+////			Log.d("Tracker", "Setting tracker, wait:" + trackerWait);		
+//		    IntentFilter callInterceptorIntentFilter = new IntentFilter("android.intent.action.ANY_ACTION");
+//		    LocalBroadcastManager.getInstance(this).registerReceiver(trackerBroadcastReceiver, callInterceptorIntentFilter);
+//	        AlarmManager am = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+//			Intent i = new Intent(Surveyor.this, Surveyor.class);
+//			PendingIntent pi = PendingIntent.getBroadcast(this, 0, i, 0);
+//			am.setRepeating(AlarmManager.RTC_WAKEUP,
+//					System.currentTimeMillis(), 5000, pi);
+//			Log.d("Tracker", "Tracker working.");
+//		}
+//
+//		public void CancelTracker() {
+//			Toast.makeText(this, "Cancelling tracker!", Toast.LENGTH_LONG)
+//					.show();
+//			Intent intent = new Intent(this, Surveyor.class);
+//			PendingIntent sender = PendingIntent
+//					.getBroadcast(this, 0, intent, 0);
+//			AlarmManager alarmManager = (AlarmManager) this
+//					.getSystemService(Context.ALARM_SERVICE);
+//			alarmManager.cancel(sender);
+//		}
+
+//	public class TrackerService extends Service
+//	{
+//	    Tracker tracker = new Tracker();
+////	    public void onCreate()
+////	    {
+////	    	Log.d("Service", "Service created");
+////	        super.onCreate();       
+////	    }
+//	    public int onStartCommand(Context context,Intent intent, int startId)
+//	    {
+//	    	super.onStartCommand(intent, 0, startId);
+//			Toast.makeText(context, "Starting service!", Toast.LENGTH_LONG)
+//			.show();
+//	 	   Intent intent1 = new Intent(this.getApplicationContext(),Surveyor.class);
+//	 	
+//	 	   
+//			Toast.makeText(context, "Service Started!", Toast.LENGTH_LONG)
+//			.show();
+//	        tracker.SetTracker(context);
+//			return START_STICKY;
+//	    }
+//	    public void onDestroyCommand(){
+//	    	super.onDestroy();
+//	    	tracker.CancelTracker(getBaseContext());
+//	    }
+//
+//	    @Override
+//	    public IBinder onBind(Intent intent) 
+//	    {
+//	        return null;
+//	    }
+//	}
 
 }
