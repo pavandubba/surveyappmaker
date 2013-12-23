@@ -62,7 +62,7 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 	static final int REQUEST_PERMISSIONS = 2;
 	static final String FUSION_TABLE_SCOPE = "https://www.googleapis.com/auth/fusiontables";
 	static final String API_KEY = "AIzaSyB4Nn1k2sML-0aBN2Fk3qOXLF-4zlaNwmg";
-	
+
 	private enum EVENT_TYPE {
 		GOT_USERNAME, GOT_PROJECT_NAME, PARSED_CORRECTLY, PARSED_INCORRECTLY, INPUT_NAME
 	}
@@ -203,19 +203,16 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 	 */
 
 	public void getSurvey(String tableId) throws ClientProtocolException,
-			IOException {
+			IOException, UserRecoverableAuthIOException {
 		String MASTER_TABLE_ID = "1isCCC51fe6nWx27aYWKfZWmk9w2Zj6a4yTyQ5c4";
 		Sql sql = fusiontables.query().sql(
 				"SELECT survey_json FROM " + MASTER_TABLE_ID
 						+ " WHERE table_id = '" + tableId + "'");
 		sql.setKey(API_KEY);
-		
-		try {
-			Sqlresponse response = sql.execute();
-			jsonsurveystring = response.getRows().get(0).get(0).toString();
-		} catch (UserRecoverableAuthIOException e) {
-			  startActivityForResult(e.getIntent(), REQUEST_PERMISSIONS);
-		}
+
+		Sqlresponse response = sql.execute();
+		jsonsurveystring = response.getRows().get(0).get(0).toString();
+		Log.v("response", jsonsurveystring);
 	}
 
 	public void parseSurvey() {
@@ -224,7 +221,6 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 			public void run() {
 				try {
 					getSurvey(projectName);
-					Log.v("response", jsonsurveystring);
 
 					try {
 						jsurv = new JSONObject(jsonsurveystring);
@@ -241,6 +237,8 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 				} catch (ClientProtocolException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
+				} catch (UserRecoverableAuthIOException e) {
+					startActivityForResult(e.getIntent(), REQUEST_PERMISSIONS);
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -265,7 +263,8 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 				credential.setSelectedAccountName(username);
 
 				fusiontables = new Fusiontables.Builder(HTTP_TRANSPORT,
-						JSON_FACTORY, credential).setApplicationName("UXMexico").build();
+						JSON_FACTORY, credential)
+						.setApplicationName("UXMexico").build();
 
 				// update our username field
 				messageHandler.sendEmptyMessage(EVENT_TYPE.GOT_USERNAME
