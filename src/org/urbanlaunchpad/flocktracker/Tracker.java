@@ -24,15 +24,9 @@ public class Tracker extends BroadcastReceiver {
 				PowerManager.PARTIAL_WAKE_LOCK, "");
 		wl.acquire();
 		
-//		newThreasubmitlocation();
-//		surveyor = new Surveyor();
-		// surveyor.dummy();
-		// surveyor.getApplicationContext();
-//		this.surveyor = context.getApplicationContext().;
-		// this.surveyor = (Surveyor) context;
-		// surveyor.dummy();
-		surveyor.newThreasubmitlocation();
-
+		surveyor = new Surveyor();
+		Intent i = new Intent(context, Surveyor.class);
+		context.startActivity(i);
 		Toast.makeText(context, "Uploading location!", Toast.LENGTH_LONG)
 				.show();
 

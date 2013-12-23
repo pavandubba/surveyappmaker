@@ -930,6 +930,11 @@ public class Surveyor extends Activity implements
 		super.onDestroy();
 	}
 	
+	@Override
+	protected void onNewIntent (Intent intent){
+		submitLocation();
+	}
+	
 //		public void SetTracker() {
 //			Toast.makeText(this, "Setting tracker!", Toast.LENGTH_LONG)
 //			.show();

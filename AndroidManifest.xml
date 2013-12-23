@@ -63,7 +63,7 @@
             android:name="org.urbanlaunchpad.flocktracker.Passenger_counter"
             android:label="@string/title_activity_passenger_counter"
             android:parentActivityName="org.urbanlaunchpad.flocktracker.Trip_started" >
-            android:screenOrientation="portrait"
+            android:screenOrientation="portrait"
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.urbanlaunchpad.flocktracker.Trip_started" />
@@ -80,6 +80,7 @@
         <activity
             android:name="org.urbanlaunchpad.flocktracker.Surveyor"
             android:label="@string/title_activity_surveyor"
+            android:launchMode="singleTop"
             android:parentActivityName="org.urbanlaunchpad.flocktracker.Iniconfig"
             android:screenOrientation="portrait" >
             <meta-data
