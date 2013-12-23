@@ -23,8 +23,9 @@ public class Tracker extends BroadcastReceiver {
 		PowerManager.WakeLock wl = pm.newWakeLock(
 				PowerManager.PARTIAL_WAKE_LOCK, "");
 		wl.acquire();
+		
 //		newThreasubmitlocation();
-		surveyor = new Surveyor();
+//		surveyor = new Surveyor();
 		// surveyor.dummy();
 		// surveyor.getApplicationContext();
 //		this.surveyor = context.getApplicationContext().;

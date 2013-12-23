@@ -107,16 +107,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 
 			// Setting up layout of fragment.
 
-			answerlayout = (ViewGroup) rootView.findViewById(R.id.answerlayout); // Layout
-																					// for
-																					// the
-																					// dynamic
-																					// content
-																					// of
-																					// the
-																					// activity
-																					// (mainly
-																					// answers).
+			answerlayout = (ViewGroup) rootView.findViewById(R.id.answerlayout); 
 
 			try {
 				questionkind = jquestion.getString("Kind");
@@ -456,14 +447,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 				if (view.getId() == textView.getId()) {
 					textView.setTextColor(getResources().getColor(
 							R.color.answer_selected));
-					answerString = (String) textView.getText().toString(); // Sets
-																			// the
-					// answer
-					// to be
-					// sent
-					// to
-					// parent
-					// activity.
+					answerString = (String) textView.getText().toString(); 
 					Callback.AnswerRecieve(answerString, jumpString);
 				} else {
 					textView.setTextColor(getResources().getColor(
