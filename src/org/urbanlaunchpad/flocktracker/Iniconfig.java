@@ -26,6 +26,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
@@ -209,9 +210,12 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 						+ " WHERE table_id = '" + tableId + "'");
 		sql.setKey(API_KEY);
 		
-		Sqlresponse response = sql.execute();
-
-		jsonsurveystring = response.getRows().get(0).get(0).toString();
+		try {
+			Sqlresponse response = sql.execute();
+			jsonsurveystring = response.getRows().get(0).get(0).toString();
+		} catch (UserRecoverableAuthIOException e) {
+			  startActivityForResult(e.getIntent(), REQUEST_PERMISSIONS);
+		}
 	}
 
 	public void parseSurvey() {
