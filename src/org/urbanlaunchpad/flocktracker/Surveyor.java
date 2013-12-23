@@ -339,9 +339,10 @@ public class Surveyor extends Activity implements
 			return;
 		}
 
-		if (showingHubPage && surveyHelper != null
-				&& surveyHelper.getChapterPosition() == 1
-				&& surveyHelper.getQuestionPosition() == 0)
+		if (showingHubPage
+				&& (surveyHelper.getChapterPosition() == null || (surveyHelper
+						.getChapterPosition() == 1 && surveyHelper
+						.getQuestionPosition() == 0)))
 			finish();
 
 		super.onBackPressed();
@@ -898,8 +899,8 @@ public class Surveyor extends Activity implements
 	}
 
 	public void cancelTracker() {
-		Toast.makeText(getApplicationContext(), "Cancelling tracker!",
-				Toast.LENGTH_LONG).show();
+		Log.d("Tracker", "Cancelling tracker");
+
 		Intent intentAlarm = new Intent(this, Tracker.class);
 		PendingIntent sender = PendingIntent.getBroadcast(this, 1, intentAlarm,
 				PendingIntent.FLAG_UPDATE_CURRENT);

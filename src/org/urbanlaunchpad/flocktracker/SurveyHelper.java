@@ -531,15 +531,15 @@ public class SurveyHelper {
 	 * Getters
 	 */
 
-	public int getChapterPosition() {
+	public Integer getChapterPosition() {
 		return chapterPosition;
 	}
 
-	public int getQuestionPosition() {
+	public Integer getQuestionPosition() {
 		return questionPosition;
 	}
 
-	public int getTripQuestionPosition() {
+	public Integer getTripQuestionPosition() {
 		return tripQuestionPosition;
 	}
 
