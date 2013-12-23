@@ -920,9 +920,6 @@ public class Surveyor extends Activity implements
 			}
 		}).start();
 	}
-	public void dummy(){
-		Log.d("Dummy", "LOL");
-	}
 	
 	@Override
 	protected void onDestroy() {
@@ -935,63 +932,4 @@ public class Surveyor extends Activity implements
 		submitLocation();
 	}
 	
-//		public void SetTracker() {
-//			Toast.makeText(this, "Setting tracker!", Toast.LENGTH_LONG)
-//			.show();
-//			Log.d("Tracker", "Setting tracker");
-////			Log.d("Tracker", "Setting tracker, wait:" + trackerWait);		
-//		    IntentFilter callInterceptorIntentFilter = new IntentFilter("android.intent.action.ANY_ACTION");
-//		    LocalBroadcastManager.getInstance(this).registerReceiver(trackerBroadcastReceiver, callInterceptorIntentFilter);
-//	        AlarmManager am = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-//			Intent i = new Intent(Surveyor.this, Surveyor.class);
-//			PendingIntent pi = PendingIntent.getBroadcast(this, 0, i, 0);
-//			am.setRepeating(AlarmManager.RTC_WAKEUP,
-//					System.currentTimeMillis(), 5000, pi);
-//			Log.d("Tracker", "Tracker working.");
-//		}
-//
-//		public void CancelTracker() {
-//			Toast.makeText(this, "Cancelling tracker!", Toast.LENGTH_LONG)
-//					.show();
-//			Intent intent = new Intent(this, Surveyor.class);
-//			PendingIntent sender = PendingIntent
-//					.getBroadcast(this, 0, intent, 0);
-//			AlarmManager alarmManager = (AlarmManager) this
-//					.getSystemService(Context.ALARM_SERVICE);
-//			alarmManager.cancel(sender);
-//		}
-
-//	public class TrackerService extends Service
-//	{
-//	    Tracker tracker = new Tracker();
-////	    public void onCreate()
-////	    {
-////	    	Log.d("Service", "Service created");
-////	        super.onCreate();       
-////	    }
-//	    public int onStartCommand(Context context,Intent intent, int startId)
-//	    {
-//	    	super.onStartCommand(intent, 0, startId);
-//			Toast.makeText(context, "Starting service!", Toast.LENGTH_LONG)
-//			.show();
-//	 	   Intent intent1 = new Intent(this.getApplicationContext(),Surveyor.class);
-//	 	
-//	 	   
-//			Toast.makeText(context, "Service Started!", Toast.LENGTH_LONG)
-//			.show();
-//	        tracker.SetTracker(context);
-//			return START_STICKY;
-//	    }
-//	    public void onDestroyCommand(){
-//	    	super.onDestroy();
-//	    	tracker.CancelTracker(getBaseContext());
-//	    }
-//
-//	    @Override
-//	    public IBinder onBind(Intent intent) 
-//	    {
-//	        return null;
-//	    }
-//	}
-
 }
