@@ -1,6 +1,8 @@
 package org.urbanlaunchpad.flocktracker;
 
 import android.annotation.SuppressLint;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -21,15 +23,23 @@ public class Tracker extends BroadcastReceiver {
 				PowerManager.PARTIAL_WAKE_LOCK, "");
 		wl.acquire();
 
-		new Thread(new Runnable() {
-			public void run() {
-				surveyor.submitLocation();
-			}
-		}).start();
+		if (surveyor != null) {
+			new Thread(new Runnable() {
+				public void run() {
+					surveyor.submitLocation();
+				}
+			}).start();
+			
+			Toast.makeText(context, "Uploading location!", Toast.LENGTH_LONG)
+			.show();
+		} else {
+			Intent intentAlarm = new Intent(context, Tracker.class);
+			PendingIntent sender = PendingIntent.getBroadcast(context, 1, intentAlarm,
+					PendingIntent.FLAG_UPDATE_CURRENT);
+			AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+			alarmManager.cancel(sender);
+		}
 		
-		Toast.makeText(context, "Uploading location!", Toast.LENGTH_LONG)
-				.show();
-
 		wl.release();
 	}
 	

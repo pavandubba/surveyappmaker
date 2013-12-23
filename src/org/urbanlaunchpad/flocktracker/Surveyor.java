@@ -302,7 +302,7 @@ public class Surveyor extends Activity implements
 		mLocationClient.disconnect();
 		super.onDestroy();
 	}
-	
+
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		// No call for super(). Bug on API Level > 11.
@@ -339,7 +339,8 @@ public class Surveyor extends Activity implements
 			return;
 		}
 
-		if (showingHubPage && surveyHelper.getChapterPosition() == 1
+		if (showingHubPage && surveyHelper != null
+				&& surveyHelper.getChapterPosition() == 1
 				&& surveyHelper.getQuestionPosition() == 0)
 			finish();
 
@@ -877,7 +878,7 @@ public class Surveyor extends Activity implements
 				.setNegativeButton(getResources().getString(R.string.no),
 						dialogClickListener).show();
 	}
-	
+
 	/*
 	 * Location tracking helper
 	 */
@@ -888,7 +889,7 @@ public class Surveyor extends Activity implements
 		Log.d("Tracker", "Setting tracker");
 
 		AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-		Intent intentAlarm = new Intent(getApplicationContext(), Tracker.class);
+		Intent intentAlarm = new Intent(this, Tracker.class);
 		PendingIntent pi = PendingIntent.getBroadcast(this, 1, intentAlarm,
 				PendingIntent.FLAG_UPDATE_CURRENT);
 		alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
@@ -899,7 +900,7 @@ public class Surveyor extends Activity implements
 	public void cancelTracker() {
 		Toast.makeText(getApplicationContext(), "Cancelling tracker!",
 				Toast.LENGTH_LONG).show();
-		Intent intentAlarm = new Intent(getApplicationContext(), Tracker.class);
+		Intent intentAlarm = new Intent(this, Tracker.class);
 		PendingIntent sender = PendingIntent.getBroadcast(this, 1, intentAlarm,
 				PendingIntent.FLAG_UPDATE_CURRENT);
 		AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
