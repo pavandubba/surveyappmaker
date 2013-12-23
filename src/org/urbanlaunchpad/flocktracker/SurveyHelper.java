@@ -1,20 +1,8 @@
 package org.urbanlaunchpad.flocktracker;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -24,10 +12,14 @@ import android.location.Location;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.api.services.fusiontables.Fusiontables;
+import com.google.api.services.fusiontables.Fusiontables.Column.Insert;
+import com.google.api.services.fusiontables.Fusiontables.Query.Sql;
+import com.google.api.services.fusiontables.model.Column;
+import com.google.api.services.fusiontables.model.ColumnList;
+
 public class SurveyHelper {
 	private String username;
-	private String token;
-	private String API_KEY = "AIzaSyB4Nn1k2sML-0aBN2Fk3qOXLF-4zlaNwmg";
 	private String TRIP_TABLE_ID = "1Q2mr8ni5LTxtZRRi3PNSYxAYS8HWikWqlfoIUK4";
 	private String SURVEY_TABLE_ID = "11lGsm8B2SNNGmEsTmuGVrAy1gcJF9TQBo3G1Vw0";
 	private Context context;
@@ -42,10 +34,8 @@ public class SurveyHelper {
 	private Integer tripQuestionPosition = 0;
 	private String jumpString = null;
 
-	public SurveyHelper(String username, String token, String jsonSurvey,
-			Context context) {
+	public SurveyHelper(String username, String jsonSurvey, Context context) {
 		this.username = username;
-		this.token = token;
 
 		// parse json survey
 		try {
@@ -71,13 +61,12 @@ public class SurveyHelper {
 		parseChapters();
 		parseTrackingQuestions();
 		parseChapterQuestionCount();
-
 	}
 
 	/*
 	 * Initialization code
 	 */
-	
+
 	// Get trip and survey table id's
 	public void getTableID() {
 		try {
@@ -137,18 +126,16 @@ public class SurveyHelper {
 			}
 		}
 	}
-	
+
 	/*
 	 * Uploading Logic
 	 */
-	
+
 	public boolean submitSurvey(Location currentLocation, String surveyID,
-			String tripID) throws ClientProtocolException, IOException {
+			String tripID) {
 		String columnnamesString = getnames("id", "nq", "Survey");
 		String answerfinalString = getnames("Answer", "wq", "Survey");
-
 		String latlng = LocationHelper.getLatLngAlt(currentLocation);
-		String url = "https://www.googleapis.com/fusiontables/v1/query";
 		String dateString = (String) android.text.format.DateFormat.format(
 				"yyyy-MM-dd hh:mm:ss", new java.util.Date());
 		String query = "INSERT INTO "
@@ -161,21 +148,17 @@ public class SurveyHelper {
 				+ "','" + currentLocation.getLongitude() + "','"
 				+ currentLocation.getAltitude() + "','" + dateString + "','"
 				+ surveyID + "','" + tripID + "','" + username + "');";
-		HttpClient httpclient = new DefaultHttpClient();
-		HttpPost httppost = new HttpPost(url);
-		httppost.setHeader("Authorization", "Bearer " + token);
-		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
-		nameValuePairs.add(new BasicNameValuePair("sql", query));
-		nameValuePairs.add(new BasicNameValuePair("key", API_KEY));
-		httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-		HttpResponse response = httpclient.execute(httppost);
 
-		Log.v("Submit survey response code", response.getStatusLine()
-				.getStatusCode()
-				+ " "
-				+ response.getStatusLine().getReasonPhrase());
-
-		return response.getStatusLine().getStatusCode() == 200;
+		boolean success = false;
+		try {
+			Sql sql = Iniconfig.fusiontables.query().sql(query);
+			sql.setKey(Iniconfig.API_KEY);
+			sql.execute();
+			success = true;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return success;
 	}
 
 	public void submitLocation(Location currentLocation, String tripID)
@@ -184,8 +167,6 @@ public class SurveyHelper {
 		String answerfinalString = getnames("Answer", "wq", "Trip");
 
 		String latlng = LocationHelper.getLatLngAlt(currentLocation);
-		// String TABLE_ID = "11lGsm8B2SNNGmEsTmuGVrAy1gcJF9TQBo3G1Vw0";
-		String url = "https://www.googleapis.com/fusiontables/v1/query";
 		String dateString = (String) android.text.format.DateFormat.format(
 				"yyyy-MM-dd hh:mm:ss", new java.util.Date());
 		String query = "INSERT INTO " + TRIP_TABLE_ID + " ("
@@ -196,23 +177,11 @@ public class SurveyHelper {
 				+ "','" + currentLocation.getLongitude() + "','"
 				+ currentLocation.getAltitude() + "','" + dateString + "','"
 				+ tripID + "','" + username + "');";
-		String apiKey = "AIzaSyB4Nn1k2sML-0aBN2Fk3qOXLF-4zlaNwmg";
-		HttpClient httpclient = new DefaultHttpClient();
-		HttpPost httppost = new HttpPost(url);
-		httppost.setHeader("Authorization", "Bearer " + token);
-		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
-		nameValuePairs.add(new BasicNameValuePair("sql", query));
-		nameValuePairs.add(new BasicNameValuePair("key", apiKey));
-		httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-		HttpResponse response = httpclient.execute(httppost);
-
-		Log.v("Submit trip response code", response.getStatusLine()
-				.getStatusCode()
-				+ " "
-				+ response.getStatusLine().getReasonPhrase());
+		Sql sql = Iniconfig.fusiontables.query().sql(query);
+		sql.setKey(Iniconfig.API_KEY);
+		sql.execute();
 	}
-	
-	
+
 	/*
 	 * Column Check Code
 	 */
@@ -220,7 +189,7 @@ public class SurveyHelper {
 	private enum SurveyType {
 		SURVEY, TRACKER
 	}
-	
+
 	public void columnCheck(String TABLE_ID, SurveyType type) {
 		String[] hardcolumnsStrings = null; // Columns that are in all projects.
 		String[] hardcolumntypeStrings = null; // Types for the columns that are
@@ -244,7 +213,7 @@ public class SurveyHelper {
 
 		// Getting the types and names of the columns in the fusion table.
 		try {
-			columnlistNameString = getColumnList(TABLE_ID, "name");
+			columnlistNameString = getColumnListNames(TABLE_ID);
 		} catch (ClientProtocolException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -257,22 +226,14 @@ public class SurveyHelper {
 			if (arrayContainsString(columnlistNameString, hardcolumnsStrings[i])) {
 				// TODO: check column type
 			} else {
-				try {
-					requestColumnCreate(hardcolumnsStrings[i],
-							hardcolumntypeStrings[i], TABLE_ID);
-				} catch (ClientProtocolException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+				requestColumnCreate(hardcolumnsStrings[i],
+						hardcolumntypeStrings[i], TABLE_ID);
 			}
 		}
-		
+
 		// Checking for the existence of question columns on Fusion table.
-		String[] questionIdlistString = getValues(
-				"id", type);
-		String[] questionKindlistString = getValues(
-				"Kind", type);
+		String[] questionIdlistString = getValues("id", type);
+		String[] questionKindlistString = getValues("Kind", type);
 		int numberofquestions = questionIdlistString.length;
 		String auxkind = null;
 		for (int i = 0; i < numberofquestions; ++i) {
@@ -289,26 +250,19 @@ public class SurveyHelper {
 					questionIdlistString[i])) {
 				// TODO: check column type
 			} else {
-				try {
-					requestColumnCreate(questionIdlistString[i], auxkind,
-							TABLE_ID);
-				} catch (ClientProtocolException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+				requestColumnCreate(questionIdlistString[i], auxkind, TABLE_ID);
 			}
 
 		}
 
 	}
-	
+
 	// Get a list of values corresponding to the key in either tracker
 	// or survey questions
 	public String[] getValues(String key, SurveyType type) {
 		Integer numQuestions = 0;
 		String[] result = null;
-		
+
 		switch (type) {
 		case SURVEY:
 			// get number of questions
@@ -317,16 +271,16 @@ public class SurveyHelper {
 					++numQuestions;
 				}
 			}
-			
+
 			result = new String[numQuestions];
 
 			int auxcount = 0;
 			for (int i = 0; i < jchapterlist.length(); ++i) {
 				for (int j = 0; j < chapterQuestionCounts[i]; ++j) {
 					try {
-						result[auxcount++] = jchapterlist
-								.getJSONObject(i).getJSONArray("Questions")
-								.getJSONObject(j).getString(key);
+						result[auxcount++] = jchapterlist.getJSONObject(i)
+								.getJSONArray("Questions").getJSONObject(j)
+								.getString(key);
 					} catch (JSONException e) {
 						result[auxcount++] = "";
 					}
@@ -339,94 +293,55 @@ public class SurveyHelper {
 
 			for (int i = 0; i < numQuestions; ++i) {
 				try {
-					result[i] = jtrackerquestions.getJSONObject(
-							i).getString(key);
+					result[i] = jtrackerquestions.getJSONObject(i).getString(
+							key);
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
 			}
 			break;
 		}
-		
-		Log.v("Number of questions", numQuestions.toString() + " "
-				+ key);
+
+		Log.v("Number of questions", numQuestions.toString() + " " + key);
 		return result;
 	}
 
-	public String[] getColumnList(String tableID, String whatotogetString)
+	public String[] getColumnListNames(String tableID)
 			throws ClientProtocolException, IOException {
-		// Returns the column list (of maximum MAX items) of a given fusion
-		// tables table as a JSON string.
-		String url = "https://www.googleapis.com/fusiontables/v1/tables/"
-				+ tableID + "/columns?key=" + API_KEY + "&maxResults=500";
+		// Returns the column list
+		Fusiontables.Column.List columnRequest = Iniconfig.fusiontables
+				.column().list(tableID);
+		columnRequest.setKey(Iniconfig.API_KEY);
+		columnRequest.setMaxResults((long) 500);
+		ColumnList columnList = columnRequest.execute();
 
-		// query for column list
-		HttpClient httpclient = new DefaultHttpClient();
-		HttpGet httpget = new HttpGet(url);
-		httpget.setHeader("Authorization", "Bearer " + token);
-		HttpResponse response = httpclient.execute(httpget);
-		String columnlistJSONString = EntityUtils
-				.toString(response.getEntity());
-		Log.v("Column list response code", response.getStatusLine()
-				.getStatusCode()
-				+ " "
-				+ response.getStatusLine().getReasonPhrase());
-		
-		JSONObject jcolumns = null;
-		String[] columnList = null;
-
-		Integer total = 0;
-		try {
-			jcolumns = new JSONObject(columnlistJSONString);
-			total = jcolumns.getInt("totalItems");
-			columnList = new String[total];
-		} catch (JSONException e1) {
-			e1.printStackTrace();
-		}
+		String[] output = new String[columnList.getItems().size()];
 
 		// Get column list names or types
-		if (total > 0) {
-			for (int i = 0; i < total; ++i) {
-				try {
-					columnList[i] = jcolumns.getJSONArray("items")
-							.getJSONObject(i).getString(whatotogetString);
-				} catch (JSONException e) {
-					columnList[i] = "";
-				}
-			}
+		for (int i = 0; i < output.length; i++) {
+			output[i] = columnList.getItems().get(i).getName();
 		}
 		
-		Log.v("Number of columns", total.toString() + " " + whatotogetString);
-		return columnList;
+		Log.v("Number of columns", "" + output.length);
+		return output;
 	}
 
-	public void requestColumnCreate(String name, String type, String TABLE_ID)
-			throws ClientProtocolException, IOException {
-		String url = "https://www.googleapis.com/fusiontables/v1/tables/"
-				+ TABLE_ID + "/columns?key=" + API_KEY;
+	public void requestColumnCreate(String name, String type, String tableID) {
+		Column newColumn = new Column();
+		newColumn.setName(name);
+		newColumn.setType(type);
 
-		HttpClient httpclient = new DefaultHttpClient();
-		HttpPost httppost = new HttpPost(url);
-		httppost.setHeader("Authorization", "Bearer " + token);
-		httppost.setHeader("Content-Type", "application/json");
-		JSONObject object = new JSONObject();
+		Insert columnRequest;
 		try {
-			object.put("name", name);
-			object.put("type", type);
-		} catch (Exception ex) {
+			columnRequest = Iniconfig.fusiontables.column().insert(tableID,
+					newColumn);
+			columnRequest.setKey(Iniconfig.API_KEY);
+			columnRequest.execute();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		String columnString = object.toString();
-		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(1);
-		nameValuePairs.add(new BasicNameValuePair("key", API_KEY));
-		httppost.setEntity(new StringEntity(columnString, "UTF-8"));
-		HttpResponse response = httpclient.execute(httppost);
-
-		Log.v("Create column response code", response.getStatusLine()
-				.getStatusCode()
-				+ " "
-				+ response.getStatusLine().getReasonPhrase());
 	}
-
 
 	public String getnames(String nametoget, String syntaxtype,
 			String triporsurvey) {
@@ -505,7 +420,7 @@ public class SurveyHelper {
 	/*
 	 * Survey Update Functions
 	 */
-	
+
 	public void answerCurrentQuestion(String answer) {
 		try {
 			jsurv.getJSONObject("Survey").getJSONArray("Chapters")
@@ -549,7 +464,7 @@ public class SurveyHelper {
 	public void updateJumpString(String jumpStringReceive) {
 		jumpString = jumpStringReceive;
 	}
-	
+
 	public void onPrevQuestionPressed(Boolean askingTripQuestions) {
 		if (askingTripQuestions) {
 			tripQuestionPosition--;
@@ -557,11 +472,11 @@ public class SurveyHelper {
 			questionPosition--;
 		}
 	}
-	
+
 	public enum NextQuestionResult {
 		NORMAL, END, JUMPSTRING
 	}
-	
+
 	// updates positions to get next question. returns true if end of survey
 	// reached
 	public NextQuestionResult onNextQuestionPressed(Boolean askingTripQuestions) {
@@ -612,11 +527,10 @@ public class SurveyHelper {
 		}
 	}
 
-	
 	/*
 	 * Getters
 	 */
-	
+
 	public int getChapterPosition() {
 		return chapterPosition;
 	}

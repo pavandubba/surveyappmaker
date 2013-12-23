@@ -88,7 +88,8 @@ public class Surveyor extends Activity implements
 	private boolean showingHubPage = false;
 	private SurveyHelper surveyHelper;
 	private Tracker tracker = null;
-	
+	public static GoogleDriveHelper driveHelper;
+
 	private enum EVENT_TYPE {
 		MALE_UPDATE, FEMALE_UPDATE, UPDATE_STATS_PAGE, UPDATE_HUB_PAGE, SHOW_NAV_BUTTONS
 	}
@@ -244,9 +245,9 @@ public class Surveyor extends Activity implements
 		if (extras != null) {
 			username = extras.getString("username");
 			surveyHelper = new SurveyHelper(username,
-					extras.getString("token"), extras.getString("jsonsurvey"),
-					getApplicationContext());
+					extras.getString("jsonsurvey"), getApplicationContext());
 		}
+		driveHelper = new GoogleDriveHelper(this);
 
 		// Navigation drawer information.
 		Title = ChapterDrawerTitle = getTitle();
@@ -457,6 +458,27 @@ public class Surveyor extends Activity implements
 
 		// Choose what to do based on the request code
 		switch (requestCode) {
+
+		case GoogleDriveHelper.REQUEST_ACCOUNT_PICKER:
+			if (resultCode == RESULT_OK && intent != null
+					&& intent.getExtras() != null) {
+				driveHelper.requestAccountPicker(intent);
+			}
+			break;
+		case GoogleDriveHelper.REQUEST_AUTHORIZATION:
+			if (resultCode == Activity.RESULT_OK) {
+				driveHelper.saveFileToDrive();
+			} else {
+				startActivityForResult(
+						Iniconfig.credential.newChooseAccountIntent(),
+						GoogleDriveHelper.REQUEST_ACCOUNT_PICKER);
+			}
+			break;
+		case GoogleDriveHelper.CAPTURE_IMAGE:
+			if (resultCode == Activity.RESULT_OK) {
+				driveHelper.saveFileToDrive();
+			}
+			break;
 
 		// If the request code matches the code sent in onConnectionFailed
 		case CONNECTION_FAILURE_RESOLUTION_REQUEST:
@@ -861,6 +883,7 @@ public class Surveyor extends Activity implements
 						public void run() {
 							try {
 								submitSurvey();
+								resetSurvey();
 							} catch (ClientProtocolException e1) {
 								e1.printStackTrace();
 							} catch (IOException e1) {
@@ -873,7 +896,6 @@ public class Surveyor extends Activity implements
 									.getString(R.string.survey_submitted),
 									Toast.LENGTH_SHORT);
 					toast.show();
-					resetSurvey();
 					showHubPage();
 					break;
 				case DialogInterface.BUTTON_NEGATIVE:
