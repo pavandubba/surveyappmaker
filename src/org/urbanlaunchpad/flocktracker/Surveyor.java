@@ -167,8 +167,8 @@ public class Surveyor extends Activity implements
 						Calendar difference = Calendar.getInstance();
 						difference.setTimeInMillis(difference.getTimeInMillis()
 								- startTripTime.getTimeInMillis());
-						tripTimeText.setText(difference.getTime().getMinutes()
-								+ ":" + difference.getTime().getSeconds());
+						tripTimeText.setText(String.format("%02d", difference.getTime().getMinutes())
+								+ ":" + String.format("%02d", difference.getTime().getSeconds()));
 					} else {
 						tripTimeText.setText(R.string.total_time);
 					}
