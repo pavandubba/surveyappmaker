@@ -142,18 +142,18 @@ public class Surveyor extends Activity implements
 				if (isTripStarted) {
 					ImageView gear = (ImageView) findViewById(R.id.start_trip_button);
 					gear.setImageResource(R.drawable.ft_grn_st1);
-					RotateAnimation anim = new RotateAnimation(0.0f, 360.0f,
-							Animation.RELATIVE_TO_SELF, 0.5f,
-							Animation.RELATIVE_TO_SELF, 0.5f);
-					anim.setInterpolator(new LinearInterpolator());
-					anim.setRepeatCount(Animation.INFINITE);
-					anim.setDuration(700);
-					// Start animating the image
-					gear.startAnimation(anim);
+//					RotateAnimation anim = new RotateAnimation(0.0f, 360.0f,
+//							Animation.RELATIVE_TO_SELF, 0.5f,
+//							Animation.RELATIVE_TO_SELF, 0.5f);
+//					anim.setInterpolator(new LinearInterpolator());
+//					anim.setRepeatCount(Animation.INFINITE);
+//					anim.setDuration(700);
+//					// Start animating the image
+//					gear.startAnimation(anim);
 				} else {
 					ImageView gear = (ImageView) findViewById(R.id.start_trip_button);
 					gear.setImageResource(R.drawable.ft_red_st);
-					gear.setAnimation(null);
+//					gear.setAnimation(null);
 				}
 			} else if (msg.what == EVENT_TYPE.UPDATE_STATS_PAGE.ordinal()) {
 				TextView tripTimeText = (TextView) findViewById(R.id.tripTime);
@@ -341,7 +341,7 @@ public class Surveyor extends Activity implements
 
 		if (showingHubPage
 				&& (surveyHelper.getChapterPosition() == null || (surveyHelper
-						.getChapterPosition() == 1 && surveyHelper
+						.getChapterPosition() <= 1 && surveyHelper
 						.getQuestionPosition() == 0)))
 			finish();
 

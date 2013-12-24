@@ -17,16 +17,15 @@
         android:layout_width="fill_parent"
         android:layout_height="0dp"
         android:layout_margin="0dp"
-        android:layout_weight="1.5"
-        android:padding="0dp" >
+        android:layout_weight="1.71"
+        android:paddingTop="25dp" >
 
         <ImageView
             android:id="@+id/start_trip_button"
             android:layout_width="match_parent"
-            android:layout_height="fill_parent"
+            android:layout_height="match_parent"
             android:layout_gravity="center"
             android:contentDescription="@string/start_trip_bus_desc"
-            android:padding="5dp"
             android:src="@drawable/ft_red_st" />
     </FrameLayout>
 
@@ -40,8 +39,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:src="@drawable/ft_surv"
-            android:contentDescription="@string/start_survey_button_desc" />
+            android:contentDescription="@string/start_survey_button_desc"
+            android:padding="5dp"
+            android:src="@drawable/ft_surv" />
 
         <ImageView
             android:id="@+id/statsButton"
@@ -49,16 +49,19 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:src="@drawable/ft_prof"
             android:contentDescription="@string/stats_button_desc"
-            android:padding="5dp" />
+            android:padding="5dp"
+            android:src="@drawable/ft_prof" />
     </LinearLayout>
 
     <LinearLayout
-        android:baselineAligned="false"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1.5" >
+        android:layout_weight="1.5"
+        android:baselineAligned="false"
+        android:paddingBottom="35dp"
+        android:paddingLeft="35dp"
+        android:paddingRight="35dp" >
 
         <LinearLayout
             android:layout_width="0dp"
@@ -71,8 +74,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
                 android:layout_weight="1"
-                android:src="@drawable/ft_arrow_blu_up"
-                android:contentDescription="@string/more_men_button_desc" />
+                android:contentDescription="@string/more_men_button_desc"
+                android:padding="10dp"
+                android:src="@drawable/ft_arrow_blu_up" />
 
             <TextView
                 android:id="@+id/maleCount"
@@ -81,15 +85,16 @@
                 android:layout_gravity="center"
                 android:text="@string/person_count_default"
                 android:textColor="@color/blue_men"
-                android:textSize="30sp" />
+                android:textSize="22sp" />
 
             <ImageView
                 android:id="@+id/fewerMenButton"
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
                 android:layout_weight="1"
-                android:src="@drawable/ft_arrow_blu_dn"
-                android:contentDescription="@string/fewer_men_button_desc" />
+                android:contentDescription="@string/fewer_men_button_desc"
+                android:padding="10dp"
+                android:src="@drawable/ft_arrow_blu_dn" />
         </LinearLayout>
 
         <LinearLayout
@@ -108,15 +113,12 @@
                 android:id="@+id/menIcon"
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
+                android:layout_marginLeft="-15dp"
                 android:layout_weight="1"
                 android:contentDescription="@string/men_icon_desc"
                 android:gravity="center"
+                android:padding="10dp"
                 android:src="@drawable/ft_fig_male" />
-
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="0.5" />
         </LinearLayout>
 
         <LinearLayout
@@ -151,9 +153,11 @@
                 android:id="@+id/womenIcon"
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
+                android:layout_marginRight="-15dp"
                 android:layout_weight="1"
                 android:contentDescription="@string/women_icon_desc"
                 android:gravity="center"
+                android:padding="10dp"
                 android:src="@drawable/ft_fig_fem" />
 
             <Space
@@ -173,8 +177,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
                 android:layout_weight="1"
-                android:src="@drawable/ft_arrow_pnk_up"
-                android:contentDescription="@string/more_women_button_desc" />
+                android:contentDescription="@string/more_women_button_desc"
+                android:padding="10dp"
+                android:src="@drawable/ft_arrow_pnk_up" />
 
             <TextView
                 android:id="@+id/femaleCount"
@@ -183,15 +188,16 @@
                 android:layout_gravity="center"
                 android:text="@string/person_count_default"
                 android:textColor="@color/pink_women"
-                android:textSize="30sp" />
+                android:textSize="22sp" />
 
             <ImageView
                 android:id="@+id/fewerWomenButton"
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
                 android:layout_weight="1"
-                android:src="@drawable/ft_arrow_pnk_dn"
-                android:contentDescription="@string/fewer_women_button_desc" />
+                android:contentDescription="@string/fewer_women_button_desc"
+                android:padding="10dp"
+                android:src="@drawable/ft_arrow_pnk_dn" />
         </LinearLayout>
     </LinearLayout>
 
