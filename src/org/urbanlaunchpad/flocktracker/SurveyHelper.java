@@ -423,10 +423,11 @@ public class SurveyHelper {
 
 	public void answerCurrentQuestion(String answer) {
 		try {
-			jsurv.getJSONObject("Survey").getJSONArray("Chapters")
-					.getJSONObject(chapterPosition - 1)
-					.getJSONArray("Questions").getJSONObject(questionPosition)
-					.put("Answer", answer);
+			if (chapterPosition >= 0)
+				jsurv.getJSONObject("Survey").getJSONArray("Chapters")
+						.getJSONObject(chapterPosition - 1)
+						.getJSONArray("Questions").getJSONObject(questionPosition)
+						.put("Answer", answer);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
