@@ -32,6 +32,7 @@ import android.os.Message;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.text.Html;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -139,18 +140,18 @@ public class Surveyor extends Activity implements
 				if (isTripStarted) {
 					ImageView gear = (ImageView) findViewById(R.id.start_trip_button);
 					gear.setImageResource(R.drawable.ft_grn_st1);
-//					RotateAnimation anim = new RotateAnimation(0.0f, 360.0f,
-//							Animation.RELATIVE_TO_SELF, 0.5f,
-//							Animation.RELATIVE_TO_SELF, 0.5f);
-//					anim.setInterpolator(new LinearInterpolator());
-//					anim.setRepeatCount(Animation.INFINITE);
-//					anim.setDuration(700);
-//					// Start animating the image
-//					gear.startAnimation(anim);
+					// RotateAnimation anim = new RotateAnimation(0.0f, 360.0f,
+					// Animation.RELATIVE_TO_SELF, 0.5f,
+					// Animation.RELATIVE_TO_SELF, 0.5f);
+					// anim.setInterpolator(new LinearInterpolator());
+					// anim.setRepeatCount(Animation.INFINITE);
+					// anim.setDuration(700);
+					// // Start animating the image
+					// gear.startAnimation(anim);
 				} else {
 					ImageView gear = (ImageView) findViewById(R.id.start_trip_button);
 					gear.setImageResource(R.drawable.ft_red_st);
-//					gear.setAnimation(null);
+					// gear.setAnimation(null);
 				}
 			} else if (msg.what == EVENT_TYPE.UPDATE_STATS_PAGE.ordinal()) {
 				TextView tripTimeText = (TextView) findViewById(R.id.tripTime);
@@ -167,10 +168,16 @@ public class Surveyor extends Activity implements
 						Calendar difference = Calendar.getInstance();
 						difference.setTimeInMillis(difference.getTimeInMillis()
 								- startTripTime.getTimeInMillis());
-						tripTimeText.setText(String.format("%02d", difference.getTime().getMinutes())
-								+ ":" + String.format("%02d", difference.getTime().getSeconds()));
+						tripTimeText.setText(Html.fromHtml("<b>"
+								+ String.format("%02d", difference.getTime()
+										.getMinutes())
+								+ "</b>"
+								+ ":"
+								+ String.format("%02d", difference.getTime()
+										.getSeconds())));
 					} else {
-						tripTimeText.setText(R.string.total_time);
+						tripTimeText.setText(Html.fromHtml("<b>00</b>" + ":"
+								+ "00"));
 					}
 
 					// Get address
@@ -186,15 +193,17 @@ public class Surveyor extends Activity implements
 						e.printStackTrace();
 					}
 
+					int distanceBeforeDecimal = (int) (tripDistance / 1000.0);
+					int distanceAfterDecimal =   (int) (100 * (tripDistance / 1000.0 - distanceBeforeDecimal));
+
 					// Update our views
 					ridesCompletedText.setText("" + ridesCompleted);
-					totalDistanceText
-							.setText(""
-									+ String.format(
-											"%.2f",
-											(totalDistanceBefore + tripDistance) / 1000.0));
-					tripDistanceText.setText(""
-							+ String.format("%.2f", tripDistance / 1000.0));
+					tripDistanceText.setText(Html.fromHtml("<b>"
+							+ String.format("%02d", distanceBeforeDecimal)
+							+ "</b>" + "."
+							+ String.format("%02d", distanceAfterDecimal)));
+					totalDistanceText.setText(""
+							+ String.format("%.2f", (totalDistanceBefore + tripDistance) / 1000.0));
 					surveysCompletedText.setText("" + surveysCompleted);
 					usernameText.setText("Hi " + username + "!");
 
