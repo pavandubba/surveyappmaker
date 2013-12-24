@@ -6,6 +6,7 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.KeyEvent;
@@ -149,6 +150,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 			TextView questionview = (TextView) rootView
 					.findViewById(R.id.questionview);
 			questionview.setText(questionstring);
+			questionview.setTextSize(20);
 		}
 		return rootView;
 
@@ -179,6 +181,9 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 				tvanswerlist[i].setText(answerlist[i]);
 				tvanswerlist[i].setTextColor(getResources().getColor(
 						R.color.text_color_light));
+				tvanswerlist[i].setTextSize(20);
+				tvanswerlist[i].setPadding(10, 10, 10, 10);
+				tvanswerlist[i].setTypeface(Typeface.create("sans-serif-light", Typeface.NORMAL));
 				answerlayout.addView(tvanswerlist[i]);
 				tvansweridlist[i] = i; // Not sure if this is going to have
 										// conflicts with other view ids...

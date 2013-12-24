@@ -490,11 +490,13 @@ public class SurveyHelper {
 		} else {
 			questionPosition++;
 			if (questionPosition == chapterQuestionCounts[chapterPosition - 1]) {
-				chapterPosition++;
-				questionPosition = 0;
-
-				if (chapterPosition > jchapterlist.length())
+				if (chapterPosition == jchapterlist.length()) {
+					questionPosition--;
 					return NextQuestionResult.END;
+				} else {
+					chapterPosition++;
+					questionPosition = 0;
+				}
 			}
 		}
 
