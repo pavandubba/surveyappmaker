@@ -441,6 +441,15 @@ public class SurveyHelper {
 			e.printStackTrace();
 		}
 	}
+	
+	public void answerCurrentTrackerLoopQuesiton(String answer){
+		
+	}
+	
+	public void answerCurrentLoopQuestion(String answer){
+		
+	}
+	
 
 	public void resetSurvey() {
 		for (int i = 0; i < jchapterlist.length(); ++i) {

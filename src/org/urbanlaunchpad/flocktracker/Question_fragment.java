@@ -4,6 +4,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.google.api.services.drive.Drive.About.Get;
+
 import android.app.Activity;
 import android.app.Fragment;
 import android.graphics.Typeface;
@@ -54,6 +56,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 	private Integer opentotal = 0;
 	private LinearLayout[] answerinsert;
 	private CheckBox[] cbanswer;
+	private String loopLimitString = null;
 
 	public Question_fragment() {
 		// Empty constructor required for fragment subclasses
@@ -70,11 +73,20 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 		/** Called by Fragment when an answer is selected */
 		public void AnswerRecieve(String answerString, String jumpString);
 	}
+	
+	// Passes information about looped question.
+	
+	LoopPasser Loopback;
+	
+	public interface LoopPasser {
+		/** Called by Fragment when a loop is about to be started */
+		public void Looprecieve(String Loopend);
+	}
 
 	// Passes position information to activity. Will be called when fragment
 	// resumes.
 	PositionPasser Posback;
-	
+
 	public interface PositionPasser {
 		/** Called by Fragment when an answer is selected */
 		public void PositionRecieve(Integer chapterposition,
@@ -108,7 +120,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 
 			// Setting up layout of fragment.
 
-			answerlayout = (ViewGroup) rootView.findViewById(R.id.answerlayout); 
+			answerlayout = (ViewGroup) rootView.findViewById(R.id.answerlayout);
 
 			try {
 				questionkind = jquestion.getString("Kind");
@@ -145,6 +157,10 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 				CheckBoxLayout();
 			} else if (questionkind.equals("IM")) {
 				ImageLayout();
+			} else if (questionkind.equals("LP")){
+				MultipleChoiceLayout();
+				// Obtaining lmits of the Loop.
+				loopLimitString = getLimit(jquestion);
 			}
 
 			TextView questionview = (TextView) rootView
@@ -183,7 +199,8 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 						R.color.text_color_light));
 				tvanswerlist[i].setTextSize(20);
 				tvanswerlist[i].setPadding(10, 10, 10, 10);
-				tvanswerlist[i].setTypeface(Typeface.create("sans-serif-light", Typeface.NORMAL));
+				tvanswerlist[i].setTypeface(Typeface.create("sans-serif-light",
+						Typeface.NORMAL));
 				answerlayout.addView(tvanswerlist[i]);
 				tvansweridlist[i] = i; // Not sure if this is going to have
 										// conflicts with other view ids...
@@ -452,7 +469,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 				if (view.getId() == textView.getId()) {
 					textView.setTextColor(getResources().getColor(
 							R.color.answer_selected));
-					answerString = (String) textView.getText().toString(); 
+					answerString = (String) textView.getText().toString();
 					Callback.AnswerRecieve(answerString, jumpString);
 				} else {
 					textView.setTextColor(getResources().getColor(
@@ -465,7 +482,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 	private void ImageOnClick(View view) {
 		Surveyor.driveHelper.startCameraIntent(jumpString);
 	}
-	
+
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
@@ -485,5 +502,18 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 					+ " must implement Question_fragment.PositionPasser");
 		}
 	}
+	public String getLimit(JSONObject Obj) {
+		String auxlimit;
+		try {
+			auxlimit = Obj.getString("Limit");
+		} catch (JSONException e1) {
+			auxlimit = null;
+			 toast = Toast.makeText(getActivity(), "No limit on looped quesiton.",
+			 Toast.LENGTH_SHORT);
+			 toast.show();
+//			 e1.printStackTrace();
+		}
+		return auxlimit;
+	}	
 
 }

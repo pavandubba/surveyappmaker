@@ -76,6 +76,7 @@ public class Surveyor extends Activity implements
 	private Location startLocation;
 	private Activity thisActivity;
 	private Boolean askingTripQuestions = false;
+	private Boolean inLoop = false;
 	private boolean showingStatusPage = false;
 	private boolean showingHubPage = false;
 	private SurveyHelper surveyHelper;
@@ -709,7 +710,13 @@ public class Surveyor extends Activity implements
 
 	public void AnswerRecieve(String answerStringReceive,
 			String jumpStringReceive) {
-		if (answerStringReceive != null) {
+		if ((answerStringReceive != null) && (inLoop = false)) {
+			if (!askingTripQuestions) {
+				surveyHelper.answerCurrentQuestion(answerStringReceive);
+			} else {
+				surveyHelper.answerCurrentTrackerQuestion(answerStringReceive);
+			}
+		} else if ((answerStringReceive != null) && (inLoop = true)){
 			if (!askingTripQuestions) {
 				surveyHelper.answerCurrentQuestion(answerStringReceive);
 			} else {
@@ -720,6 +727,12 @@ public class Surveyor extends Activity implements
 		if (jumpStringReceive != null) {
 			surveyHelper.updateJumpString(jumpStringReceive);
 		}
+	}
+	
+	public void Looprecieve(String Loopend){
+			if (Loopend != null){
+				inLoop = true;
+			}
 	}
 
 	public void PositionRecieve(Integer chapterpositionrecieve,
