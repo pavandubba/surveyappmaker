@@ -9,10 +9,12 @@ import android.app.Fragment;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.InputType;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.view.inputmethod.EditorInfo;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -54,6 +56,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 	private Integer opentotal = 0;
 	private LinearLayout[] answerinsert;
 	private CheckBox[] cbanswer;
+	private ImageView[] answerImages;
 
 	public Question_fragment() {
 		// Empty constructor required for fragment subclasses
@@ -74,7 +77,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 	// Passes position information to activity. Will be called when fragment
 	// resumes.
 	PositionPasser Posback;
-	
+
 	public interface PositionPasser {
 		/** Called by Fragment when an answer is selected */
 		public void PositionRecieve(Integer chapterposition,
@@ -108,7 +111,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 
 			// Setting up layout of fragment.
 
-			answerlayout = (ViewGroup) rootView.findViewById(R.id.answerlayout); 
+			answerlayout = (ViewGroup) rootView.findViewById(R.id.answerlayout);
 
 			try {
 				questionkind = jquestion.getString("Kind");
@@ -174,17 +177,48 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 			answerlist = new String[totalanswers];
 			tvanswerlist = new TextView[totalanswers];
 			tvansweridlist = new Integer[totalanswers];
+			answerinsert = new LinearLayout[totalanswers];
+			answerImages = new ImageView[totalanswers];
 			for (int i = 0; i < totalanswers; ++i) {
 				aux = janswerlist.getJSONObject(i);
 				answerlist[i] = aux.getString("Answer");
 				tvanswerlist[i] = new TextView(rootView.getContext());
+
+				// Image
+				answerImages[i] = new ImageView(rootView.getContext());
+				answerImages[i].setImageResource(R.drawable.ft_cir_gry);
+				answerImages[i].setAdjustViewBounds(true);
+				answerImages[i].setPadding(0, 0, 20, 0);
+
+				LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+						LayoutParams.WRAP_CONTENT, 60);
+				layoutParams.gravity = Gravity.CENTER_VERTICAL;
+				answerImages[i].setLayoutParams(layoutParams);
+
+				// Answer text
 				tvanswerlist[i].setText(answerlist[i]);
 				tvanswerlist[i].setTextColor(getResources().getColor(
 						R.color.text_color_light));
 				tvanswerlist[i].setTextSize(20);
-				tvanswerlist[i].setPadding(10, 10, 10, 10);
-				tvanswerlist[i].setTypeface(Typeface.create("sans-serif-light", Typeface.NORMAL));
-				answerlayout.addView(tvanswerlist[i]);
+				tvanswerlist[i].setTypeface(Typeface.create("sans-serif-light",
+						Typeface.NORMAL));
+				LinearLayout.LayoutParams layoutParamsText = new LinearLayout.LayoutParams(
+						LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+				layoutParamsText.gravity = Gravity.CENTER_VERTICAL;
+				tvanswerlist[i].setLayoutParams(layoutParamsText);
+
+				// Add both to a linear layout
+				answerinsert[i] = new LinearLayout(rootView.getContext());
+				answerinsert[i].setWeightSum(4);
+				LinearLayout.LayoutParams layoutParamsParent = new LinearLayout.LayoutParams(
+						LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+				answerinsert[i].setLayoutParams(layoutParamsParent);
+				answerinsert[i].setPadding(10, 10, 10, 10);
+				answerinsert[i].addView(answerImages[i]);
+				answerinsert[i].addView(tvanswerlist[i]);
+
+				// add this linear layout to the parent viewgroup
+				answerlayout.addView(answerinsert[i]);
 				tvansweridlist[i] = i; // Not sure if this is going to have
 										// conflicts with other view ids...
 				// tvansweridlist[i] = findId(); // This method was to generate
@@ -192,7 +226,8 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 				// not
 				// working.
 				tvanswerlist[i].setId(tvansweridlist[i]);
-				tvanswerlist[i].setOnClickListener(this);
+				answerinsert[i].setId(tvansweridlist[i]);
+				answerinsert[i].setOnClickListener(this);
 			}
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -212,6 +247,10 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 			otherET.setSingleLine();
 			otherET.setTextColor(getResources().getColor(
 					R.color.text_color_light));
+			otherET.setTextSize(20);
+			otherET.setPadding(10, 10, 10, 10);
+			otherET.setTypeface(Typeface.create("sans-serif-light",
+					Typeface.NORMAL));
 			answerlayout.addView(otherET);
 			otherET.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 				@Override
@@ -351,7 +390,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 	}
 
 	public void MultipleChoiceOnClick(View view) {
-		if (view instanceof TextView) {
+		if (view instanceof LinearLayout) {
 			for (int i = 0; i < totalanswers; ++i) {
 
 				TextView textView = (TextView) tvanswerlist[i];
@@ -452,7 +491,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 				if (view.getId() == textView.getId()) {
 					textView.setTextColor(getResources().getColor(
 							R.color.answer_selected));
-					answerString = (String) textView.getText().toString(); 
+					answerString = (String) textView.getText().toString();
 					Callback.AnswerRecieve(answerString, jumpString);
 				} else {
 					textView.setTextColor(getResources().getColor(
@@ -465,7 +504,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 	private void ImageOnClick(View view) {
 		Surveyor.driveHelper.startCameraIntent(jumpString);
 	}
-	
+
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);

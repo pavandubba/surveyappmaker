@@ -11,100 +11,77 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin" >
 
+    <!-- Trip Time Row -->
+
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="0dp"
+        android:layout_marginTop="10dp"
         android:layout_weight="1.5"
-        android:paddingTop="20dp" >
+        android:weightSum="4" >
 
-        <LinearLayout
+        <ImageView
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="30dp"
+            android:layout_gravity="center_vertical"
             android:layout_weight="1"
-            android:gravity="center_vertical|right"
-            android:orientation="vertical" >
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/start_survey_button_desc"
+            android:paddingRight="10dp"
+            android:scaleType="fitEnd"
+            android:src="@drawable/ft_triptime" />
 
-            <ImageView
-                android:layout_width="50dp"
-                android:layout_height="30dp"
-                android:layout_marginTop="10dp"
-                android:contentDescription="@string/start_survey_button_desc"
-                android:gravity="center"
-                android:src="@drawable/ft_triptime" />
-        </LinearLayout>
-
-        <LinearLayout
+        <TextView
+            android:id="@+id/tripTime"
             android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"
             android:layout_weight="2"
             android:gravity="center"
-            android:orientation="vertical" >
-
-            <TextView
-                android:id="@+id/tripTime"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="@string/total_time"
-                android:textColor="#fff"
-                android:textSize="60sp" />
-        </LinearLayout>
-
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1" />
+            android:text="@string/total_time"
+            android:textColor="#fff"
+            android:textSize="60sp" />
     </LinearLayout>
+
+    <!-- Trip Distance Row -->
 
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="0dp"
+        android:layout_marginTop="10dp"
         android:layout_weight="1.5"
-        android:paddingBottom="10dp"
-        android:paddingTop="10dp" >
+        android:weightSum="4" >
 
-        <LinearLayout
+        <ImageView
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="30dp"
+            android:layout_gravity="center_vertical"
             android:layout_weight="1"
-            android:gravity="center_vertical|right"
-            android:orientation="vertical" >
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/start_survey_button_desc"
+            android:paddingRight="10dp"
+            android:scaleType="fitEnd"
+            android:src="@drawable/ft_tripdist" />
 
-            <ImageView
-                android:layout_width="50dp"
-                android:layout_height="30dp"
-                android:layout_marginTop="10dp"
-                android:contentDescription="@string/start_survey_button_desc"
-                android:src="@drawable/ft_tripdist" />
-        </LinearLayout>
-
-        <LinearLayout
+        <TextView
+            android:id="@+id/tripDistance"
             android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"
             android:layout_weight="2"
-            android:gravity="bottom"
-            android:orientation="vertical" >
-
-            <TextView
-                android:id="@+id/tripDistance"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="@string/total_time"
-                android:textColor="#fff"
-                android:textSize="60sp" />
-        </LinearLayout>
-
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1" />
+            android:gravity="center"
+            android:text="@string/total_time"
+            android:textColor="#fff"
+            android:textSize="60sp" />
     </LinearLayout>
+
+    <!-- User Greeting Row -->
 
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" >
+        android:layout_weight="1"
+        android:weightSum="4" >
 
         <Space
             android:layout_width="0dp"
@@ -124,202 +101,143 @@
             android:text="@string/default_greeting"
             android:textColor="#fff"
             android:textSize="20sp" />
-
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1" />
     </LinearLayout>
+
+    <!-- Surveys Completed Row -->
 
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:baselineAligned="false" >
+        android:layout_weight="1" >
 
-        <LinearLayout
+        <ImageView
             android:layout_width="0dp"
             android:layout_height="30dp"
             android:layout_weight="1"
-            android:orientation="vertical" >
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/start_survey_button_desc"
+            android:paddingRight="10dp"
+            android:scaleType="fitEnd"
+            android:src="@drawable/ft_survcomp" />
 
-            <ImageView
-                android:layout_width="50dp"
-                android:layout_height="fill_parent"
-                android:layout_gravity="right"
-                android:contentDescription="@string/start_survey_button_desc"
-                android:src="@drawable/ft_survcomp" />
-        </LinearLayout>
-
-        <LinearLayout
+        <TextView
             android:layout_width="0dp"
             android:layout_height="30dp"
             android:layout_weight="2"
-            android:gravity="center"
-            android:orientation="vertical" >
+            android:fontFamily="sans-serif-light"
+            android:text="@string/surveys_completed"
+            android:textColor="#fff"
+            android:textSize="18sp" />
 
-            <TextView
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-light"
-                android:text="@string/surveys_completed"
-                android:textColor="#fff"
-                android:textSize="18sp" />
-        </LinearLayout>
-
-        <LinearLayout
+        <TextView
+            android:id="@+id/surveysCompleted"
             android:layout_width="0dp"
             android:layout_height="30dp"
             android:layout_weight="1"
-            android:gravity="center" >
-
-            <TextView
-                android:id="@+id/surveysCompleted"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:gravity="left"
-                android:text="@string/zero"
-                android:textColor="#fff"
-                android:textSize="20sp" />
-        </LinearLayout>
+            android:text="@string/zero"
+            android:textColor="#fff"
+            android:textSize="20sp" />
     </LinearLayout>
+
+    <!-- Rides Completed Row -->
 
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:baselineAligned="false" >
+        android:layout_weight="1" >
 
-        <LinearLayout
+        <ImageView
             android:layout_width="0dp"
             android:layout_height="30dp"
             android:layout_weight="1"
-            android:orientation="vertical" >
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/start_survey_button_desc"
+            android:paddingRight="10dp"
+            android:scaleType="fitEnd"
+            android:src="@drawable/ft_ridercomp" />
 
-            <ImageView
-                android:layout_width="50dp"
-                android:layout_height="fill_parent"
-                android:layout_gravity="right"
-                android:contentDescription="@string/start_survey_button_desc"
-                android:src="@drawable/ft_ridercomp" />
-        </LinearLayout>
-
-        <LinearLayout
+        <TextView
             android:layout_width="0dp"
             android:layout_height="30dp"
             android:layout_weight="2"
-            android:gravity="center"
-            android:orientation="vertical" >
+            android:fontFamily="sans-serif-light"
+            android:text="@string/rides_completed"
+            android:textColor="#fff"
+            android:textSize="18sp" />
 
-            <TextView
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-light"
-                android:text="@string/rides_completed"
-                android:textColor="#fff"
-                android:textSize="18sp" />
-        </LinearLayout>
-
-        <LinearLayout
+        <TextView
+            android:id="@+id/ridesCompleted"
             android:layout_width="0dp"
             android:layout_height="30dp"
             android:layout_weight="1"
-            android:gravity="center" >
-
-            <TextView
-                android:id="@+id/ridesCompleted"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:gravity="left"
-                android:text="@string/zero"
-                android:textColor="#fff"
-                android:textSize="20sp" />
-        </LinearLayout>
+            android:text="@string/zero"
+            android:textColor="#fff"
+            android:textSize="20sp" />
     </LinearLayout>
+
+    <!-- Total Distance Row -->
 
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:baselineAligned="false" >
+        android:layout_weight="1" >
 
-        <LinearLayout
+        <ImageView
             android:layout_width="0dp"
             android:layout_height="30dp"
             android:layout_weight="1"
-            android:orientation="vertical" >
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/start_survey_button_desc"
+            android:paddingRight="10dp"
+            android:scaleType="fitEnd"
+            android:src="@drawable/ft_distcomp" />
 
-            <ImageView
-                android:layout_width="50dp"
-                android:layout_height="fill_parent"
-                android:layout_gravity="right"
-                android:contentDescription="@string/start_survey_button_desc"
-                android:src="@drawable/ft_distcomp" />
-        </LinearLayout>
-
-        <LinearLayout
+        <TextView
             android:layout_width="0dp"
             android:layout_height="30dp"
             android:layout_weight="2"
-            android:gravity="center"
-            android:orientation="vertical" >
+            android:fontFamily="sans-serif-light"
+            android:text="@string/total_distance"
+            android:textColor="#fff"
+            android:textSize="18sp" />
 
-            <TextView
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-light"
-                android:text="@string/total_distance"
-                android:textColor="#fff"
-                android:textSize="18sp" />
-        </LinearLayout>
-
-        <LinearLayout
+        <TextView
+            android:id="@+id/totalDistance"
             android:layout_width="0dp"
             android:layout_height="30dp"
             android:layout_weight="1"
-            android:gravity="center" >
-
-            <TextView
-                android:id="@+id/totalDistance"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:gravity="left"
-                android:text="@string/zero"
-                android:textColor="#fff"
-                android:textSize="20sp" />
-        </LinearLayout>
+            android:text="@string/zero"
+            android:textColor="#fff"
+            android:textSize="20sp" />
     </LinearLayout>
+
+    <!-- Current Address Row -->
 
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="0dp"
-        android:layout_weight="2" >
+        android:layout_weight="2"
+        android:weightSum="4" >
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="30dp"
+            android:layout_weight="1"
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/start_survey_button_desc"
+            android:paddingRight="10dp"
+            android:scaleType="fitEnd"
+            android:src="@drawable/ft_location" />
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="right"
+            android:layout_weight="2"
             android:orientation="vertical" >
 
-            <ImageView
-                android:layout_width="50dp"
+            <TextView
+                android:layout_width="match_parent"
                 android:layout_height="30dp"
-                android:layout_gravity="right"
-                android:contentDescription="@string/start_survey_button_desc"
-                android:src="@drawable/ft_location" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="2"
-            android:orientation="vertical" >
-
-            <TextView
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
                 android:fontFamily="sans-serif-light"
                 android:text="@string/current_address"
                 android:textColor="#fff"
@@ -334,11 +252,6 @@
                 android:textColor="#fff"
                 android:textSize="18sp" />
         </LinearLayout>
-
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1" />
     </LinearLayout>
 
 </LinearLayout>
