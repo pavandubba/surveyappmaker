@@ -276,13 +276,13 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 			otherfield.addView(otherET);
 			answerlayout.addView(otherfield);
 
-			otherET.setOnClickListener(this);
+			otherfield.setOnClickListener(this);
 			otherET.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 				@Override
 				public boolean onEditorAction(TextView v, int actionId,
 						KeyEvent event) {
 					if (actionId == EditorInfo.IME_ACTION_DONE) {
-						MultipleChoiceOnClick(v);
+						MultipleChoiceOnClick(otherfield);
 						return false; // If false hides the keyboard after
 										// pressing Done.
 					}
@@ -408,31 +408,14 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 	}
 
 	public void MultipleChoiceOnClick(View view) {
-		if (view instanceof EditText) {
-			EditText otherView = (EditText) view;
-			otherView.setTextColor(getResources().getColor(
-					R.color.answer_selected));
-			answerString = (String) otherView.getText().toString(); // Sets
-																	// the
-			// answer
-			// to be
-			// sent
-			// to
-			// parent
-			// activity.
-
-			for (int i = 0; i < totalanswers; ++i) {
-				TextView textView = (TextView) tvanswerlist[i];
-				textView.setTextColor(getResources().getColor(
-						R.color.text_color_light));
-			}
-
-			Callback.AnswerRecieve(answerString, jumpString);
-		} else if (view instanceof LinearLayout) {
+		if (view instanceof LinearLayout) {
+			boolean foundAnswer = false;
 			for (int i = 0; i < totalanswers; ++i) {
 
 				TextView textView = (TextView) tvanswerlist[i];
 				if (view.getId() == textView.getId()) {
+					foundAnswer = true;
+					
 					otherET.setTextColor(getResources().getColor(
 							R.color.text_color_light));
 
@@ -455,6 +438,13 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 					textView.setTextColor(getResources().getColor(
 							R.color.text_color_light));
 				}
+			}
+			
+			if (!foundAnswer) {
+				otherET.setTextColor(getResources().getColor(
+						R.color.answer_selected));
+				answerString = (String) otherET.getText().toString();
+				Callback.AnswerRecieve(answerString, jumpString);
 			}
 		}
 	}
