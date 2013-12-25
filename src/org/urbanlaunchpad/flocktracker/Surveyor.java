@@ -194,7 +194,7 @@ public class Surveyor extends Activity implements
 					}
 
 					int distanceBeforeDecimal = (int) (tripDistance / 1000.0);
-					int distanceAfterDecimal =   (int) (100 * (tripDistance / 1000.0 - distanceBeforeDecimal));
+					int distanceAfterDecimal =   (int) Math.round(100 * (tripDistance / 1000.0 - distanceBeforeDecimal));
 
 					// Update our views
 					ridesCompletedText.setText("" + ridesCompleted);
