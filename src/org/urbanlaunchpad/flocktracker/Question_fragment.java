@@ -47,7 +47,6 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 	private Integer chapterposition;
 	private boolean other;
 	private EditText otherET = null;
-	private TextView otheranswer = null;
 	private LinearLayout otherfield = null;
 	private LinearLayout answerfield;
 	private Integer othertotal = 0;
@@ -57,6 +56,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 	private LinearLayout[] answerinsert;
 	private CheckBox[] cbanswer;
 	private ImageView[] answerImages;
+	private ImageView otherImage;
 
 	public Question_fragment() {
 		// Empty constructor required for fragment subclasses
@@ -238,9 +238,18 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 			toast.show();
 		}
 		if (other == Boolean.TRUE) {
-			otherfield = new LinearLayout(rootView.getContext());
-			otherfield.setOrientation(LinearLayout.VERTICAL);
-			answerlayout.addView(otherfield);
+			// Image
+			otherImage = new ImageView(rootView.getContext());
+			otherImage.setImageResource(R.drawable.ft_cir_gry);
+			otherImage.setAdjustViewBounds(true);
+			otherImage.setPadding(0, 0, 20, 0);
+
+			LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+					LayoutParams.WRAP_CONTENT, 60);
+			layoutParams.gravity = Gravity.CENTER_VERTICAL;
+			otherImage.setLayoutParams(layoutParams);
+
+			// Answer text
 			otherET = new EditText(rootView.getContext());
 			otherET.setHint(getResources().getString(R.string.other_hint));
 			otherET.setImeOptions(EditorInfo.IME_ACTION_DONE);
@@ -248,23 +257,32 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 			otherET.setTextColor(getResources().getColor(
 					R.color.text_color_light));
 			otherET.setTextSize(20);
-			otherET.setPadding(10, 10, 10, 10);
 			otherET.setTypeface(Typeface.create("sans-serif-light",
 					Typeface.NORMAL));
-			answerlayout.addView(otherET);
+			LinearLayout.LayoutParams layoutParamsText = new LinearLayout.LayoutParams(
+					LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+			layoutParamsText.gravity = Gravity.CENTER_VERTICAL;
+			otherET.setLayoutParams(layoutParamsText);
+			otherET.setBackgroundResource(R.drawable.edit_text);
+			
+			// Add both to a linear layout
+			otherfield = new LinearLayout(rootView.getContext());
+			otherfield.setWeightSum(4);
+			LinearLayout.LayoutParams layoutParamsParent = new LinearLayout.LayoutParams(
+					LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+			otherfield.setLayoutParams(layoutParamsParent);
+			otherfield.setPadding(10, 10, 10, 10);
+			otherfield.addView(otherImage);
+			otherfield.addView(otherET);
+			answerlayout.addView(otherfield);
+
+			otherET.setOnClickListener(this);
 			otherET.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 				@Override
 				public boolean onEditorAction(TextView v, int actionId,
 						KeyEvent event) {
 					if (actionId == EditorInfo.IME_ACTION_DONE) {
-						++othertotal;
-						otheranswer = new TextView(rootView.getContext());
-						otheranswer.setText(otherET.getText());
-						otherfield.addView(otheranswer);
-						otheranswer.setId(othertotal + totalanswers - 1);
-						otheranswer.setOnClickListener(Question_fragment.this);
-						MultipleChoiceOnClick(otheranswer);
-						otherET.setText("");
+						MultipleChoiceOnClick(v);
 						return false; // If false hides the keyboard after
 										// pressing Done.
 					}
@@ -390,11 +408,34 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 	}
 
 	public void MultipleChoiceOnClick(View view) {
-		if (view instanceof LinearLayout) {
+		if (view instanceof EditText) {
+			EditText otherView = (EditText) view;
+			otherView.setTextColor(getResources().getColor(
+					R.color.answer_selected));
+			answerString = (String) otherView.getText().toString(); // Sets
+																	// the
+			// answer
+			// to be
+			// sent
+			// to
+			// parent
+			// activity.
+
+			for (int i = 0; i < totalanswers; ++i) {
+				TextView textView = (TextView) tvanswerlist[i];
+				textView.setTextColor(getResources().getColor(
+						R.color.text_color_light));
+			}
+
+			Callback.AnswerRecieve(answerString, jumpString);
+		} else if (view instanceof LinearLayout) {
 			for (int i = 0; i < totalanswers; ++i) {
 
 				TextView textView = (TextView) tvanswerlist[i];
 				if (view.getId() == textView.getId()) {
+					otherET.setTextColor(getResources().getColor(
+							R.color.text_color_light));
+
 					textView.setTextColor(getResources().getColor(
 							R.color.answer_selected));
 					try {
@@ -413,27 +454,6 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 				} else {
 					textView.setTextColor(getResources().getColor(
 							R.color.text_color_light));
-				}
-			}
-			if (othertotal >= 1) {
-				for (int i = totalanswers; i < othertotal + totalanswers; ++i) {
-					TextView textView = (TextView) rootView.findViewById(i);
-					if (view.getId() == textView.getId()) {
-						textView.setTextColor(getResources().getColor(
-								R.color.answer_selected));
-						answerString = (String) textView.getText().toString(); // Sets
-																				// the
-						// answer
-						// to be
-						// sent
-						// to
-						// parent
-						// activity.
-						Callback.AnswerRecieve(answerString, jumpString);
-					} else {
-						textView.setTextColor(getResources().getColor(
-								R.color.text_color_light));
-					}
 				}
 			}
 		}
