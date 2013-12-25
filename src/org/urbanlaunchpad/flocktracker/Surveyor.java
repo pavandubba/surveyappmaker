@@ -718,9 +718,9 @@ public class Surveyor extends Activity implements
 			}
 		} else if ((answerStringReceive != null) && (inLoop = true)){
 			if (!askingTripQuestions) {
-				surveyHelper.answerCurrentQuestion(answerStringReceive);
+				surveyHelper.answerCurrentLoopQuestion(answerStringReceive);
 			} else {
-				surveyHelper.answerCurrentTrackerQuestion(answerStringReceive);
+				surveyHelper.answerCurrentTrackerLoopQuestion(answerStringReceive);
 			}
 		}
 
@@ -729,9 +729,10 @@ public class Surveyor extends Activity implements
 		}
 	}
 	
-	public void Looprecieve(String Loopend){
+	public void LoopReceive(String Loopend){
 			if (Loopend != null){
 				inLoop = true;
+				surveyHelper.setLoopLimits(Loopend);
 			}
 	}
 

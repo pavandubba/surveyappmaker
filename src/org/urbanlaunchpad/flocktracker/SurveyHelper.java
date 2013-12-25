@@ -9,6 +9,7 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.location.Location;
+import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -33,6 +34,9 @@ public class SurveyHelper {
 	private Integer questionPosition = null;
 	private Integer tripQuestionPosition = 0;
 	private String jumpString = null;
+	private Integer[] jumpPosition = null;
+	private Integer[] loopEndPosition = null;
+	private Integer[] loopStartPosition = null;
 
 	public SurveyHelper(String username, String jsonSurvey, Context context) {
 		this.username = username;
@@ -442,7 +446,7 @@ public class SurveyHelper {
 		}
 	}
 	
-	public void answerCurrentTrackerLoopQuesiton(String answer){
+	public void answerCurrentTrackerLoopQuestion(String answer){
 		
 	}
 	
@@ -512,14 +516,19 @@ public class SurveyHelper {
 		if (jumpString == null) {
 			return NextQuestionResult.NORMAL;
 		} else {
-			jumpTo(jumpString);
+			findIDPosition(jumpString);
+			jumpPosition = findIDPosition(jumpString);
+			chapterPosition = jumpPosition[0];
+			questionPosition = jumpPosition[1];
 			jumpString = null;
+			jumpPosition = null;
 			return NextQuestionResult.JUMPSTRING;
 		}
 	}
-
-	public void jumpTo(String jumpString) {
+	
+	public Integer[] findIDPosition(String iDtoFind) {
 		// Searches for a question with the same id as the jumpString value
+		Integer position[] = new Integer[2];
 		for (int i = 0; i < jchapterlist.length(); ++i) {
 			for (int j = 0; j < chapterQuestionCounts[i]; ++j) {
 				try {
@@ -527,16 +536,17 @@ public class SurveyHelper {
 							.getJSONArray("Chapters").getJSONObject(i)
 							.getJSONArray("Questions").getJSONObject(j)
 							.getString("id");
-					if (jumpString.equals(questionID)) {
-						chapterPosition = i + 1;
-						questionPosition = j;
-						return;
+					if (iDtoFind.equals(questionID)) {
+						position[0]= i+1;
+						position[1]=j;
+						return position;
 					}
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
 			}
 		}
+		return null;
 	}
 
 	/*
@@ -571,5 +581,24 @@ public class SurveyHelper {
 
 	public String[] getChapterTitles() {
 		return ChapterTitles;
+	}
+
+	public void setLoopLimits(String loopend) {
+		loopEndPosition = findIDPosition(loopend);
+		if (questionPosition +1 == chapterQuestionCounts[chapterPosition - 1]) {
+			if (chapterPosition == jchapterlist.length()) {
+				Toast.makeText(context,
+						"Loop at the end of a survey will not work",
+						Toast.LENGTH_SHORT).show();
+			} else {
+				loopStartPosition[0] = chapterPosition + 1;
+				loopStartPosition[1] = 0;
+			}
+		} else{
+			loopStartPosition[0] = chapterPosition;
+			loopStartPosition[1] = questionPosition +1;
+			
+		}
+		
 	}
 }

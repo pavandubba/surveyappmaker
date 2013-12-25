@@ -80,7 +80,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 	
 	public interface LoopPasser {
 		/** Called by Fragment when a loop is about to be started */
-		public void Looprecieve(String Loopend);
+		public void LoopReceive(String Loopend);
 	}
 
 	// Passes position information to activity. Will be called when fragment
@@ -158,7 +158,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 			} else if (questionkind.equals("IM")) {
 				ImageLayout();
 			} else if (questionkind.equals("LP")){
-				MultipleChoiceLayout();
+				OpenLayout();
 				// Obtaining lmits of the Loop.
 				loopLimitString = getLimit(jquestion);
 			}
@@ -303,7 +303,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 		openET = new EditText(rootView.getContext());
 		openET.setHint(getResources().getString(R.string.answer_hint));
 		openET.setImeOptions(EditorInfo.IME_ACTION_DONE);
-		if (questionkind.equals("ON")) {
+		if ((questionkind.equals("ON")) || (questionkind.equals("LP"))) {
 			openET.setInputType(InputType.TYPE_CLASS_NUMBER
 					| InputType.TYPE_NUMBER_FLAG_DECIMAL);
 		}
@@ -471,6 +471,9 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 							R.color.answer_selected));
 					answerString = (String) textView.getText().toString();
 					Callback.AnswerRecieve(answerString, jumpString);
+					if (questionkind.equals("LP")){
+						Loopback.LoopReceive(loopLimitString);
+					}
 				} else {
 					textView.setTextColor(getResources().getColor(
 							R.color.text_color_light));
