@@ -29,9 +29,6 @@ public class Tracker extends BroadcastReceiver {
 					surveyor.submitLocation();
 				}
 			}).start();
-			
-			Toast.makeText(context, "Uploading location!", Toast.LENGTH_LONG)
-			.show();
 		} else {
 			Intent intentAlarm = new Intent(context, Tracker.class);
 			PendingIntent sender = PendingIntent.getBroadcast(context, 1, intentAlarm,
