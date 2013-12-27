@@ -58,7 +58,7 @@ public class Welcomes extends Activity implements OnClickListener {
 				Intent Iniconfig = new Intent().setClass(Welcomes.this,
 						Iniconfig.class);
 				startActivity(Iniconfig);
-//				finish();
+				finish();
 			}
 		};
 

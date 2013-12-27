@@ -41,25 +41,27 @@
             <TextView
                 android:id="@+id/usernameText"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="100dp"
                 android:layout_weight="2"
                 android:fontFamily="sans-serif-light"
-                android:paddingBottom="20dp"
+                android:gravity="center_vertical"
+                android:paddingBottom="30dp"
                 android:paddingLeft="30dp"
                 android:paddingRight="30dp"
                 android:paddingTop="10dp"
+                android:scrollHorizontally="true"
+                android:singleLine="true"
                 android:text="@string/usernameText"
                 android:textColor="#fff"
                 android:textSize="20sp" />
 
             <ImageView
-                android:contentDescription="@string/usernameButtonDesc"
                 android:id="@+id/imageView1"
                 android:layout_width="0dp"
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
-                android:paddingBottom="10dp"
-                android:paddingLeft="10dp"
+                android:contentDescription="@string/usernameButtonDesc"
+                android:gravity="center_vertical"
                 android:paddingRight="30dp"
                 android:src="@drawable/add_user" />
         </TableRow>
@@ -86,25 +88,26 @@
             <TextView
                 android:id="@+id/projectNameText"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="100dp"
                 android:layout_weight="2"
                 android:fontFamily="sans-serif-light"
-                android:paddingBottom="20dp"
+                android:gravity="center_vertical"
+                android:paddingBottom="30dp"
                 android:paddingLeft="30dp"
                 android:paddingRight="30dp"
                 android:paddingTop="10dp"
+                android:scrollHorizontally="true"
+                android:singleLine="true"
                 android:text="@string/projectNameText"
                 android:textColor="#fff"
                 android:textSize="20sp" />
 
             <ImageView
-                android:contentDescription="@string/projectNameButtonDesc"
                 android:id="@+id/projectNameButton"
                 android:layout_width="0dp"
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
-                android:paddingBottom="10dp"
-                android:paddingLeft="10dp"
+                android:contentDescription="@string/projectNameButtonDesc"
                 android:paddingRight="30dp"
                 android:src="@drawable/add_project" />
         </TableRow>
@@ -121,19 +124,19 @@
                 android:paddingRight="10dp" >
 
                 <Space
-                    android:layout_weight="2"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2" />
 
                 <ImageView
-                    android:contentDescription="@string/flock_icon_desc"
                     android:id="@+id/bcontinue"
-                    android:layout_weight="1"
                     android:layout_width="0dp"
                     android:layout_height="70dp"
+                    android:layout_weight="1"
+                    android:contentDescription="@string/continue_desc"
                     android:paddingLeft="30dp"
                     android:paddingRight="30dp"
-                    android:src="@drawable/ft_arrow_rt" />
+                    android:src="@drawable/next" />
             </TableRow>
         </RelativeLayout>
     </TableLayout>
