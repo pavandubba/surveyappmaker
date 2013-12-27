@@ -219,7 +219,6 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 				tvanswerlist[i].setPadding(10, 10, 10, 10);
 				tvanswerlist[i].setTypeface(Typeface.create("sans-serif-light",
 						Typeface.NORMAL));
-				answerlayout.addView(tvanswerlist[i]);
 				tvanswerlist[i].setTypeface(Typeface.create("sans-serif-light",
 						Typeface.NORMAL));
 				LinearLayout.LayoutParams layoutParamsText = new LinearLayout.LayoutParams(
