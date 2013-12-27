@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.urbanlaunchpad.flocktracker.R.string;
 
 import com.google.api.services.drive.Drive.About.Get;
 
@@ -205,8 +206,40 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 			@Override
 			public void onItemSelected(AdapterView<?> arg0, View arg1,
 					int arg2, long arg3) {
-				// TODO Auto-generated method stub
-				
+//				// TODO Auto-generated method stub
+//				ArrayList<String> newspinnerarray = new ArrayList<String>();
+//				boolean[] alreadyselected = new boolean[totalanswers];
+//				String aux = null;
+//				Integer j;
+//				for (int i = 0; i < totalanswers; ++i) {
+//					aux = answerspinners[i].getSelectedItem().toString();
+//					for (int k = 1; k < totalanswers + 1 ; ++k){
+//						alreadyselected[i] = false;
+//						if (originalspinnerarray.get(k).equals(aux) && (!aux.equals(""))){
+//							alreadyselected[i] = true;
+//							break;
+//						}
+//					}
+//				}		
+////				newspinnerarray.add("");
+//				for (int i = 0; i < totalanswers ; ++i)
+//				if (alreadyselected[i] = false) {
+//					j = i +1;
+//					newspinnerarray.add(j.toString());
+//				}
+//				ArrayList<String> auxarray = new ArrayList<String>();
+//				ArrayAdapter<String> auxarrayadapter;
+//				for (int i = 0; i < totalanswers + 1 ; ++i){
+//					auxarray.add(aux);
+//					auxarray.addAll(newspinnerarray);
+//					spinnerarray[i] = new ArrayList<String>();
+//					spinnerarray[i] = auxarray;
+////					auxarrayadapter = new ArrayAdapter(rootView.getContext(), android.R.layout.simple_spinner_dropdown_item, auxarray);
+////					answerspinners[i] = new Spinner(rootView.getContext());
+////					spinnerarrayadapters[i] = auxarrayadapter;
+//					spinnerarrayadapters[i].notifyDataSetChanged();
+////					answerspinners[i].setAdapter(auxarrayadapter);	
+//				}
 			}
 
 			@Override
@@ -234,6 +267,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 			
 			// Creating spinner array of answers.
 			
+			originalspinnerarray.add("");
 			Integer j = 0;
 			for (int i = 0; i < totalanswers; ++i) {
 				j=i+1;
