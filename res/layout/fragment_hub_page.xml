@@ -41,7 +41,7 @@
             android:layout_weight="1"
             android:contentDescription="@string/start_survey_button_desc"
             android:padding="5dp"
-            android:src="@drawable/ft_surv" />
+            android:src="@drawable/survey" />
 
         <ImageView
             android:id="@+id/statsButton"
@@ -51,7 +51,7 @@
             android:layout_weight="1"
             android:contentDescription="@string/stats_button_desc"
             android:padding="5dp"
-            android:src="@drawable/ft_prof" />
+            android:src="@drawable/stats" />
     </LinearLayout>
 
     <LinearLayout
@@ -76,7 +76,7 @@
                 android:layout_weight="1"
                 android:contentDescription="@string/more_men_button_desc"
                 android:padding="10dp"
-                android:src="@drawable/ft_arrow_blu_up" />
+                android:src="@drawable/up_arrow_blue" />
 
             <TextView
                 android:id="@+id/maleCount"
@@ -94,7 +94,7 @@
                 android:layout_weight="1"
                 android:contentDescription="@string/fewer_men_button_desc"
                 android:padding="10dp"
-                android:src="@drawable/ft_arrow_blu_dn" />
+                android:src="@drawable/down_arrow_blue" />
         </LinearLayout>
 
         <LinearLayout
@@ -179,7 +179,7 @@
                 android:layout_weight="1"
                 android:contentDescription="@string/more_women_button_desc"
                 android:padding="10dp"
-                android:src="@drawable/ft_arrow_pnk_up" />
+                android:src="@drawable/up_arrow_pink" />
 
             <TextView
                 android:id="@+id/femaleCount"
@@ -197,7 +197,7 @@
                 android:layout_weight="1"
                 android:contentDescription="@string/fewer_women_button_desc"
                 android:padding="10dp"
-                android:src="@drawable/ft_arrow_pnk_dn" />
+                android:src="@drawable/down_arrow_pink" />
         </LinearLayout>
     </LinearLayout>
 
