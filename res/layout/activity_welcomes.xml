@@ -80,7 +80,7 @@
                 android:layout_gravity="center"
                 android:contentDescription="@string/urban_launchpad_desc"
                 android:padding="0dp"
-                android:src="@drawable/urban_launchpad" />
+                android:src="@drawable/urban_launchpad_mx" />
         </FrameLayout>
     </LinearLayout>
 
