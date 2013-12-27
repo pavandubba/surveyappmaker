@@ -13,7 +13,7 @@
         android:layout_weight="1"
         android:contentDescription="@string/previous_question_desc"
         android:padding="5dp"
-        android:src="@drawable/prev" >
+        android:src="@drawable/left_arrow" >
     </ImageView>
     
         <ImageView
@@ -24,7 +24,7 @@
         android:layout_weight="1"
         android:contentDescription="@string/submit_question_desc"
         android:padding="5dp"
-        android:src="@drawable/submit" >
+        android:src="@drawable/submit_button" >
     </ImageView>
 
     <ImageView
@@ -35,7 +35,7 @@
         android:layout_weight="1"
         android:contentDescription="@string/next_question_desc"
         android:padding="5dp"
-        android:src="@drawable/next" >
+        android:src="@drawable/right_arrow" >
     </ImageView>
 
 
