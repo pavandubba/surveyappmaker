@@ -1,5 +1,7 @@
 package org.urbanlaunchpad.flocktracker;
 
+import java.util.ArrayList;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,10 +20,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.inputmethod.EditorInfo;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -60,6 +66,11 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 	private String loopLimitString = null;
 	private ImageView[] answerImages;
 	private ImageView otherImage;
+	private Spinner[] answerspinners;
+	ArrayList<String>[] spinnerarray;
+	ArrayList<String> originalspinnerarray;
+	ArrayAdapter<String>[] spinnerarrayadapters;
+	OnItemSelectedListener OrderedListListener;
 
 	public Question_fragment() {
 		// Empty constructor required for fragment subclasses
@@ -164,6 +175,8 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 				OpenLayout();
 				// Obtaining lmits of the Loop.
 				loopLimitString = getLimit(jquestion);
+			} else if (questionkind.equals("OL")){
+				OrderedListLayout();
 			}
 
 			TextView questionview = (TextView) rootView
@@ -185,6 +198,109 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 		super.onResume();
 	}
 
+	public void OrderedListLayout(){
+		
+		OrderedListListener = new OnItemSelectedListener() {
+
+			@Override
+			public void onItemSelected(AdapterView<?> arg0, View arg1,
+					int arg2, long arg3) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		};
+		
+		
+		JSONObject aux;
+		
+		try {
+			janswerlist = jquestion.getJSONArray("Answers");
+			totalanswers = janswerlist.length();
+			answerlist = new String[totalanswers];
+			tvanswerlist = new TextView[totalanswers];
+			tvansweridlist = new Integer[totalanswers];
+			answerinsert = new LinearLayout[totalanswers];
+			answerspinners = new Spinner[totalanswers];
+			spinnerarray = new ArrayList[totalanswers];
+			spinnerarrayadapters = new ArrayAdapter[totalanswers];
+			originalspinnerarray = new ArrayList<String>();
+			
+			// Creating spinner array of answers.
+			
+			Integer j = 0;
+			for (int i = 0; i < totalanswers; ++i) {
+				j=i+1;
+				originalspinnerarray.add(j.toString());
+			}
+			
+			for (int i = 0; i < totalanswers; ++i) {
+				aux = janswerlist.getJSONObject(i);
+				answerlist[i] = aux.getString("Answer");
+				tvanswerlist[i] = new TextView(rootView.getContext());
+
+				LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+						LayoutParams.WRAP_CONTENT, 60);
+				layoutParams.gravity = Gravity.CENTER_VERTICAL;
+
+				// Answer text
+				tvanswerlist[i].setText(answerlist[i]);
+				tvanswerlist[i].setTextColor(getResources().getColor(
+						R.color.text_color_light));
+				tvanswerlist[i].setTextSize(20);
+				tvanswerlist[i].setPadding(10, 10, 10, 10);
+				tvanswerlist[i].setTypeface(Typeface.create("sans-serif-light",
+						Typeface.NORMAL));
+				LinearLayout.LayoutParams layoutParamsText = new LinearLayout.LayoutParams(
+						LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+				layoutParamsText.gravity = Gravity.CENTER_VERTICAL;
+				tvanswerlist[i].setLayoutParams(layoutParamsText);
+				
+				// Spinner
+				
+				spinnerarray[i] = originalspinnerarray;
+				spinnerarrayadapters[i] = new ArrayAdapter(rootView.getContext(), android.R.layout.simple_spinner_dropdown_item, spinnerarray[i]);
+				answerspinners[i] = new Spinner(rootView.getContext());
+				answerspinners[i].setAdapter(spinnerarrayadapters[i]);
+
+				// Add both to a linear layout
+				answerinsert[i] = new LinearLayout(rootView.getContext());
+				answerinsert[i].setWeightSum(4);
+				LinearLayout.LayoutParams layoutParamsParent = new LinearLayout.LayoutParams(
+						LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+				answerinsert[i].setLayoutParams(layoutParamsParent);
+				answerinsert[i].setPadding(10, 10, 10, 10);
+				answerinsert[i].addView(answerspinners[i]);
+				answerinsert[i].addView(tvanswerlist[i]);			
+
+				// add this linear layout to the parent viewgroup
+				answerlayout.addView(answerinsert[i]);
+				tvansweridlist[i] = i; // Not sure if this is going to have
+										// conflicts with other view ids...
+				// tvansweridlist[i] = findId(); // This method was to generate
+				// valid View ids that were not used by any other View, but it's
+				// not
+				// working.
+				tvanswerlist[i].setId(tvansweridlist[i]);
+				answerinsert[i].setId(tvansweridlist[i]);
+				answerspinners[i].setOnItemSelectedListener(OrderedListListener);
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+			totalanswers = 0;
+			toast = Toast.makeText(getActivity(),
+					"Poblems with question parsing, please check surve file.",
+					Toast.LENGTH_SHORT);
+			toast.show();
+		}
+	}
+	
 	public void MultipleChoiceLayout() {
 		JSONObject aux;
 		try {
@@ -217,8 +333,6 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 						R.color.text_color_light));
 				tvanswerlist[i].setTextSize(20);
 				tvanswerlist[i].setPadding(10, 10, 10, 10);
-				tvanswerlist[i].setTypeface(Typeface.create("sans-serif-light",
-						Typeface.NORMAL));
 				tvanswerlist[i].setTypeface(Typeface.create("sans-serif-light",
 						Typeface.NORMAL));
 				LinearLayout.LayoutParams layoutParamsText = new LinearLayout.LayoutParams(
