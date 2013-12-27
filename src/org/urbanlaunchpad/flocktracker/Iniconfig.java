@@ -47,7 +47,7 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 	JSONObject jsurv = null;
 	private String username = "";
 	AlertDialog.Builder alert;
-	private boolean debison = true; // If true, a test project will be loaded
+	private boolean debison = false; // If true, a test project will be loaded
 									// by default.
 	public static GoogleAccountCredential credential;
 	public static Fusiontables fusiontables;

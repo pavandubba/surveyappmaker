@@ -55,12 +55,12 @@ public class SurveyHelper {
 		getTableID();
 
 		// Checking existence of columns in the Fusion Tables.
-//		new Thread(new Runnable() {
-//			public void run() {
-//				columnCheck(SURVEY_TABLE_ID, SurveyType.SURVEY);
-//				columnCheck(TRIP_TABLE_ID, SurveyType.TRACKER);
-//			}
-//		}).start();
+		new Thread(new Runnable() {
+			public void run() {
+				columnCheck(SURVEY_TABLE_ID, SurveyType.SURVEY);
+				columnCheck(TRIP_TABLE_ID, SurveyType.TRACKER);
+			}
+		}).start();
 
 		parseChapters();
 		parseTrackingQuestions();
@@ -167,23 +167,23 @@ public class SurveyHelper {
 
 	public void submitLocation(Location currentLocation, String tripID)
 			throws ClientProtocolException, IOException {
-//		String columnnamesString = getnames("id", "nq", "Trip");
-//		String answerfinalString = getnames("Answer", "wq", "Trip");
-//
-//		String latlng = LocationHelper.getLatLngAlt(currentLocation);
-//		String dateString = (String) android.text.format.DateFormat.format(
-//				"yyyy-MM-dd hh:mm:ss", new java.util.Date());
-//		String query = "INSERT INTO " + TRIP_TABLE_ID + " ("
-//				+ columnnamesString
-//				+ ",Location,Lat,Lng,Alt,Date,TripID,Username) VALUES ("
-//				+ answerfinalString + ",'<Point><coordinates>" + latlng
-//				+ "</coordinates></Point>','" + currentLocation.getLatitude()
-//				+ "','" + currentLocation.getLongitude() + "','"
-//				+ currentLocation.getAltitude() + "','" + dateString + "','"
-//				+ tripID + "','" + username + "');";
-//		Sql sql = Iniconfig.fusiontables.query().sql(query);
-//		sql.setKey(Iniconfig.API_KEY);
-//		sql.execute();
+		String columnnamesString = getnames("id", "nq", "Trip");
+		String answerfinalString = getnames("Answer", "wq", "Trip");
+
+		String latlng = LocationHelper.getLatLngAlt(currentLocation);
+		String dateString = (String) android.text.format.DateFormat.format(
+				"yyyy-MM-dd hh:mm:ss", new java.util.Date());
+		String query = "INSERT INTO " + TRIP_TABLE_ID + " ("
+				+ columnnamesString
+				+ ",Location,Lat,Lng,Alt,Date,TripID,Username) VALUES ("
+				+ answerfinalString + ",'<Point><coordinates>" + latlng
+				+ "</coordinates></Point>','" + currentLocation.getLatitude()
+				+ "','" + currentLocation.getLongitude() + "','"
+				+ currentLocation.getAltitude() + "','" + dateString + "','"
+				+ tripID + "','" + username + "');";
+		Sql sql = Iniconfig.fusiontables.query().sql(query);
+		sql.setKey(Iniconfig.API_KEY);
+		sql.execute();
 	}
 
 	/*
