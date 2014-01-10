@@ -91,7 +91,9 @@ public class GoogleDriveHelper {
 							.execute();
 					
 					// Notify that we have captured an image					
-					activity.AnswerRecieve(file.getWebContentLink(), jumpString);
+					activity.AnswerRecieve(file.getWebContentLink(), jumpString, null);
+					
+					// TODO: show place with picture
 					jumpString = null;
 
 					if (file != null) {

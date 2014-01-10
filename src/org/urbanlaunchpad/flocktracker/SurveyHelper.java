@@ -1,6 +1,8 @@
 package org.urbanlaunchpad.flocktracker;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.apache.http.client.ClientProtocolException;
 import org.json.JSONArray;
@@ -9,7 +11,6 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.location.Location;
-import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -27,6 +28,9 @@ public class SurveyHelper {
 	private JSONObject jsurv = null;
 	private JSONArray jchapterlist;
 	private JSONArray jtrackerquestions;
+	// Need to store our answer indices for each question in each chapter
+	// Hash a tuple
+	public static HashMap<Tuple<Integer>, ArrayList<Integer>> selectedAnswersMap = new HashMap<Tuple<Integer>, ArrayList<Integer>>();
 	private String[] ChapterTitles;
 	private Integer[] chapterQuestionCounts;
 
@@ -324,7 +328,7 @@ public class SurveyHelper {
 		for (int i = 0; i < output.length; i++) {
 			output[i] = columnList.getItems().get(i).getName();
 		}
-		
+
 		Log.v("Number of columns", "" + output.length);
 		return output;
 	}
@@ -424,13 +428,17 @@ public class SurveyHelper {
 	 * Survey Update Functions
 	 */
 
-	public void answerCurrentQuestion(String answer) {
+	public void answerCurrentQuestion(String answer,
+			ArrayList<Integer> selectedAnswers) {
 		try {
-			if (chapterPosition >= 0)
+			if (chapterPosition >= 0) {
 				jsurv.getJSONObject("Survey").getJSONArray("Chapters")
 						.getJSONObject(chapterPosition)
-						.getJSONArray("Questions").getJSONObject(questionPosition)
-						.put("Answer", answer);
+						.getJSONArray("Questions")
+						.getJSONObject(questionPosition).put("Answer", answer);
+				Tuple<Integer> key = new Tuple<Integer>(chapterPosition, questionPosition);
+				selectedAnswersMap.put(key, selectedAnswers);
+			}
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -444,15 +452,14 @@ public class SurveyHelper {
 			e.printStackTrace();
 		}
 	}
-	
-	public void answerCurrentTrackerLoopQuestion(String answer){
-		
+
+	public void answerCurrentTrackerLoopQuestion(String answer) {
+
 	}
-	
-	public void answerCurrentLoopQuestion(String answer){
-		
+
+	public void answerCurrentLoopQuestion(String answer) {
+
 	}
-	
 
 	public void resetSurvey() {
 		for (int i = 0; i < jchapterlist.length(); ++i) {
@@ -524,7 +531,7 @@ public class SurveyHelper {
 			return NextQuestionResult.JUMPSTRING;
 		}
 	}
-	
+
 	public Integer[] findIDPosition(String iDtoFind) {
 		// Searches for a question with the same id as the jumpString value
 		Integer position[] = new Integer[2];
@@ -536,8 +543,8 @@ public class SurveyHelper {
 							.getJSONArray("Questions").getJSONObject(j)
 							.getString("id");
 					if (iDtoFind.equals(questionID)) {
-						position[0]= i;
-						position[1]= j;
+						position[0] = i;
+						position[1] = j;
 						return position;
 					}
 				} catch (JSONException e) {
@@ -593,11 +600,39 @@ public class SurveyHelper {
 				loopStartPosition[0] = chapterPosition + 1;
 				loopStartPosition[1] = 0;
 			}
-		} else{
+		} else {
 			loopStartPosition[0] = chapterPosition;
-			loopStartPosition[1] = questionPosition +1;
-			
+			loopStartPosition[1] = questionPosition + 1;
+
 		}
-		
+
+	}
+
+	public static class Tuple<Integer> {
+
+		public final Integer left;
+		public final Integer right;
+
+		public Tuple(Integer left, Integer right) {
+			this.left = left;
+			this.right = right;
+		}
+
+		@Override
+		public int hashCode() {
+			return left.hashCode() ^ right.hashCode();
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (o == null)
+				return false;
+			if (!(o instanceof Tuple))
+				return false;
+			Tuple<Integer> tuple = (Tuple<Integer>) o;
+			return this.left.equals(tuple.left)
+					&& this.right.equals(tuple.right);
+		}
+
 	}
 }

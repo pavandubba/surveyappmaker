@@ -1,6 +1,7 @@
 package org.urbanlaunchpad.flocktracker;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
@@ -760,13 +761,13 @@ public class Surveyor extends Activity implements
 	 */
 
 	public void AnswerRecieve(String answerStringReceive,
-			String jumpStringReceive) {
+			String jumpStringReceive, ArrayList<Integer> selectedAnswers) {
 		//TODO: fix loop stuff
 		inLoop = false;
 		
 		if ((answerStringReceive != null) && (inLoop == false)) {
 			if (!askingTripQuestions) {
-				surveyHelper.answerCurrentQuestion(answerStringReceive);
+				surveyHelper.answerCurrentQuestion(answerStringReceive, selectedAnswers);
 			} else {
 				surveyHelper.answerCurrentTrackerQuestion(answerStringReceive);
 			}
