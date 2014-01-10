@@ -536,8 +536,8 @@ public class SurveyHelper {
 							.getJSONArray("Questions").getJSONObject(j)
 							.getString("id");
 					if (iDtoFind.equals(questionID)) {
-						position[0]= i+1;
-						position[1]=j;
+						position[0]= i;
+						position[1]= j;
 						return position;
 					}
 				} catch (JSONException e) {
