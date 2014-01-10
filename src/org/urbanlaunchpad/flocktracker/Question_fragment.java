@@ -175,9 +175,25 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 								questionposition));
 				if (selectedAnswers != null) {
 					for (Integer id : selectedAnswers) {
-						TextView textView = tvanswerlist[id];
-						MultipleChoiceOnClick((LinearLayout) textView
-								.getParent());
+						if (id == -1) {
+							try {
+								otherET.setText(jquestion.getString("Answer"));
+								otherET.setTextColor(getResources().getColor(
+										R.color.answer_selected));
+								answerString = (String) otherET.getText().toString();
+								selectedAnswers = new ArrayList<Integer>();
+								selectedAnswers.add(-1);
+								Callback.AnswerRecieve(answerString, jumpString,
+										selectedAnswers);
+							} catch (JSONException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						} else {
+							TextView textView = tvanswerlist[id];
+							MultipleChoiceOnClick((LinearLayout) textView
+									.getParent());
+						}
 					}
 				}
 			} else if (questionkind.equals("OT") || questionkind.equals("ON")) {
@@ -590,12 +606,6 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 
 	}
 
-	// TODO
-	// We want to take the id and also save it in the json
-	// Extract it on the createview and click the id.
-	// Also must check the other. If we have the id set to -1, then it's other.
-	// Prepopulate other with our text
-	// and select it
 	public void MultipleChoiceOnClick(View view) {
 		if (view instanceof LinearLayout) {
 			boolean foundAnswer = false;
@@ -643,9 +653,6 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 		}
 	}
 
-	// TODO
-	// We want to take the ids and also save it in the json
-	// Extract it on the createview and click the views.
 	private void CheckBoxOnClick(View view) {
 		answerString = null;
 		selectedAnswers = new ArrayList<Integer>();
