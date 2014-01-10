@@ -91,10 +91,9 @@ public class SurveyHelper {
 		try {
 			jchapterlist = jsurv.getJSONObject("Survey").getJSONArray(
 					"Chapters");
-			ChapterTitles = new String[1 + jchapterlist.length()];
-			ChapterTitles[0] = "Hub Page";
-			for (int i = 1; i <= jchapterlist.length(); ++i) {
-				ChapterTitles[i] = jchapterlist.getJSONObject(i - 1).getString(
+			ChapterTitles = new String[jchapterlist.length()];
+			for (int i = 0; i < jchapterlist.length(); ++i) {
+				ChapterTitles[i] = jchapterlist.getJSONObject(i).getString(
 						"Chapter");
 			}
 		} catch (JSONException e) {
@@ -429,7 +428,7 @@ public class SurveyHelper {
 		try {
 			if (chapterPosition >= 0)
 				jsurv.getJSONObject("Survey").getJSONArray("Chapters")
-						.getJSONObject(chapterPosition - 1)
+						.getJSONObject(chapterPosition)
 						.getJSONArray("Questions").getJSONObject(questionPosition)
 						.put("Answer", answer);
 		} catch (JSONException e) {
@@ -502,8 +501,8 @@ public class SurveyHelper {
 			}
 		} else {
 			questionPosition++;
-			if (questionPosition == chapterQuestionCounts[chapterPosition - 1]) {
-				if (chapterPosition == jchapterlist.length()) {
+			if (questionPosition == chapterQuestionCounts[chapterPosition]) {
+				if (chapterPosition == jchapterlist.length() - 1) {
 					questionPosition--;
 					return NextQuestionResult.END;
 				} else {
@@ -567,7 +566,7 @@ public class SurveyHelper {
 
 	public JSONObject getCurrentQuestion() throws JSONException {
 		return jsurv.getJSONObject("Survey").getJSONArray("Chapters")
-				.getJSONObject(chapterPosition - 1).getJSONArray("Questions")
+				.getJSONObject(chapterPosition).getJSONArray("Questions")
 				.getJSONObject(questionPosition);
 	}
 
@@ -585,8 +584,8 @@ public class SurveyHelper {
 
 	public void setLoopLimits(String loopend) {
 		loopEndPosition = findIDPosition(loopend);
-		if (questionPosition +1 == chapterQuestionCounts[chapterPosition - 1]) {
-			if (chapterPosition == jchapterlist.length()) {
+		if (questionPosition + 1 == chapterQuestionCounts[chapterPosition]) {
+			if (chapterPosition == jchapterlist.length() - 1) {
 				Toast.makeText(context,
 						"Loop at the end of a survey will not work",
 						Toast.LENGTH_SHORT).show();

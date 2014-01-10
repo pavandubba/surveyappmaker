@@ -5,8 +5,6 @@
     android:layout_height="match_parent"
     android:background="@color/blue_background" >
 
-
-
     <LinearLayout
         android:id="@+id/surveyor_all"
         android:layout_width="match_parent"
@@ -19,24 +17,78 @@
             android:layout_height="0dip"
             android:layout_weight="5" >
         </FrameLayout>
-		
+
         <fragment
             android:id="@+id/survey_question_navigator_fragment"
             android:name="org.urbanlaunchpad.flocktracker.Question_navigator_fragment"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            tools:layout="@layout/fragment_question_buttons"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            tools:layout="@layout/fragment_question_buttons" />
     </LinearLayout>
 
-    <ListView
-        android:id="@+id/chapter_drawer"
+    <LinearLayout
+        android:id="@+id/drawer"
         android:layout_width="240dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:background="@color/blue_drawer"
-        android:choiceMode="singleChoice"
-        android:divider="@color/text_color_light"
-        android:dividerHeight="1dp" />
+        android:orientation="vertical" >
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/blue_drawer"
+            android:paddingLeft="16dp"
+            android:paddingTop="15dp"
+            android:text="NAVIGATION"
+            android:textColor="#fff"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="2px"
+            android:background="@color/text_color_light" />
+
+        <ListView
+            android:id="@+id/fixed_navigation"
+            android:layout_width="240dp"
+            android:layout_height="wrap_content"
+            android:background="@color/blue_drawer"
+            android:choiceMode="singleChoice"
+            android:divider="@color/grey_divider"
+            android:dividerHeight=".5px" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/blue_drawer"
+            android:paddingLeft="16dp"
+            android:paddingTop="25dp"
+            android:text="SURVEY"
+            android:textColor="#fff"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="2px"
+            android:background="@color/text_color_light" />
+
+        <ListView
+            android:id="@+id/chapter_drawer"
+            android:layout_width="240dp"
+            android:layout_height="wrap_content"
+            android:background="@color/blue_drawer"
+            android:choiceMode="singleChoice"
+            android:divider="@color/grey_divider"
+            android:dividerHeight=".5px" />
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@color/blue_drawer" />
+    </LinearLayout>
 
 </android.support.v4.widget.DrawerLayout>

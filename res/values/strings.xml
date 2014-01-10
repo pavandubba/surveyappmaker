@@ -71,6 +71,7 @@
     <color name="blue_drawer">#364154</color>
     <color name="blue_men">#27AAE1</color>
     <color name="pink_women">#EC008C</color>
+    <color name="grey_divider">#E8E8EE</color>
 
     <string name="couhes_esp">He tomado el curso de formación COUHES y me comprometo a cumplir con los mérodos y políticas que ahí se enuncian.</string>
     <string name="couhes_eng">I have taken the COUHES training course and agree to abide by the methods and policies set forth therein.</string>
