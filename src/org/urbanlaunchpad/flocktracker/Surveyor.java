@@ -122,6 +122,8 @@ public class Surveyor extends Activity implements
 				TextView totalCount = (TextView) findViewById(R.id.totalPersonCount);
 				totalCount.setText("" + (maleCount + femaleCount));
 			} else if (msg.what == EVENT_TYPE.UPDATE_HUB_PAGE.ordinal()) {
+				askingTripQuestions = false;
+				
 				// hide navigation buttons
 				FragmentManager fragmentManager = getFragmentManager();
 
@@ -735,7 +737,10 @@ public class Surveyor extends Activity implements
 							.show();
 					askingTripQuestions = false;
 					showHubPage();
+					startLocation = mLocationClient.getLastLocation();
+					startTripTime = Calendar.getInstance();
 					startTrip();
+					startTracker();
 					break;
 				}
 			} else {
@@ -848,11 +853,6 @@ public class Surveyor extends Activity implements
 				totalDistanceBefore += tripDistance;
 				tripDistance = 0;
 			} else {
-				startLocation = mLocationClient.getLastLocation();
-				startTripTime = Calendar.getInstance();
-				startTrip();
-				startTracker();
-
 				askingTripQuestions = true;
 
 				// Starting question fragment and passing json question
