@@ -549,7 +549,9 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 					| InputType.TYPE_NUMBER_FLAG_DECIMAL);
 		}
 		openET.setSingleLine();
+		openET.setTextSize(20);
 		openET.setTextColor(getResources().getColor(R.color.text_color_light));
+		openET.setBackgroundResource(R.drawable.edit_text);
 		answerlayout.addView(openET);
 		openET.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 			@Override
