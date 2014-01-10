@@ -9,6 +9,7 @@ import org.urbanlaunchpad.flocktracker.SurveyHelper.Tuple;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.InputType;
@@ -19,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
@@ -441,7 +443,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 			otherImage = new ImageView(rootView.getContext());
 			otherImage.setImageResource(R.drawable.ft_cir_gry);
 			otherImage.setAdjustViewBounds(true);
-			otherImage.setPadding(0, 0, 20, 0);
+			otherImage.setPadding(0, 0, 30, 0);
 
 			LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
 					LayoutParams.WRAP_CONTENT, 60);
@@ -642,6 +644,11 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 			}
 
 			if (!foundAnswer) {
+				// focus ET
+				otherET.requestFocusFromTouch();
+				InputMethodManager lManager = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE); 
+		        lManager.showSoftInput(otherET, 0);
+		        
 				otherET.setTextColor(getResources().getColor(
 						R.color.answer_selected));
 				answerString = (String) otherET.getText().toString();
