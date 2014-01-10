@@ -78,6 +78,7 @@ public class Surveyor extends Activity implements
 	private int ridesCompleted = 0;
 	private int surveysCompleted = 0;
 	private Location startLocation;
+	private List<Address> addresses;
 	private Activity thisActivity;
 	private Boolean askingTripQuestions = false;
 	private Boolean inLoop = false;
@@ -182,17 +183,21 @@ public class Surveyor extends Activity implements
 					}
 
 					// Get address
-					Geocoder geocoder = new Geocoder(thisActivity,
-							Locale.getDefault());
-					Location current = mLocationClient.getLastLocation();
-					List<Address> addresses = null;
-					try {
-						addresses = geocoder.getFromLocation(
-								current.getLatitude(), current.getLongitude(),
-								1);
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
+					new Thread(new Runnable() {
+						public void run() {
+							try {
+								Geocoder geocoder = new Geocoder(thisActivity,
+										Locale.getDefault());
+								Location current = mLocationClient
+										.getLastLocation();
+								addresses = geocoder.getFromLocation(
+										current.getLatitude(),
+										current.getLongitude(), 1);
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
+						}
+					}).start();
 
 					int distanceBeforeDecimal = (int) (tripDistance / 1000.0);
 					int distanceAfterDecimal = (int) Math
@@ -220,12 +225,12 @@ public class Surveyor extends Activity implements
 						 * city, and country name.
 						 */
 						String addressText = String.format(
-								"%s, %s, %s",
+								"%s%s%s",
 								// If there's a street address, add it
 								address.getMaxAddressLineIndex() > 0 ? address
-										.getAddressLine(0) : "",
+										.getAddressLine(0) + ", " : "",
 								// Locality is usually a city
-								address.getLocality(),
+								address.getLocality() != null ? address.getLocality() + ", " : "",
 								// The country of the address
 								address.getCountryName());
 						currentAddressText.setText(addressText);
@@ -312,6 +317,23 @@ public class Surveyor extends Activity implements
 		// location tracking
 		Tracker.surveyor = this;
 		mLocationClient.connect();
+
+		// Load statistics from previous run-through
+		totalDistanceBefore = Iniconfig.prefs.getFloat("tripDistanceBefore", 0);
+		ridesCompleted = Iniconfig.prefs.getInt("ridesCompleted", 0);
+		surveysCompleted = Iniconfig.prefs.getInt("surveysCompleted", 0);
+	}
+
+	@Override
+	protected void onPause() {
+		Iniconfig.prefs.edit().putInt("ridesCompleted", ridesCompleted)
+				.commit();
+		Iniconfig.prefs.edit().putInt("surveysCompleted", surveysCompleted)
+				.commit();
+		Iniconfig.prefs.edit()
+				.putFloat("totalDistanceBefore", (float) totalDistanceBefore)
+				.commit();
+		super.onPause();
 	}
 
 	@Override
@@ -567,8 +589,6 @@ public class Surveyor extends Activity implements
 		ChapterDrawerList.setItemChecked(-1, true);
 		setTitle(STATISTICS_PAGE_TITLE);
 		ChapterDrawerLayout.closeDrawer(drawer);
-
-		messageHandler.sendEmptyMessage(EVENT_TYPE.UPDATE_STATS_PAGE.ordinal());
 	}
 
 	private void showCurrentQuestion() {
