@@ -59,7 +59,7 @@
 
 								
     <color name="text_bkgrd">#E6E6E6</color>
-    <color name="text_color_light">#FFFFFF</color>
+    <color name="text_color_light">#F2F2F2</color>
     <color name="text_color_dark">#1F1F1F</color>
     <color name="ulp_bkgrd">#FFFFFF</color>
     <color name="menu_green_a">#A6BA0F</color>
@@ -71,6 +71,7 @@
     <color name="blue_drawer">#364154</color>
     <color name="blue_men">#27AAE1</color>
     <color name="pink_women">#EC008C</color>
+    <color name="grey_divider">#4c5667</color>
 
     <string name="couhes_esp">He tomado el curso de formación COUHES y me comprometo a cumplir con los mérodos y políticas que ahí se enuncian.</string>
     <string name="couhes_eng">I have taken the COUHES training course and agree to abide by the methods and policies set forth therein.</string>

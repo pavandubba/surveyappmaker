@@ -1,6 +1,7 @@
 package org.urbanlaunchpad.flocktracker;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
@@ -39,6 +40,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -54,7 +56,9 @@ public class Surveyor extends Activity implements
 		GooglePlayServicesClient.ConnectionCallbacks,
 		GooglePlayServicesClient.OnConnectionFailedListener {
 	private DrawerLayout ChapterDrawerLayout;
+	private ListView FixedNavigationList;
 	private ListView ChapterDrawerList;
+	private LinearLayout drawer;
 	private ActionBarDrawerToggle ChapterDrawerToggle;
 
 	private CharSequence ChapterDrawerTitle;
@@ -75,6 +79,7 @@ public class Surveyor extends Activity implements
 	private int ridesCompleted = 0;
 	private int surveysCompleted = 0;
 	private Location startLocation;
+	private List<Address> addresses;
 	private Activity thisActivity;
 	private Boolean askingTripQuestions = false;
 	private Boolean inLoop = false;
@@ -83,6 +88,8 @@ public class Surveyor extends Activity implements
 	private SurveyHelper surveyHelper;
 	public static GoogleDriveHelper driveHelper;
 	static final Integer TRACKER_INTERVAL = 5000;
+	static final String HUB_PAGE_TITLE = "Hub Page";
+	static final String STATISTICS_PAGE_TITLE = "Statistics";
 
 	private enum EVENT_TYPE {
 		MALE_UPDATE, FEMALE_UPDATE, UPDATE_STATS_PAGE, UPDATE_HUB_PAGE, SHOW_NAV_BUTTONS
@@ -115,6 +122,8 @@ public class Surveyor extends Activity implements
 				TextView totalCount = (TextView) findViewById(R.id.totalPersonCount);
 				totalCount.setText("" + (maleCount + femaleCount));
 			} else if (msg.what == EVENT_TYPE.UPDATE_HUB_PAGE.ordinal()) {
+				askingTripQuestions = false;
+				
 				// hide navigation buttons
 				FragmentManager fragmentManager = getFragmentManager();
 
@@ -122,11 +131,6 @@ public class Surveyor extends Activity implements
 						.beginTransaction();
 				transactionHide.hide(navButtons);
 				transactionHide.commit();
-
-				// update selected item and title, then close the drawer.
-				ChapterDrawerList.setItemChecked(0, true);
-				setTitle(surveyHelper.getChapterTitles()[0]);
-				ChapterDrawerLayout.closeDrawer(ChapterDrawerList);
 
 				// update male count
 				TextView maleCountView = (TextView) findViewById(R.id.maleCount);
@@ -182,20 +186,25 @@ public class Surveyor extends Activity implements
 					}
 
 					// Get address
-					Geocoder geocoder = new Geocoder(thisActivity,
-							Locale.getDefault());
-					Location current = mLocationClient.getLastLocation();
-					List<Address> addresses = null;
-					try {
-						addresses = geocoder.getFromLocation(
-								current.getLatitude(), current.getLongitude(),
-								1);
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
+					new Thread(new Runnable() {
+						public void run() {
+							try {
+								Geocoder geocoder = new Geocoder(thisActivity,
+										Locale.getDefault());
+								Location current = mLocationClient
+										.getLastLocation();
+								addresses = geocoder.getFromLocation(
+										current.getLatitude(),
+										current.getLongitude(), 1);
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
+						}
+					}).start();
 
 					int distanceBeforeDecimal = (int) (tripDistance / 1000.0);
-					int distanceAfterDecimal =   (int) Math.round(100 * (tripDistance / 1000.0 - distanceBeforeDecimal));
+					int distanceAfterDecimal = (int) Math
+							.round(100 * (tripDistance / 1000.0 - distanceBeforeDecimal));
 
 					// Update our views
 					ridesCompletedText.setText("" + ridesCompleted);
@@ -203,8 +212,11 @@ public class Surveyor extends Activity implements
 							+ String.format("%02d", distanceBeforeDecimal)
 							+ "</b>" + "."
 							+ String.format("%02d", distanceAfterDecimal)));
-					totalDistanceText.setText(""
-							+ String.format("%.2f", (totalDistanceBefore + tripDistance) / 1000.0));
+					totalDistanceText
+							.setText(""
+									+ String.format(
+											"%.2f",
+											(totalDistanceBefore + tripDistance) / 1000.0));
 					surveysCompletedText.setText("" + surveysCompleted);
 					usernameText.setText("Hi " + username + "!");
 
@@ -216,12 +228,12 @@ public class Surveyor extends Activity implements
 						 * city, and country name.
 						 */
 						String addressText = String.format(
-								"%s, %s, %s",
+								"%s%s%s",
 								// If there's a street address, add it
 								address.getMaxAddressLineIndex() > 0 ? address
-										.getAddressLine(0) : "",
+										.getAddressLine(0) + ", " : "",
 								// Locality is usually a city
-								address.getLocality(),
+								address.getLocality() != null ? address.getLocality() + ", " : "",
 								// The country of the address
 								address.getCountryName());
 						currentAddressText.setText(addressText);
@@ -255,12 +267,19 @@ public class Surveyor extends Activity implements
 		Title = ChapterDrawerTitle = getTitle();
 		ChapterDrawerLayout = (DrawerLayout) findViewById(R.id.chapter_drawer_layout);
 		ChapterDrawerList = (ListView) findViewById(R.id.chapter_drawer);
+		FixedNavigationList = (ListView) findViewById(R.id.fixed_navigation);
+		drawer = (LinearLayout) findViewById(R.id.drawer);
 
 		// set a custom shadow that overlays the main content when the drawer
 		// opens
 		ChapterDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow,
 				GravityCompat.START);
 		// set up the drawer's list view with items and click listener
+		FixedNavigationList.setAdapter((new ArrayAdapter<String>(this,
+				R.layout.chapter_drawer_list_item, new String[] {
+						HUB_PAGE_TITLE, STATISTICS_PAGE_TITLE })));
+		FixedNavigationList
+				.setOnItemClickListener(new FixedNavigationItemClickListener());
 		ChapterDrawerList.setAdapter(new ArrayAdapter<String>(this,
 				R.layout.chapter_drawer_list_item, surveyHelper
 						.getChapterTitles()));
@@ -301,6 +320,23 @@ public class Surveyor extends Activity implements
 		// location tracking
 		Tracker.surveyor = this;
 		mLocationClient.connect();
+
+		// Load statistics from previous run-through
+		totalDistanceBefore = Iniconfig.prefs.getFloat("tripDistanceBefore", 0);
+		ridesCompleted = Iniconfig.prefs.getInt("ridesCompleted", 0);
+		surveysCompleted = Iniconfig.prefs.getInt("surveysCompleted", 0);
+	}
+
+	@Override
+	protected void onPause() {
+		Iniconfig.prefs.edit().putInt("ridesCompleted", ridesCompleted)
+				.commit();
+		Iniconfig.prefs.edit().putInt("surveysCompleted", surveysCompleted)
+				.commit();
+		Iniconfig.prefs.edit()
+				.putFloat("totalDistanceBefore", (float) totalDistanceBefore)
+				.commit();
+		super.onPause();
 	}
 
 	@Override
@@ -487,22 +523,30 @@ public class Surveyor extends Activity implements
 		return true;
 	}
 
+	private class FixedNavigationItemClickListener implements
+			ListView.OnItemClickListener {
+		@Override
+		public void onItemClick(AdapterView<?> parent, View view, int position,
+				long id) {
+			if (position == 0) {
+				showHubPage();
+			} else {
+				showStatusPage();
+			}
+		}
+	}
+
 	private class DrawerItemClickListener implements
 			ListView.OnItemClickListener {
 		@Override
 		public void onItemClick(AdapterView<?> parent, View view, int position,
 				long id) {
 			surveyHelper.updateSurveyPosition(position, 0);
-
-			if (position == 0)
-				showHubPage();
-			else {
-				showingHubPage = false;
-				showingStatusPage = false;
-				messageHandler.sendEmptyMessage(EVENT_TYPE.SHOW_NAV_BUTTONS
-						.ordinal());
-				showCurrentQuestion();
-			}
+			showingHubPage = false;
+			showingStatusPage = false;
+			messageHandler.sendEmptyMessage(EVENT_TYPE.SHOW_NAV_BUTTONS
+					.ordinal());
+			showCurrentQuestion();
 		}
 	}
 
@@ -511,11 +555,6 @@ public class Surveyor extends Activity implements
 	 */
 
 	private void showHubPage() {
-		// update title
-		ChapterDrawerList.setItemChecked(0, true);
-		setTitle(surveyHelper.getChapterTitles()[0]);
-		ChapterDrawerLayout.closeDrawer(ChapterDrawerList);
-
 		// Update fragments
 		FragmentManager fragmentManager = getFragmentManager();
 		Fragment fragment = new Hub_page_fragment();
@@ -525,6 +564,12 @@ public class Surveyor extends Activity implements
 		transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
 		transaction.addToBackStack(null);
 		transaction.commit();
+
+		// update selected item and title, then close the drawer.
+		FixedNavigationList.setItemChecked(0, true);
+		ChapterDrawerList.setItemChecked(-1, true);
+		setTitle(HUB_PAGE_TITLE);
+		ChapterDrawerLayout.closeDrawer(drawer);
 
 		// update ui
 		messageHandler.sendEmptyMessage(EVENT_TYPE.UPDATE_HUB_PAGE.ordinal());
@@ -543,11 +588,10 @@ public class Surveyor extends Activity implements
 		transaction.commit();
 
 		// update selected item and title, then close the drawer.
-		ChapterDrawerList.setItemChecked(0, true);
-		setTitle(surveyHelper.getChapterTitles()[0]);
-		ChapterDrawerLayout.closeDrawer(ChapterDrawerList);
-
-		messageHandler.sendEmptyMessage(EVENT_TYPE.UPDATE_STATS_PAGE.ordinal());
+		FixedNavigationList.setItemChecked(1, true);
+		ChapterDrawerList.setItemChecked(-1, true);
+		setTitle(STATISTICS_PAGE_TITLE);
+		ChapterDrawerLayout.closeDrawer(drawer);
 	}
 
 	private void showCurrentQuestion() {
@@ -578,9 +622,10 @@ public class Surveyor extends Activity implements
 			questionPosition = surveyHelper.getQuestionPosition();
 
 			// update selected item and title, then close the drawer.
+			FixedNavigationList.setItemChecked(-1, true);
 			ChapterDrawerList.setItemChecked(chapterPosition, true);
 			setTitle(surveyHelper.getChapterTitles()[chapterPosition]);
-			ChapterDrawerLayout.closeDrawer(ChapterDrawerList);
+			ChapterDrawerLayout.closeDrawer(drawer);
 
 			// Get current question
 			try {
@@ -692,7 +737,10 @@ public class Surveyor extends Activity implements
 							.show();
 					askingTripQuestions = false;
 					showHubPage();
+					startLocation = mLocationClient.getLastLocation();
+					startTripTime = Calendar.getInstance();
 					startTrip();
+					startTracker();
 					break;
 				}
 			} else {
@@ -718,18 +766,22 @@ public class Surveyor extends Activity implements
 	 */
 
 	public void AnswerRecieve(String answerStringReceive,
-			String jumpStringReceive) {
-		if ((answerStringReceive != null) && (inLoop = false)) {
+			String jumpStringReceive, ArrayList<Integer> selectedAnswers) {
+		//TODO: fix loop stuff
+		inLoop = false;
+		
+		if ((answerStringReceive != null) && (inLoop == false)) {
 			if (!askingTripQuestions) {
-				surveyHelper.answerCurrentQuestion(answerStringReceive);
+				surveyHelper.answerCurrentQuestion(answerStringReceive, selectedAnswers);
 			} else {
 				surveyHelper.answerCurrentTrackerQuestion(answerStringReceive);
 			}
-		} else if ((answerStringReceive != null) && (inLoop = true)){
+		} else if ((answerStringReceive != null) && (inLoop = true)) {
 			if (!askingTripQuestions) {
 				surveyHelper.answerCurrentLoopQuestion(answerStringReceive);
 			} else {
-				surveyHelper.answerCurrentTrackerLoopQuestion(answerStringReceive);
+				surveyHelper
+						.answerCurrentTrackerLoopQuestion(answerStringReceive);
 			}
 		}
 
@@ -737,12 +789,12 @@ public class Surveyor extends Activity implements
 			surveyHelper.updateJumpString(jumpStringReceive);
 		}
 	}
-	
-	public void LoopReceive(String Loopend){
-			if (Loopend != null){
-				inLoop = true;
-				surveyHelper.setLoopLimits(Loopend);
-			}
+
+	public void LoopReceive(String Loopend) {
+		if (Loopend != null) {
+			inLoop = true;
+			surveyHelper.setLoopLimits(Loopend);
+		}
 	}
 
 	public void PositionRecieve(Integer chapterpositionrecieve,
@@ -801,11 +853,6 @@ public class Surveyor extends Activity implements
 				totalDistanceBefore += tripDistance;
 				tripDistance = 0;
 			} else {
-				startLocation = mLocationClient.getLastLocation();
-				startTripTime = Calendar.getInstance();
-				startTrip();
-				startTracker();
-
 				askingTripQuestions = true;
 
 				// Starting question fragment and passing json question
@@ -815,7 +862,7 @@ public class Surveyor extends Activity implements
 			}
 			break;
 		case NEWSURVEY:
-			surveyHelper.updateSurveyPosition(1, 0);
+			surveyHelper.updateSurveyPosition(0, 0);
 			showCurrentQuestion();
 			break;
 		case STATISTICS:

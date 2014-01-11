@@ -4,9 +4,10 @@ import java.util.ArrayList;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
+import org.urbanlaunchpad.flocktracker.SurveyHelper.Tuple;
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.InputType;
@@ -17,6 +18,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -38,8 +43,8 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 	private String questionstring = "No questions on chapter";
 	private Integer totalanswers;
 	private TextView[] tvanswerlist = null;
-	private Integer[] tvansweridlist = null;
 	private String answerString;
+	private ArrayList<Integer> selectedAnswers = new ArrayList<Integer>();
 	private String jumpString = null;
 	private String answerjumpString = null;
 	private ViewGroup answerlayout;
@@ -74,8 +79,13 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 	// The container Activity must implement this interface so the fragment can
 	// deliver messages
 	public interface AnswerSelected {
-		/** Called by Fragment when an answer is selected */
-		public void AnswerRecieve(String answerString, String jumpString);
+		/**
+		 * Called by Fragment when an answer is selected
+		 * 
+		 * @param selectedAnswers
+		 */
+		public void AnswerRecieve(String answerString, String jumpString,
+				ArrayList<Integer> selectedAnswers);
 	}
 
 	// Passes information about looped question.
@@ -144,7 +154,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 			}
 
 			jumpString = getJump(jquestion);
-			Callback.AnswerRecieve(answerString, jumpString);
+			Callback.AnswerRecieve(answerString, jumpString, null);
 
 			try {
 				questionstring = jquestion.getString("Question");
@@ -155,10 +165,48 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 			// Generating question kind specific layouts.
 			if (questionkind.equals("MC")) {
 				MultipleChoiceLayout();
+
+				// Prepopulate question
+				selectedAnswers = SurveyHelper.selectedAnswersMap
+						.get(new Tuple<Integer>(chapterposition,
+								questionposition));
+				if (selectedAnswers != null) {
+					for (Integer id : selectedAnswers) {
+						if (id == -1) {
+							try {
+								otherET.setText(jquestion.getString("Answer"));
+								otherET.setTextColor(getResources().getColor(
+										R.color.answer_selected));
+								answerString = (String) otherET.getText().toString();
+								selectedAnswers = new ArrayList<Integer>();
+								selectedAnswers.add(-1);
+								Callback.AnswerRecieve(answerString, jumpString,
+										selectedAnswers);
+							} catch (JSONException e) {
+								e.printStackTrace();
+							}
+						} else {
+							TextView textView = tvanswerlist[id];
+							MultipleChoiceOnClick((LinearLayout) textView
+									.getParent());
+						}
+					}
+				}
 			} else if (questionkind.equals("OT") || questionkind.equals("ON")) {
 				OpenLayout();
 			} else if (questionkind.equals("CB")) {
 				CheckBoxLayout();
+				// Prepopulate question
+				selectedAnswers = SurveyHelper.selectedAnswersMap
+						.get(new Tuple<Integer>(chapterposition,
+								questionposition));
+				if (selectedAnswers != null) {
+					for (Integer id : selectedAnswers) {
+						CheckBox checkbox = cbanswer[id];
+						checkbox.setChecked(true);
+						CheckBoxOnClick(checkbox);
+					}
+				}
 			} else if (questionkind.equals("IM")) {
 				ImageLayout();
 			} else if (questionkind.equals("LP")) {
@@ -193,7 +241,6 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 		try {
 			janswerlist = jquestion.getJSONArray("Answers");
 			totalanswers = janswerlist.length();
-
 		} catch (JSONException e) {
 			e.printStackTrace();
 			totalanswers = 0;
@@ -253,7 +300,6 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 			totalanswers = janswerlist.length();
 			answerlist = new String[totalanswers];
 			tvanswerlist = new TextView[totalanswers];
-			tvansweridlist = new Integer[totalanswers];
 			answerinsert = new LinearLayout[totalanswers];
 			answerImages = new ImageView[totalanswers];
 			for (int i = 0; i < totalanswers; ++i) {
@@ -297,14 +343,8 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 
 				// add this linear layout to the parent viewgroup
 				answerlayout.addView(answerinsert[i]);
-				tvansweridlist[i] = i; // Not sure if this is going to have
-										// conflicts with other view ids...
-				// tvansweridlist[i] = findId(); // This method was to generate
-				// valid View ids that were not used by any other View, but it's
-				// not
-				// working.
-				tvanswerlist[i].setId(tvansweridlist[i]);
-				answerinsert[i].setId(tvansweridlist[i]);
+				tvanswerlist[i].setId(i);
+				answerinsert[i].setId(i);
 				answerinsert[i].setOnClickListener(this);
 			}
 		} catch (JSONException e) {
@@ -320,7 +360,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 			otherImage = new ImageView(rootView.getContext());
 			otherImage.setImageResource(R.drawable.ft_cir_gry);
 			otherImage.setAdjustViewBounds(true);
-			otherImage.setPadding(0, 0, 20, 0);
+			otherImage.setPadding(0, 0, 30, 0);
 
 			LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
 					LayoutParams.WRAP_CONTENT, 60);
@@ -426,7 +466,9 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 					| InputType.TYPE_NUMBER_FLAG_DECIMAL);
 		}
 		openET.setSingleLine();
+		openET.setTextSize(20);
 		openET.setTextColor(getResources().getColor(R.color.text_color_light));
+		openET.setBackgroundResource(R.drawable.edit_text);
 		answerlayout.addView(openET);
 		openET.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 			@Override
@@ -489,7 +531,6 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 		if (view instanceof LinearLayout) {
 			boolean foundAnswer = false;
 			for (int i = 0; i < totalanswers; ++i) {
-
 				TextView textView = (TextView) tvanswerlist[i];
 				if (view.getId() == textView.getId()) {
 					foundAnswer = true;
@@ -511,7 +552,10 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 																// to be sent to
 																// parent
 																// activity.
-					Callback.AnswerRecieve(answerString, jumpString);
+					selectedAnswers = new ArrayList<Integer>();
+					selectedAnswers.add(view.getId());
+					Callback.AnswerRecieve(answerString, jumpString,
+							selectedAnswers);
 				} else {
 					textView.setTextColor(getResources().getColor(
 							R.color.text_color_light));
@@ -519,34 +563,30 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 			}
 
 			if (!foundAnswer) {
+				// focus ET
+				otherET.requestFocusFromTouch();
+				InputMethodManager lManager = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE); 
+		        lManager.showSoftInput(otherET, 0);
+		        
 				otherET.setTextColor(getResources().getColor(
 						R.color.answer_selected));
 				answerString = (String) otherET.getText().toString();
-				Callback.AnswerRecieve(answerString, jumpString);
+				selectedAnswers = new ArrayList<Integer>();
+				selectedAnswers.add(-1);
+				Callback.AnswerRecieve(answerString, jumpString,
+						selectedAnswers);
 			}
 		}
 	}
 
 	private void CheckBoxOnClick(View view) {
 		answerString = null;
+		selectedAnswers = new ArrayList<Integer>();
 		for (int i = 0; i < totalanswers; ++i) {
 			TextView textView = tvanswerlist[i];
 			CheckBox checkBox = cbanswer[i];
-			if (view instanceof TextView) {
-				if (view.getId() == textView.getId()) {
-					if (checkBox.isChecked()) {
-						textView.setTextColor(getResources().getColor(
-								R.color.text_color_light));
-						checkBox.setChecked(false);
-					} else if (!checkBox.isChecked()) {
-						textView.setTextColor(getResources().getColor(
-								R.color.answer_selected));
-						checkBox.setChecked(true);
-					}
-
-				}
-			}
 			if (checkBox.isChecked()) {
+				selectedAnswers.add(i);
 				textView.setTextColor(getResources().getColor(
 						R.color.answer_selected));
 				answerString = addanswer(answerString, answerlist[i].toString());
@@ -554,12 +594,12 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 				textView.setTextColor(getResources().getColor(
 						R.color.text_color_light));
 			}
-
 		}
 		if (!(answerString == null)) {
-			Callback.AnswerRecieve("(" + answerString + ")", null);
+			Callback.AnswerRecieve("(" + answerString + ")", null,
+					selectedAnswers);
 		} else {
-			Callback.AnswerRecieve(null, null);
+			Callback.AnswerRecieve(null, null, selectedAnswers);
 		}
 	}
 
@@ -572,6 +612,9 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 		return answerContainer;
 	}
 
+	// TODO
+	// We want to take the ids and also save it in the json
+	// Extract it on the createview and click the views
 	private void OpenOnClick(View view) {
 		if (view instanceof TextView) {
 			for (int i = 0; i < opentotal; ++i) {
@@ -580,7 +623,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 					textView.setTextColor(getResources().getColor(
 							R.color.answer_selected));
 					answerString = (String) textView.getText().toString();
-					Callback.AnswerRecieve(answerString, jumpString);
+					Callback.AnswerRecieve(answerString, jumpString, null);
 					if (questionkind.equals("LP")) {
 						Loopback.LoopReceive(loopLimitString);
 					}
@@ -592,6 +635,9 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 		}
 	}
 
+	// TODO
+	// We want to take the image and display it.
+	// Ask kuan about where the image needs to go?
 	private void ImageOnClick(View view) {
 		Surveyor.driveHelper.startCameraIntent(jumpString);
 	}
