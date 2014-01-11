@@ -2,8 +2,8 @@
     android:id="@+id/chapterview"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:layout_margin="20dp" >
+    android:layout_margin="20dp"
+    android:orientation="vertical" >
 
     <TextView
         android:id="@+id/questionview"
@@ -12,6 +12,16 @@
         android:padding="15dp"
         android:textColor="@color/text_color_light"
         android:textSize="17sp" />
+    
+       <LinearLayout
+        android:id="@+id/orderanswerlayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="15dp"
+        android:textColor="@color/text_color_light"
+        android:textSize="17sp" >
+    </LinearLayout>
 
     <ScrollView
         android:layout_width="match_parent"
@@ -28,5 +38,6 @@
             android:textSize="17sp" >
         </LinearLayout>
     </ScrollView>
+
 
 </LinearLayout>
