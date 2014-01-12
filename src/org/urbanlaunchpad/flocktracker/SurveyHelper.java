@@ -41,7 +41,7 @@ public class SurveyHelper {
 
 	private Integer chapterPosition = null;
 	private Integer questionPosition = null;
-	
+
 	// Backstack
 	public Stack<Tuple<Integer>> prevPositions = new Stack<Tuple<Integer>>();
 	public Stack<Integer> prevTrackingPositions = new Stack<Integer>();
@@ -232,47 +232,48 @@ public class SurveyHelper {
 		// Getting the types and names of the columns in the fusion table.
 		try {
 			columnlistNameString = getColumnListNames(TABLE_ID);
+			// Checking for the existence of the hard columns on Fusion table.
+			int numberofhardcolumns = hardcolumnsStrings.length;
+			for (int i = 0; i < numberofhardcolumns; ++i) {
+				if (arrayContainsString(columnlistNameString,
+						hardcolumnsStrings[i])) {
+					// TODO: check column type
+				} else {
+					requestColumnCreate(hardcolumnsStrings[i],
+							hardcolumntypeStrings[i], TABLE_ID);
+				}
+			}
+
+			// Checking for the existence of question columns on Fusion table.
+			String[] questionIdlistString = getValues("id", type);
+			String[] questionKindlistString = getValues("Kind", type);
+			int numberofquestions = questionIdlistString.length;
+			String auxkind = null;
+			for (int i = 0; i < numberofquestions; ++i) {
+				if ((questionKindlistString[i].equals("MC") || questionKindlistString[i]
+						.equals("CB"))
+						|| questionKindlistString[i].equals("OT")) {
+					auxkind = "STRING";
+				} else if (questionKindlistString[i].equals("ON")) {
+					auxkind = "NUMBER";
+				} else {
+					auxkind = "STRING";
+				}
+
+				if (arrayContainsString(columnlistNameString,
+						questionIdlistString[i])) {
+					// TODO: check column type
+				} else {
+					requestColumnCreate(questionIdlistString[i], auxkind,
+							TABLE_ID);
+				}
+
+			}
 		} catch (ClientProtocolException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
-		// Checking for the existence of the hard columns on Fusion table.
-		int numberofhardcolumns = hardcolumnsStrings.length;
-		for (int i = 0; i < numberofhardcolumns; ++i) {
-			if (arrayContainsString(columnlistNameString, hardcolumnsStrings[i])) {
-				// TODO: check column type
-			} else {
-				requestColumnCreate(hardcolumnsStrings[i],
-						hardcolumntypeStrings[i], TABLE_ID);
-			}
-		}
-
-		// Checking for the existence of question columns on Fusion table.
-		String[] questionIdlistString = getValues("id", type);
-		String[] questionKindlistString = getValues("Kind", type);
-		int numberofquestions = questionIdlistString.length;
-		String auxkind = null;
-		for (int i = 0; i < numberofquestions; ++i) {
-			if ((questionKindlistString[i].equals("MC") || questionKindlistString[i]
-					.equals("CB")) || questionKindlistString[i].equals("OT")) {
-				auxkind = "STRING";
-			} else if (questionKindlistString[i].equals("ON")) {
-				auxkind = "NUMBER";
-			} else {
-				auxkind = "STRING";
-			}
-
-			if (arrayContainsString(columnlistNameString,
-					questionIdlistString[i])) {
-				// TODO: check column type
-			} else {
-				requestColumnCreate(questionIdlistString[i], auxkind, TABLE_ID);
-			}
-
-		}
-
 	}
 
 	// Get a list of values corresponding to the key in either tracker
@@ -486,11 +487,12 @@ public class SurveyHelper {
 
 	public void updateSurveyPosition(Integer chapterpositionreceive,
 			Integer questionpositionreceive) {
-		prevPositions.add(new Tuple<Integer>(chapterPosition, questionPosition));
+		prevPositions
+				.add(new Tuple<Integer>(chapterPosition, questionPosition));
 		chapterPosition = chapterpositionreceive;
 		questionPosition = questionpositionreceive;
 	}
-	
+
 	public void updateSurveyPositionOnBack(Integer chapterpositionreceive,
 			Integer questionpositionreceive) {
 		chapterPosition = chapterpositionreceive;
@@ -505,7 +507,7 @@ public class SurveyHelper {
 		if (askingTripQuestions) {
 			tripQuestionPosition--;
 		}
-		
+
 		jumpString = null;
 	}
 
@@ -523,7 +525,8 @@ public class SurveyHelper {
 				return NextQuestionResult.END;
 			}
 		} else {
-			prevPositions.add(new Tuple<Integer>(chapterPosition, questionPosition));
+			prevPositions.add(new Tuple<Integer>(chapterPosition,
+					questionPosition));
 			questionPosition++;
 			if (questionPosition == chapterQuestionCounts[chapterPosition]) {
 				if (chapterPosition == jchapterlist.length() - 1) {
@@ -545,7 +548,7 @@ public class SurveyHelper {
 			jumpPosition = null;
 			return NextQuestionResult.JUMPSTRING;
 		}
-		
+
 		return NextQuestionResult.NORMAL;
 	}
 

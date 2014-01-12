@@ -94,7 +94,7 @@ public class Surveyor extends Activity implements
 	private Question_fragment currentQuestionFragment;
 
 	private enum EVENT_TYPE {
-		MALE_UPDATE, FEMALE_UPDATE, UPDATE_STATS_PAGE, UPDATE_HUB_PAGE, SHOW_NAV_BUTTONS
+		MALE_UPDATE, FEMALE_UPDATE, UPDATE_STATS_PAGE, UPDATE_HUB_PAGE, SHOW_NAV_BUTTONS, SUBMITTED_SURVEY, SUBMIT_FAILED
 	}
 
 	@SuppressLint("HandlerLeak")
@@ -138,12 +138,12 @@ public class Surveyor extends Activity implements
 				TextView maleCountView = (TextView) findViewById(R.id.maleCount);
 				if (maleCountView != null)
 					maleCountView.setText(maleCount.toString());
-				
+
 				// update female count
 				TextView femaleCountView = (TextView) findViewById(R.id.femaleCount);
 				if (femaleCountView != null)
 					femaleCountView.setText(femaleCount.toString());
-				
+
 				// update total count
 				TextView totalCount = (TextView) findViewById(R.id.totalPersonCount);
 				if (totalCount != null)
@@ -247,9 +247,20 @@ public class Surveyor extends Activity implements
 						currentAddressText.setText(addressText);
 
 					} else {
-						currentAddressText.setText(R.string.current_address);
+						currentAddressText.setText(R.string.default_address);
 					}
 				}
+			} else if (msg.what == EVENT_TYPE.SUBMITTED_SURVEY.ordinal()) {
+				Toast toast = Toast.makeText(getApplicationContext(),
+						getResources().getString(R.string.survey_submitted),
+						Toast.LENGTH_SHORT);
+				toast.show();
+				showHubPage();
+			} else if (msg.what == EVENT_TYPE.SUBMIT_FAILED.ordinal()) {
+				Toast toast = Toast.makeText(getApplicationContext(),
+						getResources().getString(R.string.submit_failed),
+						Toast.LENGTH_SHORT);
+				toast.show();
 			}
 		}
 	};
@@ -377,11 +388,11 @@ public class Surveyor extends Activity implements
 	public void onBackPressed() {
 		// need a separate stack of previous positions in trip questions
 		// on next press, need to update
-		
-		if (askingTripQuestions) { 
-			
+
+		if (askingTripQuestions) {
+
 		}
-		
+
 		if (!showingHubPage && !showingStatusPage) {
 			if (surveyHelper.getChapterPosition() == 0
 					&& surveyHelper.getQuestionPosition() == 0) {
@@ -450,8 +461,8 @@ public class Surveyor extends Activity implements
 	 */
 
 	public boolean submitSurvey() throws ClientProtocolException, IOException {
-		boolean success = surveyHelper.submitSurvey(mLocationClient.getLastLocation(),
-				surveyID, tripID);
+		boolean success = surveyHelper.submitSurvey(
+				mLocationClient.getLastLocation(), surveyID, tripID);
 		if (success)
 			surveysCompleted++;
 		return success;
@@ -946,21 +957,30 @@ public class Surveyor extends Activity implements
 					new Thread(new Runnable() {
 						public void run() {
 							try {
-								if (submitSurvey())
+								if (submitSurvey()) {
 									resetSurvey();
+									messageHandler
+											.sendEmptyMessage(EVENT_TYPE.SUBMITTED_SURVEY
+													.ordinal());
+								} else {
+									messageHandler
+									.sendEmptyMessage(EVENT_TYPE.SUBMIT_FAILED
+											.ordinal());
+								}
 							} catch (ClientProtocolException e1) {
+								messageHandler
+								.sendEmptyMessage(EVENT_TYPE.SUBMIT_FAILED
+										.ordinal());
 								e1.printStackTrace();
 							} catch (IOException e1) {
+								messageHandler
+										.sendEmptyMessage(EVENT_TYPE.SUBMIT_FAILED
+												.ordinal());
 								e1.printStackTrace();
 							}
 						}
 					}).start();
-					toast = Toast
-							.makeText(getApplicationContext(), getResources()
-									.getString(R.string.survey_submitted),
-									Toast.LENGTH_SHORT);
-					toast.show();
-					showHubPage();
+
 					break;
 				case DialogInterface.BUTTON_NEGATIVE:
 					// No button clicked
