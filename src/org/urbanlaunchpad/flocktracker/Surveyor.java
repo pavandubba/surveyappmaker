@@ -570,6 +570,7 @@ public class Surveyor extends Activity implements
 		public void onItemClick(AdapterView<?> parent, View view, int position,
 				long id) {
 			surveyHelper.updateSurveyPosition(position, 0);
+			surveyHelper.jumpString = null;
 			showingHubPage = false;
 			showingStatusPage = false;
 			messageHandler.sendEmptyMessage(EVENT_TYPE.SHOW_NAV_BUTTONS

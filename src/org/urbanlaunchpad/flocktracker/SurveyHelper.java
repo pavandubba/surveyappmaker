@@ -48,7 +48,7 @@ public class SurveyHelper {
 
 	public Integer prevQuestionPosition = null;
 	private Integer tripQuestionPosition = 0;
-	private String jumpString = null;
+	public String jumpString = null;
 	private Integer[] jumpPosition = null;
 	private Integer[] loopEndPosition = null;
 	private Integer[] loopStartPosition = null;

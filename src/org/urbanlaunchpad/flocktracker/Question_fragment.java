@@ -584,12 +584,12 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 	public void ImageLayout() {
 		answerlayout.removeAllViews();
 		ImageView cameraButton = new ImageView(rootView.getContext());
-		cameraButton.setImageResource(R.drawable.ft_ridercomp);
+		cameraButton.setImageResource(R.drawable.camera);
 		cameraButton.setOnClickListener(this);
 		answerlayout.addView(cameraButton);
 		addThumbnail();
 	}
-	
+
 	public void addThumbnail() {
 		Tuple<Integer> key = new Tuple<Integer>(chapterposition,
 				questionposition);
@@ -597,7 +597,10 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 			Uri imagePath = SurveyHelper.prevImages.get(key);
 			ImageView prevImage = new ImageView(rootView.getContext());
 			try {
-				Bitmap imageBitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(imagePath.getPath()), 512, 300);
+				Bitmap imageBitmap = ThumbnailUtils
+						.extractThumbnail(
+								BitmapFactory.decodeFile(imagePath.getPath()),
+								512, 512);
 				prevImage.setImageBitmap(imageBitmap);
 				prevImage.setPadding(10, 30, 10, 10);
 
@@ -646,22 +649,25 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 					TextView textView = (TextView) tvanswerlist[i];
 					if (view.getId() == textView.getId()) {
 						foundAnswer = true;
-	
+
 						otherET.setTextColor(getResources().getColor(
 								R.color.text_color_light));
-	
+
 						textView.setTextColor(getResources().getColor(
 								R.color.answer_selected));
 						try {
-							answerjumpString = getJump(janswerlist.getJSONObject(i));
+							answerjumpString = getJump(janswerlist
+									.getJSONObject(i));
 							if (answerjumpString != null) {
 								jumpString = answerjumpString;
 							}
 						} catch (JSONException e) {
 							// e.printStackTrace();
 						}
-						answerString = answerlist[i].toString(); // Sets the answer
-																	// to be sent to
+						answerString = answerlist[i].toString(); // Sets the
+																	// answer
+																	// to be
+																	// sent to
 																	// parent
 																	// activity.
 						selectedAnswers = new ArrayList<Integer>();
@@ -674,14 +680,14 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 					}
 				}
 		}
-		
+
 		if (view instanceof EditText || !foundAnswer) {
 			for (int i = 0; i < totalanswers; ++i) {
 				TextView textView = (TextView) tvanswerlist[i];
 				textView.setTextColor(getResources().getColor(
 						R.color.text_color_light));
 			}
-			
+
 			// focus ET
 			otherET.requestFocusFromTouch();
 			InputMethodManager lManager = (InputMethodManager) getActivity()
@@ -693,8 +699,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 			answerString = (String) otherET.getText().toString();
 			selectedAnswers = new ArrayList<Integer>();
 			selectedAnswers.add(-1);
-			Callback.AnswerRecieve(answerString, jumpString,
-					selectedAnswers);
+			Callback.AnswerRecieve(answerString, jumpString, selectedAnswers);
 		}
 	}
 
