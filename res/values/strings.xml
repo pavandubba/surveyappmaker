@@ -35,29 +35,29 @@
     <string name="title_activity_iniconfig">Initial configuration</string>
     <string name="title_activity_surveyor">Surveyor</string>
     <string name="submitting_survey">Submitting survey</string>
+    <string name="submit_failed">Failed to submit survey</string>
     <string name="survey_submitted">Survey submitted</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="submit_survey_question">Do you want to upload the survey to the cloud and reset the answers stored in the device? (This cannot be undone)</string>
-	<string name="other_hint">Other</string>
-	<string name="answer_hint">Answer</string>
-	<string name="projectNameText">Select project</string>
-	<string name="usernameText">Select user</string>
-	<string name="projectNameTitle">Project Name</string>
-	<string name="usernameTitle">Username</string>
-	<string name="projectNameButtonDesc">Select project</string>
-	<string name="usernameButtonDesc">Select user</string>	
-	<string name="total_time">00:00</string>	
-	<string name="default_greeting">Hi user_name!</string>
-	<string name="surveys_completed">surveys completed</string>
-	<string name="rides_completed">rides completed</string>
-	<string name="total_distance">total distance (km)</string>
-	<string name="current_address">current address</string>
-	<string name="default_address">No address found</string>
-	<string name="trackerservice">Tracker Service</string>
-	<string name="continue_desc">Continue</string>
+    <string name="other_hint">Other</string>
+    <string name="answer_hint">Answer</string>
+    <string name="projectNameText">Select project</string>
+    <string name="usernameText">Select user</string>
+    <string name="projectNameTitle">Project Name</string>
+    <string name="usernameTitle">Username</string>
+    <string name="projectNameButtonDesc">Select project</string>
+    <string name="usernameButtonDesc">Select user</string>
+    <string name="total_time">00:00</string>
+    <string name="default_greeting">Hi user_name!</string>
+    <string name="surveys_completed">surveys completed</string>
+    <string name="rides_completed">rides completed</string>
+    <string name="total_distance">total distance (km)</string>
+    <string name="current_address">current address</string>
+    <string name="default_address">No address found</string>
+    <string name="trackerservice">Tracker Service</string>
+    <string name="continue_desc">Continue</string>
 
-								
     <color name="text_bkgrd">#E6E6E6</color>
     <color name="text_color_light">#F2F2F2</color>
     <color name="text_color_dark">#1F1F1F</color>
@@ -119,6 +119,5 @@
     <string name="previous_question">Pregunta anterior/Previous question</string>
     <string name="submit_survey">Subir encuesta/Submit survey</string>
     <string name="zero">0</string>
-    
-    
+
 </resources>

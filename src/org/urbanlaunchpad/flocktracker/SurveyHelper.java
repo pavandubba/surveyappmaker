@@ -3,6 +3,7 @@ package org.urbanlaunchpad.flocktracker;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Stack;
 
 import org.apache.http.client.ClientProtocolException;
 import org.json.JSONArray;
@@ -11,6 +12,7 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.location.Location;
+import android.net.Uri;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -25,26 +27,37 @@ public class SurveyHelper {
 	private String TRIP_TABLE_ID = "1Q2mr8ni5LTxtZRRi3PNSYxAYS8HWikWqlfoIUK4";
 	private String SURVEY_TABLE_ID = "11lGsm8B2SNNGmEsTmuGVrAy1gcJF9TQBo3G1Vw0";
 	private Context context;
+	private String jsonSurvey = null;
 	private JSONObject jsurv = null;
 	private JSONArray jchapterlist;
 	private JSONArray jtrackerquestions;
-	// Need to store our answer indices for each question in each chapter
-	// Hash a tuple
+
+	// Hashmaps that store previously entered answers
 	public static HashMap<Tuple<Integer>, ArrayList<Integer>> selectedAnswersMap = new HashMap<Tuple<Integer>, ArrayList<Integer>>();
+	public static HashMap<Integer, ArrayList<Integer>> selectedTrackingAnswersMap = new HashMap<Integer, ArrayList<Integer>>();
+	public static HashMap<Tuple<Integer>, Uri> prevImages = new HashMap<Tuple<Integer>, Uri>();
+	public static HashMap<Integer, Uri> prevTrackerImages = new HashMap<Integer, Uri>();
+
 	private String[] ChapterTitles;
 	private Integer[] chapterQuestionCounts;
 
 	private Integer chapterPosition = null;
 	private Integer questionPosition = null;
+
+	// Backstack
+	public Stack<Tuple<Integer>> prevPositions = new Stack<Tuple<Integer>>();
+	public Stack<Integer> prevTrackingPositions = new Stack<Integer>();
+
+	public Integer prevQuestionPosition = null;
 	private Integer tripQuestionPosition = 0;
-	private String jumpString = null;
+	public String jumpString = null;
 	private Integer[] jumpPosition = null;
 	private Integer[] loopEndPosition = null;
 	private Integer[] loopStartPosition = null;
 
 	public SurveyHelper(String username, String jsonSurvey, Context context) {
 		this.username = username;
-
+		this.jsonSurvey = jsonSurvey;
 		// parse json survey
 		try {
 			this.jsurv = new JSONObject(jsonSurvey);
@@ -140,29 +153,59 @@ public class SurveyHelper {
 
 	public boolean submitSurvey(Location currentLocation, String surveyID,
 			String tripID) {
-		String columnnamesString = getnames("id", "nq", "Survey");
-		String answerfinalString = getnames("Answer", "wq", "Survey");
-		String latlng = LocationHelper.getLatLngAlt(currentLocation);
-		String dateString = (String) android.text.format.DateFormat.format(
-				"yyyy-MM-dd hh:mm:ss", new java.util.Date());
-		String query = "INSERT INTO "
-				+ SURVEY_TABLE_ID
-				+ " ("
-				+ columnnamesString
-				+ ",Location,Lat,Lng,Alt,Date,SurveyID,TripID,Username) VALUES ("
-				+ answerfinalString + ",'<Point><coordinates>" + latlng
-				+ "</coordinates></Point>','" + currentLocation.getLatitude()
-				+ "','" + currentLocation.getLongitude() + "','"
-				+ currentLocation.getAltitude() + "','" + dateString + "','"
-				+ surveyID + "','" + tripID + "','" + username + "');";
-
 		boolean success = false;
+
 		try {
+			// Upload images and put in answers
+			if (Surveyor.askingTripQuestions) {
+				for (Integer key : prevTrackerImages.keySet()) {
+					String fileLink = Surveyor.driveHelper
+							.saveFileToDrive(prevTrackerImages.get(key));
+					if (fileLink != null) {
+						jsurv.getJSONObject("Tracker")
+								.getJSONArray("Questions").getJSONObject(key)
+								.put("Answer", fileLink);
+					}
+				}
+			} else {
+				for (Tuple<Integer> key : prevImages.keySet()) {
+					String fileLink = Surveyor.driveHelper
+							.saveFileToDrive(prevImages.get(key));
+					if (fileLink != null) {
+						jsurv.getJSONObject("Survey").getJSONArray("Chapters")
+								.getJSONObject(key.chapterPosition)
+								.getJSONArray("Questions")
+								.getJSONObject(key.questionPosition)
+								.put("Answer", fileLink);
+					}
+				}
+			}
+
+			// Submit survey
+			String columnnamesString = getnames("id", "nq", "Survey");
+			String answerfinalString = getnames("Answer", "wq", "Survey");
+			String latlng = LocationHelper.getLatLngAlt(currentLocation);
+			String dateString = (String) android.text.format.DateFormat.format(
+					"yyyy-MM-dd hh:mm:ss", new java.util.Date());
+			String query = "INSERT INTO "
+					+ SURVEY_TABLE_ID
+					+ " ("
+					+ columnnamesString
+					+ ",Location,Lat,Lng,Alt,Date,SurveyID,TripID,Username) VALUES ("
+					+ answerfinalString + ",'<Point><coordinates>" + latlng
+					+ "</coordinates></Point>','" + currentLocation.getLatitude()
+					+ "','" + currentLocation.getLongitude() + "','"
+					+ currentLocation.getAltitude() + "','" + dateString + "','"
+					+ surveyID + "','" + tripID + "','" + username + "');";
+
 			Sql sql = Iniconfig.fusiontables.query().sql(query);
 			sql.setKey(Iniconfig.API_KEY);
 			sql.execute();
 			success = true;
 		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return success;
@@ -221,47 +264,48 @@ public class SurveyHelper {
 		// Getting the types and names of the columns in the fusion table.
 		try {
 			columnlistNameString = getColumnListNames(TABLE_ID);
+			// Checking for the existence of the hard columns on Fusion table.
+			int numberofhardcolumns = hardcolumnsStrings.length;
+			for (int i = 0; i < numberofhardcolumns; ++i) {
+				if (arrayContainsString(columnlistNameString,
+						hardcolumnsStrings[i])) {
+					// TODO: check column type
+				} else {
+					requestColumnCreate(hardcolumnsStrings[i],
+							hardcolumntypeStrings[i], TABLE_ID);
+				}
+			}
+
+			// Checking for the existence of question columns on Fusion table.
+			String[] questionIdlistString = getValues("id", type);
+			String[] questionKindlistString = getValues("Kind", type);
+			int numberofquestions = questionIdlistString.length;
+			String auxkind = null;
+			for (int i = 0; i < numberofquestions; ++i) {
+				if ((questionKindlistString[i].equals("MC") || questionKindlistString[i]
+						.equals("CB"))
+						|| questionKindlistString[i].equals("OT")) {
+					auxkind = "STRING";
+				} else if (questionKindlistString[i].equals("ON")) {
+					auxkind = "NUMBER";
+				} else {
+					auxkind = "STRING";
+				}
+
+				if (arrayContainsString(columnlistNameString,
+						questionIdlistString[i])) {
+					// TODO: check column type
+				} else {
+					requestColumnCreate(questionIdlistString[i], auxkind,
+							TABLE_ID);
+				}
+
+			}
 		} catch (ClientProtocolException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
-		// Checking for the existence of the hard columns on Fusion table.
-		int numberofhardcolumns = hardcolumnsStrings.length;
-		for (int i = 0; i < numberofhardcolumns; ++i) {
-			if (arrayContainsString(columnlistNameString, hardcolumnsStrings[i])) {
-				// TODO: check column type
-			} else {
-				requestColumnCreate(hardcolumnsStrings[i],
-						hardcolumntypeStrings[i], TABLE_ID);
-			}
-		}
-
-		// Checking for the existence of question columns on Fusion table.
-		String[] questionIdlistString = getValues("id", type);
-		String[] questionKindlistString = getValues("Kind", type);
-		int numberofquestions = questionIdlistString.length;
-		String auxkind = null;
-		for (int i = 0; i < numberofquestions; ++i) {
-			if ((questionKindlistString[i].equals("MC") || questionKindlistString[i]
-					.equals("CB")) || questionKindlistString[i].equals("OT")) {
-				auxkind = "STRING";
-			} else if (questionKindlistString[i].equals("ON")) {
-				auxkind = "NUMBER";
-			} else {
-				auxkind = "STRING";
-			}
-
-			if (arrayContainsString(columnlistNameString,
-					questionIdlistString[i])) {
-				// TODO: check column type
-			} else {
-				requestColumnCreate(questionIdlistString[i], auxkind, TABLE_ID);
-			}
-
-		}
-
 	}
 
 	// Get a list of values corresponding to the key in either tracker
@@ -436,7 +480,8 @@ public class SurveyHelper {
 						.getJSONObject(chapterPosition)
 						.getJSONArray("Questions")
 						.getJSONObject(questionPosition).put("Answer", answer);
-				Tuple<Integer> key = new Tuple<Integer>(chapterPosition, questionPosition);
+				Tuple<Integer> key = new Tuple<Integer>(chapterPosition,
+						questionPosition);
 				selectedAnswersMap.put(key, selectedAnswers);
 			}
 		} catch (JSONException e) {
@@ -444,10 +489,13 @@ public class SurveyHelper {
 		}
 	}
 
-	public void answerCurrentTrackerQuestion(String answer) {
+	public void answerCurrentTrackerQuestion(String answer,
+			ArrayList<Integer> selectedAnswers) {
 		try {
 			jsurv.getJSONObject("Tracker").getJSONArray("Questions")
 					.getJSONObject(tripQuestionPosition).put("Answer", answer);
+			selectedTrackingAnswersMap.put(tripQuestionPosition,
+					selectedAnswers);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -462,23 +510,46 @@ public class SurveyHelper {
 	}
 
 	public void resetSurvey() {
-		for (int i = 0; i < jchapterlist.length(); ++i) {
-			for (int j = 0; j < chapterQuestionCounts[i]; j++) {
-				try {
-					jsurv.getJSONObject("Survey").getJSONArray("Chapters")
-							.getJSONObject(i).getJSONArray("Questions")
-							.getJSONObject(j).remove("Answer");
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
-			}
+		try {
+			jsurv = new JSONObject(jsonSurvey);
+			prevPositions = new Stack<Tuple<Integer>>();
+			selectedAnswersMap = new HashMap<Tuple<Integer>, ArrayList<Integer>>();
+			prevImages = new HashMap<Tuple<Integer>, Uri>();
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+	}
+
+	public void resetTracker() {
+		tripQuestionPosition = 0;
+		prevTrackingPositions = new Stack<Integer>();
+		selectedTrackingAnswersMap = new HashMap<Integer, ArrayList<Integer>>();
+		prevTrackerImages = new HashMap<Integer, Uri>();
 	}
 
 	public void updateSurveyPosition(Integer chapterpositionreceive,
 			Integer questionpositionreceive) {
+		prevPositions
+				.add(new Tuple<Integer>(chapterPosition, questionPosition));
 		chapterPosition = chapterpositionreceive;
 		questionPosition = questionpositionreceive;
+	}
+
+	public void updateSurveyPositionOnBack(Integer chapterpositionreceive,
+			Integer questionpositionreceive) {
+		chapterPosition = chapterpositionreceive;
+		questionPosition = questionpositionreceive;
+	}
+
+	public void updateTrackerPosition(Integer questionpositionreceive) {
+		prevTrackingPositions.add(questionpositionreceive);
+		tripQuestionPosition = questionpositionreceive;
+	}
+
+	public void updateTrackerPositionOnBack(Integer questionpositionreceive) {
+		tripQuestionPosition = questionpositionreceive;
+
 	}
 
 	public void updateJumpString(String jumpStringReceive) {
@@ -486,11 +557,7 @@ public class SurveyHelper {
 	}
 
 	public void onPrevQuestionPressed(Boolean askingTripQuestions) {
-		if (askingTripQuestions) {
-			tripQuestionPosition--;
-		} else {
-			questionPosition--;
-		}
+		jumpString = null;
 	}
 
 	public enum NextQuestionResult {
@@ -501,12 +568,15 @@ public class SurveyHelper {
 	// reached
 	public NextQuestionResult onNextQuestionPressed(Boolean askingTripQuestions) {
 		if (askingTripQuestions) {
+			prevTrackingPositions.add(tripQuestionPosition);
 			tripQuestionPosition++;
 			if (tripQuestionPosition == jtrackerquestions.length()) {
-				tripQuestionPosition = 0;
+				resetTracker();
 				return NextQuestionResult.END;
 			}
 		} else {
+			prevPositions.add(new Tuple<Integer>(chapterPosition,
+					questionPosition));
 			questionPosition++;
 			if (questionPosition == chapterQuestionCounts[chapterPosition]) {
 				if (chapterPosition == jchapterlist.length() - 1) {
@@ -519,9 +589,7 @@ public class SurveyHelper {
 			}
 		}
 
-		if (jumpString == null) {
-			return NextQuestionResult.NORMAL;
-		} else {
+		if (jumpString != null) {
 			findIDPosition(jumpString);
 			jumpPosition = findIDPosition(jumpString);
 			chapterPosition = jumpPosition[0];
@@ -530,6 +598,8 @@ public class SurveyHelper {
 			jumpPosition = null;
 			return NextQuestionResult.JUMPSTRING;
 		}
+
+		return NextQuestionResult.NORMAL;
 	}
 
 	public Integer[] findIDPosition(String iDtoFind) {
@@ -610,17 +680,17 @@ public class SurveyHelper {
 
 	public static class Tuple<Integer> {
 
-		public final Integer left;
-		public final Integer right;
+		public final Integer chapterPosition;
+		public final Integer questionPosition;
 
-		public Tuple(Integer left, Integer right) {
-			this.left = left;
-			this.right = right;
+		public Tuple(Integer chapterPosition, Integer questionPosition) {
+			this.chapterPosition = chapterPosition;
+			this.questionPosition = questionPosition;
 		}
 
 		@Override
 		public int hashCode() {
-			return left.hashCode() ^ right.hashCode();
+			return chapterPosition.hashCode() ^ chapterPosition.hashCode();
 		}
 
 		@Override
@@ -630,8 +700,8 @@ public class SurveyHelper {
 			if (!(o instanceof Tuple))
 				return false;
 			Tuple<Integer> tuple = (Tuple<Integer>) o;
-			return this.left.equals(tuple.left)
-					&& this.right.equals(tuple.right);
+			return this.chapterPosition.equals(tuple.chapterPosition)
+					&& this.questionPosition.equals(tuple.questionPosition);
 		}
 
 	}

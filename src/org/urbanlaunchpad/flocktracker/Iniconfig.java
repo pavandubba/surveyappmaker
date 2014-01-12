@@ -233,6 +233,9 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 
 		Sqlresponse response = sql.execute();
 		jsonsurveystring = response.getRows().get(0).get(0).toString();
+		
+		// save this for offline use
+		prefs.edit().putString("jsonsurveystring", jsonsurveystring).commit();
 		Log.v("response", jsonsurveystring);
 	}
 
@@ -261,6 +264,21 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 				} catch (UserRecoverableAuthIOException e) {
 					startActivityForResult(e.getIntent(), REQUEST_PERMISSIONS);
 				} catch (IOException e1) {
+					if (projectName.equals(prefs.getString("lastProject", ""))) {
+						try {
+							jsurv = new JSONObject(prefs.getString("jsonsurveystring", ""));
+							messageHandler
+									.sendEmptyMessage(EVENT_TYPE.PARSED_CORRECTLY
+											.ordinal());
+						} catch (JSONException e) {
+							Log.e("JSON Parser",
+									"Error parsing data " + e.toString());
+							messageHandler
+									.sendEmptyMessage(EVENT_TYPE.PARSED_INCORRECTLY
+											.ordinal());
+						}
+					}
+						
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}

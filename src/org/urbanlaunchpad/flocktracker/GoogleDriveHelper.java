@@ -28,7 +28,7 @@ public class GoogleDriveHelper {
 	static final int CAPTURE_IMAGE = 3;
 	static final String PHOTO_FOLDER_ID = "0BzQnDGTR4fYbQUdLeUUwcXFVOUE";
 
-	private static Uri fileUri;
+	public Uri fileUri;
 	public static Drive service;
 	private Surveyor activity;
 	private String jumpString = null;
@@ -48,12 +48,12 @@ public class GoogleDriveHelper {
 
 		Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 		cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
-		
+
 		this.jumpString = jumpString;
-		
+
 		activity.startActivityForResult(cameraIntent, CAPTURE_IMAGE);
 	}
-	
+
 	// If we just wish to start the intent without changing jump string
 	public void startCameraIntent() {
 		String mediaStorageDir = Environment.getExternalStoragePublicDirectory(
@@ -65,49 +65,38 @@ public class GoogleDriveHelper {
 
 		Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 		cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
-				
+
 		activity.startActivityForResult(cameraIntent, CAPTURE_IMAGE);
 	}
 
-	public void saveFileToDrive() {
-		Thread t = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					// File's binary content
-					java.io.File fileContent = new java.io.File(
-							fileUri.getPath());
-					FileContent mediaContent = new FileContent("image/jpeg",
-							fileContent);
+	public String saveFileToDrive(final Uri uri) throws IOException {
+		try {
+			// File's binary content
+			java.io.File fileContent = new java.io.File(uri.getPath());
+			FileContent mediaContent = new FileContent("image/jpeg",
+					fileContent);
 
-					// File's metadata.
-					File body = new File();
-					body.setTitle(fileContent.getName());
-					body.setMimeType("image/jpeg");
-					body.setParents(Arrays.asList(new ParentReference()
-							.setId(PHOTO_FOLDER_ID)));
+			// File's metadata.
+			File body = new File();
+			body.setTitle(fileContent.getName());
+			body.setMimeType("image/jpeg");
+			body.setParents(Arrays.asList(new ParentReference()
+					.setId(PHOTO_FOLDER_ID)));
 
-					File file = service.files().insert(body, mediaContent)
-							.execute();
-					
-					// Notify that we have captured an image					
-					activity.AnswerRecieve(file.getWebContentLink(), jumpString, null);
-					
-					// TODO: show place with picture
-					jumpString = null;
+			File file = service.files().insert(body, mediaContent).execute();
 
-					if (file != null) {
-						showToast("Photo uploaded: " + file.getTitle());
-					}
-				} catch (UserRecoverableAuthIOException e) {
-					activity.startActivityForResult(e.getIntent(),
-							REQUEST_AUTHORIZATION);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+			// Notify that we have captured an image
+			jumpString = null;
+
+			if (file != null) {
+				showToast("Photo uploaded: " + file.getTitle());
 			}
-		});
-		t.start();
+			return file.getWebContentLink();
+		} catch (UserRecoverableAuthIOException e) {
+			activity.startActivityForResult(e.getIntent(),
+					REQUEST_AUTHORIZATION);
+		}
+		return null;
 	}
 
 	public void showToast(final String toast) {
