@@ -3,6 +3,7 @@ package org.urbanlaunchpad.flocktracker;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Stack;
 
 import org.apache.http.client.ClientProtocolException;
 import org.json.JSONArray;
@@ -11,6 +12,7 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.location.Location;
+import android.net.Uri;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -28,14 +30,18 @@ public class SurveyHelper {
 	private JSONObject jsurv = null;
 	private JSONArray jchapterlist;
 	private JSONArray jtrackerquestions;
-	// Need to store our answer indices for each question in each chapter
-	// Hash a tuple
+
+	// Hashmaps that store previously entered answers
 	public static HashMap<Tuple<Integer>, ArrayList<Integer>> selectedAnswersMap = new HashMap<Tuple<Integer>, ArrayList<Integer>>();
+	public static HashMap<Tuple<Integer>, Uri> prevImages = new HashMap<Tuple<Integer>, Uri>();
+
 	private String[] ChapterTitles;
 	private Integer[] chapterQuestionCounts;
 
 	private Integer chapterPosition = null;
 	private Integer questionPosition = null;
+	public Stack<Tuple<Integer>> prevPositions = new Stack<Tuple<Integer>>();
+	public Integer prevQuestionPosition = null;
 	private Integer tripQuestionPosition = 0;
 	private String jumpString = null;
 	private Integer[] jumpPosition = null;
@@ -436,7 +442,8 @@ public class SurveyHelper {
 						.getJSONObject(chapterPosition)
 						.getJSONArray("Questions")
 						.getJSONObject(questionPosition).put("Answer", answer);
-				Tuple<Integer> key = new Tuple<Integer>(chapterPosition, questionPosition);
+				Tuple<Integer> key = new Tuple<Integer>(chapterPosition,
+						questionPosition);
 				selectedAnswersMap.put(key, selectedAnswers);
 			}
 		} catch (JSONException e) {
@@ -477,6 +484,13 @@ public class SurveyHelper {
 
 	public void updateSurveyPosition(Integer chapterpositionreceive,
 			Integer questionpositionreceive) {
+		prevPositions.add(new Tuple<Integer>(chapterPosition, questionPosition));
+		chapterPosition = chapterpositionreceive;
+		questionPosition = questionpositionreceive;
+	}
+	
+	public void updateSurveyPositionOnBack(Integer chapterpositionreceive,
+			Integer questionpositionreceive) {
 		chapterPosition = chapterpositionreceive;
 		questionPosition = questionpositionreceive;
 	}
@@ -488,9 +502,9 @@ public class SurveyHelper {
 	public void onPrevQuestionPressed(Boolean askingTripQuestions) {
 		if (askingTripQuestions) {
 			tripQuestionPosition--;
-		} else {
-			questionPosition--;
 		}
+		
+		jumpString = null;
 	}
 
 	public enum NextQuestionResult {
@@ -500,6 +514,8 @@ public class SurveyHelper {
 	// updates positions to get next question. returns true if end of survey
 	// reached
 	public NextQuestionResult onNextQuestionPressed(Boolean askingTripQuestions) {
+		prevPositions.add(new Tuple<Integer>(chapterPosition, questionPosition));
+
 		if (askingTripQuestions) {
 			tripQuestionPosition++;
 			if (tripQuestionPosition == jtrackerquestions.length()) {
@@ -519,9 +535,7 @@ public class SurveyHelper {
 			}
 		}
 
-		if (jumpString == null) {
-			return NextQuestionResult.NORMAL;
-		} else {
+		if (jumpString != null) {
 			findIDPosition(jumpString);
 			jumpPosition = findIDPosition(jumpString);
 			chapterPosition = jumpPosition[0];
@@ -530,6 +544,8 @@ public class SurveyHelper {
 			jumpPosition = null;
 			return NextQuestionResult.JUMPSTRING;
 		}
+		
+		return NextQuestionResult.NORMAL;
 	}
 
 	public Integer[] findIDPosition(String iDtoFind) {
@@ -610,17 +626,17 @@ public class SurveyHelper {
 
 	public static class Tuple<Integer> {
 
-		public final Integer left;
-		public final Integer right;
+		public final Integer chapterPosition;
+		public final Integer questionPosition;
 
-		public Tuple(Integer left, Integer right) {
-			this.left = left;
-			this.right = right;
+		public Tuple(Integer chapterPosition, Integer questionPosition) {
+			this.chapterPosition = chapterPosition;
+			this.questionPosition = questionPosition;
 		}
 
 		@Override
 		public int hashCode() {
-			return left.hashCode() ^ right.hashCode();
+			return chapterPosition.hashCode() ^ chapterPosition.hashCode();
 		}
 
 		@Override
@@ -630,8 +646,8 @@ public class SurveyHelper {
 			if (!(o instanceof Tuple))
 				return false;
 			Tuple<Integer> tuple = (Tuple<Integer>) o;
-			return this.left.equals(tuple.left)
-					&& this.right.equals(tuple.right);
+			return this.chapterPosition.equals(tuple.chapterPosition)
+					&& this.questionPosition.equals(tuple.questionPosition);
 		}
 
 	}

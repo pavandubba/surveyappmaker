@@ -10,7 +10,11 @@ import org.urbanlaunchpad.flocktracker.SurveyHelper.Tuple;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
+import android.media.ThumbnailUtils;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.Gravity;
@@ -182,11 +186,12 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 								otherET.setText(jquestion.getString("Answer"));
 								otherET.setTextColor(getResources().getColor(
 										R.color.answer_selected));
-								answerString = (String) otherET.getText().toString();
+								answerString = (String) otherET.getText()
+										.toString();
 								selectedAnswers = new ArrayList<Integer>();
 								selectedAnswers.add(-1);
-								Callback.AnswerRecieve(answerString, jumpString,
-										selectedAnswers);
+								Callback.AnswerRecieve(answerString,
+										jumpString, selectedAnswers);
 							} catch (JSONException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
@@ -576,10 +581,31 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 	}
 
 	public void ImageLayout() {
+		answerlayout.removeAllViews();
 		ImageView cameraButton = new ImageView(rootView.getContext());
 		cameraButton.setImageResource(R.drawable.ft_ridercomp);
 		cameraButton.setOnClickListener(this);
 		answerlayout.addView(cameraButton);
+		addThumbnail();
+	}
+	
+	public void addThumbnail() {
+		Tuple<Integer> key = new Tuple<Integer>(chapterposition,
+				questionposition);
+		if (SurveyHelper.prevImages.containsKey(key)) {
+			Uri imagePath = SurveyHelper.prevImages.get(key);
+			ImageView prevImage = new ImageView(rootView.getContext());
+			try {
+				Bitmap imageBitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(imagePath.getPath()), 512, 300);
+				prevImage.setImageBitmap(imageBitmap);
+				prevImage.setPadding(10, 30, 10, 10);
+
+				answerlayout.addView(prevImage);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 
 	public String getJump(JSONObject Obj) {
@@ -648,9 +674,10 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 			if (!foundAnswer) {
 				// focus ET
 				otherET.requestFocusFromTouch();
-				InputMethodManager lManager = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE); 
-		        lManager.showSoftInput(otherET, 0);
-		        
+				InputMethodManager lManager = (InputMethodManager) getActivity()
+						.getSystemService(Context.INPUT_METHOD_SERVICE);
+				lManager.showSoftInput(otherET, 0);
+
 				otherET.setTextColor(getResources().getColor(
 						R.color.answer_selected));
 				answerString = (String) otherET.getText().toString();

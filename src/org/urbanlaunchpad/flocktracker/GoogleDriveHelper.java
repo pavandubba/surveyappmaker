@@ -28,7 +28,7 @@ public class GoogleDriveHelper {
 	static final int CAPTURE_IMAGE = 3;
 	static final String PHOTO_FOLDER_ID = "0BzQnDGTR4fYbQUdLeUUwcXFVOUE";
 
-	private static Uri fileUri;
+	public Uri fileUri;
 	public static Drive service;
 	private Surveyor activity;
 	private String jumpString = null;

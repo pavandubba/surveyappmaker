@@ -10,6 +10,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.json.JSONException;
 import org.urbanlaunchpad.flocktracker.Status_page_fragment.StatusPageUpdate;
 import org.urbanlaunchpad.flocktracker.SurveyHelper.NextQuestionResult;
+import org.urbanlaunchpad.flocktracker.SurveyHelper.Tuple;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -90,6 +91,7 @@ public class Surveyor extends Activity implements
 	static final Integer TRACKER_INTERVAL = 5000;
 	static final String HUB_PAGE_TITLE = "Hub Page";
 	static final String STATISTICS_PAGE_TITLE = "Statistics";
+	private Question_fragment currentQuestionFragment;
 
 	private enum EVENT_TYPE {
 		MALE_UPDATE, FEMALE_UPDATE, UPDATE_STATS_PAGE, UPDATE_HUB_PAGE, SHOW_NAV_BUTTONS
@@ -123,7 +125,7 @@ public class Surveyor extends Activity implements
 				totalCount.setText("" + (maleCount + femaleCount));
 			} else if (msg.what == EVENT_TYPE.UPDATE_HUB_PAGE.ordinal()) {
 				askingTripQuestions = false;
-				
+
 				// hide navigation buttons
 				FragmentManager fragmentManager = getFragmentManager();
 
@@ -233,7 +235,8 @@ public class Surveyor extends Activity implements
 								address.getMaxAddressLineIndex() > 0 ? address
 										.getAddressLine(0) + ", " : "",
 								// Locality is usually a city
-								address.getLocality() != null ? address.getLocality() + ", " : "",
+								address.getLocality() != null ? address
+										.getLocality() + ", " : "",
 								// The country of the address
 								address.getCountryName());
 						currentAddressText.setText(addressText);
@@ -368,16 +371,17 @@ public class Surveyor extends Activity implements
 	@Override
 	public void onBackPressed() {
 		if (!showingHubPage && !showingStatusPage) {
-			int chapterPosition = surveyHelper.getChapterPosition();
-			int questionPosition = surveyHelper.getQuestionPosition();
-
-			if (questionPosition == 0) {
+			if (surveyHelper.getChapterPosition() == 0
+					&& surveyHelper.getQuestionPosition() == 0) {
 				showHubPage();
 				return;
 			}
 
-			surveyHelper.updateSurveyPosition(chapterPosition,
-					questionPosition - 1);
+			// Pop last question off
+			Tuple<Integer> prevPosition = surveyHelper.prevPositions.pop();
+			surveyHelper
+					.updateSurveyPositionOnBack(prevPosition.chapterPosition,
+							prevPosition.questionPosition);
 			showCurrentQuestion();
 			return;
 		}
@@ -476,6 +480,11 @@ public class Surveyor extends Activity implements
 			break;
 		case GoogleDriveHelper.REQUEST_AUTHORIZATION:
 			if (resultCode == Activity.RESULT_OK) {
+				SurveyHelper.prevImages.put(
+						new Tuple<Integer>(surveyHelper.getChapterPosition(),
+								surveyHelper.getQuestionPosition()),
+						driveHelper.fileUri);
+				currentQuestionFragment.ImageLayout();
 				driveHelper.saveFileToDrive();
 			} else {
 				startActivityForResult(
@@ -485,6 +494,11 @@ public class Surveyor extends Activity implements
 			break;
 		case GoogleDriveHelper.CAPTURE_IMAGE:
 			if (resultCode == Activity.RESULT_OK) {
+				SurveyHelper.prevImages.put(
+						new Tuple<Integer>(surveyHelper.getChapterPosition(),
+								surveyHelper.getQuestionPosition()),
+						driveHelper.fileUri);
+				currentQuestionFragment.ImageLayout();
 				driveHelper.saveFileToDrive();
 			}
 			break;
@@ -636,13 +650,13 @@ public class Surveyor extends Activity implements
 		}
 
 		// Starting question fragment and passing json question information.
-		Fragment fragment = new Question_fragment();
+		currentQuestionFragment = new Question_fragment();
 		Bundle args = new Bundle();
 		args.putString(Question_fragment.ARG_JSON_QUESTION,
 				currentQuestion.toString());
 		args.putInt(Question_fragment.ARG_CHAPTER_POSITION, chapterPosition);
 		args.putInt(Question_fragment.ARG_QUESTION_POSITION, questionPosition);
-		fragment.setArguments(args);
+		currentQuestionFragment.setArguments(args);
 
 		FragmentManager fragmentManager = getFragmentManager();
 		FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -662,7 +676,7 @@ public class Surveyor extends Activity implements
 					.setVisibility(View.VISIBLE);
 		}
 
-		transaction.replace(R.id.surveyor_frame, fragment);
+		transaction.replace(R.id.surveyor_frame, currentQuestionFragment);
 		transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
 		if (!askingTripQuestions)
 			transaction.addToBackStack(null);
@@ -725,7 +739,7 @@ public class Surveyor extends Activity implements
 
 		case PREVIOUS:
 			surveyHelper.onPrevQuestionPressed(askingTripQuestions);
-			showCurrentQuestion();
+			onBackPressed();
 			break;
 		case NEXT:
 			NextQuestionResult result = surveyHelper
@@ -767,12 +781,13 @@ public class Surveyor extends Activity implements
 
 	public void AnswerRecieve(String answerStringReceive,
 			String jumpStringReceive, ArrayList<Integer> selectedAnswers) {
-		//TODO: fix loop stuff
+		// TODO: fix loop stuff
 		inLoop = false;
-		
+
 		if ((answerStringReceive != null) && (inLoop == false)) {
 			if (!askingTripQuestions) {
-				surveyHelper.answerCurrentQuestion(answerStringReceive, selectedAnswers);
+				surveyHelper.answerCurrentQuestion(answerStringReceive,
+						selectedAnswers);
 			} else {
 				surveyHelper.answerCurrentTrackerQuestion(answerStringReceive);
 			}
@@ -799,8 +814,8 @@ public class Surveyor extends Activity implements
 
 	public void PositionRecieve(Integer chapterpositionrecieve,
 			Integer questionpositionrecieve) {
-		surveyHelper.updateSurveyPosition(chapterpositionrecieve,
-				questionpositionrecieve);
+		// surveyHelper.updateSurveyPosition(chapterpositionrecieve,
+		// questionpositionrecieve);
 	}
 
 	/*
