@@ -136,13 +136,18 @@ public class Surveyor extends Activity implements
 
 				// update male count
 				TextView maleCountView = (TextView) findViewById(R.id.maleCount);
-				maleCountView.setText(maleCount.toString());
+				if (maleCountView != null)
+					maleCountView.setText(maleCount.toString());
+				
 				// update female count
 				TextView femaleCountView = (TextView) findViewById(R.id.femaleCount);
-				femaleCountView.setText(femaleCount.toString());
+				if (femaleCountView != null)
+					femaleCountView.setText(femaleCount.toString());
+				
 				// update total count
 				TextView totalCount = (TextView) findViewById(R.id.totalPersonCount);
-				totalCount.setText("" + (maleCount + femaleCount));
+				if (totalCount != null)
+					totalCount.setText("" + (maleCount + femaleCount));
 
 				if (isTripStarted) {
 					ImageView gear = (ImageView) findViewById(R.id.start_trip_button);
@@ -370,6 +375,13 @@ public class Surveyor extends Activity implements
 
 	@Override
 	public void onBackPressed() {
+		// need a separate stack of previous positions in trip questions
+		// on next press, need to update
+		
+		if (askingTripQuestions) { 
+			
+		}
+		
 		if (!showingHubPage && !showingStatusPage) {
 			if (surveyHelper.getChapterPosition() == 0
 					&& surveyHelper.getQuestionPosition() == 0) {
@@ -437,10 +449,12 @@ public class Surveyor extends Activity implements
 	 * Submitting survey and location logic
 	 */
 
-	public void submitSurvey() throws ClientProtocolException, IOException {
-		if (surveyHelper.submitSurvey(mLocationClient.getLastLocation(),
-				surveyID, tripID))
+	public boolean submitSurvey() throws ClientProtocolException, IOException {
+		boolean success = surveyHelper.submitSurvey(mLocationClient.getLastLocation(),
+				surveyID, tripID);
+		if (success)
 			surveysCompleted++;
+		return success;
 	}
 
 	public void submitLocation() {
@@ -931,8 +945,8 @@ public class Surveyor extends Activity implements
 					new Thread(new Runnable() {
 						public void run() {
 							try {
-								submitSurvey();
-								resetSurvey();
+								if (submitSurvey())
+									resetSurvey();
 							} catch (ClientProtocolException e1) {
 								e1.printStackTrace();
 							} catch (IOException e1) {

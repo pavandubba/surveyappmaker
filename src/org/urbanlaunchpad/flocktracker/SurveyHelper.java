@@ -27,6 +27,7 @@ public class SurveyHelper {
 	private String TRIP_TABLE_ID = "1Q2mr8ni5LTxtZRRi3PNSYxAYS8HWikWqlfoIUK4";
 	private String SURVEY_TABLE_ID = "11lGsm8B2SNNGmEsTmuGVrAy1gcJF9TQBo3G1Vw0";
 	private Context context;
+	private String jsonSurvey = null;
 	private JSONObject jsurv = null;
 	private JSONArray jchapterlist;
 	private JSONArray jtrackerquestions;
@@ -40,7 +41,11 @@ public class SurveyHelper {
 
 	private Integer chapterPosition = null;
 	private Integer questionPosition = null;
+	
+	// Backstack
 	public Stack<Tuple<Integer>> prevPositions = new Stack<Tuple<Integer>>();
+	public Stack<Integer> prevTrackingPositions = new Stack<Integer>();
+
 	public Integer prevQuestionPosition = null;
 	private Integer tripQuestionPosition = 0;
 	private String jumpString = null;
@@ -50,7 +55,7 @@ public class SurveyHelper {
 
 	public SurveyHelper(String username, String jsonSurvey, Context context) {
 		this.username = username;
-
+		this.jsonSurvey = jsonSurvey;
 		// parse json survey
 		try {
 			this.jsurv = new JSONObject(jsonSurvey);
@@ -469,16 +474,13 @@ public class SurveyHelper {
 	}
 
 	public void resetSurvey() {
-		for (int i = 0; i < jchapterlist.length(); ++i) {
-			for (int j = 0; j < chapterQuestionCounts[i]; j++) {
-				try {
-					jsurv.getJSONObject("Survey").getJSONArray("Chapters")
-							.getJSONObject(i).getJSONArray("Questions")
-							.getJSONObject(j).remove("Answer");
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
-			}
+		try {
+			jsurv = new JSONObject(jsonSurvey);
+			selectedAnswersMap = new HashMap<Tuple<Integer>, ArrayList<Integer>>();
+			prevImages = new HashMap<Tuple<Integer>, Uri>();
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 
@@ -514,8 +516,6 @@ public class SurveyHelper {
 	// updates positions to get next question. returns true if end of survey
 	// reached
 	public NextQuestionResult onNextQuestionPressed(Boolean askingTripQuestions) {
-		prevPositions.add(new Tuple<Integer>(chapterPosition, questionPosition));
-
 		if (askingTripQuestions) {
 			tripQuestionPosition++;
 			if (tripQuestionPosition == jtrackerquestions.length()) {
@@ -523,6 +523,7 @@ public class SurveyHelper {
 				return NextQuestionResult.END;
 			}
 		} else {
+			prevPositions.add(new Tuple<Integer>(chapterPosition, questionPosition));
 			questionPosition++;
 			if (questionPosition == chapterQuestionCounts[chapterPosition]) {
 				if (chapterPosition == jchapterlist.length() - 1) {
