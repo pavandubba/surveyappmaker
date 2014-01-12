@@ -202,7 +202,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 				}
 			} else if (questionkind.equals("OT") || questionkind.equals("ON")) {
 				OpenLayout();
-				
+
 				// Prepopulate question
 				if (Surveyor.askingTripQuestions) {
 					selectedAnswers = SurveyHelper.selectedTrackingAnswersMap
@@ -212,7 +212,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 							.get(new Tuple<Integer>(chapterposition,
 									questionposition));
 				}
-				
+
 				if (selectedAnswers != null && selectedAnswers.get(0) == -1) {
 					try {
 						openET.setText(jquestion.getString("Answer"));
@@ -234,7 +234,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 							.get(new Tuple<Integer>(chapterposition,
 									questionposition));
 				}
-				
+
 				if (selectedAnswers != null) {
 					for (Integer id : selectedAnswers) {
 						CheckBox checkbox = cbanswer[id];
@@ -284,51 +284,40 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 					Toast.LENGTH_SHORT);
 			toast.show();
 		}
-			// Filling array adapter with the answers.
-		if (totalanswers == 0){
+		// Filling array adapter with the answers.
+		if (totalanswers == 0) {
 			answerList.add("");
-		} else{
+		} else {
 			String aux;
 			for (int i = 0; i < totalanswers; ++i) {
 				try {
 					aux = janswerlist.getJSONObject(i).getString("Answer");
-					answerList
-					.add(aux);
+					answerList.add(aux);
 				} catch (JSONException e) {
 					e.printStackTrace();
-					answerList
-					.add("");
+					answerList.add("");
 				}
-				
-//				toast = Toast.makeText(getActivity(),
-//						aux,
-//						Toast.LENGTH_SHORT);
-//				toast.show();
+
 			}
 		}
-		
-		ViewGroup questionLayoutView = (ViewGroup) rootView.findViewById(R.id.questionlayout);
-		ScrollView answerScroll = (ScrollView) rootView.findViewById(R.id.answerScroll);
+
+		ViewGroup questionLayoutView = (ViewGroup) rootView
+				.findViewById(R.id.questionlayout);
+		ScrollView answerScroll = (ScrollView) rootView
+				.findViewById(R.id.answerScroll);
 		questionLayoutView.removeView(answerScroll);
-        StableArrayAdapter adapter = new StableArrayAdapter(rootView.getContext(), R.layout.text_view, answerList);
-        DynamicListView answerlistView = (DynamicListView) new DynamicListView(getActivity());
-        
-        answerlistView.setCheeseList(answerList);
-        answerlistView.setAdapter(adapter);
-        answerlistView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-//        answerlayout.setVisibility(View.GONE);
-        LinearLayout orderanswerlayout = (LinearLayout) rootView.findViewById(R.id.orderanswerlayout);
-//        orderanswerlayout.setVisibility(View.VISIBLE);
-        orderanswerlayout.addView(answerlistView, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT	);	
-    
-//		answerlist = new String[totalanswers];
-//		tvanswerlist = new TextView[totalanswers];
-//		tvansweridlist = new Integer[totalanswers];
-//		answerinsert = new LinearLayout[totalanswers];
-//		answerspinners = new Spinner[totalanswers];
-//		spinnerarray = new ArrayList[totalanswers];
-//		spinnerarrayadapters = new ArrayAdapter[totalanswers];
-//		originalspinnerarray = new ArrayList<String>();
+		StableArrayAdapter adapter = new StableArrayAdapter(
+				rootView.getContext(), R.layout.ordered_answer, answerList);
+		DynamicListView answerlistView = (DynamicListView) new DynamicListView(
+				getActivity());
+		answerlistView.setCheeseList(answerList);
+		answerlistView.setAdapter(adapter);
+		answerlistView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+		LinearLayout orderanswerlayout = (LinearLayout) rootView
+				.findViewById(R.id.orderanswerlayout);
+		orderanswerlayout.addView(answerlistView, LayoutParams.MATCH_PARENT,
+				LayoutParams.MATCH_PARENT);
+
 	}
 
 	public void MultipleChoiceLayout() {
@@ -550,7 +539,8 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 	public void addThumbnail() {
 		Tuple<Integer> key = new Tuple<Integer>(chapterposition,
 				questionposition);
-		if (!Surveyor.askingTripQuestions && SurveyHelper.prevImages.containsKey(key)) {
+		if (!Surveyor.askingTripQuestions
+				&& SurveyHelper.prevImages.containsKey(key)) {
 			Uri imagePath = SurveyHelper.prevImages.get(key);
 			ImageView prevImage = new ImageView(rootView.getContext());
 			try {
@@ -566,8 +556,10 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		} else if (Surveyor.askingTripQuestions && SurveyHelper.prevTrackerImages.containsKey(questionposition)) {
-			Uri imagePath = SurveyHelper.prevTrackerImages.get(questionposition);
+		} else if (Surveyor.askingTripQuestions
+				&& SurveyHelper.prevTrackerImages.containsKey(questionposition)) {
+			Uri imagePath = SurveyHelper.prevTrackerImages
+					.get(questionposition);
 			ImageView prevImage = new ImageView(rootView.getContext());
 			try {
 				Bitmap imageBitmap = ThumbnailUtils
