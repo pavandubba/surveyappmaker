@@ -178,9 +178,14 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 				MultipleChoiceLayout();
 
 				// Prepopulate question
-				selectedAnswers = SurveyHelper.selectedAnswersMap
-						.get(new Tuple<Integer>(chapterposition,
-								questionposition));
+				if (Surveyor.askingTripQuestions) {
+					selectedAnswers = SurveyHelper.selectedTrackingAnswersMap
+							.get(questionposition);
+				} else {
+					selectedAnswers = SurveyHelper.selectedAnswersMap
+							.get(new Tuple<Integer>(chapterposition,
+									questionposition));
+				}
 				if (selectedAnswers != null) {
 					for (Integer id : selectedAnswers) {
 						if (id == -1) {
@@ -201,10 +206,17 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 				}
 			} else if (questionkind.equals("OT") || questionkind.equals("ON")) {
 				OpenLayout();
+				
 				// Prepopulate question
-				selectedAnswers = SurveyHelper.selectedAnswersMap
-						.get(new Tuple<Integer>(chapterposition,
-								questionposition));
+				if (Surveyor.askingTripQuestions) {
+					selectedAnswers = SurveyHelper.selectedTrackingAnswersMap
+							.get(questionposition);
+				} else {
+					selectedAnswers = SurveyHelper.selectedAnswersMap
+							.get(new Tuple<Integer>(chapterposition,
+									questionposition));
+				}
+				
 				if (selectedAnswers != null && selectedAnswers.get(0) == -1) {
 					try {
 						openET.setText(jquestion.getString("Answer"));
@@ -218,9 +230,15 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 			} else if (questionkind.equals("CB")) {
 				CheckBoxLayout();
 				// Prepopulate question
-				selectedAnswers = SurveyHelper.selectedAnswersMap
-						.get(new Tuple<Integer>(chapterposition,
-								questionposition));
+				if (Surveyor.askingTripQuestions) {
+					selectedAnswers = SurveyHelper.selectedTrackingAnswersMap
+							.get(questionposition);
+				} else {
+					selectedAnswers = SurveyHelper.selectedAnswersMap
+							.get(new Tuple<Integer>(chapterposition,
+									questionposition));
+				}
+				
 				if (selectedAnswers != null) {
 					for (Integer id : selectedAnswers) {
 						CheckBox checkbox = cbanswer[id];
@@ -481,14 +499,14 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 			otherET.setLayoutParams(layoutParamsText);
 			otherET.setBackgroundResource(R.drawable.edit_text);
 			otherET.setOnTouchListener(new OnTouchListener() {
-			    @Override
-			    public boolean onTouch(View v, MotionEvent event) {
-			        if(MotionEvent.ACTION_UP == event.getAction())
-			            MultipleChoiceOnClick(otherET);
-			        return false;
-			    }
+				@Override
+				public boolean onTouch(View v, MotionEvent event) {
+					if (MotionEvent.ACTION_UP == event.getAction())
+						MultipleChoiceOnClick(otherET);
+					return false;
+				}
 			});
-			
+
 			// Add both to a linear layout
 			otherfield = new LinearLayout(rootView.getContext());
 			otherfield.setWeightSum(4);
@@ -589,12 +607,12 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 			}
 		});
 		openET.setOnTouchListener(new OnTouchListener() {
-		    @Override
-		    public boolean onTouch(View v, MotionEvent event) {
-		        if(MotionEvent.ACTION_UP == event.getAction())
-		            onClick(openET);
-		        return false;
-		    }
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				if (MotionEvent.ACTION_UP == event.getAction())
+					onClick(openET);
+				return false;
+			}
 		});
 	}
 

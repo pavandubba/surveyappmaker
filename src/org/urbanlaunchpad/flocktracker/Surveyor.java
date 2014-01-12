@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.Stack;
 
 import org.apache.http.client.ClientProtocolException;
 import org.json.JSONException;
@@ -82,7 +83,7 @@ public class Surveyor extends Activity implements
 	private Location startLocation;
 	private List<Address> addresses;
 	private Activity thisActivity;
-	private Boolean askingTripQuestions = false;
+	public static Boolean askingTripQuestions = false;
 	private Boolean inLoop = false;
 	private boolean showingStatusPage = false;
 	private boolean showingHubPage = false;
@@ -153,18 +154,9 @@ public class Surveyor extends Activity implements
 				if (isTripStarted) {
 					ImageView gear = (ImageView) findViewById(R.id.start_trip_button);
 					gear.setImageResource(R.drawable.ft_grn_st1);
-					// RotateAnimation anim = new RotateAnimation(0.0f, 360.0f,
-					// Animation.RELATIVE_TO_SELF, 0.5f,
-					// Animation.RELATIVE_TO_SELF, 0.5f);
-					// anim.setInterpolator(new LinearInterpolator());
-					// anim.setRepeatCount(Animation.INFINITE);
-					// anim.setDuration(700);
-					// // Start animating the image
-					// gear.startAnimation(anim);
 				} else {
 					ImageView gear = (ImageView) findViewById(R.id.start_trip_button);
 					gear.setImageResource(R.drawable.ft_red_st);
-					// gear.setAnimation(null);
 				}
 			} else if (msg.what == EVENT_TYPE.UPDATE_STATS_PAGE.ordinal()) {
 				TextView tripTimeText = (TextView) findViewById(R.id.tripTime);
@@ -392,11 +384,16 @@ public class Surveyor extends Activity implements
 
 	@Override
 	public void onBackPressed() {
-		// need a separate stack of previous positions in trip questions
-		// on next press, need to update
-
 		if (askingTripQuestions) {
-
+			if (surveyHelper.getTripQuestionPosition() == 0) {
+				showHubPage();
+				return;
+			}
+			// Pop last question off
+			Integer prevPosition = surveyHelper.prevTrackingPositions.pop();
+			surveyHelper.updateTrackerPositionOnBack(prevPosition);
+			showCurrentQuestion();
+			return;
 		}
 
 		if (!showingHubPage && !showingStatusPage) {
@@ -722,7 +719,8 @@ public class Surveyor extends Activity implements
 		}
 
 		// selectively show previous question button
-		if (questionPosition == 0) {
+		if ((askingTripQuestions && surveyHelper.getTripQuestionPosition() == 0)
+				|| (!askingTripQuestions && questionPosition == 0)) {
 			navButtons.getView().findViewById(R.id.previous_question_button)
 					.setVisibility(View.INVISIBLE);
 		} else {
@@ -849,7 +847,8 @@ public class Surveyor extends Activity implements
 				surveyHelper.answerCurrentQuestion(answerStringReceive,
 						selectedAnswers);
 			} else {
-				surveyHelper.answerCurrentTrackerQuestion(answerStringReceive);
+				surveyHelper.answerCurrentTrackerQuestion(answerStringReceive,
+						selectedAnswers);
 			}
 		} else if ((answerStringReceive != null) && (inLoop = true)) {
 			if (!askingTripQuestions) {
@@ -932,6 +931,7 @@ public class Surveyor extends Activity implements
 				// Starting question fragment and passing json question
 				// information.
 				surveyHelper.updateSurveyPosition(0, 0);
+				surveyHelper.resetTracker();
 				showCurrentQuestion();
 			}
 			break;

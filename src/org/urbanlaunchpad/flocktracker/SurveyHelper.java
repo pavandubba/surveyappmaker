@@ -34,6 +34,7 @@ public class SurveyHelper {
 
 	// Hashmaps that store previously entered answers
 	public static HashMap<Tuple<Integer>, ArrayList<Integer>> selectedAnswersMap = new HashMap<Tuple<Integer>, ArrayList<Integer>>();
+	public static HashMap<Integer, ArrayList<Integer>> selectedTrackingAnswersMap = new HashMap<Integer, ArrayList<Integer>>();
 	public static HashMap<Tuple<Integer>, Uri> prevImages = new HashMap<Tuple<Integer>, Uri>();
 
 	private String[] ChapterTitles;
@@ -457,10 +458,13 @@ public class SurveyHelper {
 		}
 	}
 
-	public void answerCurrentTrackerQuestion(String answer) {
+	public void answerCurrentTrackerQuestion(String answer,
+			ArrayList<Integer> selectedAnswers) {
 		try {
 			jsurv.getJSONObject("Tracker").getJSONArray("Questions")
 					.getJSONObject(tripQuestionPosition).put("Answer", answer);
+			selectedTrackingAnswersMap.put(tripQuestionPosition,
+					selectedAnswers);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -477,6 +481,7 @@ public class SurveyHelper {
 	public void resetSurvey() {
 		try {
 			jsurv = new JSONObject(jsonSurvey);
+			prevPositions = new Stack<Tuple<Integer>>();
 			selectedAnswersMap = new HashMap<Tuple<Integer>, ArrayList<Integer>>();
 			prevImages = new HashMap<Tuple<Integer>, Uri>();
 		} catch (JSONException e) {
@@ -485,6 +490,12 @@ public class SurveyHelper {
 		}
 	}
 
+	public void resetTracker() {
+		tripQuestionPosition = 0;
+		prevTrackingPositions = new Stack<Integer>();
+		selectedTrackingAnswersMap = new HashMap<Integer, ArrayList<Integer>>();
+	}
+	
 	public void updateSurveyPosition(Integer chapterpositionreceive,
 			Integer questionpositionreceive) {
 		prevPositions
@@ -499,15 +510,21 @@ public class SurveyHelper {
 		questionPosition = questionpositionreceive;
 	}
 
+	public void updateTrackerPosition(Integer questionpositionreceive) {
+		prevTrackingPositions.add(questionpositionreceive);
+		tripQuestionPosition = questionpositionreceive;
+	}
+
+	public void updateTrackerPositionOnBack(Integer questionpositionreceive) {
+		tripQuestionPosition = questionpositionreceive;
+
+	}
+
 	public void updateJumpString(String jumpStringReceive) {
 		jumpString = jumpStringReceive;
 	}
 
 	public void onPrevQuestionPressed(Boolean askingTripQuestions) {
-		if (askingTripQuestions) {
-			tripQuestionPosition--;
-		}
-
 		jumpString = null;
 	}
 
@@ -519,9 +536,10 @@ public class SurveyHelper {
 	// reached
 	public NextQuestionResult onNextQuestionPressed(Boolean askingTripQuestions) {
 		if (askingTripQuestions) {
+			prevTrackingPositions.add(tripQuestionPosition);
 			tripQuestionPosition++;
 			if (tripQuestionPosition == jtrackerquestions.length()) {
-				tripQuestionPosition = 0;
+				resetTracker();
 				return NextQuestionResult.END;
 			}
 		} else {
