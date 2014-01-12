@@ -530,12 +530,18 @@ public class Surveyor extends Activity implements
 			break;
 		case GoogleDriveHelper.REQUEST_AUTHORIZATION:
 			if (resultCode == Activity.RESULT_OK) {
-				SurveyHelper.prevImages.put(
-						new Tuple<Integer>(surveyHelper.getChapterPosition(),
-								surveyHelper.getQuestionPosition()),
-						driveHelper.fileUri);
+				if (askingTripQuestions) {
+					SurveyHelper.prevTrackerImages.put(
+							surveyHelper.getTripQuestionPosition(),
+							driveHelper.fileUri);
+				} else {
+					SurveyHelper.prevImages.put(
+							new Tuple<Integer>(surveyHelper
+									.getChapterPosition(), surveyHelper
+									.getQuestionPosition()),
+							driveHelper.fileUri);
+				}
 				currentQuestionFragment.ImageLayout();
-				driveHelper.saveFileToDrive();
 			} else {
 				startActivityForResult(
 						Iniconfig.credential.newChooseAccountIntent(),
@@ -544,12 +550,18 @@ public class Surveyor extends Activity implements
 			break;
 		case GoogleDriveHelper.CAPTURE_IMAGE:
 			if (resultCode == Activity.RESULT_OK) {
-				SurveyHelper.prevImages.put(
-						new Tuple<Integer>(surveyHelper.getChapterPosition(),
-								surveyHelper.getQuestionPosition()),
-						driveHelper.fileUri);
+				if (askingTripQuestions) {
+					SurveyHelper.prevTrackerImages.put(
+							surveyHelper.getTripQuestionPosition(),
+							driveHelper.fileUri);
+				} else {
+					SurveyHelper.prevImages.put(
+							new Tuple<Integer>(surveyHelper
+									.getChapterPosition(), surveyHelper
+									.getQuestionPosition()),
+							driveHelper.fileUri);
+				}
 				currentQuestionFragment.ImageLayout();
-				driveHelper.saveFileToDrive();
 			}
 			break;
 

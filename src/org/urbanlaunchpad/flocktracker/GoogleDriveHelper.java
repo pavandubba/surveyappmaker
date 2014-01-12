@@ -69,44 +69,34 @@ public class GoogleDriveHelper {
 		activity.startActivityForResult(cameraIntent, CAPTURE_IMAGE);
 	}
 
-	public void saveFileToDrive() {
-		Thread t = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					// File's binary content
-					java.io.File fileContent = new java.io.File(
-							fileUri.getPath());
-					FileContent mediaContent = new FileContent("image/jpeg",
-							fileContent);
+	public String saveFileToDrive(final Uri uri) throws IOException {
+		try {
+			// File's binary content
+			java.io.File fileContent = new java.io.File(uri.getPath());
+			FileContent mediaContent = new FileContent("image/jpeg",
+					fileContent);
 
-					// File's metadata.
-					File body = new File();
-					body.setTitle(fileContent.getName());
-					body.setMimeType("image/jpeg");
-					body.setParents(Arrays.asList(new ParentReference()
-							.setId(PHOTO_FOLDER_ID)));
+			// File's metadata.
+			File body = new File();
+			body.setTitle(fileContent.getName());
+			body.setMimeType("image/jpeg");
+			body.setParents(Arrays.asList(new ParentReference()
+					.setId(PHOTO_FOLDER_ID)));
 
-					File file = service.files().insert(body, mediaContent)
-							.execute();
+			File file = service.files().insert(body, mediaContent).execute();
 
-					// Notify that we have captured an image
-					activity.AnswerRecieve(file.getWebContentLink(),
-							jumpString, null);
-					jumpString = null;
+			// Notify that we have captured an image
+			jumpString = null;
 
-					if (file != null) {
-						showToast("Photo uploaded: " + file.getTitle());
-					}
-				} catch (UserRecoverableAuthIOException e) {
-					activity.startActivityForResult(e.getIntent(),
-							REQUEST_AUTHORIZATION);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+			if (file != null) {
+				showToast("Photo uploaded: " + file.getTitle());
 			}
-		});
-		t.start();
+			return file.getWebContentLink();
+		} catch (UserRecoverableAuthIOException e) {
+			activity.startActivityForResult(e.getIntent(),
+					REQUEST_AUTHORIZATION);
+		}
+		return null;
 	}
 
 	public void showToast(final String toast) {

@@ -628,8 +628,24 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 	public void addThumbnail() {
 		Tuple<Integer> key = new Tuple<Integer>(chapterposition,
 				questionposition);
-		if (SurveyHelper.prevImages.containsKey(key)) {
+		if (!Surveyor.askingTripQuestions && SurveyHelper.prevImages.containsKey(key)) {
 			Uri imagePath = SurveyHelper.prevImages.get(key);
+			ImageView prevImage = new ImageView(rootView.getContext());
+			try {
+				Bitmap imageBitmap = ThumbnailUtils
+						.extractThumbnail(
+								BitmapFactory.decodeFile(imagePath.getPath()),
+								512, 512);
+				prevImage.setImageBitmap(imageBitmap);
+				prevImage.setPadding(10, 30, 10, 10);
+
+				answerlayout.addView(prevImage);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else if (Surveyor.askingTripQuestions && SurveyHelper.prevTrackerImages.containsKey(questionposition)) {
+			Uri imagePath = SurveyHelper.prevTrackerImages.get(questionposition);
 			ImageView prevImage = new ImageView(rootView.getContext());
 			try {
 				Bitmap imageBitmap = ThumbnailUtils

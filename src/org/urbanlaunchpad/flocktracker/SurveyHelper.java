@@ -36,6 +36,7 @@ public class SurveyHelper {
 	public static HashMap<Tuple<Integer>, ArrayList<Integer>> selectedAnswersMap = new HashMap<Tuple<Integer>, ArrayList<Integer>>();
 	public static HashMap<Integer, ArrayList<Integer>> selectedTrackingAnswersMap = new HashMap<Integer, ArrayList<Integer>>();
 	public static HashMap<Tuple<Integer>, Uri> prevImages = new HashMap<Tuple<Integer>, Uri>();
+	public static HashMap<Integer, Uri> prevTrackerImages = new HashMap<Integer, Uri>();
 
 	private String[] ChapterTitles;
 	private Integer[] chapterQuestionCounts;
@@ -152,29 +153,59 @@ public class SurveyHelper {
 
 	public boolean submitSurvey(Location currentLocation, String surveyID,
 			String tripID) {
-		String columnnamesString = getnames("id", "nq", "Survey");
-		String answerfinalString = getnames("Answer", "wq", "Survey");
-		String latlng = LocationHelper.getLatLngAlt(currentLocation);
-		String dateString = (String) android.text.format.DateFormat.format(
-				"yyyy-MM-dd hh:mm:ss", new java.util.Date());
-		String query = "INSERT INTO "
-				+ SURVEY_TABLE_ID
-				+ " ("
-				+ columnnamesString
-				+ ",Location,Lat,Lng,Alt,Date,SurveyID,TripID,Username) VALUES ("
-				+ answerfinalString + ",'<Point><coordinates>" + latlng
-				+ "</coordinates></Point>','" + currentLocation.getLatitude()
-				+ "','" + currentLocation.getLongitude() + "','"
-				+ currentLocation.getAltitude() + "','" + dateString + "','"
-				+ surveyID + "','" + tripID + "','" + username + "');";
-
 		boolean success = false;
+
 		try {
+			// Upload images and put in answers
+			if (Surveyor.askingTripQuestions) {
+				for (Integer key : prevTrackerImages.keySet()) {
+					String fileLink = Surveyor.driveHelper
+							.saveFileToDrive(prevTrackerImages.get(key));
+					if (fileLink != null) {
+						jsurv.getJSONObject("Tracker")
+								.getJSONArray("Questions").getJSONObject(key)
+								.put("Answer", fileLink);
+					}
+				}
+			} else {
+				for (Tuple<Integer> key : prevImages.keySet()) {
+					String fileLink = Surveyor.driveHelper
+							.saveFileToDrive(prevImages.get(key));
+					if (fileLink != null) {
+						jsurv.getJSONObject("Survey").getJSONArray("Chapters")
+								.getJSONObject(key.chapterPosition)
+								.getJSONArray("Questions")
+								.getJSONObject(key.questionPosition)
+								.put("Answer", fileLink);
+					}
+				}
+			}
+
+			// Submit survey
+			String columnnamesString = getnames("id", "nq", "Survey");
+			String answerfinalString = getnames("Answer", "wq", "Survey");
+			String latlng = LocationHelper.getLatLngAlt(currentLocation);
+			String dateString = (String) android.text.format.DateFormat.format(
+					"yyyy-MM-dd hh:mm:ss", new java.util.Date());
+			String query = "INSERT INTO "
+					+ SURVEY_TABLE_ID
+					+ " ("
+					+ columnnamesString
+					+ ",Location,Lat,Lng,Alt,Date,SurveyID,TripID,Username) VALUES ("
+					+ answerfinalString + ",'<Point><coordinates>" + latlng
+					+ "</coordinates></Point>','" + currentLocation.getLatitude()
+					+ "','" + currentLocation.getLongitude() + "','"
+					+ currentLocation.getAltitude() + "','" + dateString + "','"
+					+ surveyID + "','" + tripID + "','" + username + "');";
+
 			Sql sql = Iniconfig.fusiontables.query().sql(query);
 			sql.setKey(Iniconfig.API_KEY);
 			sql.execute();
 			success = true;
 		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return success;
@@ -494,8 +525,9 @@ public class SurveyHelper {
 		tripQuestionPosition = 0;
 		prevTrackingPositions = new Stack<Integer>();
 		selectedTrackingAnswersMap = new HashMap<Integer, ArrayList<Integer>>();
+		prevTrackerImages = new HashMap<Integer, Uri>();
 	}
-	
+
 	public void updateSurveyPosition(Integer chapterpositionreceive,
 			Integer questionpositionreceive) {
 		prevPositions
