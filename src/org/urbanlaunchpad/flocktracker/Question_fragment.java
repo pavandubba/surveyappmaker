@@ -20,7 +20,9 @@ import android.text.InputType;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.inputmethod.EditorInfo;
@@ -186,12 +188,6 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 								otherET.setText(jquestion.getString("Answer"));
 								otherET.setTextColor(getResources().getColor(
 										R.color.answer_selected));
-								answerString = (String) otherET.getText()
-										.toString();
-								selectedAnswers = new ArrayList<Integer>();
-								selectedAnswers.add(-1);
-								Callback.AnswerRecieve(answerString,
-										jumpString, selectedAnswers);
 							} catch (JSONException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
@@ -205,6 +201,20 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 				}
 			} else if (questionkind.equals("OT") || questionkind.equals("ON")) {
 				OpenLayout();
+				// Prepopulate question
+				selectedAnswers = SurveyHelper.selectedAnswersMap
+						.get(new Tuple<Integer>(chapterposition,
+								questionposition));
+				if (selectedAnswers != null && selectedAnswers.get(0) == -1) {
+					try {
+						openET.setText(jquestion.getString("Answer"));
+						openET.setTextColor(getResources().getColor(
+								R.color.answer_selected));
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
 			} else if (questionkind.equals("CB")) {
 				CheckBoxLayout();
 				// Prepopulate question
@@ -470,8 +480,15 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 			layoutParamsText.gravity = Gravity.CENTER_VERTICAL;
 			otherET.setLayoutParams(layoutParamsText);
 			otherET.setBackgroundResource(R.drawable.edit_text);
-			otherET.setOnClickListener(this);
-
+			otherET.setOnTouchListener(new OnTouchListener() {
+			    @Override
+			    public boolean onTouch(View v, MotionEvent event) {
+			        if(MotionEvent.ACTION_UP == event.getAction())
+			            MultipleChoiceOnClick(otherET);
+			        return false;
+			    }
+			});
+			
 			// Add both to a linear layout
 			otherfield = new LinearLayout(rootView.getContext());
 			otherfield.setWeightSum(4);
@@ -554,6 +571,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 			openET.setInputType(InputType.TYPE_CLASS_NUMBER
 					| InputType.TYPE_NUMBER_FLAG_DECIMAL);
 		}
+		openET.setTypeface(Typeface.create("sans-serif-light", Typeface.NORMAL));
 		openET.setSingleLine();
 		openET.setTextSize(20);
 		openET.setTextColor(getResources().getColor(R.color.text_color_light));
@@ -564,21 +582,20 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 			public boolean onEditorAction(TextView v, int actionId,
 					KeyEvent event) {
 				if (actionId == EditorInfo.IME_ACTION_DONE) {
-					++opentotal;
-					openanswer = new TextView(rootView.getContext());
-					openanswer.setText(openET.getText());
-					answerfield.addView(openanswer);
-					openanswer.setId(opentotal - 1);
-					openanswer.setOnClickListener(Question_fragment.this);
-					OpenOnClick(openanswer);
-					openET.setText("");
-					return false; // If false hides the keyboard after pressing
-									// Done.
+					OpenOnClick(openET);
+					return false; // If false hides the keyboard after
 				}
 				return false;
 			}
 		});
-
+		openET.setOnTouchListener(new OnTouchListener() {
+		    @Override
+		    public boolean onTouch(View v, MotionEvent event) {
+		        if(MotionEvent.ACTION_UP == event.getAction())
+		            onClick(openET);
+		        return false;
+		    }
+		});
 	}
 
 	public void ImageLayout() {
@@ -736,32 +753,17 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 		return answerContainer;
 	}
 
-	// TODO
-	// We want to take the ids and also save it in the json
-	// Extract it on the createview and click the views
 	private void OpenOnClick(View view) {
-		if (view instanceof TextView) {
-			for (int i = 0; i < opentotal; ++i) {
-				TextView textView = (TextView) rootView.findViewById(i);
-				if (view.getId() == textView.getId()) {
-					textView.setTextColor(getResources().getColor(
-							R.color.answer_selected));
-					answerString = (String) textView.getText().toString();
-					Callback.AnswerRecieve(answerString, jumpString, null);
-					if (questionkind.equals("LP")) {
-						Loopback.LoopReceive(loopLimitString);
-					}
-				} else {
-					textView.setTextColor(getResources().getColor(
-							R.color.text_color_light));
-				}
-			}
+		if (view instanceof EditText) {
+			openET.setTextColor(getResources()
+					.getColor(R.color.answer_selected));
+			answerString = (String) openET.getText().toString();
+			selectedAnswers = new ArrayList<Integer>();
+			selectedAnswers.add(-1);
+			Callback.AnswerRecieve(answerString, jumpString, selectedAnswers);
 		}
 	}
 
-	// TODO
-	// We want to take the image and display it.
-	// Ask kuan about where the image needs to go?
 	private void ImageOnClick(View view) {
 		Surveyor.driveHelper.startCameraIntent(jumpString);
 	}
