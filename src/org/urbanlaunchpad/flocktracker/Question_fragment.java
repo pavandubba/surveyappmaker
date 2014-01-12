@@ -1,10 +1,14 @@
 package org.urbanlaunchpad.flocktracker;
 
 import java.util.ArrayList;
+
+import javax.security.auth.PrivateCredentialPermission;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.urbanlaunchpad.flocktracker.SurveyHelper.Tuple;
+
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
@@ -19,14 +23,12 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -271,7 +273,10 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 //				toast.show();
 			}
 		}
-			
+		
+		ViewGroup questionLayoutView = (ViewGroup) rootView.findViewById(R.id.questionlayout);
+		ScrollView answerScroll = (ScrollView) rootView.findViewById(R.id.answerScroll);
+		questionLayoutView.removeView(answerScroll);
         StableArrayAdapter adapter = new StableArrayAdapter(rootView.getContext(), R.layout.text_view, answerList);
         DynamicListView answerlistView = (DynamicListView) new DynamicListView(getActivity());
         

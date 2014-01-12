@@ -1,5 +1,5 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/chapterview"
+    android:id="@+id/questionlayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_margin="20dp"
@@ -13,20 +13,11 @@
         android:textColor="@color/text_color_light"
         android:textSize="17sp" />
     
-       <LinearLayout
-        android:id="@+id/orderanswerlayout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="15dp"
-        android:textColor="@color/text_color_light"
-        android:textSize="17sp" >
-    </LinearLayout>
-
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="fill_parent"
-        android:orientation="vertical" >
+        android:orientation="vertical"
+        android:id="@+id/answerScroll" >
 
         <LinearLayout
             android:id="@+id/answerlayout"
@@ -38,6 +29,16 @@
             android:textSize="17sp" >
         </LinearLayout>
     </ScrollView>
+    
+           <LinearLayout
+        android:id="@+id/orderanswerlayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="15dp"
+        android:textColor="@color/text_color_light"
+        android:textSize="17sp" >
+    </LinearLayout>
 
 
 </LinearLayout>
