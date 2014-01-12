@@ -48,12 +48,12 @@ public class GoogleDriveHelper {
 
 		Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 		cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
-		
+
 		this.jumpString = jumpString;
-		
+
 		activity.startActivityForResult(cameraIntent, CAPTURE_IMAGE);
 	}
-	
+
 	// If we just wish to start the intent without changing jump string
 	public void startCameraIntent() {
 		String mediaStorageDir = Environment.getExternalStoragePublicDirectory(
@@ -65,7 +65,7 @@ public class GoogleDriveHelper {
 
 		Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 		cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
-				
+
 		activity.startActivityForResult(cameraIntent, CAPTURE_IMAGE);
 	}
 
@@ -89,11 +89,10 @@ public class GoogleDriveHelper {
 
 					File file = service.files().insert(body, mediaContent)
 							.execute();
-					
-					// Notify that we have captured an image					
-					activity.AnswerRecieve(file.getWebContentLink(), jumpString, null);
-					
-					// TODO: show place with picture
+
+					// Notify that we have captured an image
+					activity.AnswerRecieve(file.getWebContentLink(),
+							jumpString, null);
 					jumpString = null;
 
 					if (file != null) {

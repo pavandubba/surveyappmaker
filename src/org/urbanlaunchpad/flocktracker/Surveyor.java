@@ -92,6 +92,7 @@ public class Surveyor extends Activity implements
 	static final String HUB_PAGE_TITLE = "Hub Page";
 	static final String STATISTICS_PAGE_TITLE = "Statistics";
 	private Question_fragment currentQuestionFragment;
+	private boolean submittingSurvey = false;
 
 	private enum EVENT_TYPE {
 		MALE_UPDATE, FEMALE_UPDATE, UPDATE_STATS_PAGE, UPDATE_HUB_PAGE, SHOW_NAV_BUTTONS, SUBMITTED_SURVEY, SUBMIT_FAILED
@@ -193,21 +194,50 @@ public class Surveyor extends Activity implements
 					}
 
 					// Get address
-					new Thread(new Runnable() {
-						public void run() {
-							try {
-								Geocoder geocoder = new Geocoder(thisActivity,
-										Locale.getDefault());
-								Location current = mLocationClient
-										.getLastLocation();
-								addresses = geocoder.getFromLocation(
-										current.getLatitude(),
-										current.getLongitude(), 1);
-							} catch (IOException e) {
-								e.printStackTrace();
+					if (mLocationClient.isConnected()) {
+						new Thread(new Runnable() {
+							public void run() {
+								try {
+									Geocoder geocoder = new Geocoder(
+											thisActivity, Locale.getDefault());
+									Location current = mLocationClient
+											.getLastLocation();
+									addresses = geocoder.getFromLocation(
+											current.getLatitude(),
+											current.getLongitude(), 1);
+								} catch (IOException e) {
+									e.printStackTrace();
+								}
 							}
+						}).start();
+
+						if (addresses != null && addresses.size() > 0) {
+							// Get the first address
+							Address address = addresses.get(0);
+							/*
+							 * Format the first line of address (if available),
+							 * city, and country name.
+							 */
+							String addressText = String
+									.format("%s%s%s",
+									// If there's a street address, add
+									// it
+											address.getMaxAddressLineIndex() > 0 ? address
+													.getAddressLine(0) + ", "
+													: "",
+											// Locality is usually a city
+											address.getLocality() != null ? address
+													.getLocality() + ", "
+													: "",
+											// The country of the address
+											address.getCountryName());
+							currentAddressText.setText(addressText);
+
+						} else {
+							currentAddressText
+									.setText(R.string.default_address);
 						}
-					}).start();
+					}
 
 					int distanceBeforeDecimal = (int) (tripDistance / 1000.0);
 					int distanceAfterDecimal = (int) Math
@@ -226,29 +256,6 @@ public class Surveyor extends Activity implements
 											(totalDistanceBefore + tripDistance) / 1000.0));
 					surveysCompletedText.setText("" + surveysCompleted);
 					usernameText.setText("Hi " + username + "!");
-
-					if (addresses != null && addresses.size() > 0) {
-						// Get the first address
-						Address address = addresses.get(0);
-						/*
-						 * Format the first line of address (if available),
-						 * city, and country name.
-						 */
-						String addressText = String.format(
-								"%s%s%s",
-								// If there's a street address, add it
-								address.getMaxAddressLineIndex() > 0 ? address
-										.getAddressLine(0) + ", " : "",
-								// Locality is usually a city
-								address.getLocality() != null ? address
-										.getLocality() + ", " : "",
-								// The country of the address
-								address.getCountryName());
-						currentAddressText.setText(addressText);
-
-					} else {
-						currentAddressText.setText(R.string.default_address);
-					}
 				}
 			} else if (msg.what == EVENT_TYPE.SUBMITTED_SURVEY.ordinal()) {
 				Toast toast = Toast.makeText(getApplicationContext(),
@@ -338,7 +345,6 @@ public class Surveyor extends Activity implements
 
 		// location tracking
 		Tracker.surveyor = this;
-		mLocationClient.connect();
 
 		// Load statistics from previous run-through
 		totalDistanceBefore = Iniconfig.prefs.getFloat("tripDistanceBefore", 0);
@@ -424,11 +430,13 @@ public class Surveyor extends Activity implements
 
 	public void startTrip() {
 		isTripStarted = true;
+		mLocationClient.connect();
 		tripID = "T" + createID();
 	}
 
 	public void stopTrip() {
 		isTripStarted = false;
+		mLocationClient.disconnect();
 		tripID = "";
 		startTripTime = null;
 		cancelTracker();
@@ -460,12 +468,32 @@ public class Surveyor extends Activity implements
 	 * Submitting survey and location logic
 	 */
 
-	public boolean submitSurvey() throws ClientProtocolException, IOException {
-		boolean success = surveyHelper.submitSurvey(
-				mLocationClient.getLastLocation(), surveyID, tripID);
-		if (success)
-			surveysCompleted++;
-		return success;
+	public void submitSurvey() {
+		// connect if not tracking
+		if (!mLocationClient.isConnected()) {
+			submittingSurvey = true;
+			mLocationClient.connect();
+		} else {
+			// submit location tagged survey
+			boolean success = surveyHelper.submitSurvey(
+					mLocationClient.getLastLocation(), surveyID, tripID);
+
+			submittingSurvey = false;
+
+			// disconnect if not tracking
+			if (!isTripStarted)
+				mLocationClient.disconnect();
+
+			if (success) {
+				surveysCompleted++;
+				resetSurvey();
+				messageHandler.sendEmptyMessage(EVENT_TYPE.SUBMITTED_SURVEY
+						.ordinal());
+			} else {
+				messageHandler.sendEmptyMessage(EVENT_TYPE.SUBMIT_FAILED
+						.ordinal());
+			}
+		}
 	}
 
 	public void submitLocation() {
@@ -746,14 +774,23 @@ public class Surveyor extends Activity implements
 
 	@Override
 	public void onConnected(Bundle connectionHint) {
-		Toast.makeText(this, "Connected", Toast.LENGTH_SHORT).show();
+		if (submittingSurvey) { // connecting for submitting survey and not
+								// tracking
+			new Thread(new Runnable() {
+				public void run() {
+					submitSurvey();
+				}
+			}).start();
+		} else { // connecting for tracking
+			startLocation = mLocationClient.getLastLocation();
+			Toast.makeText(this, "Tracking is on!", Toast.LENGTH_SHORT).show();
+		}
 	}
 
 	@Override
 	public void onDisconnected() {
 		// Display the connection status
-		Toast.makeText(this, "Disconnected. Please re-connect.",
-				Toast.LENGTH_SHORT).show();
+		Toast.makeText(this, "Disconnected", Toast.LENGTH_SHORT).show();
 	}
 
 	/*
@@ -773,13 +810,10 @@ public class Surveyor extends Activity implements
 
 			if (askingTripQuestions) {
 				if (result == NextQuestionResult.END) {
-					Toast.makeText(this, "Tracking is on!", Toast.LENGTH_SHORT)
-							.show();
 					askingTripQuestions = false;
 					showHubPage();
-					startLocation = mLocationClient.getLastLocation();
-					startTripTime = Calendar.getInstance();
 					startTrip();
+					startTripTime = Calendar.getInstance();
 					startTracker();
 					break;
 				}
@@ -885,11 +919,10 @@ public class Surveyor extends Activity implements
 			break;
 		case TOGGLETRIP:
 			if (isTripStarted) {
-				stopTrip();
-
 				// Update status page info
 				tripDistance += startLocation.distanceTo(mLocationClient
 						.getLastLocation());
+				stopTrip();
 				ridesCompleted++;
 				totalDistanceBefore += tripDistance;
 				tripDistance = 0;
@@ -956,28 +989,7 @@ public class Surveyor extends Activity implements
 					toast.show();
 					new Thread(new Runnable() {
 						public void run() {
-							try {
-								if (submitSurvey()) {
-									resetSurvey();
-									messageHandler
-											.sendEmptyMessage(EVENT_TYPE.SUBMITTED_SURVEY
-													.ordinal());
-								} else {
-									messageHandler
-									.sendEmptyMessage(EVENT_TYPE.SUBMIT_FAILED
-											.ordinal());
-								}
-							} catch (ClientProtocolException e1) {
-								messageHandler
-								.sendEmptyMessage(EVENT_TYPE.SUBMIT_FAILED
-										.ordinal());
-								e1.printStackTrace();
-							} catch (IOException e1) {
-								messageHandler
-										.sendEmptyMessage(EVENT_TYPE.SUBMIT_FAILED
-												.ordinal());
-								e1.printStackTrace();
-							}
+							submitSurvey();
 						}
 					}).start();
 
@@ -1002,10 +1014,6 @@ public class Surveyor extends Activity implements
 	 */
 
 	public void startTracker() {
-		Toast.makeText(getApplicationContext(), "Setting tracker!",
-				Toast.LENGTH_LONG).show();
-		Log.d("Tracker", "Setting tracker");
-
 		AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 		Intent intentAlarm = new Intent(this, Tracker.class);
 		PendingIntent pi = PendingIntent.getBroadcast(this, 1, intentAlarm,
