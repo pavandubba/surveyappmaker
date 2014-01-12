@@ -470,6 +470,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 			layoutParamsText.gravity = Gravity.CENTER_VERTICAL;
 			otherET.setLayoutParams(layoutParamsText);
 			otherET.setBackgroundResource(R.drawable.edit_text);
+			otherET.setOnClickListener(this);
 
 			// Add both to a linear layout
 			otherfield = new LinearLayout(rootView.getContext());
@@ -637,55 +638,63 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 	}
 
 	public void MultipleChoiceOnClick(View view) {
+		boolean foundAnswer = false;
+
 		if (view instanceof LinearLayout) {
-			boolean foundAnswer = false;
+			if (view.getId() >= 0)
+				for (int i = 0; i < totalanswers; ++i) {
+					TextView textView = (TextView) tvanswerlist[i];
+					if (view.getId() == textView.getId()) {
+						foundAnswer = true;
+	
+						otherET.setTextColor(getResources().getColor(
+								R.color.text_color_light));
+	
+						textView.setTextColor(getResources().getColor(
+								R.color.answer_selected));
+						try {
+							answerjumpString = getJump(janswerlist.getJSONObject(i));
+							if (answerjumpString != null) {
+								jumpString = answerjumpString;
+							}
+						} catch (JSONException e) {
+							// e.printStackTrace();
+						}
+						answerString = answerlist[i].toString(); // Sets the answer
+																	// to be sent to
+																	// parent
+																	// activity.
+						selectedAnswers = new ArrayList<Integer>();
+						selectedAnswers.add(view.getId());
+						Callback.AnswerRecieve(answerString, jumpString,
+								selectedAnswers);
+					} else {
+						textView.setTextColor(getResources().getColor(
+								R.color.text_color_light));
+					}
+				}
+		}
+		
+		if (view instanceof EditText || !foundAnswer) {
 			for (int i = 0; i < totalanswers; ++i) {
 				TextView textView = (TextView) tvanswerlist[i];
-				if (view.getId() == textView.getId()) {
-					foundAnswer = true;
-
-					otherET.setTextColor(getResources().getColor(
-							R.color.text_color_light));
-
-					textView.setTextColor(getResources().getColor(
-							R.color.answer_selected));
-					try {
-						answerjumpString = getJump(janswerlist.getJSONObject(i));
-						if (answerjumpString != null) {
-							jumpString = answerjumpString;
-						}
-					} catch (JSONException e) {
-						// e.printStackTrace();
-					}
-					answerString = answerlist[i].toString(); // Sets the answer
-																// to be sent to
-																// parent
-																// activity.
-					selectedAnswers = new ArrayList<Integer>();
-					selectedAnswers.add(view.getId());
-					Callback.AnswerRecieve(answerString, jumpString,
-							selectedAnswers);
-				} else {
-					textView.setTextColor(getResources().getColor(
-							R.color.text_color_light));
-				}
+				textView.setTextColor(getResources().getColor(
+						R.color.text_color_light));
 			}
+			
+			// focus ET
+			otherET.requestFocusFromTouch();
+			InputMethodManager lManager = (InputMethodManager) getActivity()
+					.getSystemService(Context.INPUT_METHOD_SERVICE);
+			lManager.showSoftInput(otherET, 0);
 
-			if (!foundAnswer) {
-				// focus ET
-				otherET.requestFocusFromTouch();
-				InputMethodManager lManager = (InputMethodManager) getActivity()
-						.getSystemService(Context.INPUT_METHOD_SERVICE);
-				lManager.showSoftInput(otherET, 0);
-
-				otherET.setTextColor(getResources().getColor(
-						R.color.answer_selected));
-				answerString = (String) otherET.getText().toString();
-				selectedAnswers = new ArrayList<Integer>();
-				selectedAnswers.add(-1);
-				Callback.AnswerRecieve(answerString, jumpString,
-						selectedAnswers);
-			}
+			otherET.setTextColor(getResources().getColor(
+					R.color.answer_selected));
+			answerString = (String) otherET.getText().toString();
+			selectedAnswers = new ArrayList<Integer>();
+			selectedAnswers.add(-1);
+			Callback.AnswerRecieve(answerString, jumpString,
+					selectedAnswers);
 		}
 	}
 
