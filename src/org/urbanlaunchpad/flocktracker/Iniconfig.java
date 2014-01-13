@@ -24,6 +24,9 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
+import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -54,6 +57,7 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 	public static GoogleAccountCredential credential;
 	public static Fusiontables fusiontables;
 	public static SharedPreferences prefs;
+	private static int LOADING_ID = -1;
 
 	/** Global instance of the HTTP transport. */
 	private static final HttpTransport HTTP_TRANSPORT = new NetHttpTransport();
@@ -81,11 +85,19 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 				// have input a project name. update it on interface
 				projectNameField.setText(projectName);
 			} else if (msg.what == EVENT_TYPE.PARSED_CORRECTLY.ordinal()) {
+				RelativeLayout navBar = (RelativeLayout) findViewById(R.id.iniconfig_navbar);
+				navBar.removeViewAt(0);
+				findViewById(R.id.bcontinue).setClickable(true);
+
 				// got survey!
 				Toast toast = Toast.makeText(getApplicationContext(),
 						"survey parsed!", Toast.LENGTH_SHORT);
 				toast.show();
 			} else if (msg.what == EVENT_TYPE.PARSED_INCORRECTLY.ordinal()) {
+				RelativeLayout navBar = (RelativeLayout) findViewById(R.id.iniconfig_navbar);
+				navBar.removeViewAt(0);
+				findViewById(R.id.bcontinue).setClickable(true);
+
 				// got bad/no survey!
 				Toast toast = Toast.makeText(getApplicationContext(),
 						"Could not get survey", Toast.LENGTH_SHORT);
@@ -233,13 +245,21 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 
 		Sqlresponse response = sql.execute();
 		jsonsurveystring = response.getRows().get(0).get(0).toString();
-		
+
 		// save this for offline use
 		prefs.edit().putString("jsonsurveystring", jsonsurveystring).commit();
 		Log.v("response", jsonsurveystring);
 	}
 
 	public void parseSurvey() {
+		ProgressBar loading = new ProgressBar(this);
+		LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT,
+				LayoutParams.WRAP_CONTENT);
+		params.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
+		loading.setLayoutParams(params);
+		RelativeLayout navBar = (RelativeLayout) findViewById(R.id.iniconfig_navbar);
+		navBar.addView(loading, 0);
+		findViewById(R.id.bcontinue).setClickable(false);
 		// get and parse survey
 		new Thread(new Runnable() {
 			public void run() {
@@ -266,7 +286,8 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 				} catch (IOException e1) {
 					if (projectName.equals(prefs.getString("lastProject", ""))) {
 						try {
-							jsurv = new JSONObject(prefs.getString("jsonsurveystring", ""));
+							jsurv = new JSONObject(prefs.getString(
+									"jsonsurveystring", ""));
 							messageHandler
 									.sendEmptyMessage(EVENT_TYPE.PARSED_CORRECTLY
 											.ordinal());
@@ -278,7 +299,7 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 											.ordinal());
 						}
 					}
-						
+
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
