@@ -12,18 +12,20 @@
         android:layout_gravity="center"
         android:layout_weight="1"
         android:contentDescription="@string/previous_question_desc"
-        android:padding="5dp"
+        android:paddingLeft="30dp"
+        android:paddingRight="30dp"
         android:src="@drawable/left_arrow" >
     </ImageView>
-    
-        <ImageView
+
+    <ImageView
         android:id="@+id/submit_survey_button"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_gravity="center"
         android:layout_weight="1"
         android:contentDescription="@string/submit_question_desc"
-        android:padding="5dp"
+        android:paddingLeft="30dp"
+        android:paddingRight="30dp"
         android:src="@drawable/submit_button" >
     </ImageView>
 
@@ -34,10 +36,9 @@
         android:layout_gravity="center"
         android:layout_weight="1"
         android:contentDescription="@string/next_question_desc"
-        android:padding="5dp"
+        android:paddingLeft="30dp"
+        android:paddingRight="30dp"
         android:src="@drawable/right_arrow" >
     </ImageView>
-
-
 
 </LinearLayout>
