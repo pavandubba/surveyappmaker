@@ -272,7 +272,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 	}
 
 	public void OrderedListLayout() {
-		ArrayList<String> answerList = new ArrayList<String>();
+		answerList = new ArrayList<String>();
 		try {
 			janswerlist = jquestion.getJSONArray("Answers");
 			totalanswers = janswerlist.length();
@@ -317,7 +317,28 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 				.findViewById(R.id.orderanswerlayout);
 		orderanswerlayout.addView(answerlistView, LayoutParams.MATCH_PARENT,
 				LayoutParams.MATCH_PARENT);
+		orderedListSendAnswer();
+	}
+	
+	private void orderedListSendAnswer(){
+		answerString = getorderedAnswers();
+		Callback.AnswerRecieve(answerString, null, null);
+	}
 
+	private String getorderedAnswers() {
+		String answer = null;
+		for (int i = 0; i < totalanswers; ++i) {
+			if (i == 0){
+				answer = "(";
+			} else{
+				answer = answer + ",";
+			}
+			answer = answer + answerList.get(i);
+			if (i == (totalanswers - 1)){
+				answer = answer + ")";
+			}
+		}
+		return answer;
 	}
 
 	public void MultipleChoiceLayout() {
@@ -614,10 +635,10 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 					TextView textView = (TextView) tvanswerlist[i];
 					if (view.getId() == textView.getId()) {
 						foundAnswer = true;
-
+						if (otherET != null){
 						otherET.setTextColor(getResources().getColor(
 								R.color.text_color_light));
-
+						}
 						textView.setTextColor(getResources().getColor(
 								R.color.answer_selected));
 						try {
