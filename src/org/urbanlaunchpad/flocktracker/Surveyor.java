@@ -417,8 +417,8 @@ public class Surveyor extends Activity implements
 							}
 						}
 					}
-					submittingSurvey = false;
 				}
+				submittingSurvey = false;
 			}
 		}).start();
 	}
