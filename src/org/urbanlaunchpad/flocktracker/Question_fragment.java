@@ -13,6 +13,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
+import android.graphics.drawable.StateListDrawable;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
@@ -52,7 +53,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 	private Integer totalanswers;
 	private TextView[] tvanswerlist = null;
 	private String answerString;
-	private ArrayList<Integer> selectedAnswers = new ArrayList<Integer>();
+	private ArrayList<Integer> selectedAnswers;
 	private String jumpString = null;
 	private String answerjumpString = null;
 	private ViewGroup answerlayout;
@@ -164,6 +165,9 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 				other = false;
 			}
 
+			
+			selectedAnswers = new ArrayList<Integer>();
+			
 			jumpString = getJump(jquestion);
 			Callback.AnswerRecieve(answerString, jumpString, null);
 
@@ -172,7 +176,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 			} catch (JSONException e) {
 				// e.printStackTrace();
 			}
-
+			
 			// Generating question kind specific layouts.
 			if (questionkind.equals("MC")) {
 				MultipleChoiceLayout();
@@ -206,7 +210,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 				}
 			} else if (questionkind.equals("OT") || questionkind.equals("ON")) {
 				OpenLayout();
-				
+
 				// Prepopulate question
 				if (Surveyor.askingTripQuestions) {
 					selectedAnswers = SurveyHelper.selectedTrackingAnswersMap
@@ -216,7 +220,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 							.get(new Tuple<Integer>(chapterposition,
 									questionposition));
 				}
-				
+
 				if (selectedAnswers != null && selectedAnswers.get(0) == -1) {
 					try {
 						openET.setText(jquestion.getString("Answer"));
@@ -238,13 +242,14 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 							.get(new Tuple<Integer>(chapterposition,
 									questionposition));
 				}
-				
+
 				if (selectedAnswers != null) {
 					for (Integer id : selectedAnswers) {
-						CheckBox checkbox = cbanswer[id];
-						checkbox.setChecked(true);
-						CheckBoxOnClick(checkbox);
+						cbanswer[id].setChecked(false);
+						CheckBoxPrePopulate(answerinsert[id]);
 					}
+				} else {
+					selectedAnswers = new ArrayList<Integer>();
 				}
 			} else if (questionkind.equals("IM")) {
 				ImageLayout();
@@ -552,18 +557,23 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 				answerinsert[i] = new LinearLayout(rootView.getContext());
 				answerinsert[i].setOrientation(LinearLayout.HORIZONTAL);
 				tvanswerlist[i].setText(answerlist[i]);
+				tvanswerlist[i].setTextSize(20);
+				tvanswerlist[i].setPadding(20, 20, 0, 20);
 				tvanswerlist[i].setTextColor(getResources().getColor(
 						R.color.text_color_light));
 				answerinsert[i].addView(cbanswer[i]);
 				answerinsert[i].addView(tvanswerlist[i]);
+				answerinsert[i].setId(i);
+				answerinsert[i].setOnClickListener(Question_fragment.this);
 				answerlayout.addView(answerinsert[i]);
-				tvanswerlist[i].setId(i);
-				cbanswer[i].setId(i + totalanswers);
-				tvanswerlist[i].setOnClickListener(Question_fragment.this);
-				cbanswer[i].setOnClickListener(Question_fragment.this);
-				cbanswer[i].setButtonDrawable(R.drawable.custom_checkbox);
-				cbanswer[i].setScaleX((float) 0.5);
-				cbanswer[i].setScaleY((float) 0.5);
+				cbanswer[i].setBackgroundResource(R.drawable.custom_checkbox);
+				cbanswer[i].setButtonDrawable(new StateListDrawable());
+				cbanswer[i].setClickable(false);
+				
+				LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+						60, 60);
+				layoutParams.gravity = Gravity.CENTER_VERTICAL;
+				cbanswer[i].setLayoutParams(layoutParams);
 				// TODO Generate Scale factors dependent on screen size.
 				// cbanswer[i].setWidth(30);
 			}
@@ -628,7 +638,8 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 	public void addThumbnail() {
 		Tuple<Integer> key = new Tuple<Integer>(chapterposition,
 				questionposition);
-		if (!Surveyor.askingTripQuestions && SurveyHelper.prevImages.containsKey(key)) {
+		if (!Surveyor.askingTripQuestions
+				&& SurveyHelper.prevImages.containsKey(key)) {
 			Uri imagePath = SurveyHelper.prevImages.get(key);
 			ImageView prevImage = new ImageView(rootView.getContext());
 			try {
@@ -644,8 +655,10 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		} else if (Surveyor.askingTripQuestions && SurveyHelper.prevTrackerImages.containsKey(questionposition)) {
-			Uri imagePath = SurveyHelper.prevTrackerImages.get(questionposition);
+		} else if (Surveyor.askingTripQuestions
+				&& SurveyHelper.prevTrackerImages.containsKey(questionposition)) {
+			Uri imagePath = SurveyHelper.prevTrackerImages
+					.get(questionposition);
 			ImageView prevImage = new ImageView(rootView.getContext());
 			try {
 				Bitmap imageBitmap = ThumbnailUtils
@@ -755,36 +768,45 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 	}
 
 	private void CheckBoxOnClick(View view) {
-		answerString = null;
-		selectedAnswers = new ArrayList<Integer>();
-		for (int i = 0; i < totalanswers; ++i) {
+		if (view instanceof LinearLayout) {			
+			int i = view.getId();
 			TextView textView = tvanswerlist[i];
 			CheckBox checkBox = cbanswer[i];
 			if (checkBox.isChecked()) {
+				selectedAnswers.remove((Integer) i);
+				textView.setTextColor(getResources().getColor(
+						R.color.text_color_light));
+				checkBox.setChecked(false);
+			} else if (!checkBox.isChecked()) {
 				selectedAnswers.add(i);
 				textView.setTextColor(getResources().getColor(
 						R.color.answer_selected));
-				answerString = addanswer(answerString, answerlist[i].toString());
-			} else if (!checkBox.isChecked()) {
-				textView.setTextColor(getResources().getColor(
-						R.color.text_color_light));
+				checkBox.setChecked(true);
+			}
+			if (!selectedAnswers.isEmpty()) {
+				answerString = "";
+				for (Integer answerId : selectedAnswers) {
+					answerString += tvanswerlist[answerId].getText() + ",";
+				}
+				answerString = answerString.substring(0, answerString.length() - 1);
+				
+				Callback.AnswerRecieve("(" + answerString + ")", null,
+						selectedAnswers);
+			} else {
+				Callback.AnswerRecieve(null, null, selectedAnswers);
 			}
 		}
-		if (!(answerString == null)) {
-			Callback.AnswerRecieve("(" + answerString + ")", null,
-					selectedAnswers);
-		} else {
-			Callback.AnswerRecieve(null, null, selectedAnswers);
-		}
 	}
-
-	private String addanswer(String answerContainer, String answerAdded) {
-		if (answerContainer == null) {
-			answerContainer = answerAdded;
-		} else {
-			answerContainer = answerContainer + "," + answerAdded;
+	
+	private void CheckBoxPrePopulate(View view) {
+		if (view instanceof LinearLayout) {			
+			int i = view.getId();
+			TextView textView = tvanswerlist[i];
+			CheckBox checkBox = cbanswer[i];
+			checkBox.setChecked(true);
+			textView.setTextColor(getResources().getColor(
+					R.color.answer_selected));
 		}
-		return answerContainer;
 	}
 
 	private void OpenOnClick(View view) {
