@@ -2,6 +2,8 @@ package org.urbanlaunchpad.flocktracker;
 
 import java.util.ArrayList;
 
+import javax.security.auth.PrivateCredentialPermission;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,14 +30,12 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Spinner;
+import android.widget.ListView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -57,6 +57,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 	private String jumpString = null;
 	private String answerjumpString = null;
 	private ViewGroup answerlayout;
+	LinearLayout orderanswerlayout;
 	private View rootView;
 	private String questionkind = null;
 	private Integer questionposition;
@@ -73,11 +74,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 	private String loopLimitString = null;
 	private ImageView[] answerImages;
 	private ImageView otherImage;
-	private Spinner[] answerspinners;
-	ArrayList<String>[] spinnerarray;
-	ArrayList<String> originalspinnerarray;
-	ArrayAdapter<String>[] spinnerarrayadapters;
-	OnItemSelectedListener OrderedListListener;
+	private ArrayList<String> answerList;
 
 	public Question_fragment() {
 		// Empty constructor required for fragment subclasses
@@ -198,7 +195,6 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 								otherET.setTextColor(getResources().getColor(
 										R.color.answer_selected));
 							} catch (JSONException e) {
-								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
 						} else {
@@ -281,129 +277,10 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 	}
 
 	public void OrderedListLayout() {
-
-		OrderedListListener = new OnItemSelectedListener() {
-
-			@Override
-			public void onItemSelected(AdapterView<?> arg0, View arg1,
-					int arg2, long arg3) {
-				// // TODO Auto-generated method stub
-				// ArrayList<String> newspinnerarray = new ArrayList<String>();
-				// boolean[] alreadyselected = new boolean[totalanswers];
-				// String aux = null;
-				// Integer j;
-				// for (int i = 0; i < totalanswers; ++i) {
-				// aux = answerspinners[i].getSelectedItem().toString();
-				// for (int k = 1; k < totalanswers + 1 ; ++k){
-				// alreadyselected[i] = false;
-				// if (originalspinnerarray.get(k).equals(aux) &&
-				// (!aux.equals(""))){
-				// alreadyselected[i] = true;
-				// break;
-				// }
-				// }
-				// }
-				// // newspinnerarray.add("");
-				// for (int i = 0; i < totalanswers ; ++i)
-				// if (alreadyselected[i] = false) {
-				// j = i +1;
-				// newspinnerarray.add(j.toString());
-				// }
-				// ArrayList<String> auxarray = new ArrayList<String>();
-				// ArrayAdapter<String> auxarrayadapter;
-				// for (int i = 0; i < totalanswers + 1 ; ++i){
-				// auxarray.add(aux);
-				// auxarray.addAll(newspinnerarray);
-				// spinnerarray[i] = new ArrayList<String>();
-				// spinnerarray[i] = auxarray;
-				// // auxarrayadapter = new ArrayAdapter(rootView.getContext(),
-				// android.R.layout.simple_spinner_dropdown_item, auxarray);
-				// // answerspinners[i] = new Spinner(rootView.getContext());
-				// // spinnerarrayadapters[i] = auxarrayadapter;
-				// spinnerarrayadapters[i].notifyDataSetChanged();
-				// // answerspinners[i].setAdapter(auxarrayadapter);
-				// }
-			}
-
-			@Override
-			public void onNothingSelected(AdapterView<?> arg0) {
-				// TODO Auto-generated method stub
-
-			}
-
-		};
-
-		JSONObject aux;
-
+		answerList = new ArrayList<String>();
 		try {
 			janswerlist = jquestion.getJSONArray("Answers");
 			totalanswers = janswerlist.length();
-			answerlist = new String[totalanswers];
-			tvanswerlist = new TextView[totalanswers];
-			answerinsert = new LinearLayout[totalanswers];
-			answerspinners = new Spinner[totalanswers];
-			spinnerarray = new ArrayList[totalanswers];
-			spinnerarrayadapters = new ArrayAdapter[totalanswers];
-			originalspinnerarray = new ArrayList<String>();
-
-			// Creating spinner array of answers.
-
-			originalspinnerarray.add("");
-			Integer j = 0;
-			for (int i = 0; i < totalanswers; ++i) {
-				j = i + 1;
-				originalspinnerarray.add(j.toString());
-			}
-
-			for (int i = 0; i < totalanswers; ++i) {
-				aux = janswerlist.getJSONObject(i);
-				answerlist[i] = aux.getString("Answer");
-				tvanswerlist[i] = new TextView(rootView.getContext());
-
-				LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
-						LayoutParams.WRAP_CONTENT, 60);
-				layoutParams.gravity = Gravity.CENTER_VERTICAL;
-
-				// Answer text
-				tvanswerlist[i].setText(answerlist[i]);
-				tvanswerlist[i].setTextColor(getResources().getColor(
-						R.color.text_color_light));
-				tvanswerlist[i].setTextSize(20);
-				tvanswerlist[i].setPadding(10, 10, 10, 10);
-				tvanswerlist[i].setTypeface(Typeface.create("sans-serif-light",
-						Typeface.NORMAL));
-				LinearLayout.LayoutParams layoutParamsText = new LinearLayout.LayoutParams(
-						LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-				layoutParamsText.gravity = Gravity.CENTER_VERTICAL;
-				tvanswerlist[i].setLayoutParams(layoutParamsText);
-
-				// Spinner
-
-				spinnerarray[i] = originalspinnerarray;
-				spinnerarrayadapters[i] = new ArrayAdapter(
-						rootView.getContext(),
-						android.R.layout.simple_spinner_dropdown_item,
-						spinnerarray[i]);
-				answerspinners[i] = new Spinner(rootView.getContext());
-				answerspinners[i].setAdapter(spinnerarrayadapters[i]);
-
-				// Add both to a linear layout
-				answerinsert[i] = new LinearLayout(rootView.getContext());
-				answerinsert[i].setWeightSum(4);
-				LinearLayout.LayoutParams layoutParamsParent = new LinearLayout.LayoutParams(
-						LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-				answerinsert[i].setLayoutParams(layoutParamsParent);
-				answerinsert[i].setPadding(10, 10, 10, 10);
-				answerinsert[i].addView(answerspinners[i]);
-				answerinsert[i].addView(tvanswerlist[i]);
-
-				// add this linear layout to the parent viewgroup
-				answerlayout.addView(answerinsert[i]);
-				tvanswerlist[i].setId(i);
-				answerinsert[i].setId(i);
-				answerspinners[i]
-						.setOnItemSelectedListener(OrderedListListener);
-			}
 		} catch (JSONException e) {
 			e.printStackTrace();
 			totalanswers = 0;
@@ -412,6 +289,61 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 					Toast.LENGTH_SHORT);
 			toast.show();
 		}
+		// Filling array adapter with the answers.
+		if (totalanswers == 0) {
+			answerList.add("");
+		} else {
+			String aux;
+			for (int i = 0; i < totalanswers; ++i) {
+				try {
+					aux = janswerlist.getJSONObject(i).getString("Answer");
+					answerList.add(aux);
+				} catch (JSONException e) {
+					e.printStackTrace();
+					answerList.add("");
+				}
+
+			}
+		}
+
+		ViewGroup questionLayoutView = (ViewGroup) rootView
+				.findViewById(R.id.questionlayout);
+		ScrollView answerScroll = (ScrollView) rootView
+				.findViewById(R.id.answerScroll);
+		questionLayoutView.removeView(answerScroll);
+		StableArrayAdapter adapter = new StableArrayAdapter(
+				rootView.getContext(), R.layout.ordered_answer, answerList);
+		DynamicListView answerlistView = (DynamicListView) new DynamicListView(
+				getActivity());
+		answerlistView.setCheeseList(answerList);
+		answerlistView.setAdapter(adapter);
+		answerlistView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+		LinearLayout orderanswerlayout = (LinearLayout) rootView
+				.findViewById(R.id.orderanswerlayout);
+		orderanswerlayout.addView(answerlistView, LayoutParams.MATCH_PARENT,
+				LayoutParams.MATCH_PARENT);
+		orderedListSendAnswer();
+	}
+	
+	private void orderedListSendAnswer(){
+		answerString = getorderedAnswers();
+		Callback.AnswerRecieve(answerString, null, null);
+	}
+
+	private String getorderedAnswers() {
+		String answer = null;
+		for (int i = 0; i < totalanswers; ++i) {
+			if (i == 0){
+				answer = "(";
+			} else{
+				answer = answer + ",";
+			}
+			answer = answer + answerList.get(i);
+			if (i == (totalanswers - 1)){
+				answer = answer + ")";
+			}
+		}
+		return answer;
 	}
 
 	public void MultipleChoiceLayout() {
@@ -713,10 +645,10 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 					TextView textView = (TextView) tvanswerlist[i];
 					if (view.getId() == textView.getId()) {
 						foundAnswer = true;
-
+						if (otherET != null){
 						otherET.setTextColor(getResources().getColor(
 								R.color.text_color_light));
-
+						}
 						textView.setTextColor(getResources().getColor(
 								R.color.answer_selected));
 						try {
