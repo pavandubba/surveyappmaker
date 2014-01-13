@@ -5,7 +5,7 @@ import android.location.Location;
 public final class LocationHelper {
 
 	/**
-     * Get the latitude and longitude from the Location object returned by
+     * Get the latitude and longitude and altitude from the Location object returned by
      * Location Services.
      *
      * @param currentLocation A Location object containing the current location
@@ -24,6 +24,12 @@ public final class LocationHelper {
             // Otherwise, return the empty string
             return "";
         }
+    }
+    
+    public static String getLatLngAlt(String lat, String lng, String alt) {
+    	// Return the latitude and longitude as strings
+        return lat + "," + lng + "," + 
+        		alt;
     }
 	
 }

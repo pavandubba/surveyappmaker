@@ -69,10 +69,10 @@ public class GoogleDriveHelper {
 		activity.startActivityForResult(cameraIntent, CAPTURE_IMAGE);
 	}
 
-	public String saveFileToDrive(final Uri uri) throws IOException {
+	public String saveFileToDrive(final String imagePath) throws IOException {
 		try {
 			// File's binary content
-			java.io.File fileContent = new java.io.File(uri.getPath());
+			java.io.File fileContent = new java.io.File(imagePath);
 			FileContent mediaContent = new FileContent("image/jpeg",
 					fileContent);
 

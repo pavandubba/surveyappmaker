@@ -2,8 +2,6 @@ package org.urbanlaunchpad.flocktracker;
 
 import java.util.ArrayList;
 
-import javax.security.auth.PrivateCredentialPermission;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -69,8 +67,6 @@ public class Question_fragment extends Fragment implements View.OnClickListener,
 	private LinearLayout otherfield = null;
 	private LinearLayout answerfield;
 	private EditText openET;
-	private TextView openanswer;
-	private Integer opentotal = 0;
 	private LinearLayout[] answerinsert;
 	private CheckBox[] cbanswer;
 	private String loopLimitString = null;
@@ -107,16 +103,6 @@ public class Question_fragment extends Fragment implements View.OnClickListener,
 	public interface LoopPasser {
 		/** Called by Fragment when a loop is about to be started */
 		public void LoopReceive(String Loopend);
-	}
-
-	// Passes position information to activity. Will be called when fragment
-	// resumes.
-	PositionPasser Posback;
-
-	public interface PositionPasser {
-		/** Called by Fragment when an answer is selected */
-		public void PositionRecieve(Integer chapterposition,
-				Integer questionposition);
 	}
 
 	@Override
@@ -187,7 +173,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener,
 							.get(questionposition);
 				} else {
 					selectedAnswers = SurveyHelper.selectedAnswersMap
-							.get(new Tuple<Integer>(chapterposition,
+							.get(new Tuple(chapterposition,
 									questionposition));
 				}
 				if (selectedAnswers != null) {
@@ -216,7 +202,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener,
 							.get(questionposition);
 				} else {
 					selectedAnswers = SurveyHelper.selectedAnswersMap
-							.get(new Tuple<Integer>(chapterposition,
+							.get(new Tuple(chapterposition,
 									questionposition));
 				}
 
@@ -226,7 +212,6 @@ public class Question_fragment extends Fragment implements View.OnClickListener,
 						openET.setTextColor(getResources().getColor(
 								R.color.answer_selected));
 					} catch (JSONException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
@@ -238,7 +223,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener,
 							.get(questionposition);
 				} else {
 					selectedAnswers = SurveyHelper.selectedAnswersMap
-							.get(new Tuple<Integer>(chapterposition,
+							.get(new Tuple(chapterposition,
 									questionposition));
 				}
 
@@ -267,16 +252,6 @@ public class Question_fragment extends Fragment implements View.OnClickListener,
 		}
 		return rootView;
 
-	}
-
-	@Override
-	public void onResume() {
-		// Communicates position of the question in the general suvey so the
-		// position counter on the main activity can be updated accordingly.
-		// Fixed a bug with the back stack where the main activity would get
-		// lost in terms of its position on the survey.
-		Posback.PositionRecieve(chapterposition, questionposition);
-		super.onResume();
 	}
 
 	public void OrderedListLayout() {
@@ -510,8 +485,6 @@ public class Question_fragment extends Fragment implements View.OnClickListener,
 						60, 60);
 				layoutParams.gravity = Gravity.CENTER_VERTICAL;
 				cbanswer[i].setLayoutParams(layoutParams);
-				// TODO Generate Scale factors dependent on screen size.
-				// cbanswer[i].setWidth(30);
 			}
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -572,7 +545,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener,
 	}
 
 	public void addThumbnail() {
-		Tuple<Integer> key = new Tuple<Integer>(chapterposition,
+		Tuple key = new Tuple(chapterposition,
 				questionposition);
 		if (!Surveyor.askingTripQuestions
 				&& SurveyHelper.prevImages.containsKey(key)) {
@@ -588,7 +561,6 @@ public class Question_fragment extends Fragment implements View.OnClickListener,
 
 				answerlayout.addView(prevImage);
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		} else if (Surveyor.askingTripQuestions
@@ -606,7 +578,6 @@ public class Question_fragment extends Fragment implements View.OnClickListener,
 
 				answerlayout.addView(prevImage);
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -771,12 +742,6 @@ public class Question_fragment extends Fragment implements View.OnClickListener,
 		} catch (ClassCastException e) {
 			throw new ClassCastException(activity.toString()
 					+ " must implement Question_fragment.AnswerSelected");
-		}
-		try {
-			Posback = (PositionPasser) activity;
-		} catch (ClassCastException e) {
-			throw new ClassCastException(activity.toString()
-					+ " must implement Question_fragment.PositionPasser");
 		}
 	}
 

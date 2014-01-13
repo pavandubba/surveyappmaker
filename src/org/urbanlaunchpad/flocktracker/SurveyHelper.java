@@ -3,6 +3,8 @@ package org.urbanlaunchpad.flocktracker;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Set;
 import java.util.Stack;
 
 import org.apache.http.client.ClientProtocolException;
@@ -33,9 +35,9 @@ public class SurveyHelper {
 	private JSONArray jtrackerquestions;
 
 	// Hashmaps that store previously entered answers
-	public static HashMap<Tuple<Integer>, ArrayList<Integer>> selectedAnswersMap = new HashMap<Tuple<Integer>, ArrayList<Integer>>();
+	public static HashMap<Tuple, ArrayList<Integer>> selectedAnswersMap = new HashMap<Tuple, ArrayList<Integer>>();
 	public static HashMap<Integer, ArrayList<Integer>> selectedTrackingAnswersMap = new HashMap<Integer, ArrayList<Integer>>();
-	public static HashMap<Tuple<Integer>, Uri> prevImages = new HashMap<Tuple<Integer>, Uri>();
+	public static HashMap<Tuple, Uri> prevImages = new HashMap<Tuple, Uri>();
 	public static HashMap<Integer, Uri> prevTrackerImages = new HashMap<Integer, Uri>();
 
 	private String[] ChapterTitles;
@@ -45,7 +47,7 @@ public class SurveyHelper {
 	private Integer questionPosition = null;
 
 	// Backstack
-	public Stack<Tuple<Integer>> prevPositions = new Stack<Tuple<Integer>>();
+	public Stack<Tuple> prevPositions = new Stack<Tuple>();
 	public Stack<Integer> prevTrackingPositions = new Stack<Integer>();
 
 	public Integer prevQuestionPosition = null;
@@ -151,52 +153,47 @@ public class SurveyHelper {
 	 * Uploading Logic
 	 */
 
-	public boolean submitSurvey(Location currentLocation, String surveyID,
-			String tripID) {
+	public boolean submitSurvey(String jsurvString, String lat, String lng,
+			String alt, String imagePaths, String surveyID, String tripID,
+			String timestamp) {
 		boolean success = false;
 
 		try {
+			JSONObject imageMap = new JSONObject(imagePaths);
+
 			// Upload images and put in answers
-			if (Surveyor.askingTripQuestions) {
-				for (Integer key : prevTrackerImages.keySet()) {
-					String fileLink = Surveyor.driveHelper
-							.saveFileToDrive(prevTrackerImages.get(key));
-					if (fileLink != null) {
-						jsurv.getJSONObject("Tracker")
-								.getJSONArray("Questions").getJSONObject(key)
-								.put("Answer", fileLink);
-					}
-				}
-			} else {
-				for (Tuple<Integer> key : prevImages.keySet()) {
-					String fileLink = Surveyor.driveHelper
-							.saveFileToDrive(prevImages.get(key));
-					if (fileLink != null) {
-						jsurv.getJSONObject("Survey").getJSONArray("Chapters")
-								.getJSONObject(key.chapterPosition)
-								.getJSONArray("Questions")
-								.getJSONObject(key.questionPosition)
-								.put("Answer", fileLink);
-					}
+			for (@SuppressWarnings("unchecked")
+			Iterator<String> i = imageMap.keys(); i.hasNext();) {
+				String keyString = i.next();
+				Tuple key = new Tuple(keyString);
+
+				String fileLink = Surveyor.driveHelper.saveFileToDrive(imageMap
+						.getString(keyString));
+				if (fileLink != null) {
+					jsurv.getJSONObject("Survey").getJSONArray("Chapters")
+							.getJSONObject(key.chapterPosition)
+							.getJSONArray("Questions")
+							.getJSONObject(key.questionPosition)
+							.put("Answer", fileLink);
 				}
 			}
 
 			// Submit survey
-			String columnnamesString = getnames("id", "nq", "Survey");
-			String answerfinalString = getnames("Answer", "wq", "Survey");
-			String latlng = LocationHelper.getLatLngAlt(currentLocation);
-			String dateString = (String) android.text.format.DateFormat.format(
-					"yyyy-MM-dd hh:mm:ss", new java.util.Date());
+			JSONObject jsurvQueueObject = new JSONObject(jsurvString);
+			String columnnamesString = getnames("id", "nq", "Survey",
+					jsurvQueueObject);
+			String answerfinalString = getnames("Answer", "wq", "Survey",
+					jsurvQueueObject);
+			String latlng = LocationHelper.getLatLngAlt(lat, lng, alt);
 			String query = "INSERT INTO "
 					+ SURVEY_TABLE_ID
 					+ " ("
 					+ columnnamesString
 					+ ",Location,Lat,Lng,Alt,Date,SurveyID,TripID,Username) VALUES ("
 					+ answerfinalString + ",'<Point><coordinates>" + latlng
-					+ "</coordinates></Point>','" + currentLocation.getLatitude()
-					+ "','" + currentLocation.getLongitude() + "','"
-					+ currentLocation.getAltitude() + "','" + dateString + "','"
-					+ surveyID + "','" + tripID + "','" + username + "');";
+					+ "</coordinates></Point>','" + lat + "','" + lng + "','"
+					+ alt + "','" + timestamp + "','" + surveyID + "','"
+					+ tripID + "','" + username + "');";
 
 			Sql sql = Iniconfig.fusiontables.query().sql(query);
 			sql.setKey(Iniconfig.API_KEY);
@@ -205,16 +202,80 @@ public class SurveyHelper {
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return success;
 	}
 
+	@SuppressWarnings("unchecked")
+	public void saveSurvey(Location currentLocation, String surveyID,
+			String tripID) {
+		JSONObject imagePaths = new JSONObject();
+		for (Tuple key : prevImages.keySet()) {
+			try {
+				imagePaths.put(key.toString(), prevImages.get(key).getPath());
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
+
+		String lat = "" + currentLocation.getLatitude();
+		String lng = "" + currentLocation.getLongitude();
+		String alt = "" + currentLocation.getAltitude();
+		String timestamp = (String) android.text.format.DateFormat.format(
+				"yyyy-MM-dd hh:mm:ss", new java.util.Date());
+		String jsurvString = jsurv.toString();
+		JSONObject surveyQueueObject = new JSONObject();
+
+		// Serialize into shared preferences
+		try {
+			surveyQueueObject.put("lat", lat);
+			surveyQueueObject.put("lng", lng);
+			surveyQueueObject.put("alt", alt);
+			surveyQueueObject.put("timestamp", timestamp);
+			surveyQueueObject.put("jsurv", jsurvString);
+			surveyQueueObject.put("surveyID",surveyID);
+			surveyQueueObject.put("tripID", tripID);
+			surveyQueueObject.put("imagePaths", imagePaths.toString());
+			synchronized (Surveyor.surveyQueue) {
+				Surveyor.surveyQueue.add(surveyQueueObject.toString());
+				Iniconfig.prefs
+						.edit()
+						.putStringSet("surveyQueue",
+								(Set<String>) Surveyor.surveyQueue.clone())
+						.commit();
+			}
+		} catch (JSONException e1) {
+			e1.printStackTrace();
+		}
+	}
+
 	public void submitLocation(Location currentLocation, String tripID)
 			throws ClientProtocolException, IOException {
-		String columnnamesString = getnames("id", "nq", "Trip");
-		String answerfinalString = getnames("Answer", "wq", "Trip");
+		// Submit tracker question images if necessary
+		for (Integer key : prevTrackerImages.keySet()) {
+			try {
+				JSONObject trackerQuestion = jsurv.getJSONObject("Tracker")
+						.getJSONArray("Questions").getJSONObject(key);
+				if (!trackerQuestion.has("Answer")) {
+					String fileLink = Surveyor.driveHelper
+							.saveFileToDrive(prevTrackerImages.get(key)
+									.getPath());
+					if (fileLink != null) {
+						try {
+							trackerQuestion.put("Answer", fileLink);
+						} catch (JSONException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
+
+		String columnnamesString = getnames("id", "nq", "Trip", jsurv);
+		String answerfinalString = getnames("Answer", "wq", "Trip", jsurv);
 
 		String latlng = LocationHelper.getLatLngAlt(currentLocation);
 		String dateString = (String) android.text.format.DateFormat.format(
@@ -389,13 +450,12 @@ public class SurveyHelper {
 			columnRequest.setKey(Iniconfig.API_KEY);
 			columnRequest.execute();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
 	public String getnames(String nametoget, String syntaxtype,
-			String triporsurvey) {
+			String triporsurvey, JSONObject survey) {
 		// If syntaxtype equals wq , quotes are aded, if it's nq , no quotes are
 		// added.
 		String addString = null;
@@ -403,15 +463,21 @@ public class SurveyHelper {
 		JSONArray questionsArray = null;
 		Integer totalchapters = null;
 		Integer totalquestions = null;
+
 		if (triporsurvey.equals("Survey")) {
-			totalchapters = jchapterlist.length();
+			try {
+				totalchapters = survey.getJSONObject("Survey")
+						.getJSONArray("Chapters").length();
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
 		} else if (triporsurvey.equals("Trip")) {
 			totalchapters = 1;
 		}
 		for (int i = 0; i < totalchapters; ++i) {
 			if (triporsurvey.equals("Survey")) {
 				try {
-					questionsArray = jsurv.getJSONObject("Survey")
+					questionsArray = survey.getJSONObject("Survey")
 							.getJSONArray("Chapters").getJSONObject(i)
 							.getJSONArray("Questions");
 					totalquestions = questionsArray.length();
@@ -420,7 +486,7 @@ public class SurveyHelper {
 				}
 			} else if (triporsurvey.equals("Trip")) {
 				try {
-					questionsArray = jsurv.getJSONObject("Tracker")
+					questionsArray = survey.getJSONObject("Tracker")
 							.getJSONArray("Questions");
 					totalquestions = questionsArray.length();
 				} catch (JSONException e) {
@@ -480,8 +546,7 @@ public class SurveyHelper {
 						.getJSONObject(chapterPosition)
 						.getJSONArray("Questions")
 						.getJSONObject(questionPosition).put("Answer", answer);
-				Tuple<Integer> key = new Tuple<Integer>(chapterPosition,
-						questionPosition);
+				Tuple key = new Tuple(chapterPosition, questionPosition);
 				selectedAnswersMap.put(key, selectedAnswers);
 			}
 		} catch (JSONException e) {
@@ -512,11 +577,10 @@ public class SurveyHelper {
 	public void resetSurvey() {
 		try {
 			jsurv = new JSONObject(jsonSurvey);
-			prevPositions = new Stack<Tuple<Integer>>();
-			selectedAnswersMap = new HashMap<Tuple<Integer>, ArrayList<Integer>>();
-			prevImages = new HashMap<Tuple<Integer>, Uri>();
+			prevPositions = new Stack<Tuple>();
+			selectedAnswersMap = new HashMap<Tuple, ArrayList<Integer>>();
+			prevImages = new HashMap<Tuple, Uri>();
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -530,8 +594,7 @@ public class SurveyHelper {
 
 	public void updateSurveyPosition(Integer chapterpositionreceive,
 			Integer questionpositionreceive) {
-		prevPositions
-				.add(new Tuple<Integer>(chapterPosition, questionPosition));
+		prevPositions.add(new Tuple(chapterPosition, questionPosition));
 		chapterPosition = chapterpositionreceive;
 		questionPosition = questionpositionreceive;
 	}
@@ -575,8 +638,7 @@ public class SurveyHelper {
 				return NextQuestionResult.END;
 			}
 		} else {
-			prevPositions.add(new Tuple<Integer>(chapterPosition,
-					questionPosition));
+			prevPositions.add(new Tuple(chapterPosition, questionPosition));
 			questionPosition++;
 			if (questionPosition == chapterQuestionCounts[chapterPosition]) {
 				if (chapterPosition == jchapterlist.length() - 1) {
@@ -678,7 +740,7 @@ public class SurveyHelper {
 
 	}
 
-	public static class Tuple<Integer> {
+	public static class Tuple {
 
 		public final Integer chapterPosition;
 		public final Integer questionPosition;
@@ -688,9 +750,20 @@ public class SurveyHelper {
 			this.questionPosition = questionPosition;
 		}
 
+		public Tuple(String tupleString) {
+			String[] positions = tupleString.split(",");
+			this.chapterPosition = Integer.parseInt(positions[0]);
+			this.questionPosition = Integer.parseInt(positions[1]);
+		}
+
 		@Override
 		public int hashCode() {
 			return chapterPosition.hashCode() ^ chapterPosition.hashCode();
+		}
+
+		@Override
+		public String toString() {
+			return chapterPosition + "," + questionPosition;
 		}
 
 		@Override
@@ -699,7 +772,7 @@ public class SurveyHelper {
 				return false;
 			if (!(o instanceof Tuple))
 				return false;
-			Tuple<Integer> tuple = (Tuple<Integer>) o;
+			Tuple tuple = (Tuple) o;
 			return this.chapterPosition.equals(tuple.chapterPosition)
 					&& this.questionPosition.equals(tuple.questionPosition);
 		}

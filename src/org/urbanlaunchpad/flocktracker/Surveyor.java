@@ -3,12 +3,15 @@ package org.urbanlaunchpad.flocktracker;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Stack;
+import java.util.Set;
 
 import org.apache.http.client.ClientProtocolException;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.urbanlaunchpad.flocktracker.Status_page_fragment.StatusPageUpdate;
 import org.urbanlaunchpad.flocktracker.SurveyHelper.NextQuestionResult;
 import org.urbanlaunchpad.flocktracker.SurveyHelper.Tuple;
@@ -52,7 +55,7 @@ import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.location.LocationClient;
 
 public class Surveyor extends Activity implements
-		Question_fragment.AnswerSelected, Question_fragment.PositionPasser,
+		Question_fragment.AnswerSelected,
 		Question_navigator_fragment.NavButtonCallback,
 		Hub_page_fragment.HubButtonCallback, StatusPageUpdate,
 		GooglePlayServicesClient.ConnectionCallbacks,
@@ -94,6 +97,10 @@ public class Surveyor extends Activity implements
 	static final String STATISTICS_PAGE_TITLE = "Statistics";
 	private Question_fragment currentQuestionFragment;
 	private boolean submittingSurvey = false;
+	private boolean savingSurvey = false;
+
+	// Stored queues of surveys to submit
+	public static HashSet<String> surveyQueue;
 
 	private enum EVENT_TYPE {
 		MALE_UPDATE, FEMALE_UPDATE, UPDATE_STATS_PAGE, UPDATE_HUB_PAGE, SHOW_NAV_BUTTONS, SUBMITTED_SURVEY, SUBMIT_FAILED
@@ -102,6 +109,7 @@ public class Surveyor extends Activity implements
 	@SuppressLint("HandlerLeak")
 	private Handler messageHandler = new Handler() {
 
+		@SuppressWarnings("deprecation")
 		public void handleMessage(Message msg) {
 			if (msg.what == EVENT_TYPE.SHOW_NAV_BUTTONS.ordinal()) {
 				if (!showingStatusPage && !showingHubPage) {
@@ -342,6 +350,77 @@ public class Surveyor extends Activity implements
 		totalDistanceBefore = Iniconfig.prefs.getFloat("tripDistanceBefore", 0);
 		ridesCompleted = Iniconfig.prefs.getInt("ridesCompleted", 0);
 		surveysCompleted = Iniconfig.prefs.getInt("surveysCompleted", 0);
+
+		surveyQueue = new HashSet<String>(Iniconfig.prefs.getStringSet(
+				"surveyQueue", new HashSet<String>()));
+		if (!surveyQueue.isEmpty()) {
+			spawnSurveySubmission();
+		}
+	}
+
+	// Spawn a thread that continuously pops off a survey to submit
+	public void spawnSurveySubmission() {
+		submittingSurvey = true;
+		new Thread(new Runnable() {
+			@SuppressWarnings("unchecked")
+			public void run() {
+				while (true) {
+					boolean isEmpty = false;
+					synchronized(surveyQueue) {
+						isEmpty = surveyQueue.isEmpty();
+					}
+					
+					if (isEmpty)
+						break;
+					
+					// Iterate through surveyQueue to submit surveys
+					for (Iterator<String> i = surveyQueue.iterator(); i
+							.hasNext();) {
+						boolean success = false;
+						try {
+							JSONObject survey;
+							synchronized (surveyQueue) {
+								survey = new JSONObject(i.next());
+							}
+							String tripIDString = survey.has("tripID") ? survey
+									.getString("tripID") : "";
+							success = surveyHelper.submitSurvey(
+									survey.getString("jsurv"),
+									survey.getString("lat"),
+									survey.getString("lng"),
+									survey.getString("alt"),
+									survey.getString("imagePaths"),
+									survey.getString("surveyID"), tripIDString,
+									survey.getString("timestamp"));
+						} catch (JSONException e) {
+							e.printStackTrace();
+						}
+
+						// Finished submitting survey. Remove from queue and
+						// commit
+						if (success) {
+							synchronized (surveyQueue) {
+								i.remove();
+								Iniconfig.prefs
+										.edit()
+										.putStringSet(
+												"surveyQueue",
+												(Set<String>) surveyQueue
+														.clone()).commit();
+							}
+						} else { // no connection, sleep for a while and try
+									// again
+							try {
+								Thread.sleep(10000);
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+						}
+					}
+					submittingSurvey = false;
+				}
+			}
+		}).start();
 	}
 
 	@Override
@@ -404,7 +483,7 @@ public class Surveyor extends Activity implements
 			}
 
 			// Pop last question off
-			Tuple<Integer> prevPosition = surveyHelper.prevPositions.pop();
+			Tuple prevPosition = surveyHelper.prevPositions.pop();
 			surveyHelper
 					.updateSurveyPositionOnBack(prevPosition.chapterPosition,
 							prevPosition.questionPosition);
@@ -465,31 +544,26 @@ public class Surveyor extends Activity implements
 	 * Submitting survey and location logic
 	 */
 
-	public void submitSurvey() {
+	public void saveSurvey() {
 		// connect if not tracking
 		if (!mLocationClient.isConnected()) {
-			submittingSurvey = true;
+			savingSurvey = true;
 			mLocationClient.connect();
 		} else {
-			// submit location tagged survey
-			boolean success = surveyHelper.submitSurvey(
-					mLocationClient.getLastLocation(), surveyID, tripID);
+			// save location tagged survey
+			surveyHelper.saveSurvey(mLocationClient.getLastLocation(),
+					surveyID, tripID);
 
-			submittingSurvey = false;
+			savingSurvey = false;
 
-			// disconnect if not tracking
-			if (!isTripStarted)
+			// disconnect if not tracking or not currently submitting surveys
+			if (!isTripStarted && !submittingSurvey)
 				mLocationClient.disconnect();
 
-			if (success) {
-				surveysCompleted++;
-				resetSurvey();
-				messageHandler.sendEmptyMessage(EVENT_TYPE.SUBMITTED_SURVEY
-						.ordinal());
-			} else {
-				messageHandler.sendEmptyMessage(EVENT_TYPE.SUBMIT_FAILED
-						.ordinal());
-			}
+			surveysCompleted++;
+			resetSurvey();
+			messageHandler.sendEmptyMessage(EVENT_TYPE.SUBMITTED_SURVEY
+					.ordinal());
 		}
 	}
 
@@ -536,9 +610,8 @@ public class Surveyor extends Activity implements
 							driveHelper.fileUri);
 				} else {
 					SurveyHelper.prevImages.put(
-							new Tuple<Integer>(surveyHelper
-									.getChapterPosition(), surveyHelper
-									.getQuestionPosition()),
+							new Tuple(surveyHelper.getChapterPosition(),
+									surveyHelper.getQuestionPosition()),
 							driveHelper.fileUri);
 				}
 				currentQuestionFragment.ImageLayout();
@@ -556,9 +629,8 @@ public class Surveyor extends Activity implements
 							driveHelper.fileUri);
 				} else {
 					SurveyHelper.prevImages.put(
-							new Tuple<Integer>(surveyHelper
-									.getChapterPosition(), surveyHelper
-									.getQuestionPosition()),
+							new Tuple(surveyHelper.getChapterPosition(),
+									surveyHelper.getQuestionPosition()),
 							driveHelper.fileUri);
 				}
 				currentQuestionFragment.ImageLayout();
@@ -784,11 +856,11 @@ public class Surveyor extends Activity implements
 
 	@Override
 	public void onConnected(Bundle connectionHint) {
-		if (submittingSurvey) { // connecting for submitting survey and not
-								// tracking
+		if (savingSurvey) { // connecting for submitting survey and not
+							// tracking
 			new Thread(new Runnable() {
 				public void run() {
-					submitSurvey();
+					saveSurvey();
 				}
 			}).start();
 		} else { // connecting for tracking
@@ -881,12 +953,6 @@ public class Surveyor extends Activity implements
 			inLoop = true;
 			surveyHelper.setLoopLimits(Loopend);
 		}
-	}
-
-	public void PositionRecieve(Integer chapterpositionrecieve,
-			Integer questionpositionrecieve) {
-		// surveyHelper.updateSurveyPosition(chapterpositionrecieve,
-		// questionpositionrecieve);
 	}
 
 	/*
@@ -999,11 +1065,11 @@ public class Surveyor extends Activity implements
 									.getString(R.string.submitting_survey),
 							Toast.LENGTH_SHORT);
 					toast.show();
-					new Thread(new Runnable() {
-						public void run() {
-							submitSurvey();
-						}
-					}).start();
+
+					saveSurvey();
+					if (!submittingSurvey) {
+						spawnSurveySubmission();
+					}
 
 					break;
 				case DialogInterface.BUTTON_NEGATIVE:
