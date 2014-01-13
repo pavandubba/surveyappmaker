@@ -234,17 +234,15 @@ public class SurveyHelper {
 			surveyQueueObject.put("alt", alt);
 			surveyQueueObject.put("timestamp", timestamp);
 			surveyQueueObject.put("jsurv", jsurvString);
-			surveyQueueObject.put("surveyID",surveyID);
+			surveyQueueObject.put("surveyID", surveyID);
 			surveyQueueObject.put("tripID", tripID);
 			surveyQueueObject.put("imagePaths", imagePaths.toString());
-			synchronized (Surveyor.surveyQueue) {
-				Surveyor.surveyQueue.add(surveyQueueObject.toString());
-				Iniconfig.prefs
-						.edit()
-						.putStringSet("surveyQueue",
-								(Set<String>) Surveyor.surveyQueue.clone())
-						.commit();
-			}
+			Surveyor.surveyQueue.add(surveyQueueObject.toString());
+			Iniconfig.prefs
+					.edit()
+					.putStringSet("surveyQueue",
+							(Set<String>) Surveyor.surveyQueue.clone())
+					.commit();
 		} catch (JSONException e1) {
 			e1.printStackTrace();
 		}
