@@ -38,7 +38,9 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class Question_fragment extends Fragment implements View.OnClickListener {
+public class Question_fragment extends Fragment implements View.OnClickListener,
+		DynamicListView.SwappingEnded
+	{
 	public static final String ARG_JSON_QUESTION = "Json question";
 	public static final String ARG_QUESTION_POSITION = "Question position";
 	public static final String ARG_CHAPTER_POSITION = "Chapter position";
@@ -74,6 +76,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 	private ImageView[] answerImages;
 	private ImageView otherImage;
 	private ArrayList<String> answerList;
+	DynamicListView answerlistView;
 
 	public Question_fragment() {
 		// Empty constructor required for fragment subclasses
@@ -308,8 +311,8 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 		questionLayoutView.removeView(answerScroll);
 		StableArrayAdapter adapter = new StableArrayAdapter(
 				rootView.getContext(), R.layout.ordered_answer, answerList);
-		DynamicListView answerlistView = (DynamicListView) new DynamicListView(
-				getActivity());
+		answerlistView = (DynamicListView) new DynamicListView(
+				getActivity(), this);
 		answerlistView.setCheeseList(answerList);
 		answerlistView.setAdapter(adapter);
 		answerlistView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
@@ -320,20 +323,21 @@ public class Question_fragment extends Fragment implements View.OnClickListener 
 		orderedListSendAnswer();
 	}
 	
-	private void orderedListSendAnswer(){
+	public void orderedListSendAnswer(){
 		answerString = getorderedAnswers();
 		Callback.AnswerRecieve(answerString, null, null);
 	}
 
 	private String getorderedAnswers() {
 		String answer = null;
+		StableArrayAdapter List = (StableArrayAdapter) answerlistView.getAdapter();
 		for (int i = 0; i < totalanswers; ++i) {
 			if (i == 0){
 				answer = "(";
 			} else{
 				answer = answer + ",";
 			}
-			answer = answer + answerList.get(i);
+			answer = answer + List.getItem(i);
 			if (i == (totalanswers - 1)){
 				answer = answer + ")";
 			}

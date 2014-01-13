@@ -94,10 +94,20 @@ public class DynamicListView extends ListView {
 
     private boolean mIsWaitingForScrollFinish = false;
     private int mScrollState = OnScrollListener.SCROLL_STATE_IDLE;
+    
+    SwappingEnded swappingEnded;
+    
+	public interface SwappingEnded {
+		/**
+		 * Called when the swapping is over.
+		 */
+		public void orderedListSendAnswer();
+	}
 
-    public DynamicListView(Context context) {
+    public DynamicListView(Context context, Question_fragment fragment) {
         super(context);
         init(context);
+        swappingEnded = (SwappingEnded) fragment;
     }
 
     public DynamicListView(Context context, AttributeSet attrs, int defStyle) {
@@ -428,6 +438,7 @@ public class DynamicListView extends ListView {
         } else {
             touchEventsCancelled();
         }
+         swappingEnded.orderedListSendAnswer();
     }
 
     /**
