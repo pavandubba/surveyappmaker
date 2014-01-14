@@ -67,8 +67,8 @@ public class SurveyHelper {
 		// parse json survey
 		try {
 			this.jsurv = new JSONObject(jsonSurvey);
-			this.jtracker = jsurv.getJSONObject("Tracker");
-			this.jtrackerString = this.jtracker.toString();
+			this.jtrackerString = this.jsurv.getJSONObject("Tracker").toString();
+			this.jtracker =  new JSONObject(this.jtrackerString);
 		} catch (JSONException e) {
 			Toast.makeText(context,
 					"Your survey json file is not formatted correctly",
@@ -224,9 +224,7 @@ public class SurveyHelper {
 			sql.setKey(Iniconfig.API_KEY);
 			sql.execute();
 			success = true;
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (JSONException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return success;
@@ -261,7 +259,7 @@ public class SurveyHelper {
 						.putStringSet("submissionQueue",
 								(Set<String>) Surveyor.submissionQueue.clone())
 						.commit();
-				Surveyor.savingSurvey = false;
+				Surveyor.savingSubmission = false;
 				Surveyor.submissionQueue.notify();
 			}
 		} catch (Exception e) {

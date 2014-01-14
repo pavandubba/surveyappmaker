@@ -96,8 +96,8 @@ public class Surveyor extends Activity implements
 	static final String HUB_PAGE_TITLE = "Hub Page";
 	static final String STATISTICS_PAGE_TITLE = "Statistics";
 	private Question_fragment currentQuestionFragment;
-	public static boolean submittingSurvey = false;
-	public static boolean savingSurvey = false;
+	public static boolean submittingSubmission = false;
+	public static boolean savingSubmission = false;
 	private boolean justAtHubPage = true;
 	private boolean leavingApp = false;
 
@@ -370,9 +370,9 @@ public class Surveyor extends Activity implements
 			public void run() {
 				while (!leavingApp) {
 					synchronized (submissionQueue) {
-						submittingSurvey = true;
+						submittingSubmission = true;
 						if (submissionQueue.isEmpty()) {
-							submittingSurvey = false;
+							submittingSubmission = false;
 							break;
 						}
 					}
@@ -570,7 +570,7 @@ public class Surveyor extends Activity implements
 	 */
 
 	public void saveSurvey() {
-		savingSurvey = true;
+		savingSubmission = true;
 
 		// connect if not tracking
 		if (!mLocationClient.isConnected()) {
@@ -595,7 +595,7 @@ public class Surveyor extends Activity implements
 					// disconnect if not tracking or not currently
 					// submitting
 					// surveys
-					if (!isTripStarted && !submittingSurvey)
+					if (!isTripStarted && !submittingSubmission)
 						mLocationClient.disconnect();
 
 					// save location tagged survey
@@ -614,10 +614,16 @@ public class Surveyor extends Activity implements
 	public void saveLocation() {
 		// connect if not tracking
 		if (mLocationClient.isConnected()) {
-			savingSurvey = true;
+			savingSubmission = true;
 
 			new Thread(new Runnable() {
 				public void run() {
+					try {
+						surveyHelper.jsurv.put("Tracker", surveyHelper.jtracker);
+					} catch (JSONException e1) {
+						e1.printStackTrace();
+					}
+					
 					String jsurvString = surveyHelper.jsurv.toString();
 					JSONObject imagePaths = new JSONObject();
 					for (Integer key : SurveyHelper.prevTrackerImages.keySet()) {
@@ -920,7 +926,7 @@ public class Surveyor extends Activity implements
 
 	@Override
 	public void onConnected(Bundle connectionHint) {
-		if (savingSurvey) { // connecting for submitting survey and not
+		if (savingSubmission) { // connecting for submitting survey and not
 							// tracking
 			new Thread(new Runnable() {
 				public void run() {
@@ -1067,6 +1073,8 @@ public class Surveyor extends Activity implements
 				totalDistanceBefore += tripDistance;
 				tripDistance = 0;
 			} else {
+				surveyHelper.resetTracker();
+
 				askingTripQuestions = true;
 
 				// Starting question fragment and passing json question
@@ -1131,7 +1139,7 @@ public class Surveyor extends Activity implements
 						public void run() {
 							saveSurvey();
 							synchronized (submissionQueue) {
-								while (savingSurvey) {
+								while (savingSubmission) {
 									try {
 										submissionQueue.wait();
 									} catch (Exception e) {
@@ -1140,7 +1148,7 @@ public class Surveyor extends Activity implements
 									}
 								}
 
-								if (!submittingSurvey) {
+								if (!submittingSubmission) {
 									spawnSubmission();
 								}
 							}
@@ -1167,7 +1175,7 @@ public class Surveyor extends Activity implements
 	 * Location tracking helper
 	 */
 
-	public void startTracker() {
+	public void startTracker() {		
 		AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 		Intent intentAlarm = new Intent(this, Tracker.class);
 		PendingIntent pi = PendingIntent.getBroadcast(this, 1, intentAlarm,
