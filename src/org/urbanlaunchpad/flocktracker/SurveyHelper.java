@@ -1,7 +1,9 @@
 package org.urbanlaunchpad.flocktracker;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
@@ -237,8 +239,8 @@ public class SurveyHelper {
 		String lat = "" + currentLocation.getLatitude();
 		String lng = "" + currentLocation.getLongitude();
 		String alt = "" + currentLocation.getAltitude();
-		String timestamp = (String) android.text.format.DateFormat.format(
-				"yyyy-MM-dd hh:mm:ss", new java.util.Date());
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		String timestamp = sdf.format(new Date());
 		JSONObject submission = new JSONObject();
 
 		// Serialize into shared preferences
