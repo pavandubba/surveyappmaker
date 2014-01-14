@@ -23,6 +23,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnFocusChangeListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
@@ -37,9 +38,8 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class Question_fragment extends Fragment implements View.OnClickListener,
-		DynamicListView.SwappingEnded
-	{
+public class Question_fragment extends Fragment implements
+		View.OnClickListener, DynamicListView.SwappingEnded {
 	public static final String ARG_JSON_QUESTION = "Json question";
 	public static final String ARG_QUESTION_POSITION = "Question position";
 	public static final String ARG_CHAPTER_POSITION = "Chapter position";
@@ -74,6 +74,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener,
 	private ImageView otherImage;
 	private ArrayList<String> answerList;
 	DynamicListView answerlistView;
+	private static Activity mainActivity;
 
 	public Question_fragment() {
 		// Empty constructor required for fragment subclasses
@@ -110,6 +111,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener,
 			Bundle savedInstanceState) {
 		rootView = inflater.inflate(R.layout.fragment_question, container,
 				false);
+		mainActivity = getActivity();
 
 		// Getting json question and position in survey from parent activity.
 		Bundle args = this.getArguments();
@@ -151,9 +153,8 @@ public class Question_fragment extends Fragment implements View.OnClickListener,
 				other = false;
 			}
 
-			
 			selectedAnswers = new ArrayList<Integer>();
-			
+
 			jumpString = getJump(jquestion);
 			Callback.AnswerRecieve(answerString, jumpString, null);
 
@@ -162,7 +163,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener,
 			} catch (JSONException e) {
 				// e.printStackTrace();
 			}
-			
+
 			// Generating question kind specific layouts.
 			if (questionkind.equals("MC")) {
 				MultipleChoiceLayout();
@@ -173,8 +174,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener,
 							.get(questionposition);
 				} else {
 					selectedAnswers = SurveyHelper.selectedAnswersMap
-							.get(new Tuple(chapterposition,
-									questionposition));
+							.get(new Tuple(chapterposition, questionposition));
 				}
 				if (selectedAnswers != null) {
 					for (Integer id : selectedAnswers) {
@@ -202,8 +202,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener,
 							.get(questionposition);
 				} else {
 					selectedAnswers = SurveyHelper.selectedAnswersMap
-							.get(new Tuple(chapterposition,
-									questionposition));
+							.get(new Tuple(chapterposition, questionposition));
 				}
 
 				if (selectedAnswers != null && selectedAnswers.get(0) == -1) {
@@ -223,8 +222,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener,
 							.get(questionposition);
 				} else {
 					selectedAnswers = SurveyHelper.selectedAnswersMap
-							.get(new Tuple(chapterposition,
-									questionposition));
+							.get(new Tuple(chapterposition, questionposition));
 				}
 
 				if (selectedAnswers != null) {
@@ -291,8 +289,8 @@ public class Question_fragment extends Fragment implements View.OnClickListener,
 		questionLayoutView.removeView(answerScroll);
 		StableArrayAdapter adapter = new StableArrayAdapter(
 				rootView.getContext(), R.layout.ordered_answer, answerList);
-		answerlistView = (DynamicListView) new DynamicListView(
-				getActivity(), this);
+		answerlistView = (DynamicListView) new DynamicListView(getActivity(),
+				this);
 		answerlistView.setCheeseList(answerList);
 		answerlistView.setAdapter(adapter);
 		answerlistView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
@@ -302,23 +300,24 @@ public class Question_fragment extends Fragment implements View.OnClickListener,
 				LayoutParams.MATCH_PARENT);
 		orderedListSendAnswer();
 	}
-	
-	public void orderedListSendAnswer(){
+
+	public void orderedListSendAnswer() {
 		answerString = getorderedAnswers();
 		Callback.AnswerRecieve(answerString, null, null);
 	}
 
 	private String getorderedAnswers() {
 		String answer = null;
-		StableArrayAdapter List = (StableArrayAdapter) answerlistView.getAdapter();
+		StableArrayAdapter List = (StableArrayAdapter) answerlistView
+				.getAdapter();
 		for (int i = 0; i < totalanswers; ++i) {
-			if (i == 0){
+			if (i == 0) {
 				answer = "(";
-			} else{
+			} else {
 				answer = answer + ",";
 			}
 			answer = answer + List.getItem(i);
-			if (i == (totalanswers - 1)){
+			if (i == (totalanswers - 1)) {
 				answer = answer + ")";
 			}
 		}
@@ -480,7 +479,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener,
 				cbanswer[i].setBackgroundResource(R.drawable.custom_checkbox);
 				cbanswer[i].setButtonDrawable(new StateListDrawable());
 				cbanswer[i].setClickable(false);
-				
+
 				LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
 						60, 60);
 				layoutParams.gravity = Gravity.CENTER_VERTICAL;
@@ -495,6 +494,26 @@ public class Question_fragment extends Fragment implements View.OnClickListener,
 			toast.show();
 		}
 
+	}
+
+	public void saveState() {
+		if (selectedAnswers != null && selectedAnswers.contains(-1)) {
+			if (otherfield != null) {
+				MultipleChoiceOnClick(otherfield);
+				InputMethodManager lManager = (InputMethodManager) mainActivity
+						.getSystemService(Context.INPUT_METHOD_SERVICE);
+				if (mainActivity.getCurrentFocus() != null)
+					lManager.hideSoftInputFromWindow(mainActivity
+							.getCurrentFocus().getWindowToken(), 0);
+			} else if (openET != null) {
+				OpenOnClick(openET);
+				InputMethodManager lManager = (InputMethodManager) mainActivity
+						.getSystemService(Context.INPUT_METHOD_SERVICE);
+				if (mainActivity.getCurrentFocus() != null)
+					lManager.hideSoftInputFromWindow(mainActivity
+							.getCurrentFocus().getWindowToken(), 0);
+			}
+		}
 	}
 
 	private void OpenLayout() {
@@ -529,7 +548,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener,
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
 				if (MotionEvent.ACTION_UP == event.getAction())
-					onClick(openET);
+					OpenOnClick(openET);
 				return false;
 			}
 		});
@@ -545,8 +564,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener,
 	}
 
 	public void addThumbnail() {
-		Tuple key = new Tuple(chapterposition,
-				questionposition);
+		Tuple key = new Tuple(chapterposition, questionposition);
 		if (!Surveyor.askingTripQuestions
 				&& SurveyHelper.prevImages.containsKey(key)) {
 			Uri imagePath = SurveyHelper.prevImages.get(key);
@@ -620,9 +638,9 @@ public class Question_fragment extends Fragment implements View.OnClickListener,
 					TextView textView = (TextView) tvanswerlist[i];
 					if (view.getId() == textView.getId()) {
 						foundAnswer = true;
-						if (otherET != null){
-						otherET.setTextColor(getResources().getColor(
-								R.color.text_color_light));
+						if (otherET != null) {
+							otherET.setTextColor(getResources().getColor(
+									R.color.text_color_light));
 						}
 						textView.setTextColor(getResources().getColor(
 								R.color.answer_selected));
@@ -675,7 +693,7 @@ public class Question_fragment extends Fragment implements View.OnClickListener,
 	}
 
 	private void CheckBoxOnClick(View view) {
-		if (view instanceof LinearLayout) {			
+		if (view instanceof LinearLayout) {
 			int i = view.getId();
 			TextView textView = tvanswerlist[i];
 			CheckBox checkBox = cbanswer[i];
@@ -695,8 +713,9 @@ public class Question_fragment extends Fragment implements View.OnClickListener,
 				for (Integer answerId : selectedAnswers) {
 					answerString += tvanswerlist[answerId].getText() + ",";
 				}
-				answerString = answerString.substring(0, answerString.length() - 1);
-				
+				answerString = answerString.substring(0,
+						answerString.length() - 1);
+
 				Callback.AnswerRecieve("(" + answerString + ")", null,
 						selectedAnswers);
 			} else {
@@ -704,9 +723,9 @@ public class Question_fragment extends Fragment implements View.OnClickListener,
 			}
 		}
 	}
-	
+
 	private void CheckBoxPrePopulate(View view) {
-		if (view instanceof LinearLayout) {			
+		if (view instanceof LinearLayout) {
 			int i = view.getId();
 			TextView textView = tvanswerlist[i];
 			CheckBox checkBox = cbanswer[i];

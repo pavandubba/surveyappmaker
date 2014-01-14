@@ -903,10 +903,12 @@ public class Surveyor extends Activity implements
 		switch (type) {
 
 		case PREVIOUS:
+			currentQuestionFragment.saveState();
 			surveyHelper.onPrevQuestionPressed(askingTripQuestions);
 			onBackPressed();
 			break;
 		case NEXT:
+			currentQuestionFragment.saveState();
 			NextQuestionResult result = surveyHelper
 					.onNextQuestionPressed(askingTripQuestions);
 
@@ -932,6 +934,7 @@ public class Surveyor extends Activity implements
 			showCurrentQuestion();
 			break;
 		case SUBMIT:
+			currentQuestionFragment.saveState();
 			submitSurveyInterface();
 			break;
 		}
