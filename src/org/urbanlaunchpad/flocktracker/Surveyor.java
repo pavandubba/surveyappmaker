@@ -442,8 +442,7 @@ public class Surveyor extends Activity implements
 
 	@Override
 	protected void onDestroy() {
-		if (isTripStarted)
-			cancelTracker();
+		cancelTracker();
 		mLocationClient.disconnect();
 		super.onDestroy();
 	}
