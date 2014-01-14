@@ -96,7 +96,7 @@ public class Surveyor extends Activity implements
 	static final String HUB_PAGE_TITLE = "Hub Page";
 	static final String STATISTICS_PAGE_TITLE = "Statistics";
 	private Question_fragment currentQuestionFragment;
-	private boolean submittingSurvey = false;
+	public static boolean submittingSurvey = false;
 	private boolean savingSurvey = false;
 
 	// Stored queues of surveys to submit
@@ -358,31 +358,24 @@ public class Surveyor extends Activity implements
 		}
 	}
 
-	private static Integer mutex = -123;
-
 	// Spawn a thread that continuously pops off a survey to submit
 	public void spawnSurveySubmission() {
-		synchronized (mutex) {
-			submittingSurvey = true;
-		}
+		submittingSurvey = true;
 		new Thread(new Runnable() {
 			@SuppressWarnings("unchecked")
 			public void run() {
 				while (true) {
-					synchronized (mutex) {
-						if (!submittingSurvey)
+					synchronized (surveyQueue) {
+						if (surveyQueue.isEmpty()) {
+							submittingSurvey = false;
 							break;
+						}
 					}
 
+					// Iterate through surveyQueue to submit surveys
 					synchronized (surveyQueue) {
-						if (surveyQueue.isEmpty())
-							synchronized (mutex) {
-								submittingSurvey = false;
-							}
-
-						// Iterate through surveyQueue to submit surveys
-						for (Iterator<String> i = surveyQueue.iterator(); i
-								.hasNext();) {
+						Iterator<String> i = surveyQueue.iterator();
+						if (i.hasNext()) {
 							boolean success = false;
 							try {
 								JSONObject survey = new JSONObject(i.next());
@@ -397,14 +390,13 @@ public class Surveyor extends Activity implements
 										survey.getString("surveyID"),
 										tripIDString,
 										survey.getString("timestamp"));
-							} catch (JSONException e) {
+							} catch (Exception e) {
 								e.printStackTrace();
 							}
 
 							// Finished submitting survey. Remove from queue and
 							// commit
 							if (success) {
-								// TODO fix crash with concurrent modification
 								i.remove();
 								Iniconfig.prefs
 										.edit()
@@ -412,6 +404,7 @@ public class Surveyor extends Activity implements
 												"surveyQueue",
 												(Set<String>) surveyQueue
 														.clone()).commit();
+
 							} else { // no connection, sleep for a while and try
 										// again
 								try {
@@ -420,6 +413,7 @@ public class Surveyor extends Activity implements
 									e.printStackTrace();
 								}
 							}
+
 						}
 					}
 				}
@@ -549,30 +543,45 @@ public class Surveyor extends Activity implements
 	 */
 
 	public void saveSurvey() {
-		synchronized (surveyQueue) {
-			synchronized (mutex) {
-				// connect if not tracking
-				if (!mLocationClient.isConnected()) {
-					savingSurvey = true;
-					mLocationClient.connect();
-				} else {
-					// save location tagged survey
-					surveyHelper.saveSurvey(mLocationClient.getLastLocation(),
-							surveyID, tripID);
+		// connect if not tracking
+		if (!mLocationClient.isConnected()) {
+			savingSurvey = true;
+			mLocationClient.connect();
+		} else {
+			new Thread(new Runnable() {
+				public void run() {
+					String jsurvString = surveyHelper.jsurv.toString();
+					JSONObject imagePaths = new JSONObject();
+					for (Tuple key : SurveyHelper.prevImages.keySet()) {
+						try {
+							imagePaths.put(key.toString(),
+									SurveyHelper.prevImages.get(key).getPath());
+						} catch (JSONException e) {
+							e.printStackTrace();
+						}
+					}
+					resetSurvey();
+					surveyHelper.jumpString = null;
+					Location lastLocation = mLocationClient.getLastLocation();
 
-					savingSurvey = false;
-
-					// disconnect if not tracking or not currently submitting
+					// disconnect if not tracking or not currently
+					// submitting
 					// surveys
 					if (!isTripStarted && !submittingSurvey)
 						mLocationClient.disconnect();
 
+					// save location tagged survey
+					surveyHelper.saveSurvey(lastLocation, surveyID, tripID,
+							jsurvString, imagePaths);
+
 					surveysCompleted++;
-					resetSurvey();
-					messageHandler.sendEmptyMessage(EVENT_TYPE.SUBMITTED_SURVEY
-							.ordinal());
+
+					savingSurvey = false;
 				}
-			}
+			}).start();
+
+			messageHandler.sendEmptyMessage(EVENT_TYPE.SUBMITTED_SURVEY
+					.ordinal());
 		}
 	}
 
@@ -713,6 +722,8 @@ public class Surveyor extends Activity implements
 	 */
 
 	private void showHubPage() {
+		showingHubPage = true;
+
 		// Update fragments
 		FragmentManager fragmentManager = getFragmentManager();
 		Fragment fragment = new Hub_page_fragment();
@@ -1074,14 +1085,23 @@ public class Surveyor extends Activity implements
 									.getString(R.string.submitting_survey),
 							Toast.LENGTH_SHORT);
 					toast.show();
-
-					saveSurvey();
-					synchronized (mutex) {
-						if (!submittingSurvey) {
-							spawnSurveySubmission();
+					new Thread(new Runnable() {
+						public void run() {
+							saveSurvey();
+							synchronized (surveyQueue) {
+								while (savingSurvey) {
+									try {
+										surveyQueue.wait();
+									} catch (InterruptedException e) {
+										e.printStackTrace();
+									}
+								}
+								if (!submittingSurvey) {
+									spawnSurveySubmission();
+								}
+							}
 						}
-						submittingSurvey = true;
-					}
+					}).start();
 
 					break;
 				case DialogInterface.BUTTON_NEGATIVE:

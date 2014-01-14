@@ -30,7 +30,7 @@ public class SurveyHelper {
 	private String SURVEY_TABLE_ID = "11lGsm8B2SNNGmEsTmuGVrAy1gcJF9TQBo3G1Vw0";
 	private Context context;
 	private String jsonSurvey = null;
-	private JSONObject jsurv = null;
+	public JSONObject jsurv = null;
 	private JSONArray jchapterlist;
 	private JSONArray jtrackerquestions;
 
@@ -159,6 +159,7 @@ public class SurveyHelper {
 		boolean success = false;
 
 		try {
+			JSONObject jsurvQueueObject = new JSONObject(jsurvString);
 			JSONObject imageMap = new JSONObject(imagePaths);
 
 			// Upload images and put in answers
@@ -170,7 +171,8 @@ public class SurveyHelper {
 				String fileLink = Surveyor.driveHelper.saveFileToDrive(imageMap
 						.getString(keyString));
 				if (fileLink != null) {
-					jsurv.getJSONObject("Survey").getJSONArray("Chapters")
+					jsurvQueueObject.getJSONObject("Survey")
+							.getJSONArray("Chapters")
 							.getJSONObject(key.chapterPosition)
 							.getJSONArray("Questions")
 							.getJSONObject(key.questionPosition)
@@ -179,7 +181,6 @@ public class SurveyHelper {
 			}
 
 			// Submit survey
-			JSONObject jsurvQueueObject = new JSONObject(jsurvString);
 			String columnnamesString = getnames("id", "nq", "Survey",
 					jsurvQueueObject);
 			String answerfinalString = getnames("Answer", "wq", "Survey",
@@ -209,22 +210,12 @@ public class SurveyHelper {
 
 	@SuppressWarnings("unchecked")
 	public void saveSurvey(Location currentLocation, String surveyID,
-			String tripID) {
-		JSONObject imagePaths = new JSONObject();
-		for (Tuple key : prevImages.keySet()) {
-			try {
-				imagePaths.put(key.toString(), prevImages.get(key).getPath());
-			} catch (JSONException e) {
-				e.printStackTrace();
-			}
-		}
-
+			String tripID, String jsurvString, JSONObject imagePaths) {
 		String lat = "" + currentLocation.getLatitude();
 		String lng = "" + currentLocation.getLongitude();
 		String alt = "" + currentLocation.getAltitude();
 		String timestamp = (String) android.text.format.DateFormat.format(
 				"yyyy-MM-dd hh:mm:ss", new java.util.Date());
-		String jsurvString = jsurv.toString();
 		JSONObject surveyQueueObject = new JSONObject();
 
 		// Serialize into shared preferences
@@ -237,12 +228,15 @@ public class SurveyHelper {
 			surveyQueueObject.put("surveyID", surveyID);
 			surveyQueueObject.put("tripID", tripID);
 			surveyQueueObject.put("imagePaths", imagePaths.toString());
-			Surveyor.surveyQueue.add(surveyQueueObject.toString());
-			Iniconfig.prefs
-					.edit()
-					.putStringSet("surveyQueue",
-							(Set<String>) Surveyor.surveyQueue.clone())
-					.commit();
+			synchronized (Surveyor.surveyQueue) {
+				Surveyor.surveyQueue.add(surveyQueueObject.toString());
+				Iniconfig.prefs
+						.edit()
+						.putStringSet("surveyQueue",
+								(Set<String>) Surveyor.surveyQueue.clone())
+						.commit();
+				Surveyor.surveyQueue.notify();
+			}
 		} catch (JSONException e1) {
 			e1.printStackTrace();
 		}
