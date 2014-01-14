@@ -21,6 +21,8 @@ import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
@@ -51,7 +53,7 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 	String jsonsurveystring;
 	JSONObject jsurv = null;
 	private String username = "";
-	AlertDialog.Builder alert;
+	AlertDialog alertDialog;
 	private boolean debison = false; // If true, a test project will be loaded
 										// by default.
 	public static GoogleAccountCredential credential;
@@ -105,9 +107,9 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 				jsurv = null;
 			} else if (msg.what == EVENT_TYPE.INPUT_NAME.ordinal()) {
 				input.setText(projectName);
-				alert.setView(input);
 				// want to display alert to get project name
-				alert.show();
+				alertDialog.show();
+				input.requestFocus();
 				InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 				imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
 			} else {
@@ -129,36 +131,32 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 		projectNameField = (TextView) findViewById(R.id.projectNameText);
 
 		// initialize dialog for inputting project name
-		alert = new AlertDialog.Builder(this);
+		AlertDialog.Builder alert = new AlertDialog.Builder(this);
 		alert.setTitle("Select project");
+
 		input = new AutoCompleteTextView(this);
+
 		if (prefs.contains("lastProject")) {
 			// Create the adapter and set it to the AutoCompleteTextView
 			ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
 					android.R.layout.simple_list_item_1,
 					new String[] { prefs.getString("lastProject", "") });
+			input.setThreshold(1);
 			input.setAdapter(adapter);
+			input.setOnItemClickListener(new OnItemClickListener() {
+				@Override
+				public void onItemClick(AdapterView<?> arg0, View arg1,
+						int arg2, long arg3) {
+					onPositiveButtonClicked();
+				}
+			});
 		}
 		alert.setView(input);
-
+		
 		// set listener for ok when user inputs project name
 		alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int whichButton) {
-				// save the project name
-				projectName = input.getText().toString().trim();
-				prefs.edit().putString("lastProject", projectName).commit();
-
-				InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-				imm.hideSoftInputFromWindow(input.getWindowToken(), 0);
-				dialog.dismiss();
-
-				if (!projectName.isEmpty()) {
-					// update our interface with project name
-					messageHandler.sendEmptyMessage(EVENT_TYPE.GOT_PROJECT_NAME
-							.ordinal());
-
-					parseSurvey();
-				}
+				onPositiveButtonClicked();
 			}
 		});
 
@@ -170,6 +168,8 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 						dialog.dismiss();
 					}
 				});
+		
+		alertDialog = alert.create();
 
 		// set listeners for rows and disable continue button
 		View projectNameSelectRow = findViewById(R.id.projectNameRow);
@@ -185,6 +185,24 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 		// get credential with scopes
 		credential = GoogleAccountCredential.usingOAuth2(this,
 				Arrays.asList(FUSION_TABLE_SCOPE, DriveScopes.DRIVE));
+	}
+
+	public void onPositiveButtonClicked() {
+		// save the project name
+		projectName = input.getText().toString().trim();
+		prefs.edit().putString("lastProject", projectName).commit();
+
+		InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+		imm.hideSoftInputFromWindow(input.getWindowToken(), 0);
+		alertDialog.dismiss();
+
+		if (!projectName.isEmpty()) {
+			// update our interface with project name
+			messageHandler.sendEmptyMessage(EVENT_TYPE.GOT_PROJECT_NAME
+					.ordinal());
+
+			parseSurvey();
+		}
 	}
 
 	@Override
@@ -203,15 +221,7 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 				return;
 			}
 
-			input = new AutoCompleteTextView(this);
-			if (prefs.contains("lastProject")) {
-				// Create the adapter and set it to the AutoCompleteTextView
-				ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-						android.R.layout.simple_list_item_1,
-						new String[] { prefs.getString("lastProject", "") });
-				input.setAdapter(adapter);
-			}
-			alert.setView(input);
+			
 
 			// Show the popup dialog to get the project name
 			messageHandler.sendEmptyMessage(EVENT_TYPE.INPUT_NAME.ordinal());
