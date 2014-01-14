@@ -25,7 +25,7 @@ public class Tracker extends BroadcastReceiver {
 		if (surveyor != null) {
 			new Thread(new Runnable() {
 				public void run() {
-					surveyor.submitLocation();
+					surveyor.saveLocation();
 				}
 			}).start();
 		} else {
