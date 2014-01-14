@@ -262,8 +262,8 @@ public class SurveyHelper {
 				Surveyor.savingSurvey = false;
 				Surveyor.submissionQueue.notify();
 			}
-		} catch (JSONException e1) {
-			e1.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 

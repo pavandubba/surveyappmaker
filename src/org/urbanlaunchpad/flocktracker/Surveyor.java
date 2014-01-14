@@ -386,7 +386,8 @@ public class Surveyor extends Activity implements
 								JSONObject submission = new JSONObject(i.next());
 								String tripIDString = submission.has("tripID") ? submission
 										.getString("tripID") : "";
-								String surveyIDString = submission.has("surveyID") ? submission
+								String surveyIDString = submission
+										.has("surveyID") ? submission
 										.getString("surveyID") : "";
 								success = surveyHelper.submitSubmission(
 										submission.getString("jsurv"),
@@ -443,6 +444,7 @@ public class Surveyor extends Activity implements
 	@Override
 	protected void onDestroy() {
 		cancelTracker();
+		surveyHelper.resetTracker();
 		mLocationClient.disconnect();
 		super.onDestroy();
 	}
@@ -474,9 +476,11 @@ public class Surveyor extends Activity implements
 				return;
 			}
 			// Pop last question off
-			Integer prevPosition = surveyHelper.prevTrackingPositions.pop();
-			surveyHelper.updateTrackerPositionOnBack(prevPosition);
-			showCurrentQuestion();
+			if (!surveyHelper.prevTrackingPositions.empty()) {
+				Integer prevPosition = surveyHelper.prevTrackingPositions.pop();
+				surveyHelper.updateTrackerPositionOnBack(prevPosition);
+				showCurrentQuestion();
+			}
 			return;
 		}
 
@@ -488,11 +492,13 @@ public class Surveyor extends Activity implements
 			}
 
 			// Pop last question off
-			Tuple prevPosition = surveyHelper.prevPositions.pop();
-			surveyHelper
-					.updateSurveyPositionOnBack(prevPosition.chapterPosition,
-							prevPosition.questionPosition);
-			showCurrentQuestion();
+			if (!surveyHelper.prevPositions.empty()) {
+				Tuple prevPosition = surveyHelper.prevPositions.pop();
+				surveyHelper.updateSurveyPositionOnBack(
+						prevPosition.chapterPosition,
+						prevPosition.questionPosition);
+				showCurrentQuestion();
+			}
 			return;
 		}
 
@@ -617,7 +623,8 @@ public class Surveyor extends Activity implements
 					for (Integer key : SurveyHelper.prevTrackerImages.keySet()) {
 						try {
 							imagePaths.put(key.toString(),
-									SurveyHelper.prevTrackerImages.get(key).getPath());
+									SurveyHelper.prevTrackerImages.get(key)
+											.getPath());
 						} catch (JSONException e) {
 							e.printStackTrace();
 						}
@@ -1127,8 +1134,9 @@ public class Surveyor extends Activity implements
 								while (savingSurvey) {
 									try {
 										submissionQueue.wait();
-									} catch (InterruptedException e) {
+									} catch (Exception e) {
 										e.printStackTrace();
+										return;
 									}
 								}
 
@@ -1172,17 +1180,21 @@ public class Surveyor extends Activity implements
 	public void cancelTracker() {
 		Log.d("Tracker", "Cancelling tracker");
 
-		Intent intentAlarm = new Intent(this, Tracker.class);
-		PendingIntent sender = PendingIntent.getBroadcast(this, 1, intentAlarm,
-				PendingIntent.FLAG_UPDATE_CURRENT);
-		AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-		
+		final Intent intentAlarm = new Intent(this, Tracker.class);
+		final PendingIntent sender = PendingIntent.getBroadcast(this, 1,
+				intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT);
+		final AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
 		leavingApp = true;
-		
+
 		// Need this to ensure saving completes
-		synchronized(submissionQueue) {
-			alarmManager.cancel(sender);
-		}
+		new Thread(new Runnable() {
+			public void run() {
+				synchronized (submissionQueue) {
+					alarmManager.cancel(sender);
+				}
+			}
+		}).start();
 	}
 
 }
