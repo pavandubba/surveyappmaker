@@ -17,7 +17,7 @@ public class Hub_page_fragment extends Fragment {
 	// deliver messages
 	public interface HubButtonCallback {
 		public enum HubButtonType {
-			NEWSURVEY, STATISTICS, MOREMEN, FEWERMEN, MOREWOMEN, FEWERWOMEN, TOGGLETRIP, UPDATE_PAGE, SHOW_NAV_BUTTONS
+			NEWSURVEY, STATISTICS, MOREMEN, FEWERMEN, MOREWOMEN, FEWERWOMEN, TOGGLETRIP, UPDATE_PAGE
 		}
 
 		/** Called by Fragment when an button is selected */
@@ -122,21 +122,20 @@ public class Hub_page_fragment extends Fragment {
 					+ " must implement HubButtonPressed");
 		}
 	}
-
+	
 	@Override
-	public void onStop() {
-		super.onStop();
+	public void onResume() {
+		super.onResume();
 
 		// This makes sure that the container activity has implemented
 		// the callback interface. If not, it throws an exception.
 		try {
 			callback = (HubButtonCallback) getActivity();
-			callback.HubButtonPressed(HubButtonCallback.HubButtonType.SHOW_NAV_BUTTONS);
+			callback.HubButtonPressed(HubButtonCallback.HubButtonType.UPDATE_PAGE);
 		} catch (ClassCastException e) {
 			throw new ClassCastException(getActivity().toString()
 					+ " must implement HubButtonPressed");
 		}
-
 	}
 
 	@Override

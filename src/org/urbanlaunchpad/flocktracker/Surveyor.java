@@ -99,6 +99,7 @@ public class Surveyor extends Activity implements
 	private Question_fragment currentQuestionFragment;
 	public static boolean submittingSurvey = false;
 	public static boolean savingSurvey = false;
+	private boolean justAtHubPage = true;
 
 	// Stored queues of surveys to submit
 	public static HashSet<String> surveyQueue;
@@ -284,8 +285,8 @@ public class Surveyor extends Activity implements
 		Bundle extras = getIntent().getExtras();
 		thisActivity = this;
 		getWindow().setSoftInputMode(
-			      WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-		
+				WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+
 		if (extras != null) {
 			username = extras.getString("username");
 			surveyHelper = new SurveyHelper(username,
@@ -493,11 +494,25 @@ public class Surveyor extends Activity implements
 			return;
 		}
 
-		if (showingHubPage
-				&& (surveyHelper.getChapterPosition() == null || (surveyHelper
-						.getChapterPosition() <= 1 && surveyHelper
-						.getQuestionPosition() == 0)))
-			finish();
+		if (showingHubPage) {
+			showingHubPage = false;
+			if (surveyHelper.getChapterPosition() == null
+					|| (surveyHelper.getChapterPosition() == 0 && surveyHelper
+							.getQuestionPosition() == 0))
+				finish();
+			else 
+				showCurrentQuestion();
+			return;
+		}
+		
+		if (showingStatusPage) {
+			showingStatusPage = false;
+			if (justAtHubPage)
+				showHubPage();
+			else
+				showCurrentQuestion();
+			return;
+		}
 
 		super.onBackPressed();
 	}
@@ -697,6 +712,8 @@ public class Surveyor extends Activity implements
 		@Override
 		public void onItemClick(AdapterView<?> parent, View view, int position,
 				long id) {
+			Log.d("Clicked on fixed position", position + "");
+
 			if (position == 0) {
 				showHubPage();
 			} else {
@@ -710,12 +727,11 @@ public class Surveyor extends Activity implements
 		@Override
 		public void onItemClick(AdapterView<?> parent, View view, int position,
 				long id) {
+			Log.d("Clicked on drawer position", position + "");
 			surveyHelper.updateSurveyPosition(position, 0);
 			surveyHelper.jumpString = null;
 			showingHubPage = false;
 			showingStatusPage = false;
-			messageHandler.sendEmptyMessage(EVENT_TYPE.SHOW_NAV_BUTTONS
-					.ordinal());
 			showCurrentQuestion();
 		}
 	}
@@ -725,7 +741,9 @@ public class Surveyor extends Activity implements
 	 */
 
 	private void showHubPage() {
+		justAtHubPage = true;
 		showingHubPage = true;
+		showingStatusPage = false;
 
 		// Update fragments
 		FragmentManager fragmentManager = getFragmentManager();
@@ -748,6 +766,7 @@ public class Surveyor extends Activity implements
 	}
 
 	private void showStatusPage() {
+		showingHubPage = false;
 		showingStatusPage = true;
 
 		FragmentManager fragmentManager = getFragmentManager();
@@ -767,6 +786,10 @@ public class Surveyor extends Activity implements
 	}
 
 	private void showCurrentQuestion() {
+		justAtHubPage = false;
+		showingHubPage = false;
+		showingStatusPage = false;
+		
 		navButtons.getView().findViewById(R.id.submit_survey_button)
 				.setVisibility(View.VISIBLE);
 
@@ -1010,11 +1033,6 @@ public class Surveyor extends Activity implements
 	@Override
 	public void HubButtonPressed(HubButtonType type) {
 		switch (type) {
-		case SHOW_NAV_BUTTONS:
-			showingHubPage = false;
-			messageHandler.sendEmptyMessage(EVENT_TYPE.SHOW_NAV_BUTTONS
-					.ordinal());
-			break;
 		case UPDATE_PAGE:
 			showingHubPage = true;
 			messageHandler.sendEmptyMessage(EVENT_TYPE.UPDATE_HUB_PAGE
@@ -1102,10 +1120,10 @@ public class Surveyor extends Activity implements
 										e.printStackTrace();
 									}
 								}
-								
+
 								if (!submittingSurvey) {
 									spawnSurveySubmission();
-								}								
+								}
 							}
 						}
 					}).start();
