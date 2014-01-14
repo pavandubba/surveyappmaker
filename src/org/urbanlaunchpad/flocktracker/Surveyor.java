@@ -1,5 +1,6 @@
 package org.urbanlaunchpad.flocktracker;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -28,6 +29,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
+import android.hardware.Camera;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -99,7 +103,8 @@ public class Surveyor extends Activity implements
 	public static boolean submittingSubmission = false;
 	public static boolean savingSubmission = false;
 	private boolean justAtHubPage = true;
-	private boolean leavingApp = false;
+	private int cameraWidth = 1000;
+	private int cameraHeight = 1000;
 
 	// Stored queues of surveys to submit
 	public static HashSet<String> submissionQueue;
@@ -368,7 +373,7 @@ public class Surveyor extends Activity implements
 		new Thread(new Runnable() {
 			@SuppressWarnings("unchecked")
 			public void run() {
-				while (!leavingApp) {
+				while (true) {
 					synchronized (submissionQueue) {
 						submittingSubmission = true;
 						if (submissionQueue.isEmpty()) {
@@ -619,11 +624,12 @@ public class Surveyor extends Activity implements
 			new Thread(new Runnable() {
 				public void run() {
 					try {
-						surveyHelper.jsurv.put("Tracker", surveyHelper.jtracker);
+						surveyHelper.jsurv
+								.put("Tracker", surveyHelper.jtracker);
 					} catch (JSONException e1) {
 						e1.printStackTrace();
 					}
-					
+
 					String jsurvString = surveyHelper.jsurv.toString();
 					JSONObject imagePaths = new JSONObject();
 					for (Integer key : SurveyHelper.prevTrackerImages.keySet()) {
@@ -682,6 +688,15 @@ public class Surveyor extends Activity implements
 			}
 			break;
 		case GoogleDriveHelper.CAPTURE_IMAGE:
+			try {
+				Bitmap imageBitmap = ImageHelper.decodeSampledBitmapFromPath(
+						driveHelper.fileUri.getPath(), cameraWidth, cameraHeight);
+				imageBitmap.compress(CompressFormat.JPEG, 50,
+						new FileOutputStream(driveHelper.fileUri.getPath()));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
 			if (resultCode == Activity.RESULT_OK) {
 				if (askingTripQuestions) {
 					SurveyHelper.prevTrackerImages.put(
@@ -927,7 +942,7 @@ public class Surveyor extends Activity implements
 	@Override
 	public void onConnected(Bundle connectionHint) {
 		if (savingSubmission) { // connecting for submitting survey and not
-							// tracking
+			// tracking
 			new Thread(new Runnable() {
 				public void run() {
 					saveSurvey();
@@ -1175,7 +1190,7 @@ public class Surveyor extends Activity implements
 	 * Location tracking helper
 	 */
 
-	public void startTracker() {		
+	public void startTracker() {
 		AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 		Intent intentAlarm = new Intent(this, Tracker.class);
 		PendingIntent pi = PendingIntent.getBroadcast(this, 1, intentAlarm,
@@ -1188,21 +1203,12 @@ public class Surveyor extends Activity implements
 	public void cancelTracker() {
 		Log.d("Tracker", "Cancelling tracker");
 
-		final Intent intentAlarm = new Intent(this, Tracker.class);
-		final PendingIntent sender = PendingIntent.getBroadcast(this, 1,
-				intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT);
-		final AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+		Intent intentAlarm = new Intent(this, Tracker.class);
+		PendingIntent sender = PendingIntent.getBroadcast(this, 1, intentAlarm,
+				PendingIntent.FLAG_UPDATE_CURRENT);
+		AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
-		leavingApp = true;
-
-		// Need this to ensure saving completes
-		new Thread(new Runnable() {
-			public void run() {
-				synchronized (submissionQueue) {
-					alarmManager.cancel(sender);
-				}
-			}
-		}).start();
+		alarmManager.cancel(sender);
 	}
 
 }

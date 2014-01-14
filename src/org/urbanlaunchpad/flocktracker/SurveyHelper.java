@@ -67,8 +67,9 @@ public class SurveyHelper {
 		// parse json survey
 		try {
 			this.jsurv = new JSONObject(jsonSurvey);
-			this.jtrackerString = this.jsurv.getJSONObject("Tracker").toString();
-			this.jtracker =  new JSONObject(this.jtrackerString);
+			this.jtrackerString = this.jsurv.getJSONObject("Tracker")
+					.toString();
+			this.jtracker = new JSONObject(this.jtrackerString);
 		} catch (JSONException e) {
 			Toast.makeText(context,
 					"Your survey json file is not formatted correctly",
@@ -177,8 +178,9 @@ public class SurveyHelper {
 				if (fileLink != null) {
 					if (type.equals("Tracker")) {
 						Integer key = Integer.parseInt(keyString);
-						jsurvQueueObject.getJSONObject(type).getJSONArray("Questions")
-								.getJSONObject(key).put("Answer", fileLink);
+						jsurvQueueObject.getJSONObject(type)
+								.getJSONArray("Questions").getJSONObject(key)
+								.put("Answer", fileLink);
 					} else if (type.equals("Survey")) {
 						Tuple key = new Tuple(keyString);
 						jsurvQueueObject.getJSONObject(type)
@@ -234,9 +236,15 @@ public class SurveyHelper {
 	public void saveSubmission(Location currentLocation, String surveyID,
 			String tripID, String jsurvString, JSONObject imagePaths,
 			String type) {
-		String lat = "" + currentLocation.getLatitude();
-		String lng = "" + currentLocation.getLongitude();
-		String alt = "" + currentLocation.getAltitude();
+		String lat = "";
+		String lng = "";
+		String alt = "";
+		if (currentLocation != null) {
+			lat = "" + currentLocation.getLatitude();
+			lng = "" + currentLocation.getLongitude();
+			alt = "" + currentLocation.getAltitude();
+		}
+		
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		String timestamp = sdf.format(new Date());
 		JSONObject submission = new JSONObject();
