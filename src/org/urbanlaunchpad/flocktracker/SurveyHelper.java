@@ -30,9 +30,11 @@ public class SurveyHelper {
 	private String SURVEY_TABLE_ID = "11lGsm8B2SNNGmEsTmuGVrAy1gcJF9TQBo3G1Vw0";
 	private Context context;
 	private String jsonSurvey = null;
+	private String jtrackerString = null;
 	public JSONObject jsurv = null;
 	private JSONArray jchapterlist;
 	private JSONArray jtrackerquestions;
+	public JSONObject jtracker = null;
 
 	// Hashmaps that store previously entered answers
 	public static HashMap<Tuple, ArrayList<Integer>> selectedAnswersMap = new HashMap<Tuple, ArrayList<Integer>>();
@@ -63,6 +65,8 @@ public class SurveyHelper {
 		// parse json survey
 		try {
 			this.jsurv = new JSONObject(jsonSurvey);
+			this.jtracker = jsurv.getJSONObject("Tracker");
+			this.jtrackerString = this.jtracker.toString();
 		} catch (JSONException e) {
 			Toast.makeText(context,
 					"Your survey json file is not formatted correctly",
@@ -93,7 +97,7 @@ public class SurveyHelper {
 	// Get trip and survey table id's
 	public void getTableID() {
 		try {
-			TRIP_TABLE_ID = jsurv.getJSONObject("Tracker").getString("TableID");
+			TRIP_TABLE_ID = jtracker.getString("TableID");
 			SURVEY_TABLE_ID = jsurv.getJSONObject("Survey")
 					.getString("TableID");
 		} catch (JSONException e) {
@@ -125,8 +129,7 @@ public class SurveyHelper {
 	// Get tracking questions related to each trip
 	public void parseTrackingQuestions() {
 		try {
-			jtrackerquestions = jsurv.getJSONObject("Tracker").getJSONArray(
-					"Questions");
+			jtrackerquestions = jtracker.getJSONArray("Questions");
 		} catch (JSONException e2) {
 			Toast.makeText(
 					context,
@@ -247,8 +250,8 @@ public class SurveyHelper {
 		// Submit tracker question images if necessary
 		for (Integer key : prevTrackerImages.keySet()) {
 			try {
-				JSONObject trackerQuestion = jsurv.getJSONObject("Tracker")
-						.getJSONArray("Questions").getJSONObject(key);
+				JSONObject trackerQuestion = jtracker.getJSONArray("Questions")
+						.getJSONObject(key);
 				if (!trackerQuestion.has("Answer")) {
 					String fileLink = Surveyor.driveHelper
 							.saveFileToDrive(prevTrackerImages.get(key)
@@ -478,7 +481,7 @@ public class SurveyHelper {
 				}
 			} else if (triporsurvey.equals("Trip")) {
 				try {
-					questionsArray = survey.getJSONObject("Tracker")
+					questionsArray = jtracker
 							.getJSONArray("Questions");
 					totalquestions = questionsArray.length();
 				} catch (JSONException e) {
@@ -549,7 +552,7 @@ public class SurveyHelper {
 	public void answerCurrentTrackerQuestion(String answer,
 			ArrayList<Integer> selectedAnswers) {
 		try {
-			jsurv.getJSONObject("Tracker").getJSONArray("Questions")
+			jtracker.getJSONArray("Questions")
 					.getJSONObject(tripQuestionPosition).put("Answer", answer);
 			selectedTrackingAnswersMap.put(tripQuestionPosition,
 					selectedAnswers);
@@ -569,6 +572,7 @@ public class SurveyHelper {
 	public void resetSurvey() {
 		try {
 			jsurv = new JSONObject(jsonSurvey);
+			jsurv.put("Tracker", jtracker);
 			prevPositions = new Stack<Tuple>();
 			selectedAnswersMap = new HashMap<Tuple, ArrayList<Integer>>();
 			prevImages = new HashMap<Tuple, Uri>();
@@ -582,6 +586,11 @@ public class SurveyHelper {
 		prevTrackingPositions = new Stack<Integer>();
 		selectedTrackingAnswersMap = new HashMap<Integer, ArrayList<Integer>>();
 		prevTrackerImages = new HashMap<Integer, Uri>();
+		try {
+			jtracker = new JSONObject(jtrackerString);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void updateSurveyPosition(Integer chapterpositionreceive,
@@ -626,7 +635,6 @@ public class SurveyHelper {
 			prevTrackingPositions.add(tripQuestionPosition);
 			tripQuestionPosition++;
 			if (tripQuestionPosition == jtrackerquestions.length()) {
-				resetTracker();
 				return NextQuestionResult.END;
 			}
 		} else {

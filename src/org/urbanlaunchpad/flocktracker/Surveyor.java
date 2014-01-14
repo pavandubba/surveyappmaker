@@ -1020,6 +1020,7 @@ public class Surveyor extends Activity implements
 				tripDistance += startLocation.distanceTo(mLocationClient
 						.getLastLocation());
 				stopTrip();
+				surveyHelper.resetTracker();
 				ridesCompleted++;
 				totalDistanceBefore += tripDistance;
 				tripDistance = 0;
@@ -1029,7 +1030,6 @@ public class Surveyor extends Activity implements
 				// Starting question fragment and passing json question
 				// information.
 				surveyHelper.updateSurveyPosition(0, 0);
-				surveyHelper.resetTracker();
 				showCurrentQuestion();
 			}
 			break;
