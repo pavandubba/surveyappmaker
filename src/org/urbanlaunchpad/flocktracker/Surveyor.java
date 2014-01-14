@@ -30,6 +30,7 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Bitmap.CompressFormat;
 import android.hardware.Camera;
 import android.location.Address;
@@ -689,9 +690,8 @@ public class Surveyor extends Activity implements
 			break;
 		case GoogleDriveHelper.CAPTURE_IMAGE:
 			try {
-				Bitmap imageBitmap = ImageHelper.decodeSampledBitmapFromPath(
-						driveHelper.fileUri.getPath(), cameraWidth, cameraHeight);
-				imageBitmap.compress(CompressFormat.JPEG, 50,
+				Bitmap imageBitmap = BitmapFactory.decodeFile(driveHelper.fileUri.getPath(), null);
+				imageBitmap.compress(CompressFormat.JPEG, 25,
 						new FileOutputStream(driveHelper.fileUri.getPath()));
 			} catch (Exception e) {
 				e.printStackTrace();
