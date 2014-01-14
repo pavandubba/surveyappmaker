@@ -42,6 +42,7 @@ import android.text.Html;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
@@ -97,7 +98,7 @@ public class Surveyor extends Activity implements
 	static final String STATISTICS_PAGE_TITLE = "Statistics";
 	private Question_fragment currentQuestionFragment;
 	public static boolean submittingSurvey = false;
-	private boolean savingSurvey = false;
+	public static boolean savingSurvey = false;
 
 	// Stored queues of surveys to submit
 	public static HashSet<String> surveyQueue;
@@ -282,6 +283,9 @@ public class Surveyor extends Activity implements
 		setContentView(R.layout.activity_surveyor);
 		Bundle extras = getIntent().getExtras();
 		thisActivity = this;
+		getWindow().setSoftInputMode(
+			      WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+		
 		if (extras != null) {
 			username = extras.getString("username");
 			surveyHelper = new SurveyHelper(username,
@@ -360,12 +364,12 @@ public class Surveyor extends Activity implements
 
 	// Spawn a thread that continuously pops off a survey to submit
 	public void spawnSurveySubmission() {
-		submittingSurvey = true;
 		new Thread(new Runnable() {
 			@SuppressWarnings("unchecked")
 			public void run() {
 				while (true) {
 					synchronized (surveyQueue) {
+						submittingSurvey = true;
 						if (surveyQueue.isEmpty()) {
 							submittingSurvey = false;
 							break;
@@ -543,9 +547,10 @@ public class Surveyor extends Activity implements
 	 */
 
 	public void saveSurvey() {
+		savingSurvey = true;
+
 		// connect if not tracking
 		if (!mLocationClient.isConnected()) {
-			savingSurvey = true;
 			mLocationClient.connect();
 		} else {
 			new Thread(new Runnable() {
@@ -575,8 +580,6 @@ public class Surveyor extends Activity implements
 							jsurvString, imagePaths);
 
 					surveysCompleted++;
-
-					savingSurvey = false;
 				}
 			}).start();
 
@@ -1099,9 +1102,10 @@ public class Surveyor extends Activity implements
 										e.printStackTrace();
 									}
 								}
+								
 								if (!submittingSurvey) {
 									spawnSurveySubmission();
-								}
+								}								
 							}
 						}
 					}).start();

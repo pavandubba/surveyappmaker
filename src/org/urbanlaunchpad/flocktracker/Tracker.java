@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.PowerManager;
 import android.util.Log;
-import android.widget.Toast;
 
 public class Tracker extends BroadcastReceiver {
 	static Surveyor surveyor;

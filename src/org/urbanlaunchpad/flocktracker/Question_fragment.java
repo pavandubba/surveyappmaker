@@ -570,10 +570,8 @@ public class Question_fragment extends Fragment implements
 			Uri imagePath = SurveyHelper.prevImages.get(key);
 			ImageView prevImage = new ImageView(rootView.getContext());
 			try {
-				Bitmap imageBitmap = ThumbnailUtils
-						.extractThumbnail(
-								BitmapFactory.decodeFile(imagePath.getPath()),
-								512, 512);
+				Bitmap imageBitmap = ImageHelper.decodeSampledBitmapFromPath(
+						imagePath.getPath(), 512, 512);
 				prevImage.setImageBitmap(imageBitmap);
 				prevImage.setPadding(10, 30, 10, 10);
 

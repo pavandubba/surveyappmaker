@@ -238,6 +238,7 @@ public class SurveyHelper {
 						.putStringSet("surveyQueue",
 								(Set<String>) Surveyor.surveyQueue.clone())
 						.commit();
+				Surveyor.savingSurvey = false;
 				Surveyor.surveyQueue.notify();
 			}
 		} catch (JSONException e1) {
