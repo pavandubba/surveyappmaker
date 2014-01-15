@@ -23,17 +23,20 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -75,6 +78,7 @@ public class Question_fragment extends Fragment implements
 	private ArrayList<String> answerList;
 	DynamicListView answerlistView;
 	private static Activity mainActivity;
+	private Button skipButton;
 
 	public Question_fragment() {
 		// Empty constructor required for fragment subclasses
@@ -294,15 +298,46 @@ public class Question_fragment extends Fragment implements
 		answerlistView.setCheeseList(answerList);
 		answerlistView.setAdapter(adapter);
 		answerlistView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+
+		skipButton = (Button) new Button(getActivity());
+		answerString = "";
+		skipButton.setEnabled(false);
+		skipButton.setText(R.string.question_skipped);
+		
 		LinearLayout orderanswerlayout = (LinearLayout) rootView
 				.findViewById(R.id.orderanswerlayout);
-		orderanswerlayout.addView(answerlistView, LayoutParams.MATCH_PARENT,
-				LayoutParams.MATCH_PARENT);
-		orderedListSendAnswer();
+		orderanswerlayout.setOrientation(LinearLayout.VERTICAL);
+		orderanswerlayout.setWeightSum(6f);
+		LinearLayout.LayoutParams lParams1 = (LinearLayout.LayoutParams) new LinearLayout.LayoutParams(
+				LayoutParams.MATCH_PARENT, 0);
+		LinearLayout.LayoutParams lParams2 = (LinearLayout.LayoutParams) new LinearLayout.LayoutParams(
+				LayoutParams.MATCH_PARENT, 0);
+		lParams1.weight = 5f;
+		lParams2.weight = 1f;
+		
+	
+		orderanswerlayout.addView(answerlistView);	
+		orderanswerlayout.addView(skipButton);
+		answerlistView.setLayoutParams(lParams1);
+		skipButton.setLayoutParams(lParams2);
+		skipButton.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+				answerString = "";
+				Callback.AnswerRecieve(answerString, null, null);
+				skipButton.setEnabled(false);
+				skipButton.setText(R.string.question_skipped);
+			}
+		});
 	}
 
 	public void orderedListSendAnswer() {
 		answerString = getorderedAnswers();
+		if (skipButton != null) {
+			skipButton.setEnabled(true);
+			skipButton.setText(R.string.skip_question);
+		}
 		Callback.AnswerRecieve(answerString, null, null);
 	}
 

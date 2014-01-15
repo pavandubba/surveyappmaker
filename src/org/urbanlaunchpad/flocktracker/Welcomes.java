@@ -17,7 +17,7 @@ import android.view.WindowManager;
 public class Welcomes extends Activity implements OnClickListener {
 
 	// private long splashDelay = 1000; // 1 second for debugging.
-	private long splashDelay = 5000; // 6 seconds.
+	private long splashDelay = 3000; // 3 seconds.
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
