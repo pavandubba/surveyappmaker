@@ -557,6 +557,8 @@ public class SurveyHelper {
 
 	public void resetSurvey() {
 		try {
+			chapterPosition = 0;
+			questionPosition = 0;
 			jsurv = new JSONObject(jsonSurvey);
 			jsurv.put("Tracker", jtracker);
 			prevPositions = new Stack<Tuple>();

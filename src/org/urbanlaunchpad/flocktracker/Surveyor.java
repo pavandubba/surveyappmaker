@@ -477,34 +477,32 @@ public class Surveyor extends Activity implements
 	@Override
 	public void onBackPressed() {
 		if (askingTripQuestions) {
-			if (surveyHelper.getTripQuestionPosition() == 0) {
+			if (surveyHelper.prevTrackingPositions.empty()
+					|| surveyHelper.getTripQuestionPosition() == 0) {
 				showHubPage();
 				return;
 			}
 			// Pop last question off
-			if (!surveyHelper.prevTrackingPositions.empty()) {
-				Integer prevPosition = surveyHelper.prevTrackingPositions.pop();
-				surveyHelper.updateTrackerPositionOnBack(prevPosition);
-				showCurrentQuestion();
-			}
+			Integer prevPosition = surveyHelper.prevTrackingPositions.pop();
+			surveyHelper.updateTrackerPositionOnBack(prevPosition);
+			showCurrentQuestion();
 			return;
 		}
 
 		if (!showingHubPage && !showingStatusPage) {
-			if (surveyHelper.getChapterPosition() == 0
-					&& surveyHelper.getQuestionPosition() == 0) {
+			if (surveyHelper.prevPositions.empty()
+					|| (surveyHelper.getChapterPosition() == 0 && surveyHelper
+							.getQuestionPosition() == 0)) {
 				showHubPage();
 				return;
 			}
 
 			// Pop last question off
-			if (!surveyHelper.prevPositions.empty()) {
-				Tuple prevPosition = surveyHelper.prevPositions.pop();
-				surveyHelper.updateSurveyPositionOnBack(
-						prevPosition.chapterPosition,
-						prevPosition.questionPosition);
-				showCurrentQuestion();
-			}
+			Tuple prevPosition = surveyHelper.prevPositions.pop();
+			surveyHelper
+					.updateSurveyPositionOnBack(prevPosition.chapterPosition,
+							prevPosition.questionPosition);
+			showCurrentQuestion();
 			return;
 		}
 
@@ -690,7 +688,8 @@ public class Surveyor extends Activity implements
 			break;
 		case GoogleDriveHelper.CAPTURE_IMAGE:
 			try {
-				Bitmap imageBitmap = BitmapFactory.decodeFile(driveHelper.fileUri.getPath(), null);
+				Bitmap imageBitmap = BitmapFactory.decodeFile(
+						driveHelper.fileUri.getPath(), null);
 				imageBitmap.compress(CompressFormat.JPEG, 25,
 						new FileOutputStream(driveHelper.fileUri.getPath()));
 			} catch (Exception e) {
