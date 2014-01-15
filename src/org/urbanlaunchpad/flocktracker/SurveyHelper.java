@@ -198,7 +198,7 @@ public class SurveyHelper {
 					jsurvQueueObject);
 			String answerfinalString = getnames("Answer", "wq", type,
 					jsurvQueueObject);
-			String latlng = LocationHelper.getLatLngAlt(lat, lng, alt);
+			String latlng = LocationHelper.getLngLatAlt(lng, lat, alt);
 			String query = "";
 
 			if (type.equals("Tracker")) {
