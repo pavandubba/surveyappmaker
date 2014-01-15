@@ -25,7 +25,25 @@ public class Tracker extends BroadcastReceiver {
 		if (surveyor != null) {
 			new Thread(new Runnable() {
 				public void run() {
-					surveyor.submitLocation();
+					new Thread(new Runnable() {
+						public void run() {
+							surveyor.saveLocation();
+							synchronized (Surveyor.submissionQueue) {
+								while (Surveyor.savingSubmission) {
+									try {
+										Surveyor.submissionQueue.wait();
+									} catch (Exception e) {
+										e.printStackTrace();
+										return;
+									}
+								}
+
+								if (!Surveyor.submittingSubmission) {
+									surveyor.spawnSubmission();
+								}
+							}
+						}
+					}).start();
 				}
 			}).start();
 		} else {

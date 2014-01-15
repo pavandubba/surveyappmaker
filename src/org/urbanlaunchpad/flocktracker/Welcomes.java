@@ -5,7 +5,6 @@ import java.util.TimerTask;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
@@ -30,17 +29,6 @@ public class Welcomes extends Activity implements OnClickListener {
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		
 		setContentView(R.layout.activity_welcomes);
-
-		final MediaPlayer cuca_play = MediaPlayer.create(Welcomes.this,
-				R.raw.cucaracha);
-		findViewById(R.id.app_big_icon_button).setOnClickListener(
-				new View.OnClickListener() {
-					@Override
-					public void onClick(View view) {
-						cuca_play.start();
-					}
-				});
-
 
 		findViewById(R.id.mobility_futures_colaborative_button)
 				.setOnClickListener(this);

@@ -1,7 +1,9 @@
 package org.urbanlaunchpad.flocktracker;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
@@ -65,8 +67,9 @@ public class SurveyHelper {
 		// parse json survey
 		try {
 			this.jsurv = new JSONObject(jsonSurvey);
-			this.jtracker = jsurv.getJSONObject("Tracker");
-			this.jtrackerString = this.jtracker.toString();
+			this.jtrackerString = this.jsurv.getJSONObject("Tracker")
+					.toString();
+			this.jtracker = new JSONObject(this.jtrackerString);
 		} catch (JSONException e) {
 			Toast.makeText(context,
 					"Your survey json file is not formatted correctly",
@@ -156,9 +159,9 @@ public class SurveyHelper {
 	 * Uploading Logic
 	 */
 
-	public boolean submitSurvey(String jsurvString, String lat, String lng,
+	public boolean submitSubmission(String jsurvString, String lat, String lng,
 			String alt, String imagePaths, String surveyID, String tripID,
-			String timestamp) {
+			String timestamp, String type) {
 		boolean success = false;
 
 		try {
@@ -169,124 +172,107 @@ public class SurveyHelper {
 			for (@SuppressWarnings("unchecked")
 			Iterator<String> i = imageMap.keys(); i.hasNext();) {
 				String keyString = i.next();
-				Tuple key = new Tuple(keyString);
-
 				String fileLink = Surveyor.driveHelper.saveFileToDrive(imageMap
 						.getString(keyString));
+
 				if (fileLink != null) {
-					jsurvQueueObject.getJSONObject("Survey")
-							.getJSONArray("Chapters")
-							.getJSONObject(key.chapterPosition)
-							.getJSONArray("Questions")
-							.getJSONObject(key.questionPosition)
-							.put("Answer", fileLink);
+					if (type.equals("Tracker")) {
+						Integer key = Integer.parseInt(keyString);
+						jsurvQueueObject.getJSONObject(type)
+								.getJSONArray("Questions").getJSONObject(key)
+								.put("Answer", fileLink);
+					} else if (type.equals("Survey")) {
+						Tuple key = new Tuple(keyString);
+						jsurvQueueObject.getJSONObject(type)
+								.getJSONArray("Chapters")
+								.getJSONObject(key.chapterPosition)
+								.getJSONArray("Questions")
+								.getJSONObject(key.questionPosition)
+								.put("Answer", fileLink);
+					}
 				}
 			}
 
 			// Submit survey
-			String columnnamesString = getnames("id", "nq", "Survey",
+			String columnnamesString = getnames("id", "nq", type,
 					jsurvQueueObject);
-			String answerfinalString = getnames("Answer", "wq", "Survey",
+			String answerfinalString = getnames("Answer", "wq", type,
 					jsurvQueueObject);
 			String latlng = LocationHelper.getLatLngAlt(lat, lng, alt);
-			String query = "INSERT INTO "
-					+ SURVEY_TABLE_ID
-					+ " ("
-					+ columnnamesString
-					+ ",Location,Lat,Lng,Alt,Date,SurveyID,TripID,Username) VALUES ("
-					+ answerfinalString + ",'<Point><coordinates>" + latlng
-					+ "</coordinates></Point>','" + lat + "','" + lng + "','"
-					+ alt + "','" + timestamp + "','" + surveyID + "','"
-					+ tripID + "','" + username + "');";
+			String query = "";
 
+			if (type.equals("Tracker")) {
+				query = "INSERT INTO "
+						+ TRIP_TABLE_ID
+						+ " ("
+						+ columnnamesString
+						+ ",Location,Lat,Lng,Alt,Date,TripID,Username) VALUES ("
+						+ answerfinalString + ",'<Point><coordinates>" + latlng
+						+ "</coordinates></Point>','" + lat + "','" + lng
+						+ "','" + alt + "','" + timestamp + "','" + tripID
+						+ "','" + username + "');";
+			} else if (type.equals("Survey")) {
+				query = "INSERT INTO "
+						+ SURVEY_TABLE_ID
+						+ " ("
+						+ columnnamesString
+						+ ",Location,Lat,Lng,Alt,Date,SurveyID,TripID,Username) VALUES ("
+						+ answerfinalString + ",'<Point><coordinates>" + latlng
+						+ "</coordinates></Point>','" + lat + "','" + lng
+						+ "','" + alt + "','" + timestamp + "','" + surveyID
+						+ "','" + tripID + "','" + username + "');";
+			}
 			Sql sql = Iniconfig.fusiontables.query().sql(query);
 			sql.setKey(Iniconfig.API_KEY);
 			sql.execute();
 			success = true;
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (JSONException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return success;
 	}
 
 	@SuppressWarnings("unchecked")
-	public void saveSurvey(Location currentLocation, String surveyID,
-			String tripID, String jsurvString, JSONObject imagePaths) {
-		String lat = "" + currentLocation.getLatitude();
-		String lng = "" + currentLocation.getLongitude();
-		String alt = "" + currentLocation.getAltitude();
-		String timestamp = (String) android.text.format.DateFormat.format(
-				"yyyy-MM-dd hh:mm:ss", new java.util.Date());
-		JSONObject surveyQueueObject = new JSONObject();
+	public void saveSubmission(Location currentLocation, String surveyID,
+			String tripID, String jsurvString, JSONObject imagePaths,
+			String type) {
+		String lat = "";
+		String lng = "";
+		String alt = "";
+		if (currentLocation != null) {
+			lat = "" + currentLocation.getLatitude();
+			lng = "" + currentLocation.getLongitude();
+			alt = "" + currentLocation.getAltitude();
+		}
+		
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		String timestamp = sdf.format(new Date());
+		JSONObject submission = new JSONObject();
 
 		// Serialize into shared preferences
 		try {
-			surveyQueueObject.put("lat", lat);
-			surveyQueueObject.put("lng", lng);
-			surveyQueueObject.put("alt", alt);
-			surveyQueueObject.put("timestamp", timestamp);
-			surveyQueueObject.put("jsurv", jsurvString);
-			surveyQueueObject.put("surveyID", surveyID);
-			surveyQueueObject.put("tripID", tripID);
-			surveyQueueObject.put("imagePaths", imagePaths.toString());
-			synchronized (Surveyor.surveyQueue) {
-				Surveyor.surveyQueue.add(surveyQueueObject.toString());
+			submission.put("type", type);
+			submission.put("lat", lat);
+			submission.put("lng", lng);
+			submission.put("alt", alt);
+			submission.put("timestamp", timestamp);
+			submission.put("jsurv", jsurvString);
+			submission.put("surveyID", surveyID);
+			submission.put("tripID", tripID);
+			submission.put("imagePaths", imagePaths.toString());
+			synchronized (Surveyor.submissionQueue) {
+				Surveyor.submissionQueue.add(submission.toString());
 				Iniconfig.prefs
 						.edit()
-						.putStringSet("surveyQueue",
-								(Set<String>) Surveyor.surveyQueue.clone())
+						.putStringSet("submissionQueue",
+								(Set<String>) Surveyor.submissionQueue.clone())
 						.commit();
-				Surveyor.savingSurvey = false;
-				Surveyor.surveyQueue.notify();
+				Surveyor.savingSubmission = false;
+				Surveyor.submissionQueue.notify();
 			}
-		} catch (JSONException e1) {
-			e1.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-	}
-
-	public void submitLocation(Location currentLocation, String tripID)
-			throws ClientProtocolException, IOException {
-		// Submit tracker question images if necessary
-		for (Integer key : prevTrackerImages.keySet()) {
-			try {
-				JSONObject trackerQuestion = jtracker.getJSONArray("Questions")
-						.getJSONObject(key);
-				if (!trackerQuestion.has("Answer")) {
-					String fileLink = Surveyor.driveHelper
-							.saveFileToDrive(prevTrackerImages.get(key)
-									.getPath());
-					if (fileLink != null) {
-						try {
-							trackerQuestion.put("Answer", fileLink);
-						} catch (JSONException e) {
-							e.printStackTrace();
-						}
-					}
-				}
-			} catch (JSONException e) {
-				e.printStackTrace();
-			}
-		}
-
-		String columnnamesString = getnames("id", "nq", "Trip", jsurv);
-		String answerfinalString = getnames("Answer", "wq", "Trip", jsurv);
-
-		String latlng = LocationHelper.getLatLngAlt(currentLocation);
-		String dateString = (String) android.text.format.DateFormat.format(
-				"yyyy-MM-dd hh:mm:ss", new java.util.Date());
-		String query = "INSERT INTO " + TRIP_TABLE_ID + " ("
-				+ columnnamesString
-				+ ",Location,Lat,Lng,Alt,Date,TripID,Username) VALUES ("
-				+ answerfinalString + ",'<Point><coordinates>" + latlng
-				+ "</coordinates></Point>','" + currentLocation.getLatitude()
-				+ "','" + currentLocation.getLongitude() + "','"
-				+ currentLocation.getAltitude() + "','" + dateString + "','"
-				+ tripID + "','" + username + "');";
-		Sql sql = Iniconfig.fusiontables.query().sql(query);
-		sql.setKey(Iniconfig.API_KEY);
-		sql.execute();
 	}
 
 	/*
@@ -467,7 +453,7 @@ public class SurveyHelper {
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
-		} else if (triporsurvey.equals("Trip")) {
+		} else if (triporsurvey.equals("Tracker")) {
 			totalchapters = 1;
 		}
 		for (int i = 0; i < totalchapters; ++i) {
@@ -480,10 +466,9 @@ public class SurveyHelper {
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
-			} else if (triporsurvey.equals("Trip")) {
+			} else if (triporsurvey.equals("Tracker")) {
 				try {
-					questionsArray = jtracker
-							.getJSONArray("Questions");
+					questionsArray = jtracker.getJSONArray("Questions");
 					totalquestions = questionsArray.length();
 				} catch (JSONException e) {
 					e.printStackTrace();
@@ -572,6 +557,8 @@ public class SurveyHelper {
 
 	public void resetSurvey() {
 		try {
+			chapterPosition = 0;
+			questionPosition = 0;
 			jsurv = new JSONObject(jsonSurvey);
 			jsurv.put("Tracker", jtracker);
 			prevPositions = new Stack<Tuple>();
