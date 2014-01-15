@@ -11,7 +11,7 @@ import android.util.Log;
 
 public class Tracker extends BroadcastReceiver {
 	static Surveyor surveyor;
-	
+
 	@SuppressLint("Wakelock")
 	@Override
 	public void onReceive(Context context, Intent intent) {
@@ -25,36 +25,33 @@ public class Tracker extends BroadcastReceiver {
 		if (surveyor != null) {
 			new Thread(new Runnable() {
 				public void run() {
-					new Thread(new Runnable() {
-						public void run() {
-							surveyor.saveLocation();
-							synchronized (Surveyor.submissionQueue) {
-								while (Surveyor.savingSubmission) {
-									try {
-										Surveyor.submissionQueue.wait();
-									} catch (Exception e) {
-										e.printStackTrace();
-										return;
-									}
-								}
-
-								if (!Surveyor.submittingSubmission) {
-									surveyor.spawnSubmission();
-								}
+					surveyor.saveLocation();
+					synchronized (Surveyor.submissionQueue) {
+						while (Surveyor.savingSubmission) {
+							try {
+								Surveyor.submissionQueue.wait();
+							} catch (Exception e) {
+								e.printStackTrace();
+								return;
 							}
 						}
-					}).start();
+
+						if (!Surveyor.submittingSubmission) {
+							surveyor.spawnSubmission();
+						}
+					}
 				}
 			}).start();
 		} else {
 			Intent intentAlarm = new Intent(context, Tracker.class);
-			PendingIntent sender = PendingIntent.getBroadcast(context, 1, intentAlarm,
-					PendingIntent.FLAG_UPDATE_CURRENT);
-			AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+			PendingIntent sender = PendingIntent.getBroadcast(context, 1,
+					intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT);
+			AlarmManager alarmManager = (AlarmManager) context
+					.getSystemService(Context.ALARM_SERVICE);
 			alarmManager.cancel(sender);
 		}
-		
+
 		wl.release();
 	}
-	
+
 }
