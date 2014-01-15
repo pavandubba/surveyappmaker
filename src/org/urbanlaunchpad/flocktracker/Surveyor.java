@@ -1,5 +1,6 @@
 package org.urbanlaunchpad.flocktracker;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,9 +33,11 @@ import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -710,6 +713,16 @@ public class Surveyor extends Activity implements
 			try {
 				Bitmap imageBitmap = BitmapFactory.decodeFile(
 						driveHelper.fileUri.getPath(), null);
+				float rotation = ImageHelper.rotationForImage(this,
+						Uri.fromFile(new File(driveHelper.fileUri.getPath())));
+				if (rotation != 0) {
+					Matrix matrix = new Matrix();
+					matrix.preRotate(rotation);
+					imageBitmap = Bitmap.createBitmap(imageBitmap, 0, 0,
+							imageBitmap.getWidth(), imageBitmap.getHeight(),
+							matrix, true);
+				}
+				
 				imageBitmap.compress(CompressFormat.JPEG, 25,
 						new FileOutputStream(driveHelper.fileUri.getPath()));
 			} catch (Exception e) {

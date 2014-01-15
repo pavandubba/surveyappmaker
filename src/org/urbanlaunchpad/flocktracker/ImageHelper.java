@@ -1,7 +1,14 @@
 package org.urbanlaunchpad.flocktracker;
 
+import java.io.IOException;
+
+import android.content.Context;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.ExifInterface;
+import android.net.Uri;
+import android.provider.MediaStore.Images;
 
 public class ImageHelper {
 
@@ -43,6 +50,30 @@ public class ImageHelper {
 		// Decode bitmap with inSampleSize set
 		options.inJustDecodeBounds = false;
 		return BitmapFactory.decodeFile(pathName, options);
+	}
+
+	public static float rotationForImage(Context context, Uri uri) {
+		try {
+			ExifInterface exif = new ExifInterface(uri.getPath());
+			int rotation = (int) exifOrientationToDegrees(exif.getAttributeInt(
+					ExifInterface.TAG_ORIENTATION,
+					ExifInterface.ORIENTATION_NORMAL));
+			return rotation;
+		} catch (IOException e) {
+			return 0;
+		}
+	}
+
+	/** Get rotation in degrees */
+	private static float exifOrientationToDegrees(int exifOrientation) {
+		if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_90) {
+			return 90;
+		} else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_180) {
+			return 180;
+		} else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_270) {
+			return 270;
+		}
+		return 0;
 	}
 
 }
