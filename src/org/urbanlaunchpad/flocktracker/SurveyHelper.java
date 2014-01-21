@@ -211,6 +211,7 @@ public class SurveyHelper {
 						+ "</coordinates></Point>','" + lat + "','" + lng
 						+ "','" + alt + "','" + timestamp + "','" + tripID
 						+ "','" + username + "');";
+				Log.v("Survey submit", query);
 			} else if (type.equals("Survey")) {
 				query = "INSERT INTO "
 						+ SURVEY_TABLE_ID
@@ -221,6 +222,7 @@ public class SurveyHelper {
 						+ "</coordinates></Point>','" + lat + "','" + lng
 						+ "','" + alt + "','" + timestamp + "','" + surveyID
 						+ "','" + tripID + "','" + username + "');";
+				Log.v("Survey submit", query);
 			}
 			Sql sql = Iniconfig.fusiontables.query().sql(query);
 			sql.setKey(Iniconfig.API_KEY);

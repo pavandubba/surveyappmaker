@@ -722,7 +722,7 @@ public class Surveyor extends Activity implements
 							imageBitmap.getWidth(), imageBitmap.getHeight(),
 							matrix, true);
 				}
-				
+
 				imageBitmap.compress(CompressFormat.JPEG, 25,
 						new FileOutputStream(driveHelper.fileUri.getPath()));
 			} catch (Exception e) {
@@ -973,15 +973,17 @@ public class Surveyor extends Activity implements
 
 	@Override
 	public void onConnected(Bundle connectionHint) {
-		mLocationClient.requestLocationUpdates(mLocationRequest,
-				new LocationListener() {
-					@Override
-					public void onLocationChanged(Location location) {
-						// update location + distance
-						tripDistance += startLocation.distanceTo(location);
-						startLocation = location;
-					}
-				});
+		if (isTripStarted) {
+			mLocationClient.requestLocationUpdates(mLocationRequest,
+					new LocationListener() {
+						@Override
+						public void onLocationChanged(Location location) {
+							// update location + distance
+							tripDistance += startLocation.distanceTo(location);
+							startLocation = location;
+						}
+					});
+		}
 		if (savingSubmission) { // connecting for submitting survey and not
 			// tracking
 			new Thread(new Runnable() {
