@@ -198,7 +198,7 @@ public class SurveyHelper {
 					jsurvQueueObject);
 			String answerfinalString = getnames("Answer", "wq", type,
 					jsurvQueueObject);
-			String latlng = LocationHelper.getLatLngAlt(lat, lng, alt);
+			String lnglat = LocationHelper.getLngLatAlt(lng, lat, alt);
 			String query = "";
 
 			if (type.equals("Tracker")) {
@@ -207,7 +207,7 @@ public class SurveyHelper {
 						+ " ("
 						+ columnnamesString
 						+ ",Location,Lat,Lng,Alt,Date,TripID,Username) VALUES ("
-						+ answerfinalString + ",'<Point><coordinates>" + latlng
+						+ answerfinalString + ",'<Point><coordinates>" + lnglat
 						+ "</coordinates></Point>','" + lat + "','" + lng
 						+ "','" + alt + "','" + timestamp + "','" + tripID
 						+ "','" + username + "');";
@@ -217,7 +217,7 @@ public class SurveyHelper {
 						+ " ("
 						+ columnnamesString
 						+ ",Location,Lat,Lng,Alt,Date,SurveyID,TripID,Username) VALUES ("
-						+ answerfinalString + ",'<Point><coordinates>" + latlng
+						+ answerfinalString + ",'<Point><coordinates>" + lnglat
 						+ "</coordinates></Point>','" + lat + "','" + lng
 						+ "','" + alt + "','" + timestamp + "','" + surveyID
 						+ "','" + tripID + "','" + username + "');";
