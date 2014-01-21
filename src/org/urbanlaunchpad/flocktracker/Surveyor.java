@@ -1,5 +1,6 @@
 package org.urbanlaunchpad.flocktracker;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -30,12 +31,13 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Bitmap.CompressFormat;
-import android.hardware.Camera;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -58,6 +60,8 @@ import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.location.LocationClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
 
 public class Surveyor extends Activity implements
 		Question_fragment.AnswerSelected,
@@ -104,8 +108,22 @@ public class Surveyor extends Activity implements
 	public static boolean submittingSubmission = false;
 	public static boolean savingSubmission = false;
 	private boolean justAtHubPage = true;
-	private int cameraWidth = 1000;
-	private int cameraHeight = 1000;
+
+	// Milliseconds per second
+	private static final int MILLISECONDS_PER_SECOND = 1000;
+	// Update frequency in seconds
+	public static final int UPDATE_INTERVAL_IN_SECONDS = 5;
+	// Update frequency in milliseconds
+	private static final long UPDATE_INTERVAL = MILLISECONDS_PER_SECOND
+			* UPDATE_INTERVAL_IN_SECONDS;
+	// The fastest update frequency, in seconds
+	private static final int FASTEST_INTERVAL_IN_SECONDS = 1;
+	// A fast frequency ceiling in milliseconds
+	private static final long FASTEST_INTERVAL = MILLISECONDS_PER_SECOND
+			* FASTEST_INTERVAL_IN_SECONDS;
+
+	// Define an object that holds accuracy and frequency parameters
+	LocationRequest mLocationRequest;
 
 	// Stored queues of surveys to submit
 	public static HashSet<String> submissionQueue;
@@ -208,8 +226,7 @@ public class Surveyor extends Activity implements
 								try {
 									Geocoder geocoder = new Geocoder(
 											thisActivity, Locale.getDefault());
-									Location current = mLocationClient
-											.getLastLocation();
+									Location current = startLocation;
 									addresses = geocoder.getFromLocation(
 											current.getLatitude(),
 											current.getLongitude(), 1);
@@ -349,6 +366,14 @@ public class Surveyor extends Activity implements
 		}
 
 		mLocationClient = new LocationClient(this, this, this);
+
+		mLocationRequest = LocationRequest.create();
+		// Use high accuracy
+		mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+		// Set the update interval to 5 seconds
+		mLocationRequest.setInterval(UPDATE_INTERVAL);
+		// Set the fastest update interval to 1 second
+		mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
 
 		// Creating a random survey ID
 
@@ -594,7 +619,6 @@ public class Surveyor extends Activity implements
 					}
 					resetSurvey();
 					surveyHelper.jumpString = null;
-					Location lastLocation = mLocationClient.getLastLocation();
 
 					// disconnect if not tracking or not currently
 					// submitting
@@ -603,8 +627,8 @@ public class Surveyor extends Activity implements
 						mLocationClient.disconnect();
 
 					// save location tagged survey
-					surveyHelper.saveSubmission(lastLocation, surveyID, tripID,
-							jsurvString, imagePaths, "Survey");
+					surveyHelper.saveSubmission(startLocation, surveyID,
+							tripID, jsurvString, imagePaths, "Survey");
 
 					surveysCompleted++;
 				}
@@ -640,11 +664,10 @@ public class Surveyor extends Activity implements
 							e.printStackTrace();
 						}
 					}
-					Location lastLocation = mLocationClient.getLastLocation();
 
 					// save location tagged survey
-					surveyHelper.saveSubmission(lastLocation, surveyID, tripID,
-							jsurvString, imagePaths, "Tracker");
+					surveyHelper.saveSubmission(startLocation, surveyID,
+							tripID, jsurvString, imagePaths, "Tracker");
 				}
 			}).start();
 		}
@@ -690,6 +713,16 @@ public class Surveyor extends Activity implements
 			try {
 				Bitmap imageBitmap = BitmapFactory.decodeFile(
 						driveHelper.fileUri.getPath(), null);
+				float rotation = ImageHelper.rotationForImage(this,
+						Uri.fromFile(new File(driveHelper.fileUri.getPath())));
+				if (rotation != 0) {
+					Matrix matrix = new Matrix();
+					matrix.preRotate(rotation);
+					imageBitmap = Bitmap.createBitmap(imageBitmap, 0, 0,
+							imageBitmap.getWidth(), imageBitmap.getHeight(),
+							matrix, true);
+				}
+				
 				imageBitmap.compress(CompressFormat.JPEG, 25,
 						new FileOutputStream(driveHelper.fileUri.getPath()));
 			} catch (Exception e) {
@@ -940,6 +973,15 @@ public class Surveyor extends Activity implements
 
 	@Override
 	public void onConnected(Bundle connectionHint) {
+		mLocationClient.requestLocationUpdates(mLocationRequest,
+				new LocationListener() {
+					@Override
+					public void onLocationChanged(Location location) {
+						// update location + distance
+						tripDistance += startLocation.distanceTo(location);
+						startLocation = location;
+					}
+				});
 		if (savingSubmission) { // connecting for submitting survey and not
 			// tracking
 			new Thread(new Runnable() {
@@ -1079,8 +1121,6 @@ public class Surveyor extends Activity implements
 		case TOGGLETRIP:
 			if (isTripStarted) {
 				// Update status page info
-				tripDistance += startLocation.distanceTo(mLocationClient
-						.getLastLocation());
 				stopTrip();
 				surveyHelper.resetTracker();
 				ridesCompleted++;

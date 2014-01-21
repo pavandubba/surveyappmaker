@@ -17,7 +17,7 @@ public final class LocationHelper {
         if (currentLocation != null) {
 
             // Return the latitude and longitude as strings
-            return currentLocation.getLongitude() + "," + currentLocation.getLatitude() + "," + 
+            return currentLocation.getLatitude() + "," + currentLocation.getLongitude() + "," + 
             		currentLocation.getAltitude();
         } else {
 
@@ -26,9 +26,9 @@ public final class LocationHelper {
         }
     }
     
-    public static String getLngLatAlt(String lat, String lng, String alt) {
+    public static String getLngLatAlt(String lng, String lat, String alt) {
     	// Return the latitude and longitude as strings
-        return lat + "," + lng + "," + 
+        return lng + "," + lat + "," + 
         		alt;
     }
 	

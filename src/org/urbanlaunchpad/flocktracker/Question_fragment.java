@@ -283,6 +283,26 @@ public class Question_fragment extends Fragment implements
 
 			}
 		}
+		
+		// Prepopulate question
+		
+		if (Surveyor.askingTripQuestions) {
+			selectedAnswers = SurveyHelper.selectedTrackingAnswersMap
+					.get(questionposition);
+		} else {
+			selectedAnswers = SurveyHelper.selectedAnswersMap
+					.get(new Tuple(chapterposition, questionposition));
+		}
+		if (selectedAnswers != null) {
+			ArrayList<String> answerTempList = new ArrayList<String>();
+			for (int i = 0; i < totalanswers; ++i) {
+				answerTempList.add(answerList.get(selectedAnswers.get(i)));
+			}
+			answerList.clear();
+			answerList.addAll(answerTempList);
+		}
+		
+
 
 		ViewGroup questionLayoutView = (ViewGroup) rootView
 				.findViewById(R.id.questionlayout);
@@ -330,13 +350,27 @@ public class Question_fragment extends Fragment implements
 		});
 	}
 
-	public void orderedListSendAnswer() {
-		answerString = getorderedAnswers();
+	public void orderedListSendAnswer() {		
 		if (skipButton != null) {
 			skipButton.setEnabled(true);
 			skipButton.setText(R.string.skip_question);
 		}
-		Callback.AnswerRecieve(answerString, null, null);
+		answerString = getorderedAnswers();
+		selectedAnswers = new ArrayList<Integer>();
+		StableArrayAdapter OrderedList = (StableArrayAdapter) answerlistView
+				.getAdapter();
+		for (int i = 0; i < totalanswers; ++i) {
+			for (int j = 0; j < totalanswers; ++j) {
+				if (OrderedList.getItem(i).equals(answerList.get(j))){
+					selectedAnswers.add(j);
+					toast = Toast.makeText(getActivity(),
+							answerList.get(j),
+							Toast.LENGTH_SHORT);
+					toast.show();
+				}
+			}
+		}
+		Callback.AnswerRecieve(answerString, null, selectedAnswers);
 	}
 
 	private String getorderedAnswers() {
