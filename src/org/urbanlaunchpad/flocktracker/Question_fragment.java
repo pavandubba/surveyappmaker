@@ -74,6 +74,7 @@ public class Question_fragment extends Fragment implements
 	private ImageView[] answerImages;
 	private ImageView otherImage;
 	private ArrayList<String> answerList;
+	private ArrayList<String> originalAnswerList;
 	DynamicListView answerlistView;
 	private static Activity mainActivity;
 	private Button skipButton;
@@ -255,7 +256,7 @@ public class Question_fragment extends Fragment implements
 	}
 
 	public void OrderedListLayout() {
-		answerList = new ArrayList<String>();
+		originalAnswerList = new ArrayList<String>();
 		try {
 			janswerlist = jquestion.getJSONArray("Answers");
 			totalanswers = janswerlist.length();
@@ -269,40 +270,45 @@ public class Question_fragment extends Fragment implements
 		}
 		// Filling array adapter with the answers.
 		if (totalanswers == 0) {
-			answerList.add("");
+			originalAnswerList.add("");
 		} else {
 			String aux;
 			for (int i = 0; i < totalanswers; ++i) {
 				try {
 					aux = janswerlist.getJSONObject(i).getString("Answer");
-					answerList.add(aux);
+					originalAnswerList.add(aux);
 				} catch (JSONException e) {
 					e.printStackTrace();
-					answerList.add("");
+					originalAnswerList.add("");
 				}
 
 			}
 		}
-		
+
+		answerList = new ArrayList<String>();
+		answerList.addAll(originalAnswerList);
+
 		// Prepopulate question
-		
+
 		if (Surveyor.askingTripQuestions) {
 			selectedAnswers = SurveyHelper.selectedTrackingAnswersMap
 					.get(questionposition);
 		} else {
-			selectedAnswers = SurveyHelper.selectedAnswersMap
-					.get(new Tuple(chapterposition, questionposition));
+			selectedAnswers = SurveyHelper.selectedAnswersMap.get(new Tuple(
+					chapterposition, questionposition));
 		}
 		if (selectedAnswers != null) {
 			ArrayList<String> answerTempList = new ArrayList<String>();
 			for (int i = 0; i < totalanswers; ++i) {
 				answerTempList.add(answerList.get(selectedAnswers.get(i)));
+//				 toast = Toast.makeText(getActivity(),
+//				 answerTempList.get(i) + " " + selectedAnswers.get(i),
+//				 Toast.LENGTH_SHORT);
+//				 toast.show();
 			}
 			answerList.clear();
 			answerList.addAll(answerTempList);
 		}
-		
-
 
 		ViewGroup questionLayoutView = (ViewGroup) rootView
 				.findViewById(R.id.questionlayout);
@@ -321,7 +327,7 @@ public class Question_fragment extends Fragment implements
 		answerString = "";
 		skipButton.setEnabled(false);
 		skipButton.setText(R.string.question_skipped);
-		
+
 		LinearLayout orderanswerlayout = (LinearLayout) rootView
 				.findViewById(R.id.orderanswerlayout);
 		orderanswerlayout.setOrientation(LinearLayout.VERTICAL);
@@ -332,9 +338,8 @@ public class Question_fragment extends Fragment implements
 				LayoutParams.MATCH_PARENT, 0);
 		lParams1.weight = 5f;
 		lParams2.weight = 1f;
-		
-	
-		orderanswerlayout.addView(answerlistView);	
+
+		orderanswerlayout.addView(answerlistView);
 		orderanswerlayout.addView(skipButton);
 		answerlistView.setLayoutParams(lParams1);
 		skipButton.setLayoutParams(lParams2);
@@ -350,23 +355,28 @@ public class Question_fragment extends Fragment implements
 		});
 	}
 
-	public void orderedListSendAnswer() {		
+	public void orderedListSendAnswer() {
 		if (skipButton != null) {
 			skipButton.setEnabled(true);
 			skipButton.setText(R.string.skip_question);
 		}
 		answerString = getorderedAnswers();
 		selectedAnswers = new ArrayList<Integer>();
-		StableArrayAdapter OrderedList = (StableArrayAdapter) answerlistView
-				.getAdapter();
+		// for (int i = 0; i < totalanswers; ++i) {
+		// toast = Toast.makeText(getActivity(),
+		// originalAnswerList.get(i) + " " + answerList.get(i),
+		// Toast.LENGTH_SHORT);
+		// toast.show();
+		// }
+
 		for (int i = 0; i < totalanswers; ++i) {
 			for (int j = 0; j < totalanswers; ++j) {
-				if (OrderedList.getItem(i).equals(answerList.get(j))){
+				if (originalAnswerList.get(i).equals(answerList.get(j))) {
 					selectedAnswers.add(j);
-					toast = Toast.makeText(getActivity(),
-							answerList.get(j),
-							Toast.LENGTH_SHORT);
-					toast.show();
+//					toast = Toast.makeText(getActivity(), answerList.get(j)
+//							+ " " + selectedAnswers.get(j+1), Toast.LENGTH_SHORT);
+//					toast.show();
+					break;
 				}
 			}
 		}
