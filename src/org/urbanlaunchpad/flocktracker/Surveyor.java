@@ -1251,5 +1251,5 @@ public class Surveyor extends Activity implements
 
 		alarmManager.cancel(sender);
 	}
-
+	
 }
