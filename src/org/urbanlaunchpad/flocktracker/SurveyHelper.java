@@ -193,7 +193,7 @@ public class SurveyHelper {
 				}
 			}
 
-			// Submit survey
+			// Create and submit query
 			String columnnamesString = getnames("id", "nq", type,
 					jsurvQueueObject);
 			String answerfinalString = getnames("Answer", "wq", type,
@@ -211,7 +211,7 @@ public class SurveyHelper {
 						+ "</coordinates></Point>','" + lat + "','" + lng
 						+ "','" + alt + "','" + timestamp + "','" + tripID
 						+ "','" + username + "');";
-				Log.v("Survey submit", query);
+				Log.v("Tracker submit", query);
 			} else if (type.equals("Survey")) {
 				query = "INSERT INTO "
 						+ SURVEY_TABLE_ID
@@ -223,6 +223,9 @@ public class SurveyHelper {
 						+ "','" + alt + "','" + timestamp + "','" + surveyID
 						+ "','" + tripID + "','" + username + "');";
 				Log.v("Survey submit", query);
+//				Toast.makeText(context,
+//						"Survey submitted succesfully!",
+//						Toast.LENGTH_SHORT).show();
 			}
 			Sql sql = Iniconfig.fusiontables.query().sql(query);
 			sql.setKey(Iniconfig.API_KEY);

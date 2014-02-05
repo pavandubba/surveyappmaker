@@ -23,6 +23,7 @@ public class Tracker extends BroadcastReceiver {
 		wl.acquire();
 
 		if (surveyor != null) {
+			Log.d("Tracker", "surveyor not null");
 			new Thread(new Runnable() {
 				public void run() {
 					surveyor.saveLocation();

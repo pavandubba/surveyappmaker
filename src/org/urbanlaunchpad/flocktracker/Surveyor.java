@@ -226,7 +226,7 @@ public class Surveyor extends Activity implements
 								try {
 									Geocoder geocoder = new Geocoder(
 											thisActivity, Locale.getDefault());
-									Location current = startLocation;
+									Location current = mLocationClient.getLastLocation();
 									addresses = geocoder.getFromLocation(
 											current.getLatitude(),
 											current.getLongitude(), 1);
@@ -404,6 +404,9 @@ public class Surveyor extends Activity implements
 						submittingSubmission = true;
 						if (submissionQueue.isEmpty()) {
 							submittingSubmission = false;
+							Log.d("Spawn submission queue", "Queue is empty");
+//							Toast.makeText(getApplicationContext(), "Submission queue is empty!",
+//									Toast.LENGTH_SHORT).show();
 							break;
 						}
 					}
@@ -432,10 +435,11 @@ public class Surveyor extends Activity implements
 							} catch (Exception e) {
 								e.printStackTrace();
 							}
-
+								
 							// Finished submitting. Remove from queue and
 							// commit
 							if (success) {
+								Log.d("Spawn submission queue", "Submission success.");
 								i.remove();
 								Iniconfig.prefs
 										.edit()
@@ -447,7 +451,7 @@ public class Surveyor extends Activity implements
 							} else { // no connection, sleep for a while and try
 										// again
 								try {
-									Thread.sleep(10000);
+									Thread.sleep(5000);
 								} catch (InterruptedException e) {
 									e.printStackTrace();
 								}
@@ -600,11 +604,11 @@ public class Surveyor extends Activity implements
 
 	public void saveSurvey() {
 		savingSubmission = true;
-
 		// connect if not tracking
-		if (!mLocationClient.isConnected()) {
+		if (!mLocationClient.isConnected()){
 			mLocationClient.connect();
-		} else {
+		}
+		if (mLocationClient.isConnected()) {
 			new Thread(new Runnable() {
 				public void run() {
 					String jsurvString = surveyHelper.jsurv.toString();
@@ -620,19 +624,19 @@ public class Surveyor extends Activity implements
 					resetSurvey();
 					surveyHelper.jumpString = null;
 
+					// save location tagged survey
+					surveyHelper.saveSubmission(mLocationClient.getLastLocation(), surveyID,
+							tripID, jsurvString, imagePaths, "Survey");
 					// disconnect if not tracking or not currently
 					// submitting
 					// surveys
 					if (!isTripStarted && !submittingSubmission)
-						mLocationClient.disconnect();
-
-					// save location tagged survey
-					surveyHelper.saveSubmission(startLocation, surveyID,
-							tripID, jsurvString, imagePaths, "Survey");
+					mLocationClient.disconnect();
 
 					surveysCompleted++;
 				}
 			}).start();
+			savingSubmission = false;
 
 			messageHandler.sendEmptyMessage(EVENT_TYPE.SUBMITTED_SURVEY
 					.ordinal());
@@ -641,6 +645,10 @@ public class Surveyor extends Activity implements
 
 	public void saveLocation() {
 		// connect if not tracking
+		Log.d("Save Location", "" + mLocationClient.isConnected());
+		if (!mLocationClient.isConnected()){
+			mLocationClient.connect();
+		}
 		if (mLocationClient.isConnected()) {
 			savingSubmission = true;
 
@@ -670,6 +678,7 @@ public class Surveyor extends Activity implements
 							tripID, jsurvString, imagePaths, "Tracker");
 				}
 			}).start();
+			savingSubmission = false;
 		}
 	}
 
@@ -973,17 +982,19 @@ public class Surveyor extends Activity implements
 
 	@Override
 	public void onConnected(Bundle connectionHint) {
-		if (isTripStarted) {
-			mLocationClient.requestLocationUpdates(mLocationRequest,
-					new LocationListener() {
-						@Override
-						public void onLocationChanged(Location location) {
-							// update location + distance
+
+		mLocationClient.requestLocationUpdates(mLocationRequest,
+				new LocationListener() {
+					@Override
+					public void onLocationChanged(Location location) {
+						// update location + distance
+						if (isTripStarted) {
 							tripDistance += startLocation.distanceTo(location);
 							startLocation = location;
 						}
-					});
-		}
+					}
+				});
+
 		if (savingSubmission) { // connecting for submitting survey and not
 			// tracking
 			new Thread(new Runnable() {
@@ -1251,5 +1262,5 @@ public class Surveyor extends Activity implements
 
 		alarmManager.cancel(sender);
 	}
-	
+
 }
