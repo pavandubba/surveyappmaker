@@ -301,10 +301,10 @@ public class Question_fragment extends Fragment implements
 			ArrayList<String> answerTempList = new ArrayList<String>();
 			for (int i = 0; i < totalanswers; ++i) {
 				answerTempList.add(answerList.get(selectedAnswers.get(i)));
-//				 toast = Toast.makeText(getActivity(),
-//				 answerTempList.get(i) + " " + selectedAnswers.get(i),
-//				 Toast.LENGTH_SHORT);
-//				 toast.show();
+				// toast = Toast.makeText(getActivity(),
+				// answerTempList.get(i) + " " + selectedAnswers.get(i),
+				// Toast.LENGTH_SHORT);
+				// toast.show();
 			}
 			answerList.clear();
 			answerList.addAll(answerTempList);
@@ -353,6 +353,10 @@ public class Question_fragment extends Fragment implements
 				skipButton.setText(R.string.question_skipped);
 			}
 		});
+		if (selectedAnswers != null){
+			orderedListSendAnswer();
+		}
+		
 	}
 
 	public void orderedListSendAnswer() {
@@ -362,20 +366,14 @@ public class Question_fragment extends Fragment implements
 		}
 		answerString = getorderedAnswers();
 		selectedAnswers = new ArrayList<Integer>();
-		// for (int i = 0; i < totalanswers; ++i) {
-		// toast = Toast.makeText(getActivity(),
-		// originalAnswerList.get(i) + " " + answerList.get(i),
-		// Toast.LENGTH_SHORT);
-		// toast.show();
-		// }
 
 		for (int i = 0; i < totalanswers; ++i) {
 			for (int j = 0; j < totalanswers; ++j) {
 				if (originalAnswerList.get(i).equals(answerList.get(j))) {
 					selectedAnswers.add(j);
-//					toast = Toast.makeText(getActivity(), answerList.get(j)
-//							+ " " + selectedAnswers.get(j+1), Toast.LENGTH_SHORT);
-//					toast.show();
+					// toast = Toast.makeText(getActivity(), answerList.get(j)
+					// + " " + selectedAnswers.get(j+1), Toast.LENGTH_SHORT);
+					// toast.show();
 					break;
 				}
 			}
