@@ -220,19 +220,23 @@ public class Surveyor extends Activity implements
 					}
 
 					// Get address
-					if (mLocationClient.isConnected()) {
+					if (mLocationClient.isConnected()){
+						startLocation = mLocationClient.getLastLocation();				
+					}				
+					if (startLocation != null) {
+						Log.d("Startlocation", "Not null");
 						new Thread(new Runnable() {
 							public void run() {
 								try {
 									Geocoder geocoder = new Geocoder(
 											thisActivity, Locale.getDefault());
-									Location current = mLocationClient.getLastLocation();
+									// Location current = mLocationClient.getLastLocation();
 									addresses = geocoder.getFromLocation(
-											current.getLatitude(),
-											current.getLongitude(), 1);
+											startLocation.getLatitude(),
+											startLocation.getLongitude(), 1);
 								} catch (IOException e) {
 									e.printStackTrace();
-								}
+										}
 							}
 						}).start();
 
@@ -392,6 +396,10 @@ public class Surveyor extends Activity implements
 		if (!submissionQueue.isEmpty()) {
 			spawnSubmission();
 		}
+		
+		// Check for location services.
+		SurveyHelper.checkLocationConfig(this);
+		
 	}
 
 	// Spawn a thread that continuously pops off a survey to submit
@@ -986,12 +994,12 @@ public class Surveyor extends Activity implements
 		mLocationClient.requestLocationUpdates(mLocationRequest,
 				new LocationListener() {
 					@Override
-					public void onLocationChanged(Location location) {
+					public void onLocationChanged(final Location location) {
 						// update location + distance
 						if (isTripStarted) {
-							tripDistance += startLocation.distanceTo(location);
-							startLocation = location;
+							tripDistance += startLocation.distanceTo(location);	
 						}
+						startLocation = location;
 					}
 				});
 

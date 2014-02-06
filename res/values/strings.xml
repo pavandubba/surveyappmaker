@@ -59,7 +59,9 @@
     <string name="continue_desc">Continue</string>
     <string name="skip_question">Skip question</string>
     <string name="question_skipped">Question not answered</string>
-    
+    <string name="gps_network_not_enabled">GPS and Network location services are not enabled, please turn them on if you want location information on your uploads.</string>
+    <string name="open_location_settings">Go to location settings</string>
+    <string name="Cancel_location_settings">No thanks</string>
 
     <color name="text_bkgrd">#E6E6E6</color>
     <color name="text_color_light">#F2F2F2</color>

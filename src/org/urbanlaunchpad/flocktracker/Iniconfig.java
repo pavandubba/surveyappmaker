@@ -185,6 +185,7 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 		// get credential with scopes
 		credential = GoogleAccountCredential.usingOAuth2(this,
 				Arrays.asList(FUSION_TABLE_SCOPE, DriveScopes.DRIVE));
+		
 	}
 
 	public void onPositiveButtonClicked() {
@@ -232,7 +233,8 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 				toast.show();
 				return;
 			}
-
+			
+			
 			// Go to survey
 			Intent i = new Intent(getApplicationContext(), Surveyor.class);
 			i.putExtra("jsonsurvey", jsurv.toString());
@@ -369,4 +371,5 @@ public class Iniconfig extends Activity implements View.OnClickListener {
 					.ordinal());
 		}
 	}
+	
 }
