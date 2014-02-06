@@ -46,24 +46,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.urbanlaunchpad.flocktracker.Survey_agree" />
         </activity>
-        <activity
-            android:name="org.urbanlaunchpad.flocktracker.Survey"
-            android:label="@string/title_activity_survey"
-            android:parentActivityName="org.urbanlaunchpad.flocktracker.Gender_choice"
-            android:screenOrientation="portrait" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="org.urbanlaunchpad.flocktracker.Gender_choice" />
-        </activity>
-        <activity
-            android:name="org.urbanlaunchpad.flocktracker.Passenger_counter"
-            android:label="@string/title_activity_passenger_counter"
-            android:parentActivityName="org.urbanlaunchpad.flocktracker.Trip_started" >
-            android:screenOrientation="portrait"
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="org.urbanlaunchpad.flocktracker.Trip_started" />
-        </activity>
+
         <activity
             android:name="org.urbanlaunchpad.flocktracker.Iniconfig"
             android:label="@string/title_activity_iniconfig"
