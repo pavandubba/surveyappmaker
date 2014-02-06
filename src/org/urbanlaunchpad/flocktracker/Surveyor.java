@@ -25,6 +25,7 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.app.PendingIntent;
+import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -41,6 +42,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.Settings;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -459,7 +461,7 @@ public class Surveyor extends Activity implements
 							} else { // no connection, sleep for a while and try
 										// again
 								try {
-									Thread.sleep(5000);
+									Thread.sleep(3000);
 								} catch (InterruptedException e) {
 									e.printStackTrace();
 								}
@@ -574,16 +576,6 @@ public class Surveyor extends Activity implements
 		isTripStarted = true;
 		mLocationClient.connect();
 		tripID = "T" + createID();
-	}
-
-	public void stopTrip() {
-		isTripStarted = false;
-		mLocationClient.disconnect();
-		tripID = "";
-		startTripTime = null;
-		cancelTracker();
-
-		messageHandler.sendEmptyMessage(EVENT_TYPE.UPDATE_HUB_PAGE.ordinal());
 	}
 
 	public String createID() {
@@ -1142,14 +1134,9 @@ public class Surveyor extends Activity implements
 		case TOGGLETRIP:
 			if (isTripStarted) {
 				// Update status page info
-				stopTrip();
-				surveyHelper.resetTracker();
-				ridesCompleted++;
-				totalDistanceBefore += tripDistance;
-				tripDistance = 0;
+				stopTripDialog();
 			} else {
 				surveyHelper.resetTracker();
-
 				askingTripQuestions = true;
 
 				// Starting question fragment and passing json question
@@ -1270,5 +1257,38 @@ public class Surveyor extends Activity implements
 
 		alarmManager.cancel(sender);
 	}
+	
+	public void stopTripDialog(){
+		Builder dialog;
+        dialog = new AlertDialog.Builder(this);
+        dialog.setMessage(this.getResources().getString(R.string.stop_tracker_message));
+        dialog.setPositiveButton(this.getResources().getString(R.string.yes), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface paramDialogInterface, int paramInt) {
+            	StopTrip();
+            }
+        });
+        dialog.setNegativeButton(this.getString(R.string.no), new DialogInterface.OnClickListener() {
 
+            @Override
+            public void onClick(DialogInterface paramDialogInterface, int paramInt) {
+                // Nothing happens.
+            }
+        });
+        dialog.show();
+		
+	}
+	
+	public void StopTrip(){
+		isTripStarted = false;
+		mLocationClient.disconnect();
+		tripID = "";
+		startTripTime = null;
+		cancelTracker();
+		messageHandler.sendEmptyMessage(EVENT_TYPE.UPDATE_HUB_PAGE.ordinal());
+		surveyHelper.resetTracker();
+		ridesCompleted++;
+		totalDistanceBefore += tripDistance;
+		tripDistance = 0;
+	}
 }

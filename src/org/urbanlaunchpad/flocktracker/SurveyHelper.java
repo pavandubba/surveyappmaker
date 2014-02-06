@@ -799,18 +799,16 @@ public class SurveyHelper {
 
 	                @Override
 	                public void onClick(DialogInterface paramDialogInterface, int paramInt) {
-	                    // TODO Auto-generated method stub
 	                    Intent myIntent = new Intent( Settings.ACTION_LOCATION_SOURCE_SETTINGS );
 	                    myIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 	                    context.startActivity(myIntent);
 	                    //get gps
 	                }
 	            });
-	            dialog.setNegativeButton(context.getString(R.string.Cancel_location_settings), new DialogInterface.OnClickListener() {
+	            dialog.setNegativeButton(context.getString(R.string.cancel_location_settings), new DialogInterface.OnClickListener() {
 
 	                @Override
 	                public void onClick(DialogInterface paramDialogInterface, int paramInt) {
-	                    // TODO Auto-generated method stub
 
 	                }
 	            });
