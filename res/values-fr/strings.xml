@@ -3,18 +3,7 @@
 
     <string name="app_name">Flock Tracker</string>
     <string name="action_settings">Configuración</string>
-    <string name="title_activity_couhes">Couhes</string>
-    <string name="hello_world">Bonjour le monde!</string>
-    <string name="iagree">Je suis d\'accord</string>
-    <string name="username_hint">Utilisateur</string>
-    <string name="ulp_icon_desc">Icône de Urban Launchpad</string>
-    <string name="flock_icon_desc">Icône de continuer Flock</string>
     <string name="start_trip_bus_desc">Icône de début de voyage</string>
-    <string name="bus_icon_desc">Icône du bus continuer</string>
-    <string name="stop_trip_bus_desc">Icône de fin du voyage</string>
-    <string name="passenger_button_desc">Bouton de passagers</string>
-    <string name="flock_pin_desc">Bouton de Flock</string>
-    <string name="survey_button_desc">Bouton de sondage</string>
     <string name="stats_button_desc">Bouton des statistiques</string>
     <string name="start_survey_button_desc">Bouton du début de sondage</string>
     <string name="previous_question_desc">Question précédente</string>
@@ -31,7 +20,6 @@
     <string name="fewer_women_button_desc">Bouton de moins de femmes</string>
     <string name="men_icon_desc">Icône d\'hommes</string>
     <string name="women_icon_desc">Icône de femmes</string>
-    <string name="survey_id">ID de sondage</string>
     <string name="title_activity_iniconfig">Configuration</string>
     <string name="title_activity_surveyor">Sondeur</string>
     <string name="submitting_survey">Téléchargeant le sondage vers la nuage</string>
