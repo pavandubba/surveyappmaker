@@ -70,6 +70,7 @@ public class Question_fragment extends Fragment implements
 	private EditText openET;
 	private LinearLayout[] answerinsert;
 	private CheckBox[] cbanswer;
+	CheckBox otherCB;
 	private String loopLimitString = null;
 	private ImageView[] answerImages;
 	private ImageView otherImage;
@@ -230,8 +231,13 @@ public class Question_fragment extends Fragment implements
 
 				if (selectedAnswers != null) {
 					for (Integer id : selectedAnswers) {
-						cbanswer[id].setChecked(false);
-						CheckBoxPrePopulate(answerinsert[id]);
+						if (id == totalanswers) {
+							otherCB.setChecked(false);
+							CheckBoxPrePopulate(otherfield);
+						} else {
+							cbanswer[id].setChecked(false);
+							CheckBoxPrePopulate(answerinsert[id]);
+						}
 					}
 				} else {
 					selectedAnswers = new ArrayList<Integer>();
@@ -354,10 +360,10 @@ public class Question_fragment extends Fragment implements
 				skipButton.setText(R.string.question_skipped);
 			}
 		});
-		if (selectedAnswers != null){
+		if (selectedAnswers != null) {
 			orderedListSendAnswer();
 		}
-		
+
 	}
 
 	public void orderedListSendAnswer() {
@@ -529,7 +535,7 @@ public class Question_fragment extends Fragment implements
 	private void CheckBoxLayout() {
 		JSONObject aux;
 		try {
-			
+
 			// Creating necessary variables.
 			janswerlist = jquestion.getJSONArray("Answers");
 			totalanswers = janswerlist.length();
@@ -537,46 +543,44 @@ public class Question_fragment extends Fragment implements
 			answerinsert = new LinearLayout[totalanswers];
 			cbanswer = new CheckBox[totalanswers];
 			tvanswerlist = new TextView[totalanswers];
-			
+
 			// Filling them with info.
 			for (int i = 0; i < totalanswers; ++i) {
-				
-				
+
 				// Custom Checkbox.
 				cbanswer[i] = new CheckBox(rootView.getContext());
 				cbanswer[i].setBackgroundResource(R.drawable.custom_checkbox);
 				cbanswer[i].setButtonDrawable(new StateListDrawable());
 				cbanswer[i].setClickable(false);
-				
+
 				// Text for the answer
 				tvanswerlist[i] = new TextView(rootView.getContext());
 				aux = janswerlist.getJSONObject(i);
 				answerlist[i] = aux.getString("Answer");
 				tvanswerlist[i].setText(answerlist[i]);
-				
-				//linearlayout for checkbox and answer.				
+
+				// linearlayout for checkbox and answer.
 				answerinsert[i] = new LinearLayout(rootView.getContext());
 				answerinsert[i].setOrientation(LinearLayout.HORIZONTAL);
-								
+
 				// Text formating.
 				tvanswerlist[i].setTextSize(20);
 				tvanswerlist[i].setPadding(20, 20, 0, 20);
 				tvanswerlist[i].setTextColor(getResources().getColor(
 						R.color.text_color_light));
-				
+
 				// Checkbox formatting.
 				LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
 						60, 60);
 				layoutParams.gravity = Gravity.CENTER_VERTICAL;
 				cbanswer[i].setLayoutParams(layoutParams);
-				
+
 				// Adding both to LinearLayout.
 				answerinsert[i].addView(cbanswer[i]);
 				answerinsert[i].addView(tvanswerlist[i]);
 				answerinsert[i].setId(i);
 				answerinsert[i].setOnClickListener(Question_fragment.this);
 				answerlayout.addView(answerinsert[i]);
-
 
 			}
 		} catch (JSONException e) {
@@ -589,19 +593,18 @@ public class Question_fragment extends Fragment implements
 		}
 		if (other == Boolean.TRUE) {
 			// Custom checkbox
-			CheckBox otherCB;
 			otherCB = new CheckBox(rootView.getContext());
 			otherCB.setBackgroundResource(R.drawable.custom_checkbox);
 			otherCB.setButtonDrawable(new StateListDrawable());
 			otherCB.setClickable(false);
-			
+
 			// Answer text
 			otherET = new EditText(rootView.getContext());
 			otherET.setHint(getResources().getString(R.string.other_hint));
 			otherET.setImeOptions(EditorInfo.IME_ACTION_DONE);
 			otherET.setTextColor(getResources().getColor(
 					R.color.text_color_light));
-			
+
 			// Checkbox formatting
 			LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
 					60, 60);
@@ -609,7 +612,7 @@ public class Question_fragment extends Fragment implements
 			otherCB.setLayoutParams(layoutParams);
 
 			// Text formatting.
-			
+
 			LinearLayout.LayoutParams layoutParamsText = new LinearLayout.LayoutParams(
 					LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
 			layoutParamsText.gravity = Gravity.CENTER_VERTICAL;
@@ -622,14 +625,12 @@ public class Question_fragment extends Fragment implements
 			otherET.setTextSize(20);
 			otherET.setTypeface(Typeface.create("sans-serif-light",
 					Typeface.NORMAL));
-			
-			
-			
+
 			otherET.setOnTouchListener(new OnTouchListener() {
 				@Override
 				public boolean onTouch(View v, MotionEvent event) {
-//					if (MotionEvent.ACTION_UP == event.getAction())
-//						MultipleChoiceOnClick(otherET);
+					if (MotionEvent.ACTION_UP == event.getAction())
+						CheckBoxOnClick(otherfield);
 					return false;
 				}
 			});
@@ -640,14 +641,14 @@ public class Question_fragment extends Fragment implements
 			otherfield.addView(otherCB);
 			otherfield.addView(otherET);
 			answerlayout.addView(otherfield);
-
+			otherfield.setId(totalanswers);
 			otherfield.setOnClickListener(this);
 			otherET.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 				@Override
 				public boolean onEditorAction(TextView v, int actionId,
 						KeyEvent event) {
 					if (actionId == EditorInfo.IME_ACTION_DONE) {
-//						MultipleChoiceOnClick(otherfield);
+						CheckBoxOnClick(otherfield);
 						return false; // If false hides the keyboard after
 										// pressing Done.
 					}
@@ -853,25 +854,47 @@ public class Question_fragment extends Fragment implements
 	}
 
 	private void CheckBoxOnClick(View view) {
+
 		if (view instanceof LinearLayout) {
 			int i = view.getId();
-			TextView textView = tvanswerlist[i];
-			CheckBox checkBox = cbanswer[i];
-			if (checkBox.isChecked()) {
-				selectedAnswers.remove((Integer) i);
-				textView.setTextColor(getResources().getColor(
-						R.color.text_color_light));
-				checkBox.setChecked(false);
-			} else if (!checkBox.isChecked()) {
-				selectedAnswers.add(i);
-				textView.setTextColor(getResources().getColor(
-						R.color.answer_selected));
-				checkBox.setChecked(true);
+			if (i < tvanswerlist.length) {
+				TextView textView = tvanswerlist[i];
+				CheckBox checkBox = cbanswer[i];
+				if (checkBox.isChecked()) {
+					selectedAnswers.remove((Integer) i);
+					textView.setTextColor(getResources().getColor(
+							R.color.text_color_light));
+					checkBox.setChecked(false);
+				} else if (!checkBox.isChecked()) {
+					selectedAnswers.add(i);
+					textView.setTextColor(getResources().getColor(
+							R.color.answer_selected));
+					checkBox.setChecked(true);
+				}
+			} else {
+				if (otherCB.isChecked()) {
+					otherET.setTextColor(getResources().getColor(
+							R.color.text_color_light));
+					selectedAnswers.remove((Integer) i);
+					otherCB.setChecked(false);
+				} else if (!otherCB.isChecked()) {
+					otherET.setTextColor(getResources().getColor(
+							R.color.answer_selected));
+					selectedAnswers.add(i);
+					otherCB.setChecked(true);
+				}
 			}
 			if (!selectedAnswers.isEmpty()) {
 				answerString = "";
-				for (Integer answerId : selectedAnswers) {
-					answerString += tvanswerlist[answerId].getText() + ",";
+				for (int j = 0; j <= totalanswers; ++j) {
+					if (selectedAnswers.contains(j)) {
+						if (j < tvanswerlist.length
+								&& selectedAnswers.contains(j)) {
+							answerString += tvanswerlist[j].getText() + ",";
+						} else {
+							answerString += otherET.getText() + ",";
+						}
+					}
 				}
 				answerString = answerString.substring(0,
 						answerString.length() - 1);
@@ -885,13 +908,22 @@ public class Question_fragment extends Fragment implements
 	}
 
 	private void CheckBoxPrePopulate(View view) {
+		CheckBox checkBox;
+		int i = view.getId();
 		if (view instanceof LinearLayout) {
-			int i = view.getId();
-			TextView textView = tvanswerlist[i];
-			CheckBox checkBox = cbanswer[i];
+			if (i == totalanswers) {
+				EditText editText = otherET;
+				checkBox = otherCB;
+				editText.setTextColor(getResources().getColor(
+						R.color.answer_selected));
+			} else {
+
+				TextView textView = tvanswerlist[i];
+				checkBox = cbanswer[i];
+				textView.setTextColor(getResources().getColor(
+						R.color.answer_selected));
+			}
 			checkBox.setChecked(true);
-			textView.setTextColor(getResources().getColor(
-					R.color.answer_selected));
 		}
 	}
 
