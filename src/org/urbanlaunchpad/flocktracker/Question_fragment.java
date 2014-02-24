@@ -17,7 +17,10 @@ import android.graphics.drawable.StateListDrawable;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -630,7 +633,7 @@ public class Question_fragment extends Fragment implements
 				@Override
 				public boolean onTouch(View v, MotionEvent event) {
 					if (MotionEvent.ACTION_UP == event.getAction())
-						CheckBoxOnClick(otherfield);
+						CheckBoxOnClick(otherfield, false);
 					return false;
 				}
 			});
@@ -643,15 +646,40 @@ public class Question_fragment extends Fragment implements
 			answerlayout.addView(otherfield);
 			otherfield.setId(totalanswers);
 			otherfield.setOnClickListener(this);
+
+			// Listen for changes on the content of Edit text.
+			otherET.addTextChangedListener(new TextWatcher() {
+
+				@Override
+				public void onTextChanged(CharSequence s, int start,
+						int before, int count) {
+					// TODO Auto-generated method stub
+
+				}
+
+				@Override
+				public void beforeTextChanged(CharSequence s, int start,
+						int count, int after) {
+					// TODO Auto-generated method stub
+
+				}
+
+				@Override
+				public void afterTextChanged(Editable s) {
+					// TODO Auto-generated method stub
+					CheckBoxOnClick(otherfield, true);
+				}
+			});
+
 			otherET.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 				@Override
 				public boolean onEditorAction(TextView v, int actionId,
 						KeyEvent event) {
-					if (actionId == EditorInfo.IME_ACTION_DONE) {
-						CheckBoxOnClick(otherfield);
-						return false; // If false hides the keyboard after
-										// pressing Done.
-					}
+					// if (actionId == EditorInfo.IME_ACTION_DONE) {
+					CheckBoxOnClick(otherfield, false);
+					// return false; // If false hides the keyboard after
+					// // pressing Done.
+					// }
 					return false;
 				}
 			});
@@ -783,7 +811,7 @@ public class Question_fragment extends Fragment implements
 		} else if (questionkind.equals("ON") || questionkind.equals("OT")) {
 			OpenOnClick(view);
 		} else if (questionkind.equals("CB")) {
-			CheckBoxOnClick(view);
+			CheckBoxOnClick(view, false);
 		} else if (questionkind.equals("IM")) {
 			ImageOnClick(view);
 		}
@@ -853,58 +881,69 @@ public class Question_fragment extends Fragment implements
 		}
 	}
 
-	private void CheckBoxOnClick(View view) {
+	private void CheckBoxOnClick(View view, Boolean editingtextBoolean) {
 
-		if (view instanceof LinearLayout) {
-			int i = view.getId();
-			if (i < tvanswerlist.length) {
-				TextView textView = tvanswerlist[i];
-				CheckBox checkBox = cbanswer[i];
-				if (checkBox.isChecked()) {
-					selectedAnswers.remove((Integer) i);
-					textView.setTextColor(getResources().getColor(
-							R.color.text_color_light));
-					checkBox.setChecked(false);
-				} else if (!checkBox.isChecked()) {
-					selectedAnswers.add(i);
-					textView.setTextColor(getResources().getColor(
-							R.color.answer_selected));
-					checkBox.setChecked(true);
-				}
-			} else {
-				if (otherCB.isChecked()) {
-					otherET.setTextColor(getResources().getColor(
-							R.color.text_color_light));
-					selectedAnswers.remove((Integer) i);
-					otherCB.setChecked(false);
-				} else if (!otherCB.isChecked()) {
-					otherET.setTextColor(getResources().getColor(
-							R.color.answer_selected));
-					selectedAnswers.add(i);
-					otherCB.setChecked(true);
-				}
-			}
-			if (!selectedAnswers.isEmpty()) {
-				answerString = "";
-				for (int j = 0; j <= totalanswers; ++j) {
-					if (selectedAnswers.contains(j)) {
-						if (j < tvanswerlist.length
-								&& selectedAnswers.contains(j)) {
-							answerString += tvanswerlist[j].getText() + ",";
-						} else {
-							answerString += otherET.getText() + ",";
-						}
+		Log.e("CheckBoxOnClick", "I'm in!");
+
+		if (!editingtextBoolean) {
+			if (view instanceof LinearLayout) {
+				int i = view.getId();
+
+				// Getting answers from fields other than other.
+				if (i < tvanswerlist.length) {
+					TextView textView = tvanswerlist[i];
+					CheckBox checkBox = cbanswer[i];
+					if (checkBox.isChecked()) {
+						selectedAnswers.remove((Integer) i);
+						textView.setTextColor(getResources().getColor(
+								R.color.text_color_light));
+						checkBox.setChecked(false);
+					} else if (!checkBox.isChecked()) {
+						selectedAnswers.add(i);
+						textView.setTextColor(getResources().getColor(
+								R.color.answer_selected));
+						checkBox.setChecked(true);
 					}
 				}
-				answerString = answerString.substring(0,
-						answerString.length() - 1);
 
-				Callback.AnswerRecieve("(" + answerString + ")", null,
-						selectedAnswers);
-			} else {
-				Callback.AnswerRecieve(null, null, selectedAnswers);
+				// Getting answer from other field.
+				else {
+					if (otherCB.isChecked()) {
+						otherET.setTextColor(getResources().getColor(
+								R.color.text_color_light));
+						selectedAnswers.remove((Integer) i);
+						otherCB.setChecked(false);
+					} else if (!otherCB.isChecked()) {
+						otherET.setTextColor(getResources().getColor(
+								R.color.answer_selected));
+						selectedAnswers.add(i);
+						otherCB.setChecked(true);
+					}
+
+				}
 			}
 		}
+		// Sending the answer to the main activity.
+		if (!selectedAnswers.isEmpty()) {
+			answerString = "";
+			for (int j = 0; j <= totalanswers; ++j) {
+				if (selectedAnswers.contains(j)) {
+					if (j < tvanswerlist.length && selectedAnswers.contains(j)) {
+						answerString += tvanswerlist[j].getText() + ",";
+					} else {
+						answerString += otherET.getText() + ",";
+					}
+				}
+			}
+			answerString = answerString.substring(0, answerString.length() - 1);
+
+			Callback.AnswerRecieve("(" + answerString + ")", null,
+					selectedAnswers);
+		} else {
+			Callback.AnswerRecieve(null, null, selectedAnswers);
+		}
+		Log.e("CheckBoxOnClick", answerString);
+
 	}
 
 	private void CheckBoxPrePopulate(View view) {
