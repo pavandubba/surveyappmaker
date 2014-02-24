@@ -653,20 +653,17 @@ public class Question_fragment extends Fragment implements
 				@Override
 				public void onTextChanged(CharSequence s, int start,
 						int before, int count) {
-					// TODO Auto-generated method stub
 
 				}
 
 				@Override
 				public void beforeTextChanged(CharSequence s, int start,
 						int count, int after) {
-					// TODO Auto-generated method stub
 
 				}
 
 				@Override
 				public void afterTextChanged(Editable s) {
-					// TODO Auto-generated method stub
 					CheckBoxOnClick(otherfield, true);
 				}
 			});
@@ -962,6 +959,27 @@ public class Question_fragment extends Fragment implements
 				checkBox = otherCB;
 				editText.setTextColor(getResources().getColor(
 						R.color.answer_selected));
+				String otheranswerString=null;
+				String aux = null;
+				try {
+					otheranswerString=jquestion.getString("Answer");
+					otheranswerString=otheranswerString.substring(1, otheranswerString.length()-1);
+//					Log.e("CheckBoxPrePopulate", otheranswerString);
+					for (int j = 0; j < totalanswers; ++j){
+						if (selectedAnswers.contains(j)){
+							aux = (String) tvanswerlist[j].getText();
+							otheranswerString=otheranswerString.substring(aux.length()+1, otheranswerString.length());
+						}						
+					}
+							
+					} catch (JSONException e) {
+					e.printStackTrace();
+				}
+				
+				
+				editText.setText(otheranswerString);
+				
+				
 			} else {
 
 				TextView textView = tvanswerlist[i];
