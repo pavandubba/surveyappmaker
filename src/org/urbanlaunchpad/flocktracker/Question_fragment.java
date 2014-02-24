@@ -825,14 +825,17 @@ public class Question_fragment extends Fragment implements
 			if (view.getId() >= 0)
 				for (int i = 0; i < totalanswers; ++i) {
 					TextView textView = (TextView) tvanswerlist[i];
+					ImageView imageView = (ImageView) answerImages[i];
 					if (view.getId() == textView.getId()) {
 						foundAnswer = true;
 						if (otherET != null) {
 							otherET.setTextColor(getResources().getColor(
 									R.color.text_color_light));
+							otherImage.setImageResource(R.drawable.ft_cir_gry);
 						}
 						textView.setTextColor(getResources().getColor(
 								R.color.answer_selected));
+						imageView.setImageResource(R.drawable.ft_cir_grn);
 						try {
 							answerjumpString = getJump(janswerlist
 									.getJSONObject(i));
@@ -855,6 +858,7 @@ public class Question_fragment extends Fragment implements
 					} else {
 						textView.setTextColor(getResources().getColor(
 								R.color.text_color_light));
+						imageView.setImageResource(R.drawable.ft_cir_gry);
 					}
 				}
 		}
@@ -862,8 +866,10 @@ public class Question_fragment extends Fragment implements
 		if (view instanceof EditText || !foundAnswer) {
 			for (int i = 0; i < totalanswers; ++i) {
 				TextView textView = (TextView) tvanswerlist[i];
+				ImageView imageView = (ImageView) answerImages[i];
 				textView.setTextColor(getResources().getColor(
 						R.color.text_color_light));
+				imageView.setImageResource(R.drawable.ft_cir_gry);
 			}
 
 			// focus ET
@@ -874,6 +880,7 @@ public class Question_fragment extends Fragment implements
 
 			otherET.setTextColor(getResources().getColor(
 					R.color.answer_selected));
+			otherImage.setImageResource(R.drawable.ft_cir_grn);
 			answerString = (String) otherET.getText().toString();
 			selectedAnswers = new ArrayList<Integer>();
 			selectedAnswers.add(-1);
