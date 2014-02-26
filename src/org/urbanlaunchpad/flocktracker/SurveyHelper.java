@@ -397,11 +397,6 @@ public class SurveyHelper {
 				break;
 			}
 			
-			
-			
-//			String[] questionIdlistString = getValues("id", type);
-//			String[] questionKindlistString = getValues("Kind", type);
-//			int numberofquestions = questionIdlistString.length;
 			String auxkind = null;
 			for (int i = 0; i < numberofquestions; ++i) {
 				if ((questionKindlistString[i].equals("MC") || questionKindlistString[i]
@@ -454,46 +449,6 @@ public class SurveyHelper {
 				e.printStackTrace();
 			}
 		}
-
-//		switch (type) {
-//		case SURVEY:
-//			// get number of questions
-//			for (int i = 0; i < jchapterlist.length(); ++i) {
-//				for (int j = 0; j < chapterQuestionCounts[i]; ++j) {
-//					++numQuestions;
-//				}
-//			}
-//
-//			result = new String[numQuestions];
-//
-//			int auxcount = 0;
-//			for (int i = 0; i < jchapterlist.length(); ++i) {
-//				for (int j = 0; j < chapterQuestionCounts[i]; ++j) {
-//					try {
-//						result[auxcount++] = jchapterlist.getJSONObject(i)
-//								.getJSONArray("Questions").getJSONObject(j)
-//								.getString(key);
-//					} catch (JSONException e) {
-//						result[auxcount++] = "";
-//					}
-//				}
-//			}
-//			break;
-//		case TRACKER:
-//			numQuestions = jtrackerquestions.length();
-//			result = new String[numQuestions];
-//
-//			for (int i = 0; i < numQuestions; ++i) {
-//				try {
-//					result[i] = jtrackerquestions.getJSONObject(i).getString(
-//							key);
-//				} catch (JSONException e) {
-//					e.printStackTrace();
-//				}
-//			}
-//			break;		
-//			
-//		}
 
 		Log.v("Number of questions", numQuestions.toString() + " " + key);
 		return result;
