@@ -74,7 +74,6 @@ public class Question_fragment extends Fragment implements
 	private LinearLayout[] answerinsert;
 	private CheckBox[] cbanswer;
 	CheckBox otherCB;
-	private String loopLimitString = null;
 	private ImageView[] answerImages;
 	private ImageView otherImage;
 	private ArrayList<String> answerList;
@@ -200,7 +199,7 @@ public class Question_fragment extends Fragment implements
 						}
 					}
 				}
-			} else if (questionkind.equals("OT") || questionkind.equals("ON")) {
+			} else if (questionkind.equals("OT") || questionkind.equals("ON") || questionkind.equals("LP")) {
 				OpenLayout();
 
 				// Prepopulate question
@@ -247,10 +246,6 @@ public class Question_fragment extends Fragment implements
 				}
 			} else if (questionkind.equals("IM")) {
 				ImageLayout();
-			} else if (questionkind.equals("LP")) {
-				OpenLayout();
-				// Obtaining lmits of the Loop.
-				loopLimitString = getLimit(jquestion);
 			} else if (questionkind.equals("OL")) {
 				// Prepopulation occurs in the Layout creation.
 				OrderedListLayout();
@@ -1018,20 +1013,6 @@ public class Question_fragment extends Fragment implements
 			throw new ClassCastException(activity.toString()
 					+ " must implement Question_fragment.AnswerSelected");
 		}
-	}
-
-	public String getLimit(JSONObject Obj) {
-		String auxlimit;
-		try {
-			auxlimit = Obj.getString("Limit");
-		} catch (JSONException e1) {
-			auxlimit = null;
-			toast = Toast.makeText(getActivity(),
-					"No limit on looped quesiton.", Toast.LENGTH_SHORT);
-			toast.show();
-			// e1.printStackTrace();
-		}
-		return auxlimit;
 	}
 
 }
