@@ -14,6 +14,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.R.integer;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
@@ -85,18 +86,21 @@ public class SurveyHelper {
 
 		// get information out of survey
 		getTableID();
+		
+		
+		// Parse survey and tracking information.
+		parseChapters();
+		parseTrackingQuestions();
+		parseChapterQuestionCount();
 
 		// Checking existence of columns in the Fusion Tables.
 		new Thread(new Runnable() {
 			public void run() {
-				columnCheck(SURVEY_TABLE_ID, SurveyType.SURVEY);
-				columnCheck(TRIP_TABLE_ID, SurveyType.TRACKER);
+				columnCheck(SURVEY_TABLE_ID, SurveyType.SURVEY, jchapterlist);
+				columnCheck(TRIP_TABLE_ID, SurveyType.TRACKER, jtrackerquestions);
 			}
 		}).start();
 
-		parseChapters();
-		parseTrackingQuestions();
-		parseChapterQuestionCount();
 	}
 
 	/*
@@ -291,25 +295,33 @@ public class SurveyHelper {
 	 */
 
 	private enum SurveyType {
-		SURVEY, TRACKER
+		SURVEY, TRACKER, LOOP
 	}
 
-	public void columnCheck(String TABLE_ID, SurveyType type) {
+	public void columnCheck(final String TABLE_ID, SurveyType type, JSONArray sourceJsonArray) {
 		String[] hardcolumnsStrings = null; // Columns that are in all projects.
 		String[] hardcolumntypeStrings = null; // Types for the columns that are
 												// in all projects.
+		String[] questionIdlistString = null;
+		String[] questionKindlistString = null;
+		int numberofhardcolumns = 0;
+		int numberofquestions = 0;
 		switch (type) {
 		case SURVEY:
 			hardcolumnsStrings = new String[] { "Location", "Date", "Lat",
 					"Alt", "Lng", "SurveyID", "TripID", "Username" };
 			hardcolumntypeStrings = new String[] { "LOCATION", "DATETIME",
 					"NUMBER", "NUMBER", "NUMBER", "STRING", "STRING", "STRING" };
+			numberofhardcolumns = hardcolumnsStrings.length;
 			break;
 		case TRACKER:
 			hardcolumnsStrings = new String[] { "Location", "Date", "Lat",
 					"Alt", "Lng", "TripID", "Username" };
 			hardcolumntypeStrings = new String[] { "LOCATION", "DATETIME",
 					"NUMBER", "NUMBER", "NUMBER", "STRING", "STRING" };
+			numberofhardcolumns = hardcolumnsStrings.length;
+			break;
+		case LOOP:
 			break;
 		}
 
@@ -319,7 +331,7 @@ public class SurveyHelper {
 		try {
 			columnlistNameString = getColumnListNames(TABLE_ID);
 			// Checking for the existence of the hard columns on Fusion table.
-			int numberofhardcolumns = hardcolumnsStrings.length;
+			
 			for (int i = 0; i < numberofhardcolumns; ++i) {
 				if (arrayContainsString(columnlistNameString,
 						hardcolumnsStrings[i])) {
@@ -331,9 +343,65 @@ public class SurveyHelper {
 			}
 
 			// Checking for the existence of question columns on Fusion table.
-			String[] questionIdlistString = getValues("id", type);
-			String[] questionKindlistString = getValues("Kind", type);
-			int numberofquestions = questionIdlistString.length;
+			switch (type) {
+			case SURVEY:
+				for (int j = 0; j < sourceJsonArray.length(); ++j){
+					numberofquestions = numberofquestions + chapterQuestionCounts[j];
+				}
+				questionIdlistString = new String[numberofquestions];
+				questionKindlistString = new String[numberofquestions];
+				String[] auxIDArray;
+				String[] auxKindArray;
+				JSONArray auxArray;
+				int k = 0;
+				for (int j = 0; j < sourceJsonArray.length(); ++j){
+					try {
+						auxArray = sourceJsonArray.getJSONObject(j).getJSONArray("Questions");
+						auxIDArray = getValues("id", auxArray);
+						auxKindArray = getValues("Kind", auxArray);
+						for (int i = 0; i < auxIDArray.length; ++i){
+							questionIdlistString[k] = auxIDArray[i];
+							questionKindlistString[k] = auxKindArray[i];
+							
+							// Handling the existence of Looped questions.
+							if (questionKindlistString[k].equals("LP")){
+								Log.v("columnCheck", "Loop found!");
+								final JSONArray forLoop = auxArray.getJSONObject(i).getJSONArray("Questions");
+								new Thread(new Runnable() {
+									
+									public void run() {
+										columnCheck(TABLE_ID, SurveyType.LOOP, forLoop);
+									}
+								}).start();
+								
+							}
+							k++;
+						}
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				
+				
+				break;
+			case TRACKER:
+				questionIdlistString = getValues("id", sourceJsonArray);
+				questionKindlistString = getValues("Kind", sourceJsonArray);
+				numberofquestions = questionIdlistString.length;				
+				break;
+			case LOOP:
+				questionIdlistString = getValues("id", sourceJsonArray);
+				questionKindlistString = getValues("Kind", sourceJsonArray);
+				numberofquestions = questionIdlistString.length;
+				break;
+			}
+			
+			
+			
+//			String[] questionIdlistString = getValues("id", type);
+//			String[] questionKindlistString = getValues("Kind", type);
+//			int numberofquestions = questionIdlistString.length;
 			String auxkind = null;
 			for (int i = 0; i < numberofquestions; ++i) {
 				if ((questionKindlistString[i].equals("MC") || questionKindlistString[i]
@@ -342,6 +410,13 @@ public class SurveyHelper {
 					auxkind = "STRING";
 				} else if (questionKindlistString[i].equals("ON")) {
 					auxkind = "NUMBER";
+				
+				// Check for the questions inside loop questions.	
+				} else if (questionKindlistString[i].equals("LP")) {
+					auxkind = "STRING";
+					
+					
+					
 				} else {
 					auxkind = "STRING";
 				}
@@ -364,48 +439,61 @@ public class SurveyHelper {
 
 	// Get a list of values corresponding to the key in either tracker
 	// or survey questions
-	public String[] getValues(String key, SurveyType type) {
+	public String[] getValues(String key, JSONArray sourceJsonArray) {
 		Integer numQuestions = 0;
 		String[] result = null;
+		
+		numQuestions = sourceJsonArray.length();
+		result = new String[numQuestions];
 
-		switch (type) {
-		case SURVEY:
-			// get number of questions
-			for (int i = 0; i < jchapterlist.length(); ++i) {
-				for (int j = 0; j < chapterQuestionCounts[i]; ++j) {
-					++numQuestions;
-				}
+		for (int i = 0; i < numQuestions; ++i) {
+			try {
+				result[i] = sourceJsonArray.getJSONObject(i).getString(
+						key);
+			} catch (JSONException e) {
+				e.printStackTrace();
 			}
-
-			result = new String[numQuestions];
-
-			int auxcount = 0;
-			for (int i = 0; i < jchapterlist.length(); ++i) {
-				for (int j = 0; j < chapterQuestionCounts[i]; ++j) {
-					try {
-						result[auxcount++] = jchapterlist.getJSONObject(i)
-								.getJSONArray("Questions").getJSONObject(j)
-								.getString(key);
-					} catch (JSONException e) {
-						result[auxcount++] = "";
-					}
-				}
-			}
-			break;
-		case TRACKER:
-			numQuestions = jtrackerquestions.length();
-			result = new String[numQuestions];
-
-			for (int i = 0; i < numQuestions; ++i) {
-				try {
-					result[i] = jtrackerquestions.getJSONObject(i).getString(
-							key);
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
-			}
-			break;
 		}
+
+//		switch (type) {
+//		case SURVEY:
+//			// get number of questions
+//			for (int i = 0; i < jchapterlist.length(); ++i) {
+//				for (int j = 0; j < chapterQuestionCounts[i]; ++j) {
+//					++numQuestions;
+//				}
+//			}
+//
+//			result = new String[numQuestions];
+//
+//			int auxcount = 0;
+//			for (int i = 0; i < jchapterlist.length(); ++i) {
+//				for (int j = 0; j < chapterQuestionCounts[i]; ++j) {
+//					try {
+//						result[auxcount++] = jchapterlist.getJSONObject(i)
+//								.getJSONArray("Questions").getJSONObject(j)
+//								.getString(key);
+//					} catch (JSONException e) {
+//						result[auxcount++] = "";
+//					}
+//				}
+//			}
+//			break;
+//		case TRACKER:
+//			numQuestions = jtrackerquestions.length();
+//			result = new String[numQuestions];
+//
+//			for (int i = 0; i < numQuestions; ++i) {
+//				try {
+//					result[i] = jtrackerquestions.getJSONObject(i).getString(
+//							key);
+//				} catch (JSONException e) {
+//					e.printStackTrace();
+//				}
+//			}
+//			break;		
+//			
+//		}
 
 		Log.v("Number of questions", numQuestions.toString() + " " + key);
 		return result;
@@ -442,6 +530,7 @@ public class SurveyHelper {
 					newColumn);
 			columnRequest.setKey(Iniconfig.API_KEY);
 			columnRequest.execute();
+			Log.v("requestColumnCreate", "Column created!");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
