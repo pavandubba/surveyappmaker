@@ -388,7 +388,27 @@ public class SurveyHelper {
 			case TRACKER:
 				questionIdlistString = getValues("id", sourceJsonArray);
 				questionKindlistString = getValues("Kind", sourceJsonArray);
-				numberofquestions = questionIdlistString.length;				
+				numberofquestions = questionIdlistString.length;
+				for (int k1=0; k1 < numberofquestions; k1++){
+					if (questionKindlistString[k1].equals("LP")){
+						Log.v("columnCheck", "Loop found!");						
+						try {
+							final JSONArray forLoop;
+							forLoop = sourceJsonArray.getJSONObject(k1).getJSONArray("Questions");
+							new Thread(new Runnable() {
+								
+								public void run() {
+									columnCheck(TABLE_ID, SurveyType.LOOP, forLoop);
+								}
+							}).start();
+						} catch (JSONException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+					
+				}
+								
 				break;
 			case LOOP:
 				questionIdlistString = getValues("id", sourceJsonArray);
