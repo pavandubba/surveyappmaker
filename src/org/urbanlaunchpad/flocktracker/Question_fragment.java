@@ -81,6 +81,7 @@ public class Question_fragment extends Fragment implements
 	DynamicListView answerlistView;
 	private static Activity mainActivity;
 	private Button skipButton;
+	Boolean inLoopBoolean;
 
 	public Question_fragment() {
 		// Empty constructor required for fragment subclasses
@@ -100,7 +101,7 @@ public class Question_fragment extends Fragment implements
 		 * @param selectedAnswers
 		 */
 		public void AnswerRecieve(String answerString, String jumpString,
-				ArrayList<Integer> selectedAnswers);
+				ArrayList<Integer> selectedAnswers, Boolean inLoop);
 	}
 
 	// Passes information about looped question.
@@ -162,7 +163,8 @@ public class Question_fragment extends Fragment implements
 			selectedAnswers = new ArrayList<Integer>();
 
 			jumpString = getJump(jquestion);
-			Callback.AnswerRecieve(answerString, jumpString, null);
+			Callback.AnswerRecieve(answerString, jumpString, null,
+					inLoopBoolean);
 
 			try {
 				questionstring = jquestion.getString("Question");
@@ -199,7 +201,7 @@ public class Question_fragment extends Fragment implements
 						}
 					}
 				}
-			} else if (questionkind.equals("OT") || questionkind.equals("ON") || questionkind.equals("LP")) {
+			} else if (questionkind.equals("OT") || questionkind.equals("ON")) {
 				OpenLayout();
 
 				// Prepopulate question
@@ -219,6 +221,29 @@ public class Question_fragment extends Fragment implements
 					} catch (JSONException e) {
 						e.printStackTrace();
 					}
+				}
+
+			} else if (questionkind.equals("LP")) {
+				OpenLayout();
+				inLoopBoolean = true;
+				// Prepopulate question
+				if (Surveyor.askingTripQuestions) {
+					selectedAnswers = SurveyHelper.selectedTrackingAnswersMap
+							.get(questionposition);
+				} else {
+					selectedAnswers = SurveyHelper.selectedAnswersMap
+							.get(new Tuple(chapterposition, questionposition));
+				}
+
+				if (selectedAnswers != null && selectedAnswers.get(0) == -1) {
+					try {
+						openET.setText(jquestion.getString("Answer"));
+						openET.setTextColor(getResources().getColor(
+								R.color.answer_selected));
+					} catch (JSONException e) {
+						e.printStackTrace();
+					}
+
 				}
 			} else if (questionkind.equals("CB")) {
 				CheckBoxLayout();
@@ -353,7 +378,7 @@ public class Question_fragment extends Fragment implements
 			@Override
 			public void onClick(View arg0) {
 				answerString = "";
-				Callback.AnswerRecieve(answerString, null, null);
+				Callback.AnswerRecieve(answerString, null, null, inLoopBoolean);
 				skipButton.setEnabled(false);
 				skipButton.setText(R.string.question_skipped);
 			}
@@ -383,7 +408,8 @@ public class Question_fragment extends Fragment implements
 				}
 			}
 		}
-		Callback.AnswerRecieve(answerString, null, selectedAnswers);
+		Callback.AnswerRecieve(answerString, null, selectedAnswers,
+				inLoopBoolean);
 	}
 
 	private String getorderedAnswers() {
@@ -846,7 +872,7 @@ public class Question_fragment extends Fragment implements
 						selectedAnswers = new ArrayList<Integer>();
 						selectedAnswers.add(view.getId());
 						Callback.AnswerRecieve(answerString, jumpString,
-								selectedAnswers);
+								selectedAnswers, inLoopBoolean);
 					} else {
 						textView.setTextColor(getResources().getColor(
 								R.color.text_color_light));
@@ -876,7 +902,8 @@ public class Question_fragment extends Fragment implements
 			answerString = (String) otherET.getText().toString();
 			selectedAnswers = new ArrayList<Integer>();
 			selectedAnswers.add(-1);
-			Callback.AnswerRecieve(answerString, jumpString, selectedAnswers);
+			Callback.AnswerRecieve(answerString, jumpString, selectedAnswers,
+					inLoopBoolean);
 		}
 	}
 
@@ -937,9 +964,9 @@ public class Question_fragment extends Fragment implements
 			answerString = answerString.substring(0, answerString.length() - 1);
 
 			Callback.AnswerRecieve("(" + answerString + ")", null,
-					selectedAnswers);
+					selectedAnswers, inLoopBoolean);
 		} else {
-			Callback.AnswerRecieve(null, null, selectedAnswers);
+			Callback.AnswerRecieve(null, null, selectedAnswers, inLoopBoolean);
 		}
 		Log.e("CheckBoxOnClick", answerString);
 
@@ -954,27 +981,28 @@ public class Question_fragment extends Fragment implements
 				checkBox = otherCB;
 				editText.setTextColor(getResources().getColor(
 						R.color.answer_selected));
-				String otheranswerString=null;
+				String otheranswerString = null;
 				String aux = null;
 				try {
-					otheranswerString=jquestion.getString("Answer");
-					otheranswerString=otheranswerString.substring(1, otheranswerString.length()-1);
-//					Log.e("CheckBoxPrePopulate", otheranswerString);
-					for (int j = 0; j < totalanswers; ++j){
-						if (selectedAnswers.contains(j)){
+					otheranswerString = jquestion.getString("Answer");
+					otheranswerString = otheranswerString.substring(1,
+							otheranswerString.length() - 1);
+					// Log.e("CheckBoxPrePopulate", otheranswerString);
+					for (int j = 0; j < totalanswers; ++j) {
+						if (selectedAnswers.contains(j)) {
 							aux = (String) tvanswerlist[j].getText();
-							otheranswerString=otheranswerString.substring(aux.length()+1, otheranswerString.length());
-						}						
+							otheranswerString = otheranswerString.substring(
+									aux.length() + 1,
+									otheranswerString.length());
+						}
 					}
-							
-					} catch (JSONException e) {
+
+				} catch (JSONException e) {
 					e.printStackTrace();
 				}
-				
-				
+
 				editText.setText(otheranswerString);
-				
-				
+
 			} else {
 
 				TextView textView = tvanswerlist[i];
@@ -993,7 +1021,8 @@ public class Question_fragment extends Fragment implements
 			answerString = (String) openET.getText().toString();
 			selectedAnswers = new ArrayList<Integer>();
 			selectedAnswers.add(-1);
-			Callback.AnswerRecieve(answerString, jumpString, selectedAnswers);
+			Callback.AnswerRecieve(answerString, jumpString, selectedAnswers,
+					inLoopBoolean);
 		}
 	}
 

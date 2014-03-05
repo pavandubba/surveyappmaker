@@ -1064,9 +1064,9 @@ public class Surveyor extends Activity implements
 	 */
 
 	public void AnswerRecieve(String answerStringReceive,
-			String jumpStringReceive, ArrayList<Integer> selectedAnswers) {
+			String jumpStringReceive, ArrayList<Integer> selectedAnswers, Boolean inLoopReceive) {
 		// TODO: fix loop stuff
-		inLoop = false;
+		inLoop = inLoopReceive;
 
 		if ((answerStringReceive != null) && (inLoop == false)) {
 			if (!askingTripQuestions) {
