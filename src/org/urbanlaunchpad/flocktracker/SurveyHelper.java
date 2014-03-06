@@ -280,7 +280,11 @@ public class SurveyHelper {
 				sendUpdateQuery("Username", username, type, rowID);
 				
 				for (int i = 0; i < columnNames.size(); i++) {
-					sendUpdateQuery(columnNames.get(0), answers.get(0), type, rowID);
+					String answer = "";
+					
+					if (i < answers.size())
+						answer = answers.get(i);
+					sendUpdateQuery(columnNames.get(i), answers.get(i), type, rowID);
 				}
 			} else {
 				Sql sql = Iniconfig.fusiontables.query().sql(query);
