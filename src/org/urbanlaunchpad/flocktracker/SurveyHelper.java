@@ -248,9 +248,9 @@ public class SurveyHelper {
 				
 				// Send initial insert and get row ID
 				if (type.equals("Tracker")) {
-					String metaDataQuery = "UPDATE"
+					String metaDataQuery = "INSERT INTO "
 							+ TRIP_TABLE_ID
-							+ "(Location,Lat,Lng,Alt,Date,TripID) VALUES ("
+							+ " (Location,Lat,Lng,Alt,Date,TripID) VALUES ("
 							+ "'<Point><coordinates>" + lnglat
 							+ "</coordinates></Point>','" + lat + "','" + lng
 							+ "','" + alt + "','" + timestamp + "','" + tripID
@@ -261,9 +261,9 @@ public class SurveyHelper {
 								.setKey(Iniconfig.API_KEY)
 								.execute().getRows().get(0).get(0));
 				} else {
-					String metaDataQuery = "UPDATE"
+					String metaDataQuery = "INSERT INTO "
 							+ SURVEY_TABLE_ID
-							+ "(Location,Lat,Lng,Alt,Date,SurveyID,TripID) VALUES ("
+							+ " (Location,Lat,Lng,Alt,Date,SurveyID,TripID) VALUES ("
 							+ "'<Point><coordinates>" + lnglat
 							+ "</coordinates></Point>','" + lat + "','" + lng
 							+ "','" + alt + "','" + timestamp + "','" 
