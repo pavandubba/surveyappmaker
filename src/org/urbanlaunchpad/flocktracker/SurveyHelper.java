@@ -306,18 +306,18 @@ public class SurveyHelper {
 						+ TRIP_TABLE_ID
 						+ " SET "
 						+ key
-						+ " = "
+						+ " = '"
 						+ value 
-						+ " WHERE ROWID = " + rowID;
+						+ "' WHERE ROWID = '" + rowID + "'";
 				Log.v("Tracker submit", query);
 			} else if (type.equals("Survey")) {
 				query = "UPDATE "
 						+ SURVEY_TABLE_ID
 						+ " SET "
 						+ key
-						+ " = "
+						+ " = '"
 						+ value 
-						+ " WHERE ROWID = " + rowID;
+						+ "' WHERE ROWID = '" + rowID + "'";
 				Log.v("Survey submit", query);
 			}
 
