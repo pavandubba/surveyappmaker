@@ -32,6 +32,7 @@ import com.google.api.services.fusiontables.Fusiontables.Column.Insert;
 import com.google.api.services.fusiontables.Fusiontables.Query.Sql;
 import com.google.api.services.fusiontables.model.Column;
 import com.google.api.services.fusiontables.model.ColumnList;
+import com.google.api.services.fusiontables.model.Sqlresponse;
 
 public class SurveyHelper {
 	private String username;
@@ -56,6 +57,8 @@ public class SurveyHelper {
 
 	private Integer chapterPosition = null;
 	private Integer questionPosition = null;
+	
+	public static final int MAX_QUERY_LENGTH = 2000; // max length allowed by fusion table
 
 	// Backstack
 	public Stack<Tuple> prevPositions = new Stack<Tuple>();
@@ -204,9 +207,9 @@ public class SurveyHelper {
 			}
 
 			// Create and submit query
-			String columnnamesString = getnames("id", "nq", type,
+			String columnnamesString = getNames("id", "nq", type,
 					jsurvQueueObject);
-			String answerfinalString = getnames("Answer", "wq", type,
+			String answerfinalString = getNames("Answer", "wq", type,
 					jsurvQueueObject);
 			String lnglat = LocationHelper.getLngLatAlt(lng, lat, alt);
 			String query = "";
@@ -237,16 +240,96 @@ public class SurveyHelper {
 //						"Survey submitted succesfully!",
 //						Toast.LENGTH_SHORT).show();
 			}
-			Sql sql = Iniconfig.fusiontables.query().sql(query);
-			sql.setKey(Iniconfig.API_KEY);
-			sql.execute();
+			
+			if (query.length() >= MAX_QUERY_LENGTH) {
+				ArrayList<String> columnNames = getNamesArray("id", type, jsurvQueueObject);
+				ArrayList<String> answers = getNamesArray("Answer", type, jsurvQueueObject);
+				int rowID;
+				
+				// Send initial insert and get row ID
+				if (type.equals("Tracker")) {
+					String metaDataQuery = "UPDATE"
+							+ TRIP_TABLE_ID
+							+ "(Location,Lat,Lng,Alt,Date,TripID) VALUES ("
+							+ "'<Point><coordinates>" + lnglat
+							+ "</coordinates></Point>','" + lat + "','" + lng
+							+ "','" + alt + "','" + timestamp + "','" + tripID
+							+ "');";
+					
+					rowID = Integer.parseInt(
+							(String) Iniconfig.fusiontables.query().sql(metaDataQuery)
+								.setKey(Iniconfig.API_KEY)
+								.execute().getRows().get(0).get(0));
+				} else {
+					String metaDataQuery = "UPDATE"
+							+ SURVEY_TABLE_ID
+							+ "(Location,Lat,Lng,Alt,Date,SurveyID,TripID) VALUES ("
+							+ "'<Point><coordinates>" + lnglat
+							+ "</coordinates></Point>','" + lat + "','" + lng
+							+ "','" + alt + "','" + timestamp + "','" 
+							+ surveyID + "','" + tripID
+							+ "');";
+					
+					rowID = Integer.parseInt(
+							(String) Iniconfig.fusiontables.query().sql(metaDataQuery)
+								.setKey(Iniconfig.API_KEY)
+								.execute().getRows().get(0).get(0));
+				}
+
+				// Send rest of info one at a time
+				sendUpdateQuery("Username", username, type, rowID);
+				
+				for (int i = 0; i < columnNames.size(); i++) {
+					sendUpdateQuery(columnNames.get(0), answers.get(0), type, rowID);
+				}
+			} else {
+				Sql sql = Iniconfig.fusiontables.query().sql(query);
+				sql.setKey(Iniconfig.API_KEY);
+				sql.execute();
+			}
+
 			success = true;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return success;
 	}
+	
+	// Returns the row id
+	public boolean sendUpdateQuery(String key, String value, String type, int rowID) {
+		try {
+			String query = "";
 
+			if (type.equals("Tracker")) {
+				query = "UPDATE "
+						+ TRIP_TABLE_ID
+						+ " SET "
+						+ key
+						+ " = "
+						+ value 
+						+ " WHERE ROWID = " + rowID;
+				Log.v("Tracker submit", query);
+			} else if (type.equals("Survey")) {
+				query = "UPDATE "
+						+ SURVEY_TABLE_ID
+						+ " SET "
+						+ key
+						+ " = "
+						+ value 
+						+ " WHERE ROWID = " + rowID;
+				Log.v("Survey submit", query);
+			}
+
+			Sql sql = Iniconfig.fusiontables.query().sql(query);
+			sql.setKey(Iniconfig.API_KEY);
+			sql.execute();
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+		
 	@SuppressWarnings("unchecked")
 	public void saveSubmission(Location currentLocation, String surveyID,
 			String tripID, String jsurvString, JSONObject imagePaths,
@@ -511,15 +594,33 @@ public class SurveyHelper {
 		}
 	}
 
-	public String getnames(String nametoget, String syntaxtype,
+	public String getNames(String nametoget, String syntaxtype,
 			String triporsurvey, JSONObject survey) {
-		// If syntaxtype equals wq , quotes are aded, if it's nq , no quotes are
-		// added.
-		String addString = null;
-		String namesString = null;
+		ArrayList<String> names = getNamesArray(nametoget, triporsurvey, survey);
+		
+		String namesString = "";
+
+		if (syntaxtype.equals("wq")) {		
+			namesString = "'" + names.get(0) + "'";
+			for (int i = 1; i < names.size(); i++) {
+				namesString += ",'" + names.get(i) + "'";
+			}
+		} else if (syntaxtype.equals("nq")) {
+			namesString = names.get(0);
+			for (int i = 1; i < names.size(); i++) {
+				namesString += "," + names.get(i);
+			}		
+		}
+		
+		Log.v("Names", triporsurvey + " " + namesString);
+		return namesString;
+	}
+	
+	public ArrayList<String> getNamesArray(String nametoget,
+			String triporsurvey, JSONObject survey) {
+		ArrayList<String> names = new ArrayList<String>();
 		JSONArray questionsArray = null;
 		Integer totalchapters = null;
-		Integer totalquestions = null;
 
 		if (triporsurvey.equals("Survey")) {
 			try {
@@ -537,43 +638,26 @@ public class SurveyHelper {
 					questionsArray = survey.getJSONObject("Survey")
 							.getJSONArray("Chapters").getJSONObject(i)
 							.getJSONArray("Questions");
-					totalquestions = questionsArray.length();
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
 			} else if (triporsurvey.equals("Tracker")) {
 				try {
 					questionsArray = jtracker.getJSONArray("Questions");
-					totalquestions = questionsArray.length();
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
 			}
-			for (int j = 0; j < totalquestions; ++j) {
+			for (int j = 0; j < questionsArray.length(); ++j) {
 				try {
-					addString = questionsArray.getJSONObject(j).getString(
-							nametoget);
+					names.add(questionsArray.getJSONObject(j).getString(
+							nametoget));
 				} catch (JSONException e) {
-					// e.printStackTrace();
-					addString = "";
-				}
-				if (i == 0 && j == 0) {
-					if (syntaxtype.equals("wq")) {
-						namesString = "'" + addString + "'";
-					} else if (syntaxtype.equals("nq")) {
-						namesString = addString;
-					}
-				} else {
-					if (syntaxtype.equals("wq")) {
-						namesString = namesString + ",'" + addString + "'";
-					} else if (syntaxtype.equals("nq")) {
-						namesString = namesString + "," + addString;
-					}
+					e.printStackTrace();
 				}
 			}
 		}
-		Log.v("Names", triporsurvey + " " + namesString);
-		return namesString;
+		return names;
 	}
 
 	// helper to search for string in array
