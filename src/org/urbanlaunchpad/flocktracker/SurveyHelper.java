@@ -295,8 +295,9 @@ public class SurveyHelper {
 		return success;
 	}
 	
-	// Returns the row id
 	public boolean sendUpdateQuery(String key, String value, String type, int rowID) {
+		if (value.isEmpty())
+			return true;
 		try {
 			String query = "";
 
