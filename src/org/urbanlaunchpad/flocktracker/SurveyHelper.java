@@ -280,10 +280,6 @@ public class SurveyHelper {
 				sendUpdateQuery("Username", username, type, rowID);
 				
 				for (int i = 0; i < columnNames.size(); i++) {
-					String answer = "";
-					
-					if (i < answers.size())
-						answer = answers.get(i);
 					sendUpdateQuery(columnNames.get(i), answers.get(i), type, rowID);
 				}
 			} else {
@@ -636,6 +632,7 @@ public class SurveyHelper {
 		} else if (triporsurvey.equals("Tracker")) {
 			totalchapters = 1;
 		}
+		
 		for (int i = 0; i < totalchapters; ++i) {
 			if (triporsurvey.equals("Survey")) {
 				try {
@@ -657,7 +654,7 @@ public class SurveyHelper {
 					names.add(questionsArray.getJSONObject(j).getString(
 							nametoget));
 				} catch (JSONException e) {
-					e.printStackTrace();
+					names.add("");
 				}
 			}
 		}
