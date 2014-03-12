@@ -14,7 +14,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.R.integer;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
@@ -32,7 +31,6 @@ import com.google.api.services.fusiontables.Fusiontables.Column.Insert;
 import com.google.api.services.fusiontables.Fusiontables.Query.Sql;
 import com.google.api.services.fusiontables.model.Column;
 import com.google.api.services.fusiontables.model.ColumnList;
-import com.google.api.services.fusiontables.model.Sqlresponse;
 
 public class SurveyHelper {
 	private String username;
