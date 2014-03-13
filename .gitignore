@@ -2,3 +2,7 @@ bin/
 gen/
 bin/
 project.properties
+.idea/
+out/
+Flocksourcingmx.iml
+.gitignore
