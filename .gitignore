@@ -6,3 +6,4 @@ project.properties
 out/
 Flocksourcingmx.iml
 .gitignore
+proguard_logs/
