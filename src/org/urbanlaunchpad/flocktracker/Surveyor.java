@@ -627,6 +627,10 @@ public class Surveyor extends Activity implements
     public void resetSurvey() {
         surveyID = "S" + createID();
         surveyHelper.resetSurvey();
+
+        for (RowItem rowItem : rowItems) {
+            rowItem.setImageId(INCOMPLETE_CHAPTER);
+        }
     }
 
     /*
