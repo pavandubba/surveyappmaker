@@ -1078,7 +1078,9 @@ public class Surveyor extends Activity implements
                     break;
                 }
 
-                rowItems.get(surveyHelper.getChapterPosition()).setImageId(HALF_COMPLETE_CHAPTER);
+                RowItem rowItem = rowItems.get(surveyHelper.getChapterPosition());
+                if (rowItem.getImageId() != COMPLETE_CHAPTER)
+                    rowItem.setImageId(HALF_COMPLETE_CHAPTER);
             }
 
             showCurrentQuestion();
