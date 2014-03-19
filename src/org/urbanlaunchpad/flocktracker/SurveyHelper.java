@@ -835,6 +835,7 @@ public class SurveyHelper {
                 } else {
                     chapterPosition++;
                     questionPosition = 0;
+                    return NextQuestionResult.CHAPTER_END;
                 }
             }
         }
@@ -933,7 +934,7 @@ public class SurveyHelper {
     }
 
     public enum NextQuestionResult {
-        NORMAL, END, JUMPSTRING
+        NORMAL, CHAPTER_END, END, JUMPSTRING
     }
 
     public static class Tuple {

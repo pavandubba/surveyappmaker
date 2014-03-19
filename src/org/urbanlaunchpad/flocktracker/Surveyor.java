@@ -70,16 +70,21 @@ public class Surveyor extends Activity implements
         Hub_page_fragment.HubButtonCallback, StatusPageUpdate,
         GooglePlayServicesClient.ConnectionCallbacks,
         GooglePlayServicesClient.OnConnectionFailedListener {
+
+    // Drawer fields
     private DrawerLayout ChapterDrawerLayout;
     private ListView FixedNavigationList;
     private ListView ChapterDrawerList;
     private LinearLayout drawer;
     private ActionBarDrawerToggle ChapterDrawerToggle;
-
     private CharSequence ChapterDrawerTitle;
     private CharSequence Title;
-    private String username;
+    private List<RowItem> rowItems;
+    public static final Integer INCOMPLETE_CHAPTER = R.drawable.complete_red;
+    public static final Integer COMPLETE_CHAPTER = R.drawable.complete_green;
+    public static final Integer HALF_COMPLETE_CHAPTER = R.drawable.complete_orange;
 
+    private String username;
     private LocationClient mLocationClient;
     private final int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
     private Fragment navButtons;
@@ -333,20 +338,23 @@ public class Surveyor extends Activity implements
         ChapterDrawerList = (ListView) findViewById(R.id.chapter_drawer);
         FixedNavigationList = (ListView) findViewById(R.id.fixed_navigation);
         drawer = (LinearLayout) findViewById(R.id.drawer);
+        rowItems = new ArrayList<RowItem>();
+        for (String chapterTitle : surveyHelper.getChapterTitles()) {
+            RowItem rowItem = new RowItem(INCOMPLETE_CHAPTER, chapterTitle);
+            rowItems.add(rowItem);
+        }
 
-        // set a custom shadow that overlays the main content when the drawer
-        // opens
+        // set a custom shadow that overlays the main content when the drawer opens
         ChapterDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow,
                 GravityCompat.START);
         // set up the drawer's list view with items and click listener
         FixedNavigationList.setAdapter((new ArrayAdapter<String>(this,
-                R.layout.chapter_drawer_list_item, new String[] {
+                R.layout.old_chapter_list_item, new String[] {
                         HUB_PAGE_TITLE, STATISTICS_PAGE_TITLE })));
         FixedNavigationList
                 .setOnItemClickListener(new FixedNavigationItemClickListener());
-        ChapterDrawerList.setAdapter(new ArrayAdapter<String>(this,
-                R.layout.chapter_drawer_list_item, surveyHelper
-                        .getChapterTitles()));
+        ChapterDrawerList.setAdapter(new DrawerListViewAdapter(this,
+                R.layout.chapter_drawer_list_item, rowItems));
         ChapterDrawerList.setOnItemClickListener(new DrawerItemClickListener());
         getActionBar().setDisplayHomeAsUpEnabled(true);
         getActionBar().setHomeButtonEnabled(true);
@@ -439,14 +447,14 @@ public class Surveyor extends Activity implements
                     }
 
                     // Iterate through queues to submit surveys
-                    submitFromQueue(surveySubmissionQueue);
-                    submitFromQueue(trackerSubmissionQueue);
+                    submitFromQueue(surveySubmissionQueue, "surveySubmissionQueue");
+                    submitFromQueue(trackerSubmissionQueue, "trackerSubmissionQueue");
                 }
             }
         }).start();
     }
 
-    public void submitFromQueue(HashSet<String> queue) {
+    public void submitFromQueue(HashSet<String> queue, String queueName) {
         synchronized(queue) {
 
             Iterator<String> i = queue.iterator();
@@ -480,7 +488,7 @@ public class Surveyor extends Activity implements
                     Iniconfig.prefs
                             .edit()
                             .putStringSet(
-                                    "submissionQueue",
+                                    queueName,
                                     (Set<String>) queue
                                             .clone()).commit();
 
@@ -1060,12 +1068,16 @@ public class Surveyor extends Activity implements
                     break;
                 }
             } else {
-                if (result == NextQuestionResult.END) {
+                if (result == NextQuestionResult.CHAPTER_END) {
+                    rowItems.get(surveyHelper.getChapterPosition()).setImageId(COMPLETE_CHAPTER);
+                } else if (result == NextQuestionResult.END) {
                     Toast.makeText(this,
-                            "You've reached the end of the survey.",
-                            Toast.LENGTH_SHORT).show();
+                      "You've reached the end of the survey.",
+                      Toast.LENGTH_SHORT).show();
                     submitSurveyInterface();
                     break;
+                } else {
+                    rowItems.get(surveyHelper.getChapterPosition()).setImageId(HALF_COMPLETE_CHAPTER);
                 }
             }
 
