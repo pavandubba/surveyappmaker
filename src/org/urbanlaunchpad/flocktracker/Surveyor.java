@@ -1069,16 +1069,16 @@ public class Surveyor extends Activity implements
                 }
             } else {
                 if (result == NextQuestionResult.CHAPTER_END) {
-                    rowItems.get(surveyHelper.getChapterPosition()).setImageId(COMPLETE_CHAPTER);
+                    rowItems.get(surveyHelper.getChapterPosition() - 1).setImageId(COMPLETE_CHAPTER);
                 } else if (result == NextQuestionResult.END) {
                     Toast.makeText(this,
                       "You've reached the end of the survey.",
                       Toast.LENGTH_SHORT).show();
                     submitSurveyInterface();
                     break;
-                } else {
-                    rowItems.get(surveyHelper.getChapterPosition()).setImageId(HALF_COMPLETE_CHAPTER);
                 }
+
+                rowItems.get(surveyHelper.getChapterPosition()).setImageId(HALF_COMPLETE_CHAPTER);
             }
 
             showCurrentQuestion();
