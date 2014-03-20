@@ -787,7 +787,8 @@ public class SurveyHelper {
 
     public void updateSurveyPosition(Integer chapterpositionreceive,
       Integer questionpositionreceive) {
-        prevPositions.add(new Tuple(chapterPosition, questionPosition));
+        if (chapterPosition != null && questionPosition != null)
+            prevPositions.add(new Tuple(chapterPosition, questionPosition));
         chapterPosition = chapterpositionreceive;
         questionPosition = questionpositionreceive;
     }
