@@ -1050,7 +1050,7 @@ public class Surveyor extends Activity implements
         case NEXT:
             currentQuestionFragment.saveState();
             NextQuestionResult result = surveyHelper
-                    .onNextQuestionPressed(askingTripQuestions);
+                    .onNextQuestionPressed(askingTripQuestions, inLoop);
 
             if (askingTripQuestions) {
                 if (result == NextQuestionResult.END) {
@@ -1094,11 +1094,21 @@ public class Surveyor extends Activity implements
      */
 
     public void AnswerRecieve(String answerStringReceive,
-            String jumpStringReceive, ArrayList<Integer> selectedAnswers, Boolean inLoopReceive) {
+            String jumpStringReceive, ArrayList<Integer> selectedAnswers, Boolean inLoopReceive,
+            String questionkindReceive) {
         // TODO: fix loop stuff
         inLoop = (inLoopReceive == null) ? false : inLoopReceive;
 
-        if ((answerStringReceive != null) && (inLoop == false)) {
+        if (questionkindReceive.equals("LP") && answerStringReceive != null) {
+            surveyHelper.loopTotal = Integer.parseInt(answerStringReceive);
+            if (!askingTripQuestions) {
+                surveyHelper.answerCurrentQuestion(answerStringReceive,
+                  selectedAnswers);
+            } else {
+                surveyHelper.answerCurrentTrackerQuestion(
+                  answerStringReceive, selectedAnswers);
+            }
+        } else if ((answerStringReceive != null) && (inLoop == false)) {
             if (!askingTripQuestions) {
                 surveyHelper.answerCurrentQuestion(answerStringReceive,
                         selectedAnswers);
@@ -1108,10 +1118,10 @@ public class Surveyor extends Activity implements
             }
         } else if ((answerStringReceive != null) && (inLoop = true)) {
             if (!askingTripQuestions) {
-                surveyHelper.answerCurrentLoopQuestion(answerStringReceive);
+                surveyHelper.answerCurrentLoopQuestion(answerStringReceive, selectedAnswers);
             } else {
                 surveyHelper
-                        .answerCurrentTrackerLoopQuestion(answerStringReceive);
+                        .answerCurrentTrackerLoopQuestion(answerStringReceive, selectedAnswers);
             }
         }
 
@@ -1120,12 +1130,12 @@ public class Surveyor extends Activity implements
         }
     }
 
-    public void LoopReceive(String Loopend) {
-        if (Loopend != null) {
-            inLoop = true;
-            surveyHelper.setLoopLimits(Loopend);
-        }
-    }
+//    public void LoopReceive(String Loopend) {
+//        if (Loopend != null) {
+//            inLoop = true;
+//            surveyHelper.setLoopLimits(Loopend);
+//        }
+//    }
 
     /*
      * Status Page Event Handlers
