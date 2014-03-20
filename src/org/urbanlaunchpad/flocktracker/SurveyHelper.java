@@ -58,8 +58,7 @@ public class SurveyHelper {
     private Integer questionPosition = null;
     private Integer tripQuestionPosition = 0;
     private Integer[] jumpPosition = null;
-    private Integer[] loopEndPosition = null;
-    private Integer[] loopStartPosition = null;
+    Integer loopTotal = null;  // Number of times the loop of questions is going to be repeated.
 
     public SurveyHelper(String username, String jsonSurvey, Context context) {
         this.username = username;
@@ -751,11 +750,13 @@ public class SurveyHelper {
         }
     }
 
-    public void answerCurrentTrackerLoopQuestion(String answer) {
+    public void answerCurrentTrackerLoopQuestion(String answer,
+    	      ArrayList<Integer> selectedAnswers) {
 
     }
 
-    public void answerCurrentLoopQuestion(String answer) {
+    public void answerCurrentLoopQuestion(String answer,
+    	      ArrayList<Integer> selectedAnswers) {
 
     }
 
@@ -818,14 +819,20 @@ public class SurveyHelper {
 
     // updates positions to get next question. returns true if end of survey
     // reached
-    public NextQuestionResult onNextQuestionPressed(Boolean askingTripQuestions) {
-        if (askingTripQuestions) {
+    public NextQuestionResult onNextQuestionPressed(Boolean askingTripQuestions, Boolean inLoop) {
+    	if (askingTripQuestions && inLoop){
+    		
+    	}
+    	else if (!askingTripQuestions && inLoop){
+    		
+    	}
+    	else if (askingTripQuestions && !inLoop) {
             prevTrackingPositions.add(tripQuestionPosition);
             tripQuestionPosition++;
             if (tripQuestionPosition == jtrackerquestions.length()) {
                 return NextQuestionResult.END;
             }
-        } else {
+        } else if (!askingTripQuestions && !inLoop) {
             prevPositions.add(new Tuple(chapterPosition, questionPosition));
             questionPosition++;
             if (questionPosition == chapterQuestionCounts[chapterPosition]) {
@@ -910,24 +917,24 @@ public class SurveyHelper {
         return ChapterTitles;
     }
 
-    public void setLoopLimits(String loopend) {
-        loopEndPosition = findIDPosition(loopend);
-        if (questionPosition + 1 == chapterQuestionCounts[chapterPosition]) {
-            if (chapterPosition == jchapterlist.length() - 1) {
-                Toast.makeText(context,
-                  "Loop at the end of a survey will not work",
-                  Toast.LENGTH_SHORT).show();
-            } else {
-                loopStartPosition[0] = chapterPosition + 1;
-                loopStartPosition[1] = 0;
-            }
-        } else {
-            loopStartPosition[0] = chapterPosition;
-            loopStartPosition[1] = questionPosition + 1;
-
-        }
-
-    }
+//    public void setLoopLimits(String loopend) {
+//        loopEndPosition = findIDPosition(loopend);
+//        if (questionPosition + 1 == chapterQuestionCounts[chapterPosition]) {
+//            if (chapterPosition == jchapterlist.length() - 1) {
+//                Toast.makeText(context,
+//                  "Loop at the end of a survey will not work",
+//                  Toast.LENGTH_SHORT).show();
+//            } else {
+//                loopStartPosition[0] = chapterPosition + 1;
+//                loopStartPosition[1] = 0;
+//            }
+//        } else {
+//            loopStartPosition[0] = chapterPosition;
+//            loopStartPosition[1] = questionPosition + 1;
+//
+//        }
+//
+//    }
 
     private enum SurveyType {
         SURVEY, TRACKER, LOOP

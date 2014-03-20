@@ -101,7 +101,7 @@ public class Question_fragment extends Fragment implements
 		 * @param selectedAnswers
 		 */
 		public void AnswerRecieve(String answerString, String jumpString,
-				ArrayList<Integer> selectedAnswers, Boolean inLoop);
+				ArrayList<Integer> selectedAnswers, Boolean inLoop, String questionkindRecieve);
 	}
 
 	// Passes information about looped question.
@@ -164,7 +164,7 @@ public class Question_fragment extends Fragment implements
 
 			jumpString = getJump(jquestion);
 			Callback.AnswerRecieve(answerString, jumpString, null,
-					inLoopBoolean);
+					inLoopBoolean, questionkind);
 
 			try {
 				questionstring = jquestion.getString("Question");
@@ -378,7 +378,7 @@ public class Question_fragment extends Fragment implements
 			@Override
 			public void onClick(View arg0) {
 				answerString = "";
-				Callback.AnswerRecieve(answerString, null, null, inLoopBoolean);
+				Callback.AnswerRecieve(answerString, null, null, inLoopBoolean, questionkind);
 				skipButton.setEnabled(false);
 				skipButton.setText(R.string.question_skipped);
 			}
@@ -409,7 +409,7 @@ public class Question_fragment extends Fragment implements
 			}
 		}
 		Callback.AnswerRecieve(answerString, null, selectedAnswers,
-				inLoopBoolean);
+				inLoopBoolean, questionkind);
 	}
 
 	private String getorderedAnswers() {
@@ -872,7 +872,7 @@ public class Question_fragment extends Fragment implements
 						selectedAnswers = new ArrayList<Integer>();
 						selectedAnswers.add(view.getId());
 						Callback.AnswerRecieve(answerString, jumpString,
-								selectedAnswers, inLoopBoolean);
+								selectedAnswers, inLoopBoolean, questionkind);
 					} else {
 						textView.setTextColor(getResources().getColor(
 								R.color.text_color_light));
@@ -903,7 +903,7 @@ public class Question_fragment extends Fragment implements
 			selectedAnswers = new ArrayList<Integer>();
 			selectedAnswers.add(-1);
 			Callback.AnswerRecieve(answerString, jumpString, selectedAnswers,
-					inLoopBoolean);
+					inLoopBoolean, questionkind);
 		}
 	}
 
@@ -964,9 +964,9 @@ public class Question_fragment extends Fragment implements
 			answerString = answerString.substring(0, answerString.length() - 1);
 
 			Callback.AnswerRecieve("(" + answerString + ")", null,
-					selectedAnswers, inLoopBoolean);
+					selectedAnswers, inLoopBoolean, questionkind);
 		} else {
-			Callback.AnswerRecieve(null, null, selectedAnswers, inLoopBoolean);
+			Callback.AnswerRecieve(null, null, selectedAnswers, inLoopBoolean, questionkind);
 		}
 		Log.e("CheckBoxOnClick", answerString);
 
@@ -1022,7 +1022,7 @@ public class Question_fragment extends Fragment implements
 			selectedAnswers = new ArrayList<Integer>();
 			selectedAnswers.add(-1);
 			Callback.AnswerRecieve(answerString, jumpString, selectedAnswers,
-					inLoopBoolean);
+					inLoopBoolean, questionkind);
 		}
 	}
 
