@@ -54,8 +54,12 @@ public class SurveyHelper {
     private JSONArray jtrackerquestions;
     private String[] ChapterTitles;
     private Integer[] chapterQuestionCounts;
-    private Integer chapterPosition = null;
-    private Integer questionPosition = null;
+    public static final Integer HUB_PAGE_CHAPTER_POSITION = -15;
+    public static final Integer HUB_PAGE_QUESTION_POSITION = -15;
+    public static final Integer STATS_PAGE_CHAPTER_POSITION = -16;
+    public static final Integer STATS_PAGE_QUESTION_POSITION = -16;
+    private Integer chapterPosition = HUB_PAGE_CHAPTER_POSITION;
+    private Integer questionPosition = HUB_PAGE_QUESTION_POSITION;
     private Integer tripQuestionPosition = 0;
     private Integer[] jumpPosition = null;
     private Integer[] loopEndPosition = null;
@@ -64,6 +68,7 @@ public class SurveyHelper {
     public SurveyHelper(String username, String jsonSurvey, Context context) {
         this.username = username;
         this.jsonSurvey = jsonSurvey;
+        this.context = context;
 
         // parse json survey
         try {
@@ -787,8 +792,7 @@ public class SurveyHelper {
 
     public void updateSurveyPosition(Integer chapterpositionreceive,
       Integer questionpositionreceive) {
-        if (chapterPosition != null && questionPosition != null)
-            prevPositions.add(new Tuple(chapterPosition, questionPosition));
+        prevPositions.add(new Tuple(chapterPosition, questionPosition));
         chapterPosition = chapterpositionreceive;
         questionPosition = questionpositionreceive;
     }
@@ -807,6 +811,14 @@ public class SurveyHelper {
     public void updateTrackerPositionOnBack(Integer questionpositionreceive) {
         tripQuestionPosition = questionpositionreceive;
 
+    }
+
+    public boolean wasJustAtHubPage(Tuple prevPosition) {
+        return prevPosition.questionPosition == HUB_PAGE_QUESTION_POSITION;
+    }
+
+    public boolean wasJustAtStatsPage(Tuple prevPosition) {
+        return prevPosition.questionPosition == STATS_PAGE_QUESTION_POSITION;
     }
 
     public void updateJumpString(String jumpStringReceive) {

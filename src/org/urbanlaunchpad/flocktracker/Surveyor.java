@@ -3,13 +3,7 @@ package org.urbanlaunchpad.flocktracker;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -114,7 +108,6 @@ public class Surveyor extends Activity implements
     public static boolean submittingSubmission = false;
     public static boolean savingSurveySubmission = false;
     public static boolean savingTrackerSubmission = false;
-    private boolean justAtHubPage = true;
 
     public static final String TRACKER_TYPE = "Tracker";
     public static final String SURVEY_TYPE = "Survey";
@@ -302,6 +295,8 @@ public class Surveyor extends Activity implements
                         getResources().getString(R.string.survey_submitted),
                         Toast.LENGTH_SHORT);
                 toast.show();
+                surveyHelper.updateSurveyPosition(SurveyHelper.HUB_PAGE_CHAPTER_POSITION,
+                  SurveyHelper.HUB_PAGE_QUESTION_POSITION);
                 showHubPage();
             } else if (msg.what == EVENT_TYPE.SUBMIT_FAILED.ordinal()) {
                 Toast toast = Toast.makeText(getApplicationContext(),
@@ -549,6 +544,7 @@ public class Surveyor extends Activity implements
         if (askingTripQuestions) {
             if (surveyHelper.prevTrackingPositions.empty()
                     || surveyHelper.getTripQuestionPosition() == 0) {
+                surveyHelper.updateTrackerPositionOnBack(SurveyHelper.HUB_PAGE_QUESTION_POSITION);
                 showHubPage();
                 return;
             }
@@ -559,44 +555,27 @@ public class Surveyor extends Activity implements
             return;
         }
 
-        if (!showingHubPage && !showingStatusPage) {
-            if (surveyHelper.prevPositions.empty()
-                    || (surveyHelper.getChapterPosition() == 0 && surveyHelper
-                            .getQuestionPosition() == 0)) {
-                showHubPage();
-                return;
-            }
-
-            // Pop last question off
-            Tuple prevPosition = surveyHelper.prevPositions.pop();
-            surveyHelper
-                    .updateSurveyPositionOnBack(prevPosition.chapterPosition,
-                      prevPosition.questionPosition);
-            showCurrentQuestion();
+        if (surveyHelper.prevPositions.isEmpty()) {
+            finish();
             return;
         }
 
-        if (showingHubPage) {
-            showingHubPage = false;
-            if (surveyHelper.getChapterPosition() == null
-                    || (surveyHelper.getChapterPosition() == 0 && surveyHelper
-                            .getQuestionPosition() == 0))
-                finish();
-            else
-                showCurrentQuestion();
+        Tuple prevPosition = surveyHelper.prevPositions.pop();
+        // Pop last question off
+        surveyHelper
+          .updateSurveyPositionOnBack(prevPosition.chapterPosition,
+            prevPosition.questionPosition);
+
+        if (surveyHelper.wasJustAtHubPage(prevPosition)) {
+            showHubPage();
+            return;
+        } else if (surveyHelper.wasJustAtStatsPage(prevPosition)) {
+            showStatusPage();
             return;
         }
 
-        if (showingStatusPage) {
-            showingStatusPage = false;
-            if (justAtHubPage)
-                showHubPage();
-            else
-                showCurrentQuestion();
-            return;
-        }
-
-        super.onBackPressed();
+        showCurrentQuestion();
+        return;
     }
 
     /*
@@ -631,6 +610,11 @@ public class Surveyor extends Activity implements
         for (RowItem rowItem : rowItems) {
             rowItem.setImageId(INCOMPLETE_CHAPTER);
         }
+    }
+
+    public void resetTrackerSurvey() {
+        askingTripQuestions = false;
+        surveyHelper.prevTrackingPositions = new Stack<Integer>();
     }
 
     /*
@@ -824,10 +808,16 @@ public class Surveyor extends Activity implements
         public void onItemClick(AdapterView<?> parent, View view, int position,
                 long id) {
             Log.d("Clicked on fixed position", position + "");
+            if (askingTripQuestions)
+                resetTrackerSurvey();
 
             if (position == 0) {
+                surveyHelper.updateSurveyPosition(SurveyHelper.HUB_PAGE_CHAPTER_POSITION,
+                    SurveyHelper.HUB_PAGE_QUESTION_POSITION);
                 showHubPage();
             } else {
+                surveyHelper.updateSurveyPosition(SurveyHelper.STATS_PAGE_CHAPTER_POSITION,
+                  SurveyHelper.STATS_PAGE_QUESTION_POSITION);
                 showStatusPage();
             }
         }
@@ -839,6 +829,8 @@ public class Surveyor extends Activity implements
         public void onItemClick(AdapterView<?> parent, View view, int position,
                 long id) {
             Log.d("Clicked on drawer position", position + "");
+            if (askingTripQuestions)
+                resetTrackerSurvey();
             surveyHelper.updateSurveyPosition(position, 0);
             surveyHelper.jumpString = null;
             showingHubPage = false;
@@ -852,7 +844,6 @@ public class Surveyor extends Activity implements
      */
 
     private void showHubPage() {
-        justAtHubPage = true;
         showingHubPage = true;
         showingStatusPage = false;
 
@@ -897,7 +888,6 @@ public class Surveyor extends Activity implements
     }
 
     private void showCurrentQuestion() {
-        justAtHubPage = false;
         showingHubPage = false;
         showingStatusPage = false;
 
@@ -1065,6 +1055,9 @@ public class Surveyor extends Activity implements
             if (askingTripQuestions) {
                 if (result == NextQuestionResult.END) {
                     askingTripQuestions = false;
+                    surveyHelper.updateSurveyPosition(SurveyHelper.HUB_PAGE_CHAPTER_POSITION,
+                      SurveyHelper.HUB_PAGE_QUESTION_POSITION);
+                    surveyHelper.prevTrackingPositions = new Stack<Integer>();
                     showHubPage();
                     startTrip();
                     startTripTime = Calendar.getInstance();
@@ -1178,7 +1171,7 @@ public class Surveyor extends Activity implements
 
                 // Starting question fragment and passing json question
                 // information.
-                surveyHelper.updateSurveyPosition(0, 0);
+                surveyHelper.updateTrackerPosition(0);
                 showCurrentQuestion();
             }
             break;
@@ -1187,6 +1180,12 @@ public class Surveyor extends Activity implements
             showCurrentQuestion();
             break;
         case STATISTICS:
+            if (askingTripQuestions)
+                surveyHelper.updateTrackerPosition(SurveyHelper.STATS_PAGE_QUESTION_POSITION);
+            else {
+                surveyHelper.updateSurveyPosition(SurveyHelper.STATS_PAGE_CHAPTER_POSITION,
+                  SurveyHelper.STATS_PAGE_QUESTION_POSITION);
+            }
             showStatusPage();
             break;
         case FEWERMEN:
