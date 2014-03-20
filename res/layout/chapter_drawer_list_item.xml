@@ -8,7 +8,7 @@
     android:background="?android:attr/activatedBackgroundIndicator"
     >
 
-    <!--  ListRow Left side Thumbnail image TODO: fix -->
+    <!--  ListRow Left side Thumbnail image -->
     <ImageView
         android:id="@+id/list_image"
         android:layout_width="30dp"
