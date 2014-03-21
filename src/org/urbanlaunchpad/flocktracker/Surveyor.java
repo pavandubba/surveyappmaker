@@ -101,7 +101,7 @@ public class Surveyor extends Activity implements
     private boolean showingHubPage = false;
     private SurveyHelper surveyHelper;
     public static GoogleDriveHelper driveHelper;
-    static final Integer TRACKER_INTERVAL = 5000;
+    static final Integer TRACKER_INTERVAL = 30000; // Tracker working every 30 seconds.
     static final String HUB_PAGE_TITLE = "Hub Page";
     static final String STATISTICS_PAGE_TITLE = "Statistics";
     private Question_fragment currentQuestionFragment;
