@@ -508,16 +508,16 @@ public class SurveyHelper {
         switch (type) {
             case SURVEY:
                 hardcolumnsStrings = new String[]{"Location", "Date", "Lat",
-                  "Alt", "Lng", "SurveyID", "TripID", "Username"};
+                  "Alt", "Lng", "SurveyID", "TripID", "TotalPassCount", "WomenCount", "MaleCount", "Username"};
                 hardcolumntypeStrings = new String[]{"LOCATION", "DATETIME",
-                  "NUMBER", "NUMBER", "NUMBER", "STRING", "STRING", "STRING"};
+                  "NUMBER", "NUMBER", "NUMBER", "STRING", "STRING", "NUMBER", "NUMBER", "NUMBER", "STRING"};
                 numberofhardcolumns = hardcolumnsStrings.length;
                 break;
             case TRACKER:
                 hardcolumnsStrings = new String[]{"Location", "Date", "Lat",
-                  "Alt", "Lng", "TripID", "Username"};
+                  "Alt", "Lng", "TripID", "TotalPassCount", "WomenCount", "MaleCount", "Username"};
                 hardcolumntypeStrings = new String[]{"LOCATION", "DATETIME",
-                  "NUMBER", "NUMBER", "NUMBER", "STRING", "STRING"};
+                  "NUMBER", "NUMBER", "NUMBER", "STRING", "NUMBER", "NUMBER", "NUMBER", "STRING"};
                 numberofhardcolumns = hardcolumnsStrings.length;
                 break;
             case LOOP:
