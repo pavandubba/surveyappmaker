@@ -97,7 +97,7 @@ public class Question_fragment extends Fragment implements
 	public interface AnswerSelected {
 		/**
 		 * Called by Fragment when an answer is selected
-		 * 
+		 *
 		 * @param selectedAnswers
 		 */
 		public void AnswerRecieve(String answerString, String jumpString,
@@ -191,7 +191,8 @@ public class Question_fragment extends Fragment implements
 								otherET.setText(jquestion.getString("Answer"));
 								otherET.setTextColor(getResources().getColor(
 										R.color.answer_selected));
-							} catch (JSONException e) {
+                                otherImage.setImageResource(R.drawable.ft_cir_grn);
+                            } catch (JSONException e) {
 								e.printStackTrace();
 							}
 						} else {
@@ -331,10 +332,6 @@ public class Question_fragment extends Fragment implements
 			ArrayList<String> answerTempList = new ArrayList<String>();
 			for (int i = 0; i < totalanswers; ++i) {
 				answerTempList.add(answerList.get(selectedAnswers.get(i)));
-				// toast = Toast.makeText(getActivity(),
-				// answerTempList.get(i) + " " + selectedAnswers.get(i),
-				// Toast.LENGTH_SHORT);
-				// toast.show();
 			}
 			answerList.clear();
 			answerList.addAll(answerTempList);

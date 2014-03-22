@@ -1311,7 +1311,7 @@ public class Surveyor extends Activity implements
         dialog.setPositiveButton(this.getResources().getString(R.string.yes), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface paramDialogInterface, int paramInt) {
-                StopTrip();
+                stopTrip();
             }
         });
         dialog.setNegativeButton(this.getString(R.string.no), new DialogInterface.OnClickListener() {
@@ -1325,7 +1325,7 @@ public class Surveyor extends Activity implements
 
     }
 
-    public void StopTrip(){
+    public void stopTrip(){
         isTripStarted = false;
         mLocationClient.disconnect();
         tripID = "";
