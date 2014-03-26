@@ -308,12 +308,14 @@ public class SurveyHelper {
 
 				// Send initial insert and get row ID
 				if (type.equals(Surveyor.TRACKER_TYPE)) {
-					String metaDataQuery = "INSERT INTO " + TRIP_TABLE_ID
-							+ " (Location,Lat,Lng,Alt,Date,TripID) VALUES ("
-							+ "'<Point><coordinates>" + lnglat
+					String metaDataQuery = "INSERT INTO "
+							+ TRIP_TABLE_ID
+							+ " (Location,Lat,Lng,Alt,Date,TripID,TotalCount,FemaleCount,MaleCount)"
+							+ " VALUES (" + "'<Point><coordinates>" + lnglat
 							+ "</coordinates></Point>','" + lat + "','" + lng
 							+ "','" + alt + "','" + timestamp + "','" + tripID
-							+ "');";
+							+ "','" + totalCount + "','" + femaleCount + "','"
+							+ maleCount + "');";
 
 					rowID = Integer.parseInt((String) Iniconfig.fusiontables
 							.query().sql(metaDataQuery)
@@ -322,11 +324,12 @@ public class SurveyHelper {
 				} else {
 					String metaDataQuery = "INSERT INTO "
 							+ SURVEY_TABLE_ID
-							+ " (Location,Lat,Lng,Alt,Date,SurveyID,TripID) VALUES ("
-							+ "'<Point><coordinates>" + lnglat
+							+ " (Location,Lat,Lng,Alt,Date,SurveyID,TripID,TotalCount,FemaleCount,MaleCount)"
+							+ " VALUES (" + "'<Point><coordinates>" + lnglat
 							+ "</coordinates></Point>','" + lat + "','" + lng
 							+ "','" + alt + "','" + timestamp + "','"
-							+ surveyID + "','" + tripID + "');";
+							+ surveyID + "','" + tripID + "','" + totalCount
+							+ "','" + femaleCount + "','" + maleCount + "');";
 
 					rowID = Integer.parseInt((String) Iniconfig.fusiontables
 							.query().sql(metaDataQuery)
@@ -455,8 +458,7 @@ public class SurveyHelper {
 	@SuppressWarnings("unchecked")
 	public void saveSubmission(Location currentLocation, String surveyID,
 			String tripID, String jsurvString, JSONObject imagePaths,
-			String type, String maleCount,
-			String femaleCount, String totalCount) {
+			String type, String maleCount, String femaleCount, String totalCount) {
 		String lat = "";
 		String lng = "";
 		String alt = "";
