@@ -52,7 +52,7 @@ public class IniconfigActivity extends Activity implements View.OnClickListener 
 	String projectName = "";
 	String jsonsurveystring;
 	JSONObject jsurv = null;
-	private String username = "";
+	public static String username = "";
 	AlertDialog alertDialog;
 	private boolean debison = false; // If true, a test project will be loaded
 										// by default.

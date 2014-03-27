@@ -2,7 +2,6 @@ package org.urbanlaunchpad.flocktracker;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.*;
 
 import org.json.JSONException;
@@ -13,6 +12,7 @@ import org.urbanlaunchpad.flocktracker.fragments.QuestionNavigatorFragment;
 import org.urbanlaunchpad.flocktracker.fragments.StatusPageFragment;
 import org.urbanlaunchpad.flocktracker.fragments.StatusPageFragment.StatusPageUpdate;
 import org.urbanlaunchpad.flocktracker.helpers.ImageHelper;
+import org.urbanlaunchpad.flocktracker.helpers.StatusPageHelper;
 import org.urbanlaunchpad.flocktracker.helpers.SurveyHelper;
 import org.urbanlaunchpad.flocktracker.helpers.SurveyHelper.NextQuestionResult;
 import org.urbanlaunchpad.flocktracker.helpers.SurveyHelper.Tuple;
@@ -35,8 +35,6 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -45,7 +43,6 @@ import android.os.Message;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.text.Html;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -87,12 +84,13 @@ public class SurveyorActivity extends Activity implements
 	public static final Integer COMPLETE_CHAPTER = R.drawable.complete_green;
 	public static final Integer HALF_COMPLETE_CHAPTER = R.drawable.complete_orange;
 
-	private LocationClient mLocationClient;
+	public LocationClient mLocationClient;
     private Activity thisActivity;
     private QuestionFragment currentQuestionFragment;
     private Fragment navButtons;
     private SurveyHelper surveyHelper;
     public static GoogleDriveHelper driveHelper;
+    private StatusPageHelper statusPageHelper;
 
     // Metadata
     private String username;
@@ -100,13 +98,6 @@ public class SurveyorActivity extends Activity implements
     private String tripID;
 	private Integer maleCount = 0;
 	private Integer femaleCount = 0;
-    private Calendar startTripTime = null;
-    private double tripDistance = 0;
-    private double totalDistanceBefore = 0;
-    private int ridesCompleted = 0;
-    private int surveysCompleted = 0;
-    private Location startLocation;
-    private List<Address> addresses;
 
 	private boolean isTripStarted = false;
 	public static Boolean askingTripQuestions = false;
@@ -121,28 +112,21 @@ public class SurveyorActivity extends Activity implements
 	public static final String SURVEY_TYPE = "Survey";
     private final int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 
-    // Milliseconds per second
+    // Define an object that holds accuracy and frequency parameters
+    LocationRequest mLocationRequest;
 	private static final int MILLISECONDS_PER_SECOND = 1000;
-	// Update frequency in seconds
 	public static final int UPDATE_INTERVAL_IN_SECONDS = 5;
-	// Update frequency in milliseconds
-	private static final long UPDATE_INTERVAL = MILLISECONDS_PER_SECOND
-			* UPDATE_INTERVAL_IN_SECONDS;
-	// The fastest update frequency, in seconds
+	private static final long UPDATE_INTERVAL = MILLISECONDS_PER_SECOND * UPDATE_INTERVAL_IN_SECONDS;
 	private static final int FASTEST_INTERVAL_IN_SECONDS = 1;
-	// A fast frequency ceiling in milliseconds
-	private static final long FASTEST_INTERVAL = MILLISECONDS_PER_SECOND
-			* FASTEST_INTERVAL_IN_SECONDS;
-
-	// Define an object that holds accuracy and frequency parameters
-	LocationRequest mLocationRequest;
+	private static final long FASTEST_INTERVAL = MILLISECONDS_PER_SECOND * FASTEST_INTERVAL_IN_SECONDS;
 
 	// Stored queues of surveys to submit
 	public static HashSet<String> surveySubmissionQueue;
 	public static HashSet<String> trackerSubmissionQueue;
 
 	private enum EVENT_TYPE {
-		MALE_UPDATE, FEMALE_UPDATE, UPDATE_STATS_PAGE, UPDATE_HUB_PAGE, SHOW_NAV_BUTTONS, SUBMITTED_SURVEY, SUBMIT_FAILED
+		MALE_UPDATE, FEMALE_UPDATE, UPDATE_STATS_PAGE, UPDATE_HUB_PAGE, SHOW_NAV_BUTTONS, SUBMITTED_SURVEY,
+        SUBMIT_FAILED
 	}
 
 	@SuppressLint("HandlerLeak")
@@ -206,100 +190,7 @@ public class SurveyorActivity extends Activity implements
 					gear.setImageResource(R.drawable.ft_red_st);
 				}
 			} else if (msg.what == EVENT_TYPE.UPDATE_STATS_PAGE.ordinal()) {
-				TextView tripTimeText = (TextView) findViewById(R.id.tripTime);
-				if (tripTimeText != null) {
-					TextView tripDistanceText = (TextView) findViewById(R.id.tripDistance);
-					TextView surveysCompletedText = (TextView) findViewById(R.id.surveysCompleted);
-					TextView ridesCompletedText = (TextView) findViewById(R.id.ridesCompleted);
-					TextView totalDistanceText = (TextView) findViewById(R.id.totalDistance);
-					TextView currentAddressText = (TextView) findViewById(R.id.currentAddress);
-					TextView usernameText = (TextView) findViewById(R.id.user_greeting);
-
-					// Get time difference
-					if (startTripTime != null) {
-						Calendar difference = Calendar.getInstance();
-						difference.setTimeInMillis(difference.getTimeInMillis()
-								- startTripTime.getTimeInMillis());
-						tripTimeText.setText(Html.fromHtml("<b>"
-								+ String.format("%02d", difference.getTime()
-										.getMinutes())
-								+ "</b>"
-								+ ":"
-								+ String.format("%02d", difference.getTime()
-										.getSeconds())));
-					} else {
-						tripTimeText.setText(Html.fromHtml("<b>00</b>" + ":"
-								+ "00"));
-					}
-
-					// Get address
-					if (mLocationClient.isConnected()) {
-						startLocation = mLocationClient.getLastLocation();
-					}
-					if (startLocation != null) {
-						Log.d("Startlocation", "Not null");
-						new Thread(new Runnable() {
-							public void run() {
-								try {
-									Geocoder geocoder = new Geocoder(
-											thisActivity, Locale.getDefault());
-									// Location current =
-									// mLocationClient.getLastLocation();
-									addresses = geocoder.getFromLocation(
-											startLocation.getLatitude(),
-											startLocation.getLongitude(), 1);
-								} catch (IOException e) {
-									e.printStackTrace();
-								}
-							}
-						}).start();
-
-						if (addresses != null && addresses.size() > 0) {
-							// Get the first address
-							Address address = addresses.get(0);
-							/*
-							 * Format the first line of address (if available),
-							 * city, and country name.
-							 */
-							String addressText = String
-									.format("%s%s%s",
-									// If there's a street address, add
-									// it
-											address.getMaxAddressLineIndex() > 0 ? address
-													.getAddressLine(0) + ", "
-													: "",
-											// Locality is usually a city
-											address.getLocality() != null ? address
-													.getLocality() + ", "
-													: "",
-											// The country of the address
-											address.getCountryName());
-							currentAddressText.setText(addressText);
-
-						} else {
-							currentAddressText
-									.setText(R.string.default_address);
-						}
-					}
-
-					int distanceBeforeDecimal = (int) (tripDistance / 1000.0);
-					int distanceAfterDecimal = (int) Math
-							.round(100 * (tripDistance / 1000.0 - distanceBeforeDecimal));
-
-					// Update our views
-					ridesCompletedText.setText("" + ridesCompleted);
-					tripDistanceText.setText(Html.fromHtml("<b>"
-							+ String.format("%02d", distanceBeforeDecimal)
-							+ "</b>" + "."
-							+ String.format("%02d", distanceAfterDecimal)));
-					totalDistanceText
-							.setText(""
-									+ String.format(
-											"%.2f",
-											(totalDistanceBefore + tripDistance) / 1000.0));
-					surveysCompletedText.setText("" + surveysCompleted);
-					usernameText.setText("Hi " + username + "!");
-				}
+                statusPageHelper.updateStatusPage();
 			} else if (msg.what == EVENT_TYPE.SUBMITTED_SURVEY.ordinal()) {
 				Toast toast = Toast.makeText(getApplicationContext(),
 						getResources().getString(R.string.survey_submitted),
@@ -336,7 +227,9 @@ public class SurveyorActivity extends Activity implements
 			surveyHelper = new SurveyHelper(username,
 					extras.getString("jsonsurvey"), getApplicationContext());
 		}
+
 		driveHelper = new GoogleDriveHelper(this);
+        statusPageHelper = new StatusPageHelper(this);
 
 		// Navigation drawer information.
 		title = chapterDrawerTitle = getTitle();
@@ -396,11 +289,8 @@ public class SurveyorActivity extends Activity implements
 		mLocationClient = new LocationClient(this, this, this);
 
 		mLocationRequest = LocationRequest.create();
-		// Use high accuracy
 		mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-		// Set the update interval to 5 seconds
 		mLocationRequest.setInterval(UPDATE_INTERVAL);
-		// Set the fastest update interval to 1 second
 		mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
 
 		// Creating a random survey ID
@@ -409,11 +299,6 @@ public class SurveyorActivity extends Activity implements
 
 		// location tracking
 		TrackerAlarm.surveyorActivity = this;
-
-		// Load statistics from previous run-through
-		totalDistanceBefore = IniconfigActivity.prefs.getFloat("tripDistanceBefore", 0);
-		ridesCompleted = IniconfigActivity.prefs.getInt("ridesCompleted", 0);
-		surveysCompleted = IniconfigActivity.prefs.getInt("surveysCompleted", 0);
 
 		trackerSubmissionQueue = new HashSet<String>(
 				IniconfigActivity.prefs.getStringSet("trackerSubmissionQueue",
@@ -521,13 +406,7 @@ public class SurveyorActivity extends Activity implements
 
 	@Override
 	protected void onPause() {
-		IniconfigActivity.prefs.edit().putInt("ridesCompleted", ridesCompleted)
-				.commit();
-		IniconfigActivity.prefs.edit().putInt("surveysCompleted", surveysCompleted)
-				.commit();
-		IniconfigActivity.prefs.edit()
-				.putFloat("totalDistanceBefore", (float) totalDistanceBefore)
-				.commit();
+        statusPageHelper.onPause();
 		super.onPause();
 	}
 
@@ -674,7 +553,7 @@ public class SurveyorActivity extends Activity implements
 					if (!isTripStarted && !submittingSubmission)
 						mLocationClient.disconnect();
 
-					surveysCompleted++;
+					statusPageHelper.surveysCompleted++;
 				}
 			}).start();
 
@@ -712,7 +591,7 @@ public class SurveyorActivity extends Activity implements
 					}
 
 					// save location tagged survey
-					surveyHelper.saveSubmission(startLocation, surveyID,
+					surveyHelper.saveSubmission(statusPageHelper.startLocation, surveyID,
 							tripID, jsurvString, imagePaths, "TrackerAlarm",
 							maleCount.toString(), femaleCount.toString(),
 							((Integer) (maleCount + femaleCount)).toString());
@@ -1034,11 +913,7 @@ public class SurveyorActivity extends Activity implements
 				new LocationListener() {
 					@Override
 					public void onLocationChanged(final Location location) {
-						// update location + distance
-						if (isTripStarted) {
-							tripDistance += startLocation.distanceTo(location);
-						}
-						startLocation = location;
+                        statusPageHelper.onLocationChanged(isTripStarted, location);
 					}
 				});
 
@@ -1051,7 +926,7 @@ public class SurveyorActivity extends Activity implements
 				}
 			}).start();
 		} else { // connecting for tracking
-			startLocation = mLocationClient.getLastLocation();
+			statusPageHelper.startLocation = mLocationClient.getLastLocation();
 			Toast.makeText(this, "Tracking is on!", Toast.LENGTH_SHORT).show();
 		}
 	}
@@ -1088,7 +963,7 @@ public class SurveyorActivity extends Activity implements
 					surveyHelper.prevTrackingPositions = new Stack<Integer>();
 					showHubPage();
 					startTrip();
-					startTripTime = Calendar.getInstance();
+                    statusPageHelper.startTrip();
 					startTracker();
 					break;
 				}
@@ -1367,12 +1242,9 @@ public class SurveyorActivity extends Activity implements
 		isTripStarted = false;
 		mLocationClient.disconnect();
 		tripID = "";
-		startTripTime = null;
 		cancelTracker();
 		messageHandler.sendEmptyMessage(EVENT_TYPE.UPDATE_HUB_PAGE.ordinal());
 		surveyHelper.resetTracker();
-		ridesCompleted++;
-		totalDistanceBefore += tripDistance;
-		tripDistance = 0;
+        statusPageHelper.stopTrip();
 	}
 }
