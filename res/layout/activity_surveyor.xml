@@ -20,7 +20,7 @@
 
         <fragment
             android:id="@+id/survey_question_navigator_fragment"
-            android:name="org.urbanlaunchpad.flocktracker.Question_navigator_fragment"
+            android:name="org.urbanlaunchpad.flocktracker.fragments.QuestionNavigatorFragment"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"

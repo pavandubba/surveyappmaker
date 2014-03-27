@@ -1,4 +1,4 @@
-package org.urbanlaunchpad.flocktracker;
+package org.urbanlaunchpad.flocktracker.adapters;
 
 import android.app.Activity;
 import android.content.Context;
@@ -8,6 +8,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import org.urbanlaunchpad.flocktracker.R;
+import org.urbanlaunchpad.flocktracker.menu.RowItem;
 
 import java.util.List;
 

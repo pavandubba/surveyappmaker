@@ -1,4 +1,4 @@
-package org.urbanlaunchpad.flocktracker;
+package org.urbanlaunchpad.flocktracker.fragments;
 
 import android.app.Activity;
 import android.app.Fragment;
@@ -6,8 +6,9 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import org.urbanlaunchpad.flocktracker.R;
 
-public class Hub_page_fragment extends Fragment {
+public class HubPageFragment extends Fragment {
 	private View rootView;
 
 	// Passes Answer to activity.
@@ -122,7 +123,7 @@ public class Hub_page_fragment extends Fragment {
 					+ " must implement HubButtonPressed");
 		}
 	}
-	
+
 	@Override
 	public void onResume() {
 		super.onResume();

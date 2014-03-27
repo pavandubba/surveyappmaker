@@ -13,7 +13,7 @@ import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
 
-public class Welcomes extends Activity implements OnClickListener {
+public class WelcomeActivity extends Activity implements OnClickListener {
 
 	// private long splashDelay = 1000; // 1 second for debugging.
 	private long splashDelay = 3000; // 3 seconds.
@@ -27,7 +27,7 @@ public class Welcomes extends Activity implements OnClickListener {
 		// Remove notification bar
 		this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		
+
 		setContentView(R.layout.activity_welcomes);
 
 		findViewById(R.id.mobility_futures_colaborative_button)
@@ -36,22 +36,22 @@ public class Welcomes extends Activity implements OnClickListener {
 		findViewById(R.id.urban_launchpad_button).setOnClickListener(this);
 
 	}
-	
+
 	@Override
 	protected void onResume() {
 		super.onResume();
 		TimerTask finish_splash = new TimerTask() {
 			@Override
 			public void run() {
-				Intent Iniconfig = new Intent().setClass(Welcomes.this,
-						Iniconfig.class);
+				Intent Iniconfig = new Intent().setClass(WelcomeActivity.this,
+						IniconfigActivity.class);
 				startActivity(Iniconfig);
 				finish();
 			}
 		};
 
 		Timer timer = new Timer();
-		timer.schedule(finish_splash, splashDelay);		
+		timer.schedule(finish_splash, splashDelay);
 	};
 
 	@Override

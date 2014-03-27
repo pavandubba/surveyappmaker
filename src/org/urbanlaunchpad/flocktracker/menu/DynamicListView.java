@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.urbanlaunchpad.flocktracker;
+package org.urbanlaunchpad.flocktracker.menu;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -37,6 +37,8 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
+import org.urbanlaunchpad.flocktracker.adapters.StableArrayAdapter;
+import org.urbanlaunchpad.flocktracker.fragments.QuestionFragment;
 
 import java.util.ArrayList;
 
@@ -94,9 +96,9 @@ public class DynamicListView extends ListView {
 
     private boolean mIsWaitingForScrollFinish = false;
     private int mScrollState = OnScrollListener.SCROLL_STATE_IDLE;
-    
+
     SwappingEnded swappingEnded;
-    
+
 	public interface SwappingEnded {
 		/**
 		 * Called when the swapping is over.
@@ -104,7 +106,7 @@ public class DynamicListView extends ListView {
 		public void orderedListSendAnswer();
 	}
 
-    public DynamicListView(Context context, Question_fragment fragment) {
+    public DynamicListView(Context context, QuestionFragment fragment) {
         super(context);
         init(context);
         swappingEnded = (SwappingEnded) fragment;

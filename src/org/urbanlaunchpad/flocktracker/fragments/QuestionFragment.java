@@ -1,11 +1,15 @@
-package org.urbanlaunchpad.flocktracker;
+package org.urbanlaunchpad.flocktracker.fragments;
 
 import java.util.ArrayList;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.urbanlaunchpad.flocktracker.SurveyHelper.Tuple;
+import org.urbanlaunchpad.flocktracker.*;
+import org.urbanlaunchpad.flocktracker.adapters.StableArrayAdapter;
+import org.urbanlaunchpad.flocktracker.helpers.ImageHelper;
+import org.urbanlaunchpad.flocktracker.helpers.SurveyHelper;
+import org.urbanlaunchpad.flocktracker.helpers.SurveyHelper.Tuple;
 
 import android.app.Activity;
 import android.app.Fragment;
@@ -41,8 +45,9 @@ import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+import org.urbanlaunchpad.flocktracker.menu.DynamicListView;
 
-public class Question_fragment extends Fragment implements
+public class QuestionFragment extends Fragment implements
 		View.OnClickListener, DynamicListView.SwappingEnded {
 	public static final String ARG_JSON_QUESTION = "Json question";
 	public static final String ARG_QUESTION_POSITION = "Question position";
@@ -83,7 +88,7 @@ public class Question_fragment extends Fragment implements
 	private Button skipButton;
 	Boolean inLoopBoolean;
 
-	public Question_fragment() {
+	public QuestionFragment() {
 		// Empty constructor required for fragment subclasses
 	}
 
@@ -177,7 +182,7 @@ public class Question_fragment extends Fragment implements
 				MultipleChoiceLayout();
 
 				// Prepopulate question
-				if (Surveyor.askingTripQuestions) {
+				if (SurveyorActivity.askingTripQuestions) {
 					selectedAnswers = SurveyHelper.selectedTrackingAnswersMap
 							.get(questionposition);
 				} else {
@@ -206,7 +211,7 @@ public class Question_fragment extends Fragment implements
 				OpenLayout();
 
 				// Prepopulate question
-				if (Surveyor.askingTripQuestions) {
+				if (SurveyorActivity.askingTripQuestions) {
 					selectedAnswers = SurveyHelper.selectedTrackingAnswersMap
 							.get(questionposition);
 				} else {
@@ -228,7 +233,7 @@ public class Question_fragment extends Fragment implements
 				OpenLayout();
 				inLoopBoolean = true;
 				// Prepopulate question
-				if (Surveyor.askingTripQuestions) {
+				if (SurveyorActivity.askingTripQuestions) {
 					selectedAnswers = SurveyHelper.selectedTrackingAnswersMap
 							.get(questionposition);
 				} else {
@@ -249,7 +254,7 @@ public class Question_fragment extends Fragment implements
 			} else if (questionkind.equals("CB")) {
 				CheckBoxLayout();
 				// Prepopulate question
-				if (Surveyor.askingTripQuestions) {
+				if (SurveyorActivity.askingTripQuestions) {
 					selectedAnswers = SurveyHelper.selectedTrackingAnswersMap
 							.get(questionposition);
 				} else {
@@ -321,7 +326,7 @@ public class Question_fragment extends Fragment implements
 
 		// Prepopulate question
 
-		if (Surveyor.askingTripQuestions) {
+		if (SurveyorActivity.askingTripQuestions) {
 			selectedAnswers = SurveyHelper.selectedTrackingAnswersMap
 					.get(questionposition);
 		} else {
@@ -600,7 +605,7 @@ public class Question_fragment extends Fragment implements
 				answerinsert[i].addView(cbanswer[i]);
 				answerinsert[i].addView(tvanswerlist[i]);
 				answerinsert[i].setId(i);
-				answerinsert[i].setOnClickListener(Question_fragment.this);
+				answerinsert[i].setOnClickListener(QuestionFragment.this);
 				answerlayout.addView(answerinsert[i]);
 
 			}
@@ -771,13 +776,13 @@ public class Question_fragment extends Fragment implements
 
 	public void addThumbnail() {
 		Tuple key = new Tuple(chapterposition, questionposition);
-		if (!Surveyor.askingTripQuestions
+		if (!SurveyorActivity.askingTripQuestions
 				&& SurveyHelper.prevImages.containsKey(key)) {
 			Uri imagePath = SurveyHelper.prevImages.get(key);
 			ImageView prevImage = new ImageView(rootView.getContext());
 			try {
 				Bitmap imageBitmap = ImageHelper.decodeSampledBitmapFromPath(
-						imagePath.getPath(), 512, 512);
+                  imagePath.getPath(), 512, 512);
 				prevImage.setImageBitmap(imageBitmap);
 				prevImage.setPadding(10, 30, 10, 10);
 
@@ -785,7 +790,7 @@ public class Question_fragment extends Fragment implements
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		} else if (Surveyor.askingTripQuestions
+		} else if (SurveyorActivity.askingTripQuestions
 				&& SurveyHelper.prevTrackerImages.containsKey(questionposition)) {
 			Uri imagePath = SurveyHelper.prevTrackerImages
 					.get(questionposition);
@@ -857,15 +862,8 @@ public class Question_fragment extends Fragment implements
 							if (answerjumpString != null) {
 								jumpString = answerjumpString;
 							}
-						} catch (JSONException e) {
-							// e.printStackTrace();
-						}
-						answerString = answerlist[i].toString(); // Sets the
-																	// answer
-																	// to be
-																	// sent to
-																	// parent
-																	// activity.
+						} catch (JSONException e) {}
+						answerString = answerlist[i];
 						selectedAnswers = new ArrayList<Integer>();
 						selectedAnswers.add(view.getId());
 						Callback.AnswerRecieve(answerString, jumpString,
@@ -1024,7 +1022,7 @@ public class Question_fragment extends Fragment implements
 	}
 
 	private void ImageOnClick(View view) {
-		Surveyor.driveHelper.startCameraIntent(jumpString);
+		SurveyorActivity.driveHelper.startCameraIntent(jumpString);
 	}
 
 	@Override
@@ -1037,7 +1035,7 @@ public class Question_fragment extends Fragment implements
 			Callback = (AnswerSelected) activity;
 		} catch (ClassCastException e) {
 			throw new ClassCastException(activity.toString()
-					+ " must implement Question_fragment.AnswerSelected");
+					+ " must implement QuestionFragment.AnswerSelected");
 		}
 	}
 

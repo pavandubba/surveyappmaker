@@ -1,4 +1,4 @@
-package org.urbanlaunchpad.flocktracker;
+package org.urbanlaunchpad.flocktracker.fragments;
 
 import android.app.Activity;
 import android.app.Fragment;
@@ -6,9 +6,10 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import org.urbanlaunchpad.flocktracker.R;
 
-public class Question_navigator_fragment extends Fragment{
-	
+public class QuestionNavigatorFragment extends Fragment{
+
 	// Passes Answer to activity.
 	NavButtonCallback callback;
 	View rootView;
@@ -19,11 +20,11 @@ public class Question_navigator_fragment extends Fragment{
 		public enum NavButtonType {
 			NEXT, PREVIOUS, SUBMIT
 		};
-		
+
 		/** Called by Fragment when an button is selected */
 		public void NavButtonPressed(NavButtonType typeButton);
 	}
-	
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
@@ -53,13 +54,13 @@ public class Question_navigator_fragment extends Fragment{
 		// Submit button behavior.
 		View submitbutton = (View) rootView.findViewById(R.id.submit_survey_button);
 		submitbutton.setOnClickListener(new View.OnClickListener() {
-	
+
 			@Override
 			public void onClick(View v) {
 				callback.NavButtonPressed(NavButtonCallback.NavButtonType.SUBMIT);
 			}
 		});
-		
+
 		return rootView;
 	}
 

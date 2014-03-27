@@ -7,9 +7,15 @@ import java.util.*;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.urbanlaunchpad.flocktracker.Status_page_fragment.StatusPageUpdate;
-import org.urbanlaunchpad.flocktracker.SurveyHelper.NextQuestionResult;
-import org.urbanlaunchpad.flocktracker.SurveyHelper.Tuple;
+import org.urbanlaunchpad.flocktracker.adapters.DrawerListViewAdapter;
+import org.urbanlaunchpad.flocktracker.fragments.HubPageFragment;
+import org.urbanlaunchpad.flocktracker.fragments.QuestionNavigatorFragment;
+import org.urbanlaunchpad.flocktracker.fragments.StatusPageFragment;
+import org.urbanlaunchpad.flocktracker.fragments.StatusPageFragment.StatusPageUpdate;
+import org.urbanlaunchpad.flocktracker.helpers.ImageHelper;
+import org.urbanlaunchpad.flocktracker.helpers.SurveyHelper;
+import org.urbanlaunchpad.flocktracker.helpers.SurveyHelper.NextQuestionResult;
+import org.urbanlaunchpad.flocktracker.helpers.SurveyHelper.Tuple;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -57,11 +63,14 @@ import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
+import org.urbanlaunchpad.flocktracker.fragments.QuestionFragment;
+import org.urbanlaunchpad.flocktracker.helpers.GoogleDriveHelper;
+import org.urbanlaunchpad.flocktracker.menu.RowItem;
 
-public class Surveyor extends Activity implements
-		Question_fragment.AnswerSelected,
-		Question_navigator_fragment.NavButtonCallback,
-		Hub_page_fragment.HubButtonCallback, StatusPageUpdate,
+public class SurveyorActivity extends Activity implements
+		QuestionFragment.AnswerSelected,
+		QuestionNavigatorFragment.NavButtonCallback,
+		HubPageFragment.HubButtonCallback, StatusPageUpdate,
 		GooglePlayServicesClient.ConnectionCallbacks,
 		GooglePlayServicesClient.OnConnectionFailedListener {
 
@@ -101,16 +110,16 @@ public class Surveyor extends Activity implements
 	private boolean showingHubPage = false;
 	private SurveyHelper surveyHelper;
 	public static GoogleDriveHelper driveHelper;
-	static final Integer TRACKER_INTERVAL = 30000; // Tracker working every 30
+	static final Integer TRACKER_INTERVAL = 30000; // TrackerAlarm working every 30
 													// seconds.
 	static final String HUB_PAGE_TITLE = "Hub Page";
 	static final String STATISTICS_PAGE_TITLE = "Statistics";
-	private Question_fragment currentQuestionFragment;
+	private QuestionFragment currentQuestionFragment;
 	public static boolean submittingSubmission = false;
 	public static boolean savingSurveySubmission = false;
 	public static boolean savingTrackerSubmission = false;
 
-	public static final String TRACKER_TYPE = "Tracker";
+	public static final String TRACKER_TYPE = "TrackerAlarm";
 	public static final String SURVEY_TYPE = "Survey";
 
 	// Milliseconds per second
@@ -397,18 +406,18 @@ public class Surveyor extends Activity implements
 		surveyID = "S" + createID();
 
 		// location tracking
-		Tracker.surveyor = this;
+		TrackerAlarm.surveyorActivity = this;
 
 		// Load statistics from previous run-through
-		totalDistanceBefore = Iniconfig.prefs.getFloat("tripDistanceBefore", 0);
-		ridesCompleted = Iniconfig.prefs.getInt("ridesCompleted", 0);
-		surveysCompleted = Iniconfig.prefs.getInt("surveysCompleted", 0);
+		totalDistanceBefore = IniconfigActivity.prefs.getFloat("tripDistanceBefore", 0);
+		ridesCompleted = IniconfigActivity.prefs.getInt("ridesCompleted", 0);
+		surveysCompleted = IniconfigActivity.prefs.getInt("surveysCompleted", 0);
 
 		trackerSubmissionQueue = new HashSet<String>(
-				Iniconfig.prefs.getStringSet("trackerSubmissionQueue",
+				IniconfigActivity.prefs.getStringSet("trackerSubmissionQueue",
 						new HashSet<String>()));
 		surveySubmissionQueue = new HashSet<String>(
-				Iniconfig.prefs.getStringSet("surveySubmissionQueue",
+				IniconfigActivity.prefs.getStringSet("surveySubmissionQueue",
 						new HashSet<String>()));
 		if (!surveySubmissionQueue.isEmpty()
 				|| !trackerSubmissionQueue.isEmpty()) {
@@ -490,7 +499,7 @@ public class Surveyor extends Activity implements
 				if (success) {
 					Log.d("Spawn submission queue", "Submission success.");
 					i.remove();
-					Iniconfig.prefs
+					IniconfigActivity.prefs
 							.edit()
 							.putStringSet(queueName,
 									(Set<String>) queue.clone()).commit();
@@ -510,11 +519,11 @@ public class Surveyor extends Activity implements
 
 	@Override
 	protected void onPause() {
-		Iniconfig.prefs.edit().putInt("ridesCompleted", ridesCompleted)
+		IniconfigActivity.prefs.edit().putInt("ridesCompleted", ridesCompleted)
 				.commit();
-		Iniconfig.prefs.edit().putInt("surveysCompleted", surveysCompleted)
+		IniconfigActivity.prefs.edit().putInt("surveysCompleted", surveysCompleted)
 				.commit();
-		Iniconfig.prefs.edit()
+		IniconfigActivity.prefs.edit()
 				.putFloat("totalDistanceBefore", (float) totalDistanceBefore)
 				.commit();
 		super.onPause();
@@ -683,7 +692,7 @@ public class Surveyor extends Activity implements
 				public void run() {
 					try {
 						surveyHelper.jsurv
-								.put("Tracker", surveyHelper.jtracker);
+								.put("TrackerAlarm", surveyHelper.jtracker);
 					} catch (JSONException e1) {
 						e1.printStackTrace();
 					}
@@ -702,7 +711,7 @@ public class Surveyor extends Activity implements
 
 					// save location tagged survey
 					surveyHelper.saveSubmission(startLocation, surveyID,
-							tripID, jsurvString, imagePaths, "Tracker",
+							tripID, jsurvString, imagePaths, "TrackerAlarm",
 							maleCount.toString(), femaleCount.toString(),
 							((Integer) (maleCount + femaleCount)).toString());
 				}
@@ -742,7 +751,7 @@ public class Surveyor extends Activity implements
 				currentQuestionFragment.ImageLayout();
 			} else {
 				startActivityForResult(
-						Iniconfig.credential.newChooseAccountIntent(),
+						IniconfigActivity.credential.newChooseAccountIntent(),
 						GoogleDriveHelper.REQUEST_ACCOUNT_PICKER);
 			}
 			break;
@@ -751,7 +760,7 @@ public class Surveyor extends Activity implements
 				Bitmap imageBitmap = BitmapFactory.decodeFile(
 						driveHelper.fileUri.getPath(), null);
 				float rotation = ImageHelper.rotationForImage(this,
-						Uri.fromFile(new File(driveHelper.fileUri.getPath())));
+                  Uri.fromFile(new File(driveHelper.fileUri.getPath())));
 				if (rotation != 0) {
 					Matrix matrix = new Matrix();
 					matrix.preRotate(rotation);
@@ -803,7 +812,7 @@ public class Surveyor extends Activity implements
 			// If any other request code was received
 		default:
 			// Report that this Activity received an unknown requestCode
-			Log.e("Surveyor activity", "unknown request code");
+			Log.e("SurveyorActivity activity", "unknown request code");
 			break;
 		}
 	}
@@ -864,7 +873,7 @@ public class Surveyor extends Activity implements
 
 		// Update fragments
 		FragmentManager fragmentManager = getFragmentManager();
-		Fragment fragment = new Hub_page_fragment();
+		Fragment fragment = new HubPageFragment();
 
 		FragmentTransaction transaction = fragmentManager.beginTransaction();
 		transaction.replace(R.id.surveyor_frame, fragment);
@@ -887,7 +896,7 @@ public class Surveyor extends Activity implements
 		showingStatusPage = true;
 
 		FragmentManager fragmentManager = getFragmentManager();
-		Fragment fragment = new Status_page_fragment();
+		Fragment fragment = new StatusPageFragment();
 
 		FragmentTransaction transaction = fragmentManager.beginTransaction();
 		transaction.replace(R.id.surveyor_frame, fragment);
@@ -947,12 +956,12 @@ public class Surveyor extends Activity implements
 		}
 
 		// Starting question fragment and passing json question information.
-		currentQuestionFragment = new Question_fragment();
+		currentQuestionFragment = new QuestionFragment();
 		Bundle args = new Bundle();
-		args.putString(Question_fragment.ARG_JSON_QUESTION,
+		args.putString(QuestionFragment.ARG_JSON_QUESTION,
 				currentQuestion.toString());
-		args.putInt(Question_fragment.ARG_CHAPTER_POSITION, chapterPosition);
-		args.putInt(Question_fragment.ARG_QUESTION_POSITION, questionPosition);
+		args.putInt(QuestionFragment.ARG_CHAPTER_POSITION, chapterPosition);
+		args.putInt(QuestionFragment.ARG_QUESTION_POSITION, questionPosition);
 		currentQuestionFragment.setArguments(args);
 
 		FragmentManager fragmentManager = getFragmentManager();
@@ -1307,18 +1316,18 @@ public class Surveyor extends Activity implements
 
 	public void startTracker() {
 		AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-		Intent intentAlarm = new Intent(this, Tracker.class);
+		Intent intentAlarm = new Intent(this, TrackerAlarm.class);
 		PendingIntent pi = PendingIntent.getBroadcast(this, 1, intentAlarm,
 				PendingIntent.FLAG_UPDATE_CURRENT);
 		alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
 				System.currentTimeMillis(), TRACKER_INTERVAL, pi);
-		Log.d("Tracker", "Tracker working.");
+		Log.d("TrackerAlarm", "TrackerAlarm working.");
 	}
 
 	public void cancelTracker() {
-		Log.d("Tracker", "Cancelling tracker");
+		Log.d("TrackerAlarm", "Cancelling tracker");
 
-		Intent intentAlarm = new Intent(this, Tracker.class);
+		Intent intentAlarm = new Intent(this, TrackerAlarm.class);
 		PendingIntent sender = PendingIntent.getBroadcast(this, 1, intentAlarm,
 				PendingIntent.FLAG_UPDATE_CURRENT);
 		AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);

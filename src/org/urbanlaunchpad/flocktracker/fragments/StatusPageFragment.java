@@ -1,4 +1,4 @@
-package org.urbanlaunchpad.flocktracker;
+package org.urbanlaunchpad.flocktracker.fragments;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -8,8 +8,9 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import org.urbanlaunchpad.flocktracker.R;
 
-public class Status_page_fragment extends Fragment {
+public class StatusPageFragment extends Fragment {
 	private View rootView;
 	private Timer timer = new Timer();
 
@@ -53,7 +54,7 @@ public class Status_page_fragment extends Fragment {
 					+ " must implement StatusPageUpdate");
 		}
 	}
-	
+
 	@Override
 	public void onStop() {
 		super.onStop();

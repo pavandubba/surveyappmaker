@@ -1,4 +1,4 @@
-package org.urbanlaunchpad.flocktracker;
+package org.urbanlaunchpad.flocktracker.helpers;
 
 import java.io.IOException;
 

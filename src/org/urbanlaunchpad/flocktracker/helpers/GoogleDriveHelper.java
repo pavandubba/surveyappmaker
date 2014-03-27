@@ -1,4 +1,4 @@
-package org.urbanlaunchpad.flocktracker;
+package org.urbanlaunchpad.flocktracker.helpers;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -21,21 +21,23 @@ import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.ParentReference;
+import org.urbanlaunchpad.flocktracker.IniconfigActivity;
+import org.urbanlaunchpad.flocktracker.SurveyorActivity;
 
 public class GoogleDriveHelper {
-	static final int REQUEST_ACCOUNT_PICKER = 1;
-	static final int REQUEST_AUTHORIZATION = 2;
-	static final int CAPTURE_IMAGE = 3;
-	static final String PHOTO_FOLDER_ID = "0BzQnDGTR4fYbQUdLeUUwcXFVOUE";
+	public static final int REQUEST_ACCOUNT_PICKER = 1;
+	public static final int REQUEST_AUTHORIZATION = 2;
+	public static final int CAPTURE_IMAGE = 3;
+	public static final String PHOTO_FOLDER_ID = "0BzQnDGTR4fYbQUdLeUUwcXFVOUE";
 
 	public Uri fileUri;
 	public static Drive service;
-	private Surveyor activity;
+	private SurveyorActivity activity;
 	private String jumpString = null;
 
-	public GoogleDriveHelper(Surveyor mainActivity) {
+	public GoogleDriveHelper(SurveyorActivity mainActivity) {
 		this.activity = mainActivity;
-		service = getDriveService(Iniconfig.credential);
+		service = getDriveService(IniconfigActivity.credential);
 	}
 
 	public void startCameraIntent(String jumpString) {
@@ -118,8 +120,8 @@ public class GoogleDriveHelper {
 		String accountName = intent
 				.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
 		if (accountName != null) {
-			Iniconfig.credential.setSelectedAccountName(accountName);
-			service = getDriveService(Iniconfig.credential);
+			IniconfigActivity.credential.setSelectedAccountName(accountName);
+			service = getDriveService(IniconfigActivity.credential);
 			startCameraIntent();
 		}
 	}

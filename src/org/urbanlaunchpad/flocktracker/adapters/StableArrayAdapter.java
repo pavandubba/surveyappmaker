@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.urbanlaunchpad.flocktracker;
+package org.urbanlaunchpad.flocktracker.adapters;
 
 import android.content.Context;
 import android.widget.ArrayAdapter;

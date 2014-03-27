@@ -29,7 +29,7 @@
             android:value="@integer/google_play_services_version" />
 
         <activity
-            android:name="org.urbanlaunchpad.flocktracker.Welcomes"
+            android:name=".WelcomeActivity"
             android:label="@string/app_name"
             android:theme="@style/welcome_Theme"
             android:screenOrientation="portrait" >
@@ -40,7 +40,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="org.urbanlaunchpad.flocktracker.Hub_page_fragment"
+            android:name=".fragments.HubPageFragment"
             android:label="@string/title_activity_start_trip"
             android:screenOrientation="portrait" >
             <meta-data
@@ -49,19 +49,19 @@
         </activity>
 
         <activity
-            android:name="org.urbanlaunchpad.flocktracker.Iniconfig"
+            android:name=".IniconfigActivity"
             android:label="@string/title_activity_iniconfig"
-            android:parentActivityName="org.urbanlaunchpad.flocktracker.Welcomes"
+            android:parentActivityName=".WelcomeActivity"
             android:screenOrientation="portrait" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.urbanlaunchpad.flocktracker.Welcomes" />
         </activity>
         <activity
-            android:name="org.urbanlaunchpad.flocktracker.Surveyor"
+            android:name=".SurveyorActivity"
             android:label="@string/title_activity_surveyor"
             android:launchMode="singleTask"
-            android:parentActivityName="org.urbanlaunchpad.flocktracker.Iniconfig"
+            android:parentActivityName=".IniconfigActivity"
             android:screenOrientation="portrait" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -72,7 +72,7 @@
             android:name="com.google.android.apps.drive.APP_ID"
             android:value="id=AIzaSyB4Nn1k2sML-0aBN2Fk3qOXLF-4zlaNwmg" />
 
-        <receiver android:name="org.urbanlaunchpad.flocktracker.Tracker" />
+        <receiver android:name=".TrackerAlarm" />
     </application>
 
 </manifest>

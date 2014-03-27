@@ -1,4 +1,4 @@
-package org.urbanlaunchpad.flocktracker;
+package org.urbanlaunchpad.flocktracker.helpers;
 
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -22,6 +22,9 @@ import org.apache.http.client.ClientProtocolException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.urbanlaunchpad.flocktracker.IniconfigActivity;
+import org.urbanlaunchpad.flocktracker.R;
+import org.urbanlaunchpad.flocktracker.SurveyorActivity;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -64,7 +67,7 @@ public class SurveyHelper {
 	private Integer questionPosition = HUB_PAGE_QUESTION_POSITION;
 	private Integer tripQuestionPosition = 0;
 	private Integer[] jumpPosition = null;
-	Integer loopTotal = null; // Number of times the loop of questions is going
+	public Integer loopTotal = null; // Number of times the loop of questions is going
 								// to be repeated.
 
 	public SurveyHelper(String username, String jsonSurvey, Context context) {
@@ -76,7 +79,7 @@ public class SurveyHelper {
 		try {
 			this.jsurv = new JSONObject(jsonSurvey);
 			this.jtrackerString = this.jsurv.getJSONObject(
-					Surveyor.TRACKER_TYPE).toString();
+					SurveyorActivity.TRACKER_TYPE).toString();
 			this.jtracker = new JSONObject(this.jtrackerString);
 		} catch (JSONException e) {
 			Toast.makeText(context,
@@ -108,7 +111,7 @@ public class SurveyHelper {
 	 * Initialization code
 	 */
 
-	static void checkLocationConfig(final Context context) {
+	public static void checkLocationConfig(final Context context) {
 		LocationManager lm = null;
 		Builder dialog;
 		boolean gps_enabled = false;
@@ -168,7 +171,7 @@ public class SurveyHelper {
 	public void getTableID() {
 		try {
 			TRIP_TABLE_ID = jtracker.getString("TableID");
-			SURVEY_TABLE_ID = jsurv.getJSONObject(Surveyor.SURVEY_TYPE)
+			SURVEY_TABLE_ID = jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
 					.getString("TableID");
 		} catch (JSONException e) {
 			Toast.makeText(
@@ -182,7 +185,7 @@ public class SurveyHelper {
 	// Get chapter titles
 	public void parseChapters() {
 		try {
-			jchapterlist = jsurv.getJSONObject(Surveyor.SURVEY_TYPE)
+			jchapterlist = jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
 					.getJSONArray("Chapters");
 			ChapterTitles = new String[jchapterlist.length()];
 			for (int i = 0; i < jchapterlist.length(); ++i) {
@@ -240,16 +243,16 @@ public class SurveyHelper {
 			for (@SuppressWarnings("unchecked")
 			Iterator<String> i = imageMap.keys(); i.hasNext();) {
 				String keyString = i.next();
-				String fileLink = Surveyor.driveHelper.saveFileToDrive(imageMap
+				String fileLink = SurveyorActivity.driveHelper.saveFileToDrive(imageMap
 						.getString(keyString));
 
 				if (fileLink != null) {
-					if (type.equals(Surveyor.TRACKER_TYPE)) {
+					if (type.equals(SurveyorActivity.TRACKER_TYPE)) {
 						Integer key = Integer.parseInt(keyString);
 						jsurvQueueObject.getJSONObject(type)
 								.getJSONArray("Questions").getJSONObject(key)
 								.put("Answer", fileLink);
-					} else if (type.equals(Surveyor.SURVEY_TYPE)) {
+					} else if (type.equals(SurveyorActivity.SURVEY_TYPE)) {
 						Tuple key = new Tuple(keyString);
 						jsurvQueueObject.getJSONObject(type)
 								.getJSONArray("Chapters")
@@ -269,7 +272,7 @@ public class SurveyHelper {
 			String lnglat = LocationHelper.getLngLatAlt(lng, lat, alt);
 			String query = "";
 
-			if (type.equals(Surveyor.TRACKER_TYPE)) {
+			if (type.equals(SurveyorActivity.TRACKER_TYPE)) {
 				query = "INSERT INTO "
 						+ TRIP_TABLE_ID
 						+ " ("
@@ -280,8 +283,8 @@ public class SurveyHelper {
 						+ "','" + alt + "','" + timestamp + "','" + tripID
 						+ "','" + username + "','" + totalCount + "','"
 						+ femaleCount + "','" + maleCount + "');";
-				Log.v("Tracker submit", query);
-			} else if (type.equals(Surveyor.SURVEY_TYPE)) {
+				Log.v("TrackerAlarm submit", query);
+			} else if (type.equals(SurveyorActivity.SURVEY_TYPE)) {
 				query = "INSERT INTO "
 						+ SURVEY_TABLE_ID
 						+ " ("
@@ -307,7 +310,7 @@ public class SurveyHelper {
 				int rowID;
 
 				// Send initial insert and get row ID
-				if (type.equals(Surveyor.TRACKER_TYPE)) {
+				if (type.equals(SurveyorActivity.TRACKER_TYPE)) {
 					String metaDataQuery = "INSERT INTO "
 							+ TRIP_TABLE_ID
 							+ " (Location,Lat,Lng,Alt,Date,TripID,TotalCount,FemaleCount,MaleCount)"
@@ -317,9 +320,9 @@ public class SurveyHelper {
 							+ "','" + totalCount + "','" + femaleCount + "','"
 							+ maleCount + "');";
 
-					rowID = Integer.parseInt((String) Iniconfig.fusiontables
+					rowID = Integer.parseInt((String) IniconfigActivity.fusiontables
 							.query().sql(metaDataQuery)
-							.setKey(Iniconfig.API_KEY).execute().getRows()
+							.setKey(IniconfigActivity.API_KEY).execute().getRows()
 							.get(0).get(0));
 				} else {
 					String metaDataQuery = "INSERT INTO "
@@ -331,9 +334,9 @@ public class SurveyHelper {
 							+ surveyID + "','" + tripID + "','" + totalCount
 							+ "','" + femaleCount + "','" + maleCount + "');";
 
-					rowID = Integer.parseInt((String) Iniconfig.fusiontables
+					rowID = Integer.parseInt((String) IniconfigActivity.fusiontables
 							.query().sql(metaDataQuery)
-							.setKey(Iniconfig.API_KEY).execute().getRows()
+							.setKey(IniconfigActivity.API_KEY).execute().getRows()
 							.get(0).get(0));
 				}
 
@@ -345,8 +348,8 @@ public class SurveyHelper {
 							rowID);
 				}
 			} else {
-				Sql sql = Iniconfig.fusiontables.query().sql(query);
-				sql.setKey(Iniconfig.API_KEY);
+				Sql sql = IniconfigActivity.fusiontables.query().sql(query);
+				sql.setKey(IniconfigActivity.API_KEY);
 				sql.execute();
 			}
 
@@ -364,18 +367,18 @@ public class SurveyHelper {
 		try {
 			String query = "";
 
-			if (type.equals(Surveyor.TRACKER_TYPE)) {
+			if (type.equals(SurveyorActivity.TRACKER_TYPE)) {
 				query = "UPDATE " + TRIP_TABLE_ID + " SET " + key + " = '"
 						+ value + "' WHERE ROWID = '" + rowID + "'";
-				Log.v("Tracker submit", query);
-			} else if (type.equals(Surveyor.SURVEY_TYPE)) {
+				Log.v("TrackerAlarm submit", query);
+			} else if (type.equals(SurveyorActivity.SURVEY_TYPE)) {
 				query = "UPDATE " + SURVEY_TABLE_ID + " SET " + key + " = '"
 						+ value + "' WHERE ROWID = '" + rowID + "'";
 				Log.v("Survey submit", query);
 			}
 
-			Sql sql = Iniconfig.fusiontables.query().sql(query);
-			sql.setKey(Iniconfig.API_KEY);
+			Sql sql = IniconfigActivity.fusiontables.query().sql(query);
+			sql.setKey(IniconfigActivity.API_KEY);
 			sql.execute();
 			return true;
 		} catch (Exception e) {
@@ -416,27 +419,27 @@ public class SurveyHelper {
 		JSONArray questionsArray = null;
 		Integer totalchapters = null;
 
-		if (triporsurvey.equals(Surveyor.SURVEY_TYPE)) {
+		if (triporsurvey.equals(SurveyorActivity.SURVEY_TYPE)) {
 			try {
-				totalchapters = survey.getJSONObject(Surveyor.SURVEY_TYPE)
+				totalchapters = survey.getJSONObject(SurveyorActivity.SURVEY_TYPE)
 						.getJSONArray("Chapters").length();
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
-		} else if (triporsurvey.equals(Surveyor.TRACKER_TYPE)) {
+		} else if (triporsurvey.equals(SurveyorActivity.TRACKER_TYPE)) {
 			totalchapters = 1;
 		}
 
 		for (int i = 0; i < totalchapters; ++i) {
-			if (triporsurvey.equals(Surveyor.SURVEY_TYPE)) {
+			if (triporsurvey.equals(SurveyorActivity.SURVEY_TYPE)) {
 				try {
-					questionsArray = survey.getJSONObject(Surveyor.SURVEY_TYPE)
+					questionsArray = survey.getJSONObject(SurveyorActivity.SURVEY_TYPE)
 							.getJSONArray("Chapters").getJSONObject(i)
 							.getJSONArray("Questions");
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
-			} else if (triporsurvey.equals(Surveyor.TRACKER_TYPE)) {
+			} else if (triporsurvey.equals(SurveyorActivity.TRACKER_TYPE)) {
 				try {
 					questionsArray = jtracker.getJSONArray("Questions");
 				} catch (JSONException e) {
@@ -486,29 +489,29 @@ public class SurveyHelper {
 			submission.put("maleCount", maleCount);
 			submission.put("femaleCount", femaleCount);
 			submission.put("totalCount", totalCount);
-			if (type.equals(Surveyor.TRACKER_TYPE)) {
-				synchronized (Surveyor.trackerSubmissionQueue) {
-					Surveyor.trackerSubmissionQueue.add(submission.toString());
-					Iniconfig.prefs
+			if (type.equals(SurveyorActivity.TRACKER_TYPE)) {
+				synchronized (SurveyorActivity.trackerSubmissionQueue) {
+					SurveyorActivity.trackerSubmissionQueue.add(submission.toString());
+					IniconfigActivity.prefs
 							.edit()
 							.putStringSet(
 									"trackerSubmissionQueue",
-									(Set<String>) Surveyor.trackerSubmissionQueue
+									(Set<String>) SurveyorActivity.trackerSubmissionQueue
 											.clone()).commit();
-					Surveyor.savingTrackerSubmission = false;
-					Surveyor.trackerSubmissionQueue.notify();
+					SurveyorActivity.savingTrackerSubmission = false;
+					SurveyorActivity.trackerSubmissionQueue.notify();
 				}
-			} else if (type.equals(Surveyor.SURVEY_TYPE)) {
-				synchronized (Surveyor.surveySubmissionQueue) {
-					Surveyor.surveySubmissionQueue.add(submission.toString());
-					Iniconfig.prefs
+			} else if (type.equals(SurveyorActivity.SURVEY_TYPE)) {
+				synchronized (SurveyorActivity.surveySubmissionQueue) {
+					SurveyorActivity.surveySubmissionQueue.add(submission.toString());
+					IniconfigActivity.prefs
 							.edit()
 							.putStringSet(
 									"surveySubmissionQueue",
-									(Set<String>) Surveyor.surveySubmissionQueue
+									(Set<String>) SurveyorActivity.surveySubmissionQueue
 											.clone()).commit();
-					Surveyor.savingSurveySubmission = false;
-					Surveyor.surveySubmissionQueue.notify();
+					SurveyorActivity.savingSurveySubmission = false;
+					SurveyorActivity.surveySubmissionQueue.notify();
 				}
 			}
 		} catch (Exception e) {
@@ -703,9 +706,9 @@ public class SurveyHelper {
 	public String[] getColumnListNames(String tableID)
 			throws ClientProtocolException, IOException {
 		// Returns the column list
-		Fusiontables.Column.List columnRequest = Iniconfig.fusiontables
+		Fusiontables.Column.List columnRequest = IniconfigActivity.fusiontables
 				.column().list(tableID);
-		columnRequest.setKey(Iniconfig.API_KEY);
+		columnRequest.setKey(IniconfigActivity.API_KEY);
 		columnRequest.setMaxResults((long) 500);
 		ColumnList columnList = columnRequest.execute();
 
@@ -727,9 +730,9 @@ public class SurveyHelper {
 
 		Insert columnRequest;
 		try {
-			columnRequest = Iniconfig.fusiontables.column().insert(tableID,
+			columnRequest = IniconfigActivity.fusiontables.column().insert(tableID,
 					newColumn);
-			columnRequest.setKey(Iniconfig.API_KEY);
+			columnRequest.setKey(IniconfigActivity.API_KEY);
 			columnRequest.execute();
 			Log.v("requestColumnCreate", "Column created!");
 		} catch (IOException e) {
@@ -759,7 +762,7 @@ public class SurveyHelper {
 			ArrayList<Integer> selectedAnswers) {
 		try {
 			if (chapterPosition >= 0) {
-				jsurv.getJSONObject(Surveyor.SURVEY_TYPE)
+				jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
 						.getJSONArray("Chapters")
 						.getJSONObject(chapterPosition)
 						.getJSONArray("Questions")
@@ -799,7 +802,7 @@ public class SurveyHelper {
 			chapterPosition = 0;
 			questionPosition = 0;
 			jsurv = new JSONObject(jsonSurvey);
-			jsurv.put(Surveyor.TRACKER_TYPE, jtracker);
+			jsurv.put(SurveyorActivity.TRACKER_TYPE, jtracker);
 			prevPositions = new Stack<Tuple>();
 			selectedAnswersMap = new HashMap<Tuple, ArrayList<Integer>>();
 			prevImages = new HashMap<Tuple, Uri>();
@@ -908,7 +911,7 @@ public class SurveyHelper {
 			for (int j = 0; j < chapterQuestionCounts[i]; ++j) {
 				try {
 					String questionID = jsurv
-							.getJSONObject(Surveyor.SURVEY_TYPE)
+							.getJSONObject(SurveyorActivity.SURVEY_TYPE)
 							.getJSONArray("Chapters").getJSONObject(i)
 							.getJSONArray("Questions").getJSONObject(j)
 							.getString("id");
@@ -942,7 +945,7 @@ public class SurveyHelper {
 	}
 
 	public JSONObject getCurrentQuestion() throws JSONException {
-		return jsurv.getJSONObject(Surveyor.SURVEY_TYPE)
+		return jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
 				.getJSONArray("Chapters").getJSONObject(chapterPosition)
 				.getJSONArray("Questions").getJSONObject(questionPosition);
 	}

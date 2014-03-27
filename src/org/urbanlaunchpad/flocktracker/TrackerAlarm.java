@@ -9,43 +9,43 @@ import android.content.Intent;
 import android.os.PowerManager;
 import android.util.Log;
 
-public class Tracker extends BroadcastReceiver {
-    static Surveyor surveyor;
+public class TrackerAlarm extends BroadcastReceiver {
+    static SurveyorActivity surveyorActivity;
 
     @SuppressLint("Wakelock")
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.d("Tracker", "Starting alarm");
+        Log.d("TrackerAlarm", "Starting alarm");
         PowerManager pm = (PowerManager) context
                 .getSystemService(Context.POWER_SERVICE);
         PowerManager.WakeLock wl = pm.newWakeLock(
                 PowerManager.PARTIAL_WAKE_LOCK, "");
         wl.acquire();
 
-        if (surveyor != null) {
-            Log.d("Tracker", "surveyor not null");
+        if (surveyorActivity != null) {
+            Log.d("TrackerAlarm", "surveyorActivity not null");
             new Thread(new Runnable() {
                 public void run() {
-                    Surveyor.savingTrackerSubmission = true;
-                    surveyor.saveLocation();
-                    synchronized (Surveyor.trackerSubmissionQueue) {
-                        while (Surveyor.savingTrackerSubmission) {
+                    SurveyorActivity.savingTrackerSubmission = true;
+                    surveyorActivity.saveLocation();
+                    synchronized (SurveyorActivity.trackerSubmissionQueue) {
+                        while (SurveyorActivity.savingTrackerSubmission) {
                             try {
-                                Surveyor.trackerSubmissionQueue.wait();
+                                SurveyorActivity.trackerSubmissionQueue.wait();
                             } catch (Exception e) {
                                 e.printStackTrace();
                                 return;
                             }
                         }
 
-                        if (!Surveyor.submittingSubmission) {
-                            surveyor.spawnSubmission();
+                        if (!SurveyorActivity.submittingSubmission) {
+                            surveyorActivity.spawnSubmission();
                         }
                     }
                 }
             }).start();
         } else {
-            Intent intentAlarm = new Intent(context, Tracker.class);
+            Intent intentAlarm = new Intent(context, TrackerAlarm.class);
             PendingIntent sender = PendingIntent.getBroadcast(context, 1,
                     intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT);
             AlarmManager alarmManager = (AlarmManager) context
