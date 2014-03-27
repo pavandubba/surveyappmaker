@@ -32,8 +32,7 @@ import java.util.*;
 
 public class SurveyHelper {
 
-	public static final int MAX_QUERY_LENGTH = 2000; // max length allowed by
-														// fusion table
+	public static final int MAX_QUERY_LENGTH = 2000; // max length allowed by fusion table
 
 	// Hashmaps that store previously entered answers
 	public static HashMap<Tuple, ArrayList<Integer>> selectedAnswersMap = new HashMap<Tuple, ArrayList<Integer>>();
@@ -48,27 +47,30 @@ public class SurveyHelper {
 	public Stack<Tuple> prevPositions = new Stack<Tuple>();
 	public Stack<Integer> prevTrackingPositions = new Stack<Integer>();
 	public Integer prevQuestionPosition = null;
+
+    // Survey / Tracker State
+    private String username;
+    public static String TRIP_TABLE_ID = "1Q2mr8ni5LTxtZRRi3PNSYxAYS8HWikWqlfoIUK4";
+    public static String SURVEY_TABLE_ID = "11lGsm8B2SNNGmEsTmuGVrAy1gcJF9TQBo3G1Vw0";
+    private Integer chapterPosition = HUB_PAGE_CHAPTER_POSITION;
+    private Integer questionPosition = HUB_PAGE_QUESTION_POSITION;
+    private Integer tripQuestionPosition = 0;
+    private Integer[] jumpPosition = null;
 	public String jumpString = null;
-	private String username;
-	private String TRIP_TABLE_ID = "1Q2mr8ni5LTxtZRRi3PNSYxAYS8HWikWqlfoIUK4";
-	private String SURVEY_TABLE_ID = "11lGsm8B2SNNGmEsTmuGVrAy1gcJF9TQBo3G1Vw0";
 	private Context context;
 	private String jsonSurvey = null;
-	private String jtrackerString = null;
-	private JSONArray jchapterlist;
-	private JSONArray jtrackerquestions;
-	private String[] ChapterTitles;
+	private String jTrackerString = null;
+	private JSONArray jChapterList;
+	private JSONArray jTrackerQuestions;
+	private String[] chapterTitles;
 	private Integer[] chapterQuestionCounts;
+    public Integer loopTotal = null; // Number of times loop questions repeat
+
+    // Constants
 	public static final Integer HUB_PAGE_CHAPTER_POSITION = -15;
 	public static final Integer HUB_PAGE_QUESTION_POSITION = -15;
 	public static final Integer STATS_PAGE_CHAPTER_POSITION = -16;
 	public static final Integer STATS_PAGE_QUESTION_POSITION = -16;
-	private Integer chapterPosition = HUB_PAGE_CHAPTER_POSITION;
-	private Integer questionPosition = HUB_PAGE_QUESTION_POSITION;
-	private Integer tripQuestionPosition = 0;
-	private Integer[] jumpPosition = null;
-	public Integer loopTotal = null; // Number of times the loop of questions is going
-								// to be repeated.
 
 	public SurveyHelper(String username, String jsonSurvey, Context context) {
 		this.username = username;
@@ -78,9 +80,9 @@ public class SurveyHelper {
 		// parse json survey
 		try {
 			this.jsurv = new JSONObject(jsonSurvey);
-			this.jtrackerString = this.jsurv.getJSONObject(
+			this.jTrackerString = this.jsurv.getJSONObject(
 					SurveyorActivity.TRACKER_TYPE).toString();
-			this.jtracker = new JSONObject(this.jtrackerString);
+			this.jtracker = new JSONObject(this.jTrackerString);
 		} catch (JSONException e) {
 			Toast.makeText(context,
 					"Your survey json file is not formatted correctly",
@@ -99,9 +101,9 @@ public class SurveyHelper {
 		// Checking existence of columns in the Fusion Tables.
 		new Thread(new Runnable() {
 			public void run() {
-				columnCheck(SURVEY_TABLE_ID, SurveyType.SURVEY, jchapterlist);
+				columnCheck(SURVEY_TABLE_ID, SurveyType.SURVEY, jChapterList);
 				columnCheck(TRIP_TABLE_ID, SurveyType.TRACKER,
-						jtrackerquestions);
+                  jTrackerQuestions);
 			}
 		}).start();
 
@@ -185,11 +187,11 @@ public class SurveyHelper {
 	// Get chapter titles
 	public void parseChapters() {
 		try {
-			jchapterlist = jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
+			jChapterList = jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
 					.getJSONArray("Chapters");
-			ChapterTitles = new String[jchapterlist.length()];
-			for (int i = 0; i < jchapterlist.length(); ++i) {
-				ChapterTitles[i] = jchapterlist.getJSONObject(i).getString(
+			chapterTitles = new String[jChapterList.length()];
+			for (int i = 0; i < jChapterList.length(); ++i) {
+				chapterTitles[i] = jChapterList.getJSONObject(i).getString(
 						"Chapter");
 			}
 		} catch (JSONException e) {
@@ -202,7 +204,7 @@ public class SurveyHelper {
 	// Get tracking questions related to each trip
 	public void parseTrackingQuestions() {
 		try {
-			jtrackerquestions = jtracker.getJSONArray("Questions");
+			jTrackerQuestions = jtracker.getJSONArray("Questions");
 		} catch (JSONException e2) {
 			Toast.makeText(
 					context,
@@ -218,10 +220,10 @@ public class SurveyHelper {
 
 	// Get counts of questions in each chapter
 	public void parseChapterQuestionCount() {
-		chapterQuestionCounts = new Integer[jchapterlist.length()];
-		for (int i = 0; i < jchapterlist.length(); ++i) {
+		chapterQuestionCounts = new Integer[jChapterList.length()];
+		for (int i = 0; i < jChapterList.length(); ++i) {
 			try {
-				chapterQuestionCounts[i] = jchapterlist.getJSONObject(i)
+				chapterQuestionCounts[i] = jChapterList.getJSONObject(i)
 						.getJSONArray("Questions").length();
 			} catch (JSONException e) {
 				chapterQuestionCounts[i] = 0;
@@ -817,7 +819,7 @@ public class SurveyHelper {
 		selectedTrackingAnswersMap = new HashMap<Integer, ArrayList<Integer>>();
 		prevTrackerImages = new HashMap<Integer, Uri>();
 		try {
-			jtracker = new JSONObject(jtrackerString);
+			jtracker = new JSONObject(jTrackerString);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -873,14 +875,14 @@ public class SurveyHelper {
 		} else if (askingTripQuestions && !inLoop) {
 			prevTrackingPositions.add(tripQuestionPosition);
 			tripQuestionPosition++;
-			if (tripQuestionPosition == jtrackerquestions.length()) {
+			if (tripQuestionPosition == jTrackerQuestions.length()) {
 				return NextQuestionResult.END;
 			}
 		} else if (!askingTripQuestions && !inLoop) {
 			prevPositions.add(new Tuple(chapterPosition, questionPosition));
 			questionPosition++;
 			if (questionPosition == chapterQuestionCounts[chapterPosition]) {
-				if (chapterPosition == jchapterlist.length() - 1) {
+				if (chapterPosition == jChapterList.length() - 1) {
 					questionPosition--;
 					return NextQuestionResult.END;
 				} else {
@@ -907,7 +909,7 @@ public class SurveyHelper {
 	public Integer[] findIDPosition(String iDtoFind) {
 		// Searches for a question with the same id as the jumpString value
 		Integer position[] = new Integer[2];
-		for (int i = 0; i < jchapterlist.length(); ++i) {
+		for (int i = 0; i < jChapterList.length(); ++i) {
 			for (int j = 0; j < chapterQuestionCounts[i]; ++j) {
 				try {
 					String questionID = jsurv
@@ -951,21 +953,21 @@ public class SurveyHelper {
 	}
 
 	public JSONObject getCurrentTripQuestion() throws JSONException {
-		return jtrackerquestions.getJSONObject(tripQuestionPosition);
+		return jTrackerQuestions.getJSONObject(tripQuestionPosition);
 	}
 
 	public int getTripQuestionCount() {
-		return jtrackerquestions.length();
+		return jTrackerQuestions.length();
 	}
 
 	public String[] getChapterTitles() {
-		return ChapterTitles;
+		return chapterTitles;
 	}
 
 	// public void setLoopLimits(String loopend) {
 	// loopEndPosition = findIDPosition(loopend);
 	// if (questionPosition + 1 == chapterQuestionCounts[chapterPosition]) {
-	// if (chapterPosition == jchapterlist.length() - 1) {
+	// if (chapterPosition == jChapterList.length() - 1) {
 	// Toast.makeText(context,
 	// "Loop at the end of a survey will not work",
 	// Toast.LENGTH_SHORT).show();
