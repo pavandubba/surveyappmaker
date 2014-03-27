@@ -32,8 +32,6 @@ import java.util.*;
 
 public class SurveyHelper {
 
-	public static final int MAX_QUERY_LENGTH = 2000; // max length allowed by fusion table
-
 	// Hashmaps that store previously entered answers
 	public static HashMap<Tuple, ArrayList<Integer>> selectedAnswersMap = new HashMap<Tuple, ArrayList<Integer>>();
 	public static HashMap<Integer, ArrayList<Integer>> selectedTrackingAnswersMap = new HashMap<Integer, ArrayList<Integer>>();
@@ -71,8 +69,9 @@ public class SurveyHelper {
 	public static final Integer HUB_PAGE_QUESTION_POSITION = -15;
 	public static final Integer STATS_PAGE_CHAPTER_POSITION = -16;
 	public static final Integer STATS_PAGE_QUESTION_POSITION = -16;
+    public static final Integer MAX_QUERY_LENGTH = 2000; // max length allowed by fusion table
 
-	public SurveyHelper(String username, String jsonSurvey, Context context) {
+    public SurveyHelper(String username, String jsonSurvey, Context context) {
 		this.username = username;
 		this.jsonSurvey = jsonSurvey;
 		this.context = context;
