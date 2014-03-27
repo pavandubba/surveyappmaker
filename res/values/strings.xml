@@ -51,6 +51,9 @@
     <string name="cancel_location_settings">No thanks</string>
     <string name="stop_tracker_message">Do you really want to stop tracking your movement? This cannot be undone.</string>
 
+    <string name="hub_page_title">Hub Page</string>
+    <string name="statistics_page_title">Statistics</string>
+
     <color name="text_color_light">#F2F2F2</color>
     <color name="answer_selected">#FF8000</color>
     <color name="blue_background">#383498</color>

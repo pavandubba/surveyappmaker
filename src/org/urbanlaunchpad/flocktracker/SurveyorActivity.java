@@ -75,54 +75,53 @@ public class SurveyorActivity extends Activity implements
 		GooglePlayServicesClient.OnConnectionFailedListener {
 
 	// Drawer fields
-	private DrawerLayout ChapterDrawerLayout;
-	private ListView FixedNavigationList;
-	private ListView ChapterDrawerList;
+	private DrawerLayout chapterDrawerLayout;
+	private ListView fixedNavigationList;
+	private ListView chapterDrawerList;
 	private LinearLayout drawer;
-	private ActionBarDrawerToggle ChapterDrawerToggle;
-	private CharSequence ChapterDrawerTitle;
-	private CharSequence Title;
+	private ActionBarDrawerToggle chapterDrawerToggle;
+	private CharSequence chapterDrawerTitle;
+	private CharSequence title;
 	private List<RowItem> rowItems;
 	public static final Integer INCOMPLETE_CHAPTER = R.drawable.complete_red;
 	public static final Integer COMPLETE_CHAPTER = R.drawable.complete_green;
 	public static final Integer HALF_COMPLETE_CHAPTER = R.drawable.complete_orange;
 
-	private String username;
 	private LocationClient mLocationClient;
-	private final int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
-	private Fragment navButtons;
+    private Activity thisActivity;
+    private QuestionFragment currentQuestionFragment;
+    private Fragment navButtons;
+    private SurveyHelper surveyHelper;
+    public static GoogleDriveHelper driveHelper;
+
+    // Metadata
+    private String username;
+    private String surveyID;
+    private String tripID;
 	private Integer maleCount = 0;
 	private Integer femaleCount = 0;
-	private String surveyID;
-	private String tripID;
+    private Calendar startTripTime = null;
+    private double tripDistance = 0;
+    private double totalDistanceBefore = 0;
+    private int ridesCompleted = 0;
+    private int surveysCompleted = 0;
+    private Location startLocation;
+    private List<Address> addresses;
+
 	private boolean isTripStarted = false;
-	private Calendar startTripTime = null;
-	private double tripDistance = 0;
-	private double totalDistanceBefore = 0;
-	private int ridesCompleted = 0;
-	private int surveysCompleted = 0;
-	private Location startLocation;
-	private List<Address> addresses;
-	private Activity thisActivity;
 	public static Boolean askingTripQuestions = false;
 	private Boolean inLoop = false;
 	private boolean showingStatusPage = false;
 	private boolean showingHubPage = false;
-	private SurveyHelper surveyHelper;
-	public static GoogleDriveHelper driveHelper;
-	static final Integer TRACKER_INTERVAL = 30000; // TrackerAlarm working every 30
-													// seconds.
-	static final String HUB_PAGE_TITLE = "Hub Page";
-	static final String STATISTICS_PAGE_TITLE = "Statistics";
-	private QuestionFragment currentQuestionFragment;
-	public static boolean submittingSubmission = false;
+    public static boolean submittingSubmission = false;
 	public static boolean savingSurveySubmission = false;
 	public static boolean savingTrackerSubmission = false;
 
-	public static final String TRACKER_TYPE = "TrackerAlarm";
+	public static final String TRACKER_TYPE = "Tracker";
 	public static final String SURVEY_TYPE = "Survey";
+    private final int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 
-	// Milliseconds per second
+    // Milliseconds per second
 	private static final int MILLISECONDS_PER_SECOND = 1000;
 	// Update frequency in seconds
 	public static final int UPDATE_INTERVAL_IN_SECONDS = 5;
@@ -340,10 +339,10 @@ public class SurveyorActivity extends Activity implements
 		driveHelper = new GoogleDriveHelper(this);
 
 		// Navigation drawer information.
-		Title = ChapterDrawerTitle = getTitle();
-		ChapterDrawerLayout = (DrawerLayout) findViewById(R.id.chapter_drawer_layout);
-		ChapterDrawerList = (ListView) findViewById(R.id.chapter_drawer);
-		FixedNavigationList = (ListView) findViewById(R.id.fixed_navigation);
+		title = chapterDrawerTitle = getTitle();
+		chapterDrawerLayout = (DrawerLayout) findViewById(R.id.chapter_drawer_layout);
+		chapterDrawerList = (ListView) findViewById(R.id.chapter_drawer);
+		fixedNavigationList = (ListView) findViewById(R.id.fixed_navigation);
 		drawer = (LinearLayout) findViewById(R.id.drawer);
 		rowItems = new ArrayList<RowItem>();
 		for (String chapterTitle : surveyHelper.getChapterTitles()) {
@@ -353,34 +352,37 @@ public class SurveyorActivity extends Activity implements
 
 		// set a custom shadow that overlays the main content when the drawer
 		// opens
-		ChapterDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow,
-				GravityCompat.START);
+		chapterDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow,
+          GravityCompat.START);
 		// set up the drawer's list view with items and click listener
-		FixedNavigationList.setAdapter((new ArrayAdapter<String>(this,
-				R.layout.old_chapter_list_item, new String[] { HUB_PAGE_TITLE,
-						STATISTICS_PAGE_TITLE })));
-		FixedNavigationList
+		fixedNavigationList.setAdapter((new ArrayAdapter<String>(this,
+          R.layout.old_chapter_list_item, new String[]{
+          getString(R.string.hub_page_title),
+          getString(R.string.statistics_page_title)
+        }
+        )));
+		fixedNavigationList
 				.setOnItemClickListener(new FixedNavigationItemClickListener());
-		ChapterDrawerList.setAdapter(new DrawerListViewAdapter(this,
-				R.layout.chapter_drawer_list_item, rowItems));
-		ChapterDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+		chapterDrawerList.setAdapter(new DrawerListViewAdapter(this,
+          R.layout.chapter_drawer_list_item, rowItems));
+		chapterDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 		getActionBar().setHomeButtonEnabled(true);
-		ChapterDrawerToggle = new ActionBarDrawerToggle(this, /* host Activity */
-		ChapterDrawerLayout, /* DrawerLayout object */
+		chapterDrawerToggle = new ActionBarDrawerToggle(this, /* host Activity */
+          chapterDrawerLayout, /* DrawerLayout object */
 		R.drawable.ic_drawer, /* nav drawer image to replace 'Up' caret */
 		R.string.chapter_drawer_open, /* For accessibility */
 		R.string.chapter_drawer_close /* For accessibility */) {
 			public void onDrawerClosed(View view) {
-				getActionBar().setTitle(Title);
+				getActionBar().setTitle(title);
 			}
 
 			public void onDrawerOpened(View drawerView) {
-				getActionBar().setTitle(ChapterDrawerTitle);
+				getActionBar().setTitle(chapterDrawerTitle);
 			}
 		};
 
-		ChapterDrawerLayout.setDrawerListener(ChapterDrawerToggle);
+		chapterDrawerLayout.setDrawerListener(chapterDrawerToggle);
 
 		navButtons = getFragmentManager().findFragmentById(
 				R.id.survey_question_navigator_fragment);
@@ -546,14 +548,14 @@ public class SurveyorActivity extends Activity implements
 	protected void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
 		// Sync the toggle state after onRestoreInstanceState has occurred.
-		ChapterDrawerToggle.syncState();
+		chapterDrawerToggle.syncState();
 	}
 
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 		// Pass any configuration change to the drawer toggles
-		ChapterDrawerToggle.onConfigurationChanged(newConfig);
+		chapterDrawerToggle.onConfigurationChanged(newConfig);
 	}
 
 	@Override
@@ -820,7 +822,7 @@ public class SurveyorActivity extends Activity implements
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// To make the action bar home/up action should open or close the
 		// drawer.
-		ChapterDrawerToggle.onOptionsItemSelected(item);
+		chapterDrawerToggle.onOptionsItemSelected(item);
 		return true;
 	}
 
@@ -882,10 +884,10 @@ public class SurveyorActivity extends Activity implements
 		transaction.commit();
 
 		// update selected item and title, then close the drawer.
-		FixedNavigationList.setItemChecked(0, true);
-		ChapterDrawerList.setItemChecked(-1, true);
-		setTitle(HUB_PAGE_TITLE);
-		ChapterDrawerLayout.closeDrawer(drawer);
+		fixedNavigationList.setItemChecked(0, true);
+		chapterDrawerList.setItemChecked(-1, true);
+		setTitle(getString(R.string.hub_page_title));
+		chapterDrawerLayout.closeDrawer(drawer);
 
 		// update ui
 		messageHandler.sendEmptyMessage(EVENT_TYPE.UPDATE_HUB_PAGE.ordinal());
@@ -905,10 +907,10 @@ public class SurveyorActivity extends Activity implements
 		transaction.commit();
 
 		// update selected item and title, then close the drawer.
-		FixedNavigationList.setItemChecked(1, true);
-		ChapterDrawerList.setItemChecked(-1, true);
-		setTitle(STATISTICS_PAGE_TITLE);
-		ChapterDrawerLayout.closeDrawer(drawer);
+		fixedNavigationList.setItemChecked(1, true);
+		chapterDrawerList.setItemChecked(-1, true);
+		setTitle(getString(R.string.statistics_page_title));
+		chapterDrawerLayout.closeDrawer(drawer);
 	}
 
 	private void showCurrentQuestion() {
@@ -942,10 +944,10 @@ public class SurveyorActivity extends Activity implements
 			questionPosition = surveyHelper.getQuestionPosition();
 
 			// update selected item and title, then close the drawer.
-			FixedNavigationList.setItemChecked(-1, true);
-			ChapterDrawerList.setItemChecked(chapterPosition, true);
+			fixedNavigationList.setItemChecked(-1, true);
+			chapterDrawerList.setItemChecked(chapterPosition, true);
 			setTitle(surveyHelper.getChapterTitles()[chapterPosition]);
-			ChapterDrawerLayout.closeDrawer(drawer);
+			chapterDrawerLayout.closeDrawer(drawer);
 
 			// Get current question
 			try {
@@ -992,8 +994,8 @@ public class SurveyorActivity extends Activity implements
 
 	@Override
 	public void setTitle(CharSequence title) {
-		Title = title;
-		getActionBar().setTitle(Title);
+		this.title = title;
+		getActionBar().setTitle(this.title);
 	}
 
 	/*
@@ -1320,7 +1322,7 @@ public class SurveyorActivity extends Activity implements
 		PendingIntent pi = PendingIntent.getBroadcast(this, 1, intentAlarm,
 				PendingIntent.FLAG_UPDATE_CURRENT);
 		alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
-				System.currentTimeMillis(), TRACKER_INTERVAL, pi);
+				System.currentTimeMillis(), TrackerAlarm.TRACKER_INTERVAL, pi);
 		Log.d("TrackerAlarm", "TrackerAlarm working.");
 	}
 

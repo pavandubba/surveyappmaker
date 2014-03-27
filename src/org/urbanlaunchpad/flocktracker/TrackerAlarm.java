@@ -11,6 +11,7 @@ import android.util.Log;
 
 public class TrackerAlarm extends BroadcastReceiver {
     static SurveyorActivity surveyorActivity;
+    public static final Integer TRACKER_INTERVAL = 30000;
 
     @SuppressLint("Wakelock")
     @Override
