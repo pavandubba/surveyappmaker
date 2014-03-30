@@ -9,6 +9,7 @@ import android.widget.TextView;
 import org.urbanlaunchpad.flocktracker.IniconfigActivity;
 import org.urbanlaunchpad.flocktracker.R;
 import org.urbanlaunchpad.flocktracker.SurveyorActivity;
+import org.urbanlaunchpad.flocktracker.TrackerAlarm;
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -16,13 +17,15 @@ import java.util.List;
 import java.util.Locale;
 
 public class StatusPageHelper {
+
+    public int surveysCompleted = 0;
+    public Location startLocation;
     SurveyorActivity surveyorActivity;
     private Calendar startTripTime = null;
     private double tripDistance = 0; // distance in meters
+    private double distanceDelta = 0;
     private double totalDistanceBefore = 0;
     private int ridesCompleted = 0;
-    public int surveysCompleted = 0;
-    public Location startLocation;
     private List<Address> addresses;
 
     public StatusPageHelper(SurveyorActivity surveyorActivity) {
@@ -51,14 +54,14 @@ public class StatusPageHelper {
 
             int distanceBeforeDecimal = (int) (tripDistance / 1000.0);
             int distanceAfterDecimal = (int) Math
-              .round(100 * (tripDistance / 1000.0 - distanceBeforeDecimal));
+                .round(100 * (tripDistance / 1000.0 - distanceBeforeDecimal));
 
             tripDistanceText.setText(Html.fromHtml("<b>"
                                                    + String.format("%02d", distanceBeforeDecimal)
                                                    + "</b>" + "."
                                                    + String.format("%02d", distanceAfterDecimal)));
             totalDistanceText.setText(""
-                       + String.format(
+                                      + String.format(
                 "%.2f",
                 (totalDistanceBefore + tripDistance) / 1000.0));
         }
@@ -77,7 +80,8 @@ public class StatusPageHelper {
     public void onLocationChanged(boolean isTripStarted, Location location) {
         // update location + distance
         if (isTripStarted) {
-            tripDistance += startLocation.distanceTo(location);
+            distanceDelta = startLocation.distanceTo(location);
+            tripDistance += distanceDelta;
         }
         startLocation = location;
     }
@@ -93,17 +97,21 @@ public class StatusPageHelper {
         tripDistance = 0;
     }
 
+    public Double getSpeed() {
+        return distanceDelta / (TrackerAlarm.TRACKER_INTERVAL / 1000);
+    }
+
     private CharSequence getElapsedTime() {
         if (startTripTime != null) {
             Calendar difference = Calendar.getInstance();
             difference.setTimeInMillis(difference.getTimeInMillis()
                                        - startTripTime.getTimeInMillis());
             return Html.fromHtml("<b>"
-                               + String.format("%02d", difference.getTime()
-                                                                 .getMinutes())
-                               + "</b>:"
-                               + String.format("%02d", difference.getTime()
-                                                                 .getSeconds()));
+                                 + String.format("%02d", difference.getTime()
+                                                                   .getMinutes())
+                                 + "</b>:"
+                                 + String.format("%02d", difference.getTime()
+                                                                   .getSeconds()));
         } else {
             return Html.fromHtml("<b>00</b>:00");
         }
@@ -120,12 +128,12 @@ public class StatusPageHelper {
                 public void run() {
                     try {
                         Geocoder geocoder = new Geocoder(
-                          surveyorActivity, Locale.getDefault());
+                            surveyorActivity, Locale.getDefault());
                         // Location current =
                         // mLocationClient.getLastLocation();
                         addresses = geocoder.getFromLocation(
-                          startLocation.getLatitude(),
-                          startLocation.getLongitude(), 1);
+                            startLocation.getLatitude(),
+                            startLocation.getLongitude(), 1);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -142,9 +150,9 @@ public class StatusPageHelper {
              * city, and country name.
              */
             String addressText = String.format("%s%s%s",
-              address.getMaxAddressLineIndex() > 0 ? address.getAddressLine(0) + ", " : "",
-              address.getLocality() != null ? address.getLocality() + ", " : "",
-              address.getCountryName()
+                address.getMaxAddressLineIndex() > 0 ? address.getAddressLine(0) + ", " : "",
+                address.getLocality() != null ? address.getLocality() + ", " : "",
+                address.getCountryName()
             );
 
             return addressText;

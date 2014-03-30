@@ -9,148 +9,151 @@ import android.view.ViewGroup;
 import org.urbanlaunchpad.flocktracker.R;
 
 public class HubPageFragment extends Fragment {
-	private View rootView;
 
-	// Passes Answer to activity.
-	HubButtonCallback callback;
+    // Passes Answer to activity.
+    HubButtonCallback callback;
+    private View rootView;
 
-	// The container Activity must implement this interface so the fragment can
-	// deliver messages
-	public interface HubButtonCallback {
-		public enum HubButtonType {
-			NEWSURVEY, STATISTICS, MOREMEN, FEWERMEN, MOREWOMEN, FEWERWOMEN, TOGGLETRIP, UPDATE_PAGE
-		}
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+        Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        rootView = inflater.inflate(R.layout.fragment_hub_page, container,
+            false);
 
-		/** Called by Fragment when an button is selected */
-		public void HubButtonPressed(HubButtonType typeButton);
-	}
+        // start new survey button callback
+        View startTripButton = (View) rootView
+            .findViewById(R.id.start_trip_button);
 
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		rootView = inflater.inflate(R.layout.fragment_hub_page, container,
-				false);
+        startTripButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                callback.HubButtonPressed(HubButtonCallback.HubButtonType.TOGGLETRIP);
+            }
+        });
 
-		// start new survey button callback
-		View startTripButton = (View) rootView
-				.findViewById(R.id.start_trip_button);
+        // start new survey button callback
+        View startSurveyButton = (View) rootView
+            .findViewById(R.id.startSurveyButton);
 
-		startTripButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				callback.HubButtonPressed(HubButtonCallback.HubButtonType.TOGGLETRIP);
-			}
-		});
+        startSurveyButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                callback.HubButtonPressed(HubButtonCallback.HubButtonType.NEWSURVEY);
+            }
+        });
 
-		// start new survey button callback
-		View startSurveyButton = (View) rootView
-				.findViewById(R.id.startSurveyButton);
+        // statistics button callback
+        View statisticsButton = (View) rootView.findViewById(R.id.statsButton);
 
-		startSurveyButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				callback.HubButtonPressed(HubButtonCallback.HubButtonType.NEWSURVEY);
-			}
-		});
+        statisticsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                callback.HubButtonPressed(HubButtonCallback.HubButtonType.STATISTICS);
+            }
+        });
 
-		// statistics button callback
-		View statisticsButton = (View) rootView.findViewById(R.id.statsButton);
+        // more men button callback
+        View moreMenButton = (View) rootView.findViewById(R.id.moreMenButton);
 
-		statisticsButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				callback.HubButtonPressed(HubButtonCallback.HubButtonType.STATISTICS);
-			}
-		});
+        moreMenButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                callback.HubButtonPressed(HubButtonCallback.HubButtonType.MOREMEN);
+            }
+        });
 
-		// more men button callback
-		View moreMenButton = (View) rootView.findViewById(R.id.moreMenButton);
+        // fewer men button callback
+        View fewerMenButton = (View) rootView.findViewById(R.id.fewerMenButton);
 
-		moreMenButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				callback.HubButtonPressed(HubButtonCallback.HubButtonType.MOREMEN);
-			}
-		});
+        fewerMenButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                callback.HubButtonPressed(HubButtonCallback.HubButtonType.FEWERMEN);
+            }
+        });
 
-		// fewer men button callback
-		View fewerMenButton = (View) rootView.findViewById(R.id.fewerMenButton);
+        // more women button callback
+        View moreWomenButton = (View) rootView
+            .findViewById(R.id.moreWomenButton);
 
-		fewerMenButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				callback.HubButtonPressed(HubButtonCallback.HubButtonType.FEWERMEN);
-			}
-		});
+        moreWomenButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                callback.HubButtonPressed(HubButtonCallback.HubButtonType.MOREWOMEN);
+            }
+        });
 
-		// more women button callback
-		View moreWomenButton = (View) rootView
-				.findViewById(R.id.moreWomenButton);
+        // fewer men button callback
+        View fewerWomenButton = (View) rootView
+            .findViewById(R.id.fewerWomenButton);
 
-		moreWomenButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				callback.HubButtonPressed(HubButtonCallback.HubButtonType.MOREWOMEN);
-			}
-		});
+        fewerWomenButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                callback.HubButtonPressed(HubButtonCallback.HubButtonType.FEWERWOMEN);
+            }
+        });
 
-		// fewer men button callback
-		View fewerWomenButton = (View) rootView
-				.findViewById(R.id.fewerWomenButton);
+        return rootView;
+    }
 
-		fewerWomenButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				callback.HubButtonPressed(HubButtonCallback.HubButtonType.FEWERWOMEN);
-			}
-		});
+    @Override
+    public void onStart() {
+        super.onStart();
 
-		return rootView;
-	}
+        // This makes sure that the container activity has implemented
+        // the callback interface. If not, it throws an exception.
+        try {
+            callback = (HubButtonCallback) getActivity();
+            callback.HubButtonPressed(HubButtonCallback.HubButtonType.UPDATE_PAGE);
+        } catch (ClassCastException e) {
+            throw new ClassCastException(getActivity().toString()
+                                         + " must implement HubButtonPressed");
+        }
+    }
 
-	@Override
-	public void onStart() {
-		super.onStart();
+    @Override
+    public void onResume() {
+        super.onResume();
 
-		// This makes sure that the container activity has implemented
-		// the callback interface. If not, it throws an exception.
-		try {
-			callback = (HubButtonCallback) getActivity();
-			callback.HubButtonPressed(HubButtonCallback.HubButtonType.UPDATE_PAGE);
-		} catch (ClassCastException e) {
-			throw new ClassCastException(getActivity().toString()
-					+ " must implement HubButtonPressed");
-		}
-	}
+        // This makes sure that the container activity has implemented
+        // the callback interface. If not, it throws an exception.
+        try {
+            callback = (HubButtonCallback) getActivity();
+            callback.HubButtonPressed(HubButtonCallback.HubButtonType.UPDATE_PAGE);
+        } catch (ClassCastException e) {
+            throw new ClassCastException(getActivity().toString()
+                                         + " must implement HubButtonPressed");
+        }
+    }
 
-	@Override
-	public void onResume() {
-		super.onResume();
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
 
-		// This makes sure that the container activity has implemented
-		// the callback interface. If not, it throws an exception.
-		try {
-			callback = (HubButtonCallback) getActivity();
-			callback.HubButtonPressed(HubButtonCallback.HubButtonType.UPDATE_PAGE);
-		} catch (ClassCastException e) {
-			throw new ClassCastException(getActivity().toString()
-					+ " must implement HubButtonPressed");
-		}
-	}
+        // This makes sure that the container activity has implemented
+        // the callback interface. If not, it throws an exception.
+        try {
+            callback = (HubButtonCallback) activity;
+            callback.HubButtonPressed(HubButtonCallback.HubButtonType.UPDATE_PAGE);
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                                         + " must implement HubButtonPressed");
+        }
+    }
 
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
+    // The container Activity must implement this interface so the fragment can
+    // deliver messages
+    public interface HubButtonCallback {
 
-		// This makes sure that the container activity has implemented
-		// the callback interface. If not, it throws an exception.
-		try {
-			callback = (HubButtonCallback) activity;
-			callback.HubButtonPressed(HubButtonCallback.HubButtonType.UPDATE_PAGE);
-		} catch (ClassCastException e) {
-			throw new ClassCastException(activity.toString()
-					+ " must implement HubButtonPressed");
-		}
-	}
+        /**
+         * Called by Fragment when an button is selected
+         */
+        public void HubButtonPressed(HubButtonType typeButton);
+
+        public enum HubButtonType {
+            NEWSURVEY, STATISTICS, MOREMEN, FEWERMEN, MOREWOMEN, FEWERWOMEN, TOGGLETRIP, UPDATE_PAGE
+        }
+    }
 }

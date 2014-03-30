@@ -10,17 +10,18 @@ import android.os.PowerManager;
 import android.util.Log;
 
 public class TrackerAlarm extends BroadcastReceiver {
-    static SurveyorActivity surveyorActivity;
+
     public static final Integer TRACKER_INTERVAL = 30000;
+    static SurveyorActivity surveyorActivity;
 
     @SuppressLint("Wakelock")
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.d("TrackerAlarm", "Starting alarm");
         PowerManager pm = (PowerManager) context
-                .getSystemService(Context.POWER_SERVICE);
+            .getSystemService(Context.POWER_SERVICE);
         PowerManager.WakeLock wl = pm.newWakeLock(
-                PowerManager.PARTIAL_WAKE_LOCK, "");
+            PowerManager.PARTIAL_WAKE_LOCK, "");
         wl.acquire();
 
         if (surveyorActivity != null) {
@@ -48,9 +49,9 @@ public class TrackerAlarm extends BroadcastReceiver {
         } else {
             Intent intentAlarm = new Intent(context, TrackerAlarm.class);
             PendingIntent sender = PendingIntent.getBroadcast(context, 1,
-                    intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT);
+                intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT);
             AlarmManager alarmManager = (AlarmManager) context
-                    .getSystemService(Context.ALARM_SERVICE);
+                .getSystemService(Context.ALARM_SERVICE);
             alarmManager.cancel(sender);
         }
 

@@ -18,14 +18,9 @@ public class DrawerListViewAdapter extends ArrayAdapter<RowItem> {
     Context context;
 
     public DrawerListViewAdapter(Context context, int resourceId,
-      List<RowItem> items) {
+        List<RowItem> items) {
         super(context, resourceId, items);
         this.context = context;
-    }
-
-    private class ViewHolder {
-        ImageView imageView;
-        TextView txtTitle;
     }
 
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -33,7 +28,7 @@ public class DrawerListViewAdapter extends ArrayAdapter<RowItem> {
         RowItem rowItem = getItem(position);
 
         LayoutInflater mInflater = (LayoutInflater) context
-          .getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
+            .getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
         if (convertView == null) {
             convertView = mInflater.inflate(R.layout.chapter_drawer_list_item, null);
             holder = new ViewHolder();
@@ -48,5 +43,11 @@ public class DrawerListViewAdapter extends ArrayAdapter<RowItem> {
         holder.imageView.setImageResource(rowItem.getImageId());
 
         return convertView;
+    }
+
+    private class ViewHolder {
+
+        ImageView imageView;
+        TextView txtTitle;
     }
 }
