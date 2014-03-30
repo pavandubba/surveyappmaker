@@ -27,6 +27,7 @@ public class StatusPageHelper {
     private double totalDistanceBefore = 0;
     private int ridesCompleted = 0;
     private List<Address> addresses;
+    private static final double SECONDS_PER_HOUR = 3600;
 
     public StatusPageHelper(SurveyorActivity surveyorActivity) {
         this.surveyorActivity = surveyorActivity;
@@ -97,8 +98,9 @@ public class StatusPageHelper {
         tripDistance = 0;
     }
 
+    // Get average speed over last tracker interval in kph
     public Double getSpeed() {
-        return distanceDelta / (TrackerAlarm.TRACKER_INTERVAL / 1000);
+        return distanceDelta / (TrackerAlarm.TRACKER_INTERVAL) * SECONDS_PER_HOUR;
     }
 
     private CharSequence getElapsedTime() {
