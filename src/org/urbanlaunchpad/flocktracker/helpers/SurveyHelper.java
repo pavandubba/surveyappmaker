@@ -705,7 +705,7 @@ public class SurveyHelper {
 	}
 
 	public String[] getColumnListNames(String tableID)
-			throws ClientProtocolException, IOException {
+			throws IOException {
 		// Returns the column list
 		Fusiontables.Column.List columnRequest = IniconfigActivity.fusiontables
 				.column().list(tableID);

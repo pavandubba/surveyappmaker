@@ -85,7 +85,6 @@ public class SurveyorActivity extends Activity implements
 	public static final Integer HALF_COMPLETE_CHAPTER = R.drawable.complete_orange;
 
 	public LocationClient mLocationClient;
-    private Activity thisActivity;
     private QuestionFragment currentQuestionFragment;
     private Fragment navButtons;
     private SurveyHelper surveyHelper;
@@ -218,7 +217,6 @@ public class SurveyorActivity extends Activity implements
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_surveyor);
 		Bundle extras = getIntent().getExtras();
-		thisActivity = this;
 		getWindow().setSoftInputMode(
 				WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
@@ -592,7 +590,7 @@ public class SurveyorActivity extends Activity implements
 
 					// save location tagged survey
 					surveyHelper.saveSubmission(statusPageHelper.startLocation, surveyID,
-							tripID, jsurvString, imagePaths, "TrackerAlarm",
+							tripID, jsurvString, imagePaths, TRACKER_TYPE,
 							maleCount.toString(), femaleCount.toString(),
 							((Integer) (maleCount + femaleCount)).toString());
 				}
