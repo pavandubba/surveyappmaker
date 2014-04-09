@@ -79,7 +79,7 @@ public class SurveyHelper {
             this.jtracker = new JSONObject(this.jTrackerString);
         } catch (JSONException e) {
             Toast.makeText(context,
-                "Your survey JSON file is not formatted correctly",
+                R.string.JSON_format_error,
                 Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         }
@@ -175,7 +175,7 @@ public class SurveyHelper {
         } catch (JSONException e) {
             Toast.makeText(
                 context,
-                "Your project has messy Fusion Table IDs, uploading won't work.",
+                R.string.fusion_tables_id_problem,
                 Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         }
@@ -193,7 +193,7 @@ public class SurveyHelper {
             }
         } catch (JSONException e) {
             e.printStackTrace();
-            Toast.makeText(context, "Chapters not parsed, check survey file.",
+            Toast.makeText(context, R.string.chapters_not_parsed,
                 Toast.LENGTH_SHORT).show();
         }
     }
@@ -205,7 +205,7 @@ public class SurveyHelper {
         } catch (JSONException e2) {
             Toast.makeText(
                 context,
-                "Project does not contain tracker questions or questions were created erroneusly.",
+                R.string.no_tracker_questions,
                 Toast.LENGTH_SHORT).show();
             e2.printStackTrace();
         }

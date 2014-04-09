@@ -27,12 +27,17 @@
     <string name="yes">Oui</string>
     <string name="no">Non</string>
     <string name="submit_survey_question">Voulez vous télécharger le sondage vers la nuage et redémarrager les valeurs du sondage? (Cela ne peut pas être annulée)</string>
-	<string name="other_hint">Autre</string>
-	<string name="answer_hint">Réponse</string>
-	<string name="tracking_on">Poursuite est mis en marche!</string>
-	<string name="end_of_survey">Vous avez atteint la fin de l’enquête.</string>
-	<string name="question_not_received">Question pas reçu de l’activité principale.</string>
-	<string name="no_question_kind">Aucun type de question sur cette question.</string>
-	<string name="question_parsing_problem">Problèmes avec l’analyse de la question, s’il vous plaît vérifier le fichier d’enquête.</string>
-	
+    <string name="other_hint">Autre</string>
+    <string name="answer_hint">Réponse</string>
+    <string name="tracking_on">Poursuite est mis en marche!</string>
+    <string name="end_of_survey">Vous avez atteint la fin de l’enquête.</string>
+    <string name="question_not_received">Question pas reçu de l’activité principale.</string>
+    <string name="no_question_kind">Aucun type de question sur cette question.</string>
+    <string name="question_parsing_problem">Problèmes avec l’analyse de la question, s’il vous plaît vérifier le fichier d’enquête.</string>
+	<string name="JSON_format_error">Le fichier JSON de votre enquête est malformé.</string>
+    <string name="fusion_tables_id_problem">Problèmes avec les IDs Fusion Table de votre projet, les téléchargements ne fonctionneront pas.</string>
+    <string name="chapters_not_parsed">Chapitres pas analysés, consultez le fichier de sondage.</string>
+	<string name="no_tracker_questions">Le projet ne contient pas de questions pour le poursuite ou les questions ont été créé avec des erreurs.</string>
+    
+    
 </resources>

@@ -61,6 +61,8 @@
     <string name="question_not_received">Pregunta no recivida de Actividad principal.</string>
     <string name="no_question_kind">No hay tipo de pregunta en esta pregunta.</string>
     <string name="question_parsing_problem">Problemas con el parseo de la pregunta, revisa tu archivo de encuesta por favor.</string>
-    
-
+	<string name="fusion_tables_id_problem">No funcionan las IDs de Fusion Table de tu proyecto, las subidas no funcionarán.</string>
+	<string name="chapters_not_parsed">Capítulos no parseados, revisa el archivo de encuesta.</string>
+	<string name="no_tracker_questions">El proyecto no contiene preguntas para el rastreador o las preguntas fueron creadas con errores.</string>
+		
 </resources>
