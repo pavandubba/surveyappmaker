@@ -29,5 +29,7 @@
     <string name="submit_survey_question">Voulez vous télécharger le sondage vers la nuage et redémarrager les valeurs du sondage? (Cela ne peut pas être annulée)</string>
 	<string name="other_hint">Autre</string>
 	<string name="answer_hint">Réponse</string>
+	<string name="tracking_on">Poursuite est mis en marche!</string>
+	<string name="end_of_survey">Vous avez atteint la fin de l’enquête.</string>
 
 </resources>

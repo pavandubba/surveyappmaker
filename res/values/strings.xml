@@ -68,5 +68,8 @@
     <string name="chapter_drawer_open">Open chapter navigation drawer</string>
     <string name="chapter_drawer_close">Close chapter navigation drawer</string>
     <string name="zero">0</string>
+    <string name="tracking_on">Tracking is on!</string>
+    <string name="disconnected">Disconnected</string>
+    <string name="end_of_survey">You’ve reached the end of the survey.</string>
 
 </resources>

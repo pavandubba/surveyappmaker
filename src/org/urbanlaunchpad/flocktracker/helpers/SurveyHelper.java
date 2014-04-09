@@ -79,7 +79,7 @@ public class SurveyHelper {
             this.jtracker = new JSONObject(this.jTrackerString);
         } catch (JSONException e) {
             Toast.makeText(context,
-                "Your survey json file is not formatted correctly",
+                "Your survey JSON file is not formatted correctly",
                 Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         }

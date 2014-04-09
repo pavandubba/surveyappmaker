@@ -55,5 +55,8 @@
     <string name="chapter_drawer_open">Abrir el cajón de navegación</string>
     <string name="chapter_drawer_close">Cerrar el cajón de navegación</string>
     <string name="zero">0</string>
+    <string name="tracking_on">¡Rastreo encendido!</string>
+    <string name="disconnected">Desconectado</string>
+    <string name="end_of_survey">Has llegado al fin de la encuesta.</string>
 
 </resources>
