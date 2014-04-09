@@ -58,5 +58,9 @@
     <string name="tracking_on">¡Rastreo encendido!</string>
     <string name="disconnected">Desconectado</string>
     <string name="end_of_survey">Has llegado al fin de la encuesta.</string>
+    <string name="question_not_received">Pregunta no recivida de Actividad principal.</string>
+    <string name="no_question_kind">No hay tipo de pregunta en esta pregunta.</string>
+    <string name="question_parsing_problem">Problemas con el parseo de la pregunta, revisa tu archivo de encuesta por favor.</string>
+    
 
 </resources>

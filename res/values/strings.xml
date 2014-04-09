@@ -71,5 +71,8 @@
     <string name="tracking_on">Tracking is on!</string>
     <string name="disconnected">Disconnected</string>
     <string name="end_of_survey">You’ve reached the end of the survey.</string>
-
+    <string name="question_not_received">Question not received from main activity.</string>
+	<string name="no_question_kind">No question kind in question.</string>
+	<string name="question_parsing_problem">Poblems with question parsing, please check survey file.</string>
+    
 </resources>

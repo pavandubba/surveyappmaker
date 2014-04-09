@@ -108,7 +108,7 @@ public class QuestionFragment extends Fragment implements
             } catch (JSONException e) {
                 e.printStackTrace();
                 toast = Toast.makeText(getActivity(),
-                    "Question not recieved from main activity.",
+                    R.string.question_not_received,
                     Toast.LENGTH_SHORT);
                 toast.show();
             }
@@ -123,7 +123,7 @@ public class QuestionFragment extends Fragment implements
                 e.printStackTrace();
                 questionkind = "no kind";
                 toast = Toast.makeText(getActivity(),
-                    "No question kind in question.", Toast.LENGTH_SHORT);
+                    R.string.no_question_kind, Toast.LENGTH_SHORT);
                 toast.show();
             }
 
@@ -269,7 +269,7 @@ public class QuestionFragment extends Fragment implements
             e.printStackTrace();
             totalanswers = 0;
             toast = Toast.makeText(getActivity(),
-                "Poblems with question parsing, please check surve file.",
+                R.string.question_parsing_problem,
                 Toast.LENGTH_SHORT);
             toast.show();
         }
@@ -459,7 +459,7 @@ public class QuestionFragment extends Fragment implements
             e.printStackTrace();
             totalanswers = 0;
             toast = Toast.makeText(getActivity(),
-                "Poblems with question parsing, please check surve file.",
+                R.string.question_parsing_problem,
                 Toast.LENGTH_SHORT);
             toast.show();
         }
@@ -583,7 +583,7 @@ public class QuestionFragment extends Fragment implements
             e.printStackTrace();
             totalanswers = 0;
             toast = Toast.makeText(getActivity(),
-                "Poblems with question parsing, please check surve file.",
+                R.string.question_parsing_problem,
                 Toast.LENGTH_SHORT);
             toast.show();
         }
