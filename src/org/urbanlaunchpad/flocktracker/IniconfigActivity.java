@@ -78,7 +78,7 @@ public class IniconfigActivity extends Activity implements View.OnClickListener 
 
                 // got survey!
                 Toast toast = Toast.makeText(getApplicationContext(),
-                    "survey parsed!", Toast.LENGTH_SHORT);
+                    R.string.survey_parsed, Toast.LENGTH_SHORT);
                 toast.show();
             } else if (msg.what == EVENT_TYPE.PARSED_INCORRECTLY.ordinal()) {
                 RelativeLayout navBar = (RelativeLayout) findViewById(R.id.iniconfig_navbar);
@@ -87,7 +87,7 @@ public class IniconfigActivity extends Activity implements View.OnClickListener 
 
                 // got bad/no survey!
                 Toast toast = Toast.makeText(getApplicationContext(),
-                    "Could not get survey", Toast.LENGTH_SHORT);
+                    R.string.no_survey_obtained, Toast.LENGTH_SHORT);
                 toast.show();
                 jsurv = null;
             } else if (msg.what == EVENT_TYPE.INPUT_NAME.ordinal()) {
@@ -119,7 +119,7 @@ public class IniconfigActivity extends Activity implements View.OnClickListener 
 
         // initialize dialog for inputting project name
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
-        alert.setTitle("Select project");
+        alert.setTitle(R.string.select_project);
 
         input = new AutoCompleteTextView(this);
 
@@ -141,13 +141,13 @@ public class IniconfigActivity extends Activity implements View.OnClickListener 
         alert.setView(input);
 
         // set listener for ok when user inputs project name
-        alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+        alert.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 onPositiveButtonClicked();
             }
         });
 
-        alert.setNegativeButton("Cancel",
+        alert.setNegativeButton(R.string.cancel,
             new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
                     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -205,7 +205,7 @@ public class IniconfigActivity extends Activity implements View.OnClickListener 
         } else if (id == R.id.projectNameRow) {
             if (username.isEmpty()) {
                 Toast toast = Toast.makeText(getApplicationContext(),
-                    "Select user first please", Toast.LENGTH_SHORT);
+                    R.string.select_user_first, Toast.LENGTH_SHORT);
                 toast.show();
                 return;
             }
@@ -216,7 +216,7 @@ public class IniconfigActivity extends Activity implements View.OnClickListener 
         } else if (id == R.id.bcontinue) {
             if (jsurv == null) {
                 Toast toast = Toast.makeText(getApplicationContext(),
-                    "Invalid user/project!", Toast.LENGTH_SHORT);
+                    R.string.invalid_user_project, Toast.LENGTH_SHORT);
                 toast.show();
                 return;
             }

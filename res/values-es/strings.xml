@@ -61,8 +61,16 @@
     <string name="question_not_received">Pregunta no recivida de Actividad principal.</string>
     <string name="no_question_kind">No hay tipo de pregunta en esta pregunta.</string>
     <string name="question_parsing_problem">Problemas con el parseo de la pregunta, revisa tu archivo de encuesta por favor.</string>
+    <string name="json_format_error">Tu archivo de encuesta JSON no tiene formato correcto.</string>
 	<string name="fusion_tables_id_problem">No funcionan las IDs de Fusion Table de tu proyecto, las subidas no funcionarán.</string>
 	<string name="chapters_not_parsed">Capítulos no parseados, revisa el archivo de encuesta.</string>
 	<string name="no_tracker_questions">El proyecto no contiene preguntas para el rastreador o las preguntas fueron creadas con errores.</string>
-		
+	
+	<string name="survey_parsed">¡Encuesta parseada!</string>
+	<string name="no_survey_obtained">No se pudo obtener el proyecto.</string>
+	<string name="select_project">Selecciona un proyecto</string>
+	<string name="ok">OK</string>
+	<string name="cancel">Cancelar</string>
+	<string name="select_user_first">Selecciona tu usuario primero por favor.</string>
+	<string name="invalid_user_project">Proyecto/usuario inválido!</string>		
 </resources>

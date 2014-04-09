@@ -74,8 +74,17 @@
     <string name="question_not_received">Question not received from main activity.</string>
     <string name="no_question_kind">No question kind in question.</string>
     <string name="question_parsing_problem">Poblems with question parsing, please check survey file.</string>
-	<string name="JSON_format_error">Your survey JSON file is not formatted correctly.</string>
+	<string name="json_format_error">Your survey JSON file is not formatted correctly.</string>
 	<string name="fusion_tables_id_problem">Your project has messy Fusion Table IDs, uploading won’t work.</string>
 	<string name="chapters_not_parsed">Chapters not parsed, check survey file.</string>
 	<string name="no_tracker_questions">Project does not contain tracker questions or questions were created erroneusly.</string>
+	
+	<string name="survey_parsed">Survey parsed!</string>
+	<string name="no_survey_obtained">Could not get project.</string>
+	<string name="select_project">Select project</string>
+	<string name="ok">OK</string>
+	<string name="cancel">Cancel</string>
+	<string name="select_user_first">Select user first please.</string>
+	<string name="invalid_user_project">Invalid user/project!</string>
+	
 </resources>

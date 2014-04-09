@@ -79,7 +79,7 @@ public class SurveyHelper {
             this.jtracker = new JSONObject(this.jTrackerString);
         } catch (JSONException e) {
             Toast.makeText(context,
-                R.string.JSON_format_error,
+                R.string.json_format_error,
                 Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         }
