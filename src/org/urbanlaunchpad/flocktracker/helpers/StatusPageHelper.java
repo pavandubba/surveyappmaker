@@ -47,6 +47,7 @@ public class StatusPageHelper {
             TextView surveysCompletedText = (TextView) surveyorActivity.findViewById(R.id.surveysCompleted);
             TextView ridesCompletedText = (TextView) surveyorActivity.findViewById(R.id.ridesCompleted);
 
+            // TODO Make this addaptable to different languages.
             usernameText.setText("Hi " + IniconfigActivity.username + "!");
             surveysCompletedText.setText(Integer.toString(surveysCompleted));
             ridesCompletedText.setText(Integer.toString(ridesCompleted));
