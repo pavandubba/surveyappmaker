@@ -9,24 +9,49 @@
     <string name="next_question_desc">Question suivante</string>
     <string name="submit_question_desc">Télécharger le sondage vers la nuage</string>
     
-    
-    
     <string name="more_men_button_desc">Bouton de plus d’hommes</string>
     <string name="fewer_men_button_desc">Bouton de moins d’hommes</string>
     <string name="more_women_button_desc">Bouton de plus de femmes</string>
     <string name="fewer_women_button_desc">Bouton de moins de femmes</string>
-    <string name="men_icon_desc">Icône d\'hommes</string>
+    <string name="men_icon_desc">Icône d’hommes</string>
     <string name="women_icon_desc">Icône de femmes</string>
     <string name="title_activity_iniconfig">Configuration</string>
     <string name="title_activity_surveyor">Sondeur</string>
     <string name="submitting_survey">Téléchargeant le sondage vers la nuage</string>
-    <string name="survey_submitted">Sondage télechargé</string>
+    <string name="submit_failed">Impossible de télécharger l’enquête</string>
+    <string name="survey_submitted">Sondage va être télechargé sur le fond</string>
     <string name="yes">Oui</string>
     <string name="no">Non</string>
     <string name="submit_survey_question">Voulez vous télécharger le sondage vers la nuage et redémarrager les valeurs du sondage? (Cela ne peut pas être annulée)</string>
     <string name="other_hint">Autre</string>
-    <string name="answer_hint">Réponse</string>
+    <string name="answer_hint">Réponse</string>    
+    <string name="projectNameText">Sélectionner un projet</string> <!-- Prompts the user to enter the name of the project the are wishing to work in -->
+    <string name="usernameText">Sélectionnez l’utilisateur</string> <!-- Prompts the user to select a username on the list of google accounts on his/her device -->
+    <string name="projectNameTitle">Nom du projet</string> <!-- Name of the project entered or to be entered by the user -->
+    <string name="usernameTitle">Utilisateur</string> <!-- Username chosen or to be chosen by the user -->
+    <string name="projectNameButtonDesc">Sélectionner un projet</string> <!-- Description of the button that prompts the user to enter the name of the project the are wishing to work in -->
+    <string name="usernameButtonDesc">Sélectionnez l’utilisateur</string> <!-- Description of the button that prompts the user to select a username on the list of google accounts on his/her device -->
+    <string name="default_greeting">Bonjour user_name!</string> <!-- Default greeting for the user in the status page. user_name will be replaced with the actual username chosen -->
+    <string name="surveys_completed">enquêtes réalisés</string> <!-- Text before the number to indicate the total number of surveys completed by the user -->
+    <string name="rides_completed">parcours réalisés</string> <!-- Text before the number to indicate the total number of rides completed by the user -->
+    <string name="total_distance">distance totale (km)</string> <!-- Text before the number to indicate the total distance on the current tracking process -->
+    <string name="current_address">adresse actuelle</string> <!-- Text to indicate the current approximate adress the user is in -->
+    <string name="default_address">Aucune adresse trouvée</string> <!-- Text to indicate that no adress for the current location was found -->
+    <string name="continue_desc">Continuer</string> <!-- Description for the button to continue to the next page -->
+    <string name="skip_question">Passer question</string> <!-- Text on a button to skip the question without answering it -->
+    <string name="question_skipped">Question sans réponse</string> <!-- Text to indicate that the current question isn't already answered -->
+    <string name="gps_network_not_enabled">Services de GPS et de localisation de réseau ne sont pas actifs, activez-les s’il vous plaît si vous souhaitez obtenir des informations de localisation dans vos téléchargements.</string> <!-- Text that reminds users that the location settings have to be on to upload georeferenced data -->
+    <string name="open_location_settings">Accéder aux paramètres</string> <!-- Text shown on the button to go to location settings on the dialog to ask the user if she/he wants to go to the settings for location -->
+    <string name="cancel_location_settings">Non merci</string> <!-- Text shown on the button not to go to location settings on the dialog to ask the user if she/he wants to go to the settings for location -->
+    <string name="stop_tracker_message">Vous avez vraiment envie d’arrêter le suivi de votre mouvement? Cela ne peut pas être annulée.</string> <!-- Text shown on a dialog to ask the user if he/she wants to stop the tracking process -->
+    <string name="hub_page_title">Page centrale</string> <!-- Title of the Hub Page -->
+    <string name="statistics_page_title">Statistiques</string> <!-- Title of the statistics page -->
+    
+    <string name="chapter_drawer_open">Ouvrir tiroir de navigation des chapitres</string>
+    <string name="chapter_drawer_close">Fermer tiroir de navigation des chapitres</string>    
+        
     <string name="tracking_on">Poursuite est mis en marche!</string>
+    <string name="disconnected">Détaché</string>
     <string name="end_of_survey">Vous avez atteint la fin de l’enquête.</string>
     <string name="question_not_received">Question pas reçu de l’activité principale.</string>
     <string name="no_question_kind">Aucun type de question sur cette question.</string>
