@@ -230,7 +230,7 @@ public class IniconfigActivity extends Activity implements View.OnClickListener 
         }
     }
 
-    public void getSurvey(String tableId) throws ClientProtocolException,
+    public boolean getSurvey(String tableId) throws ClientProtocolException,
                                                  IOException, UserRecoverableAuthIOException {
         String MASTER_TABLE_ID = "1isCCC51fe6nWx27aYWKfZWmk9w2Zj6a4yTyQ5c4";
         Sql sql = fusiontables.query().sql(
@@ -240,11 +240,16 @@ public class IniconfigActivity extends Activity implements View.OnClickListener 
         sql.setKey(API_KEY);
 
         Sqlresponse response = sql.execute();
+        if (response == null) {
+            return false;
+        }
+
         jsonsurveystring = response.getRows().get(0).get(0).toString();
 
         // save this for offline use
         prefs.edit().putString("jsonsurveystring", jsonsurveystring).commit();
         Log.v("response", jsonsurveystring);
+        return true;
     }
 
     /*
@@ -264,7 +269,9 @@ public class IniconfigActivity extends Activity implements View.OnClickListener 
         new Thread(new Runnable() {
             public void run() {
                 try {
-                    getSurvey(projectName);
+                    if (!getSurvey(projectName)) {
+                        return;
+                    }
 
                     try {
                         jsurv = new JSONObject(jsonsurveystring);
