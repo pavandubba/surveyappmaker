@@ -1,21 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Flock Tracker</string>
-    <string name="action_settings">Configuración</string>
+    <string name="action_settings">Configuration</string>
     <string name="start_trip_bus_desc">Icône de début de voyage</string>
     <string name="stats_button_desc">Bouton des statistiques</string>
     <string name="start_survey_button_desc">Bouton du début de sondage</string>
     <string name="previous_question_desc">Question précédente</string>
     <string name="next_question_desc">Question suivante</string>
     <string name="submit_question_desc">Télécharger le sondage vers la nuage</string>
-    <string name="app_big_icon_desc">Flock tracker</string>
-    <string name="mobility_futures_colaborative_desc">Mobility Futures Colaborative</string>
-    <string name="mit_desc">Massachusetts Institute of Technology</string>
-    <string name="urban_launchpad_desc">Urban Launchpad</string>
-    <string name="person_count_default">0</string>
-    <string name="more_men_button_desc">Bouton de plus d\'hommes</string>
-    <string name="fewer_men_button_desc">Bouton de moins d\'hommes</string>
+    
+    
+    
+    <string name="more_men_button_desc">Bouton de plus d’hommes</string>
+    <string name="fewer_men_button_desc">Bouton de moins d’hommes</string>
     <string name="more_women_button_desc">Bouton de plus de femmes</string>
     <string name="fewer_women_button_desc">Bouton de moins de femmes</string>
     <string name="men_icon_desc">Icône d\'hommes</string>

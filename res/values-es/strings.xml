@@ -1,19 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Flock Tracker</string>
-    <string name="action_settings">Configuración</string>
+   <string name="action_settings">Configuración</string>
     <string name="start_trip_bus_desc">Ícono de iniciar viaje</string>
     <string name="stats_button_desc">Botón de estadísticas</string>
     <string name="start_survey_button_desc">Botón de iniciar encuesta</string>
     <string name="previous_question_desc">Pregunta anterior</string>
     <string name="next_question_desc">Siguiente pregunta</string>
     <string name="submit_question_desc">Subir encuesta</string>
-    <string name="app_big_icon_desc">Flock tracker</string>
-    <string name="mobility_futures_colaborative_desc">Mobility Futures Colaborative</string>
-    <string name="mit_desc">Massachusetts Institute of Technology</string>
-    <string name="urban_launchpad_desc">Urban Launchpad</string>
-    <string name="person_count_default">0</string>
+   
     <string name="more_men_button_desc">Botón de más hombres</string>
     <string name="fewer_men_button_desc">Botón de menos hombres</string>
     <string name="more_women_button_desc">Botón de más mujeres</string>
@@ -23,7 +18,8 @@
     <string name="title_activity_iniconfig">Configuración</string>
     <string name="title_activity_surveyor">Encuestador</string>
     <string name="submitting_survey">Subiendo encuesta</string>
-    <string name="survey_submitted">Encuesta subida</string>
+    <string name="submit_failed">Error, la encuesta no fue subida</string>
+    <string name="survey_submitted">Encuesta será subida en el fondo</string>
     <string name="yes">Sí</string>
     <string name="no">No</string>
     <string name="submit_survey_question">Quieres subir la encuesta a la nube y reiniciar los valores de la encuesta? (Esto no se puede deshacer)</string>
@@ -35,7 +31,6 @@
     <string name="usernameTitle">Usuario</string>
     <string name="projectNameButtonDesc">Selecciona un proyecto</string>
     <string name="usernameButtonDesc">Selecciona tu usuario</string>
-    <string name="total_time">00:00</string>
     <string name="default_greeting">Hola user_name!</string>
     <string name="surveys_completed">encuestas completadas</string>
     <string name="rides_completed">viajes completados</string>
@@ -49,16 +44,16 @@
     <string name="open_location_settings">Ir a configuración</string>
     <string name="cancel_location_settings">No gracias</string>
     <string name="stop_tracker_message">Realmente quieres detener el rastreo de tu movimiento? Esto no se puede deshacer.</string>
-    <string name="title_activity_start_trip">Iniciar viaje</string>
-    <string name="title_activity_survey">Encuesta</string>
-    <string name="title_activity_passenger_counter">Contador de pasajeros</string>
+    <string name="hub_page_title">Página central</string> <!-- Title of the Hub Page -->
+    <string name="statistics_page_title">Estadísticas</string> <!-- Title of the statistics page -->    
+    
     <string name="chapter_drawer_open">Abrir el cajón de navegación</string>
     <string name="chapter_drawer_close">Cerrar el cajón de navegación</string>
-    <string name="zero">0</string>
+    
     <string name="tracking_on">¡Rastreo encendido!</string>
     <string name="disconnected">Desconectado</string>
     <string name="end_of_survey">Has llegado al fin de la encuesta.</string>
-    <string name="question_not_received">Pregunta no recivida de Actividad principal.</string>
+    <string name="question_not_received">Pregunta no recibida de Actividad principal.</string>
     <string name="no_question_kind">No hay tipo de pregunta en esta pregunta.</string>
     <string name="question_parsing_problem">Problemas con el parseo de la pregunta, revisa tu archivo de encuesta por favor.</string>
     <string name="json_format_error">Tu archivo de encuesta JSON no tiene formato correcto.</string>
