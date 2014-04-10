@@ -25,11 +25,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.*;
+
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.urbanlaunchpad.flocktracker.adapters.DrawerListViewAdapter;
@@ -874,14 +876,14 @@ public class SurveyorActivity extends Activity implements
             }).start();
         } else { // connecting for tracking
             statusPageHelper.startLocation = mLocationClient.getLastLocation();
-            Toast.makeText(this, "Tracking is on!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.tracking_on, Toast.LENGTH_SHORT).show();
         }
     }
 
     @Override
     public void onDisconnected() {
         // Display the connection status
-        Toast.makeText(this, "Disconnected", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, R.string.disconnected, Toast.LENGTH_SHORT).show();
     }
 
     /*
@@ -920,7 +922,7 @@ public class SurveyorActivity extends Activity implements
                                 .setImageId(COMPLETE_CHAPTER);
                     } else if (result == NextQuestionResult.END) {
                         Toast.makeText(this,
-                            "You've reached the end of the survey.",
+                            R.string.end_of_survey,
                             Toast.LENGTH_SHORT).show();
                         submitSurveyInterface();
                         break;
