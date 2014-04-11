@@ -962,7 +962,8 @@ public class SurveyorActivity extends Activity implements
 						.equals("")))) {
 			surveyHelper.loopTotal = Integer.parseInt(answerStringReceive);
 			surveyHelper.inLoop = true;
-			surveyHelper.loopPosition = 0;
+			surveyHelper.loopPosition = -1;
+			surveyHelper.loopIteration = 0;
 			if (!askingTripQuestions) {
 				// Toast toast = Toast.makeText(this, "received question",
 				// Toast.LENGTH_SHORT);
