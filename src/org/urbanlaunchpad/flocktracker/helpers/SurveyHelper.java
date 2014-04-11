@@ -53,7 +53,6 @@ public class SurveyHelper {
     public Stack<Integer> prevTrackingPositions = new Stack<Integer>();
     public Integer prevQuestionPosition = null;
     public String jumpString = null;
-    public Integer loopTotal = null; // Number of times loop questions repeat
     // Survey / Tracker State
     private String username;
     private Integer tripQuestionPosition = 0;
@@ -65,6 +64,11 @@ public class SurveyHelper {
     private JSONArray jTrackerQuestions;
     private String[] chapterTitles;
     private Integer[] chapterQuestionCounts;
+    
+    // Loop stuff
+    public Integer loopTotal = null; // Number of times loop questions repeat
+    public Boolean inLoop;
+    public Integer loopPosition = 0;
 
     public SurveyHelper(String username, String jsonSurvey, Context context) {
         this.username = username;
@@ -873,7 +877,7 @@ public class SurveyHelper {
     // updates positions to get next question. returns true if end of survey
     // reached
     public NextQuestionResult onNextQuestionPressed(
-        Boolean askingTripQuestions, Boolean inLoop) {
+        Boolean askingTripQuestions) {
         if (askingTripQuestions && inLoop) {
 
         } else if (!askingTripQuestions && inLoop) {
@@ -951,15 +955,37 @@ public class SurveyHelper {
     public Integer getTripQuestionPosition() {
         return tripQuestionPosition;
     }
+    
+    public Integer getLoopPosition(){
+    	return loopPosition;
+    }
 
     public JSONObject getCurrentQuestion() throws JSONException {
-        return jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
+    	JSONObject currentQuestion = null;
+    	if (inLoop){
+    		currentQuestion = jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
+    				.getJSONArray("Chapters").getJSONObject(chapterPosition)
+    				.getJSONArray("Questions").getJSONObject(questionPosition)
+    				.getJSONArray("Questions").getJSONObject(loopPosition);
+    	} else {
+    		currentQuestion = jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
                     .getJSONArray("Chapters").getJSONObject(chapterPosition)
                     .getJSONArray("Questions").getJSONObject(questionPosition);
+    	}
+    	return currentQuestion;
     }
 
     public JSONObject getCurrentTripQuestion() throws JSONException {
-        return jTrackerQuestions.getJSONObject(tripQuestionPosition);
+    	JSONObject currentQuestion = null;
+    	if (inLoop){
+    		currentQuestion = jTrackerQuestions.getJSONObject(tripQuestionPosition)
+    				.getJSONArray("Questions").getJSONObject(loopPosition);
+    	} else {
+    		currentQuestion = jTrackerQuestions.getJSONObject(tripQuestionPosition);
+    	}
+    	
+    	
+        return currentQuestion;
     }
 
     public int getTripQuestionCount() {
