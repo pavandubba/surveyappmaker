@@ -41,6 +41,7 @@ public class QuestionFragment extends Fragment implements View.OnClickListener,
 	public static final String ARG_QUESTION_POSITION = "Question position";
 	public static final String ARG_CHAPTER_POSITION = "Chapter position";
 	public static final String ARG_POSITION = null;
+	public static final String ARG_IN_LOOP = null;
 	private static String[] answerlist = null;
 	private static Activity mainActivity;
 	LinearLayout orderanswerlayout;
@@ -100,6 +101,7 @@ public class QuestionFragment extends Fragment implements View.OnClickListener,
 			jquestionstring = args.getString(ARG_JSON_QUESTION);
 			chapterposition = args.getInt(ARG_CHAPTER_POSITION);
 			questionposition = args.getInt(ARG_QUESTION_POSITION);
+			inLoopBoolean = args.getBoolean(ARG_IN_LOOP);
 		}
 
 		if (jquestionstring != null) {

@@ -790,6 +790,7 @@ public class SurveyorActivity extends Activity implements
             currentQuestion.toString());
         args.putInt(QuestionFragment.ARG_CHAPTER_POSITION, chapterPosition);
         args.putInt(QuestionFragment.ARG_QUESTION_POSITION, questionPosition);
+        args.putBoolean(QuestionFragment.ARG_IN_LOOP, inLoop);
         currentQuestionFragment.setArguments(args);
 
         FragmentManager fragmentManager = getFragmentManager();
@@ -955,7 +956,7 @@ public class SurveyorActivity extends Activity implements
             if (!askingTripQuestions) {
 //                Toast toast = Toast.makeText(this, "received question",
 //                        Toast.LENGTH_SHORT);
-//                toast.show();
+//                toast.show();	
                 surveyHelper.answerCurrentQuestion(answerStringReceive,
                     selectedAnswers);
             } else {
@@ -1252,6 +1253,7 @@ public class SurveyorActivity extends Activity implements
             surveyHelper.jumpString = null;
             showingHubPage = false;
             showingStatusPage = false;
+            inLoop = false;
             showCurrentQuestion();
         }
     }
