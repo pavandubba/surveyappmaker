@@ -950,9 +950,12 @@ public class SurveyorActivity extends Activity implements
         // TODO: fix loop stuff
         inLoop = (inLoopReceive == null) ? false : inLoopReceive;
 
-        if (questionkindReceive.equals("LP") && answerStringReceive != null) {
+        if (questionkindReceive.equals("LP") && ((answerStringReceive != null) && (!answerStringReceive.equals("")) )) {
             surveyHelper.loopTotal = Integer.parseInt(answerStringReceive);
             if (!askingTripQuestions) {
+//                Toast toast = Toast.makeText(this, "received question",
+//                        Toast.LENGTH_SHORT);
+//                toast.show();
                 surveyHelper.answerCurrentQuestion(answerStringReceive,
                     selectedAnswers);
             } else {
