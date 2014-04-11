@@ -139,7 +139,7 @@ public class QuestionFragment extends Fragment implements View.OnClickListener,
 
 			jumpString = getJump(jquestion);
 			Callback.AnswerRecieve(answerString, jumpString, null,
-					inLoopBoolean, questionkind);
+					null, questionkind);
 
 			try {
 				questionstring = jquestion.getString("Question");
@@ -202,7 +202,7 @@ public class QuestionFragment extends Fragment implements View.OnClickListener,
 
 			} else if (questionkind.equals("LP")) {
 				OpenLayout();
-				inLoopBoolean = true;
+				//inLoopBoolean = true;
 				// Prepopulate question
 				if (SurveyorActivity.askingTripQuestions) {
 					selectedAnswers = SurveyHelper.selectedTrackingAnswersMap
@@ -217,6 +217,7 @@ public class QuestionFragment extends Fragment implements View.OnClickListener,
 						openET.setText(jquestion.getString("Answer"));
 						openET.setTextColor(getResources().getColor(
 								R.color.answer_selected));
+						inLoopBoolean = true;
 					} catch (JSONException e) {
 						e.printStackTrace();
 					}
@@ -993,6 +994,9 @@ public class QuestionFragment extends Fragment implements View.OnClickListener,
 			answerString = (String) openET.getText().toString();
 			selectedAnswers = new ArrayList<Integer>();
 			selectedAnswers.add(-1);
+			if (questionkind.equals("LP")){
+				inLoopBoolean = true;
+			}
 			Callback.AnswerRecieve(answerString, jumpString, selectedAnswers,
 					inLoopBoolean, questionkind);
 		}
