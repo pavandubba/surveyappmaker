@@ -40,10 +40,22 @@ public class SurveyHelper {
 	public static final Integer MAX_QUERY_LENGTH = 2000; // max length allowed
 															// by fusion table
 	// Hashmaps that store previously entered answers
-	public static HashMap<Tuple, ArrayList<Integer>> selectedAnswersMap = new HashMap<Tuple, ArrayList<Integer>>();
-	public static HashMap<Integer, ArrayList<Integer>> selectedTrackingAnswersMap = new HashMap<Integer, ArrayList<Integer>>();
-	public static HashMap<Tuple, Uri> prevImages = new HashMap<Tuple, Uri>();
-	public static HashMap<Integer, Uri> prevTrackerImages = new HashMap<Integer, Uri>();
+	public static HashMap<ArrayList<Integer>, ArrayList<Integer>> selectedAnswersMap = new HashMap<ArrayList<Integer>, ArrayList<Integer>>(); // chapter
+																																				// position,
+																																				// question
+																																				// position,
+																																				// loop
+																																				// iteration,
+																																				// loop
+																																				// position
+	public static HashMap<ArrayList<Integer>, ArrayList<Integer>> selectedTrackingAnswersMap = new HashMap<ArrayList<Integer>, ArrayList<Integer>>(); // question
+																																						// position,
+																																						// loop
+																																						// iteration,
+																																						// loop
+																																						// position
+	public static HashMap<ArrayList<Integer>, Uri> prevImages = new HashMap<ArrayList<Integer>, Uri>();
+	public static HashMap<ArrayList<Integer>, Uri> prevTrackerImages = new HashMap<ArrayList<Integer>, Uri>();
 	public static String TRIP_TABLE_ID = "1Q2mr8ni5LTxtZRRi3PNSYxAYS8HWikWqlfoIUK4";
 	public static String SURVEY_TABLE_ID = "11lGsm8B2SNNGmEsTmuGVrAy1gcJF9TQBo3G1Vw0";
 	public JSONObject jsurv = null;
@@ -780,7 +792,9 @@ public class SurveyHelper {
 						.getJSONObject(chapterPosition)
 						.getJSONArray("Questions")
 						.getJSONObject(questionPosition).put("Answer", answer);
-				Tuple key = new Tuple(chapterPosition, questionPosition);
+				// Tuple key = new Tuple(chapterPosition, questionPosition);
+				ArrayList<Integer> key = new ArrayList<Integer>(Arrays.asList(
+						chapterPosition, questionPosition, -1, -1));
 				selectedAnswersMap.put(key, selectedAnswers);
 			}
 		} catch (JSONException e) {
@@ -793,7 +807,9 @@ public class SurveyHelper {
 		try {
 			jtracker.getJSONArray("Questions")
 					.getJSONObject(tripQuestionPosition).put("Answer", answer);
-			selectedTrackingAnswersMap.put(tripQuestionPosition,
+			ArrayList<Integer> key = new ArrayList<Integer>(Arrays.asList(
+					questionPosition, -1, -1));
+			selectedTrackingAnswersMap.put(key,
 					selectedAnswers);
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -817,8 +833,8 @@ public class SurveyHelper {
 			jsurv = new JSONObject(jsonSurvey);
 			jsurv.put(SurveyorActivity.TRACKER_TYPE, jtracker);
 			prevPositions = new Stack<Tuple>();
-			selectedAnswersMap = new HashMap<Tuple, ArrayList<Integer>>();
-			prevImages = new HashMap<Tuple, Uri>();
+			selectedAnswersMap = new HashMap<ArrayList<Integer>, ArrayList<Integer>>();
+			prevImages = new HashMap<ArrayList<Integer>, Uri>();
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -827,8 +843,8 @@ public class SurveyHelper {
 	public void resetTracker() {
 		tripQuestionPosition = 0;
 		prevTrackingPositions = new Stack<Integer>();
-		selectedTrackingAnswersMap = new HashMap<Integer, ArrayList<Integer>>();
-		prevTrackerImages = new HashMap<Integer, Uri>();
+		selectedTrackingAnswersMap = new HashMap<ArrayList<Integer>, ArrayList<Integer>>();
+		prevTrackerImages = new HashMap<ArrayList<Integer>, Uri>();
 		try {
 			jtracker = new JSONObject(jTrackerString);
 		} catch (JSONException e) {

@@ -508,7 +508,8 @@ public class SurveyorActivity extends Activity implements
 				public void run() {
 					String jsurvString = surveyHelper.jsurv.toString();
 					JSONObject imagePaths = new JSONObject();
-					for (Tuple key : SurveyHelper.prevImages.keySet()) {
+					for (ArrayList<Integer> key : SurveyHelper.prevImages
+							.keySet()) {
 						try {
 							imagePaths.put(key.toString(),
 									SurveyHelper.prevImages.get(key).getPath());
@@ -564,7 +565,8 @@ public class SurveyorActivity extends Activity implements
 
 					String jsurvString = surveyHelper.jsurv.toString();
 					JSONObject imagePaths = new JSONObject();
-					for (Integer key : SurveyHelper.prevTrackerImages.keySet()) {
+					for (ArrayList<Integer> key : SurveyHelper.prevTrackerImages
+							.keySet()) {
 						try {
 							imagePaths.put(key.toString(),
 									SurveyHelper.prevTrackerImages.get(key)
@@ -602,14 +604,17 @@ public class SurveyorActivity extends Activity implements
 		case GoogleDriveHelper.REQUEST_AUTHORIZATION:
 			if (resultCode == Activity.RESULT_OK) {
 				if (askingTripQuestions) {
-					SurveyHelper.prevTrackerImages.put(
-							surveyHelper.getTripQuestionPosition(),
-							driveHelper.fileUri);
+					ArrayList<Integer> key = new ArrayList<Integer>(
+							Arrays.asList(
+									surveyHelper.getTripQuestionPosition(), -1,
+									-1));
+					SurveyHelper.prevTrackerImages
+							.put(key, driveHelper.fileUri);
 				} else {
-					SurveyHelper.prevImages.put(
-							new Tuple(surveyHelper.getChapterPosition(),
-									surveyHelper.getQuestionPosition()),
-							driveHelper.fileUri);
+					ArrayList<Integer> key = new ArrayList<Integer>(
+							Arrays.asList(surveyHelper.getChapterPosition(),
+									surveyHelper.getQuestionPosition(), -1, -1));
+					SurveyHelper.prevImages.put(key, driveHelper.fileUri);
 				}
 				currentQuestionFragment.ImageLayout();
 			} else {
@@ -640,14 +645,17 @@ public class SurveyorActivity extends Activity implements
 
 			if (resultCode == Activity.RESULT_OK) {
 				if (askingTripQuestions) {
-					SurveyHelper.prevTrackerImages.put(
-							surveyHelper.getTripQuestionPosition(),
-							driveHelper.fileUri);
+					ArrayList<Integer> key = new ArrayList<Integer>(
+							Arrays.asList(
+									surveyHelper.getTripQuestionPosition(), -1,
+									-1));
+					SurveyHelper.prevTrackerImages
+							.put(key, driveHelper.fileUri);
 				} else {
-					SurveyHelper.prevImages.put(
-							new Tuple(surveyHelper.getChapterPosition(),
-									surveyHelper.getQuestionPosition()),
-							driveHelper.fileUri);
+					ArrayList<Integer> key = new ArrayList<Integer>(
+							Arrays.asList(surveyHelper.getChapterPosition(),
+									surveyHelper.getQuestionPosition(), -1, -1));
+					SurveyHelper.prevImages.put(key, driveHelper.fileUri);
 				}
 				currentQuestionFragment.ImageLayout();
 			}
@@ -747,7 +755,7 @@ public class SurveyorActivity extends Activity implements
 		int loopPosition;
 		Boolean inloop;
 		inloop = surveyHelper.inLoop;
-		
+
 		String currentQuestion = null;
 
 		if (surveyHelper.inLoop) {
@@ -794,7 +802,7 @@ public class SurveyorActivity extends Activity implements
 				currentQuestion.toString());
 		args.putInt(QuestionFragment.ARG_CHAPTER_POSITION, chapterPosition);
 		args.putInt(QuestionFragment.ARG_QUESTION_POSITION, questionPosition);
-		
+
 		Log.v("In loop from Surveyor", inloop.toString());
 		if (surveyHelper.inLoop) {
 			args.putBoolean(QuestionFragment.ARG_IN_LOOP, true);
@@ -983,8 +991,7 @@ public class SurveyorActivity extends Activity implements
 				surveyHelper.answerCurrentTrackerQuestion(answerStringReceive,
 						selectedAnswers);
 			}
-		} else if ((answerStringReceive != null)
-				&& (!surveyHelper.inLoop)) {
+		} else if ((answerStringReceive != null) && (!surveyHelper.inLoop)) {
 			if (!askingTripQuestions) {
 				surveyHelper.answerCurrentQuestion(answerStringReceive,
 						selectedAnswers);
@@ -992,8 +999,7 @@ public class SurveyorActivity extends Activity implements
 				surveyHelper.answerCurrentTrackerQuestion(answerStringReceive,
 						selectedAnswers);
 			}
-		} else if ((answerStringReceive != null)
-				&& (surveyHelper.inLoop)) {
+		} else if ((answerStringReceive != null) && (surveyHelper.inLoop)) {
 			// TODO Add answer saving to in loop questions.
 			if (!askingTripQuestions) {
 				surveyHelper.answerCurrentLoopQuestion(answerStringReceive,

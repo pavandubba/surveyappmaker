@@ -34,6 +34,7 @@ import org.urbanlaunchpad.flocktracker.helpers.SurveyHelper.Tuple;
 import org.urbanlaunchpad.flocktracker.menu.DynamicListView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class QuestionFragment extends Fragment implements View.OnClickListener,
 		DynamicListView.SwappingEnded {
@@ -166,10 +167,14 @@ public class QuestionFragment extends Fragment implements View.OnClickListener,
 				// Prepopulate question
 				if (SurveyorActivity.askingTripQuestions) {
 					selectedAnswers = SurveyHelper.selectedTrackingAnswersMap
-							.get(questionposition);
+							.get(new ArrayList<Integer>(Arrays.asList(
+									questionposition, -1, -1)));
 				} else {
+					// selectedAnswers = SurveyHelper.selectedAnswersMap
+					// .get(new Tuple(chapterposition, questionposition));
 					selectedAnswers = SurveyHelper.selectedAnswersMap
-							.get(new Tuple(chapterposition, questionposition));
+							.get(new ArrayList<Integer>(Arrays.asList(
+									chapterposition, questionposition, -1, -1)));
 				}
 				if (selectedAnswers != null) {
 					for (Integer id : selectedAnswers) {
@@ -196,10 +201,14 @@ public class QuestionFragment extends Fragment implements View.OnClickListener,
 				// Prepopulate question
 				if (SurveyorActivity.askingTripQuestions) {
 					selectedAnswers = SurveyHelper.selectedTrackingAnswersMap
-							.get(questionposition);
+							.get(new ArrayList<Integer>(Arrays.asList(
+									questionposition, -1, -1)));
 				} else {
+					// selectedAnswers = SurveyHelper.selectedAnswersMap
+					// .get(new Tuple(chapterposition, questionposition));
 					selectedAnswers = SurveyHelper.selectedAnswersMap
-							.get(new Tuple(chapterposition, questionposition));
+							.get(new ArrayList<Integer>(Arrays.asList(
+									chapterposition, questionposition, -1, -1)));
 				}
 
 				if (selectedAnswers != null && selectedAnswers.get(0) == -1) {
@@ -218,10 +227,14 @@ public class QuestionFragment extends Fragment implements View.OnClickListener,
 				// Prepopulate question
 				if (SurveyorActivity.askingTripQuestions) {
 					selectedAnswers = SurveyHelper.selectedTrackingAnswersMap
-							.get(questionposition);
+							.get(new ArrayList<Integer>(Arrays.asList(
+									questionposition, -1, -1)));
 				} else {
+					// selectedAnswers = SurveyHelper.selectedAnswersMap
+					// .get(new Tuple(chapterposition, questionposition));
 					selectedAnswers = SurveyHelper.selectedAnswersMap
-							.get(new Tuple(chapterposition, questionposition));
+							.get(new ArrayList<Integer>(Arrays.asList(
+									chapterposition, questionposition, -1, -1)));
 				}
 
 				if (selectedAnswers != null && selectedAnswers.get(0) == -1) {
@@ -240,10 +253,14 @@ public class QuestionFragment extends Fragment implements View.OnClickListener,
 				// Prepopulate question
 				if (SurveyorActivity.askingTripQuestions) {
 					selectedAnswers = SurveyHelper.selectedTrackingAnswersMap
-							.get(questionposition);
+							.get(new ArrayList<Integer>(Arrays.asList(
+									questionposition, -1, -1)));
 				} else {
+					// selectedAnswers = SurveyHelper.selectedAnswersMap
+					// .get(new Tuple(chapterposition, questionposition));
 					selectedAnswers = SurveyHelper.selectedAnswersMap
-							.get(new Tuple(chapterposition, questionposition));
+							.get(new ArrayList<Integer>(Arrays.asList(
+									chapterposition, questionposition, -1, -1)));
 				}
 
 				if (selectedAnswers != null) {
@@ -265,19 +282,19 @@ public class QuestionFragment extends Fragment implements View.OnClickListener,
 				// Prepopulation occurs in the Layout creation.
 				OrderedListLayout();
 			}
-			
-			
-			// Adding the loop element information to the question if inside a loop.
+
+			// Adding the loop element information to the question if inside a
+			// loop.
 			TextView loopElementTextView = (TextView) rootView
 					.findViewById(R.id.loopelement);
-			if (inLoopBoolean){
-				loopElementTextView.setText("Element "+ loopIterationInteger + " of " + loopTotalInteger);
+			if (inLoopBoolean) {
+				loopElementTextView.setText("Element " + loopIterationInteger
+						+ " of " + loopTotalInteger);
 				loopElementTextView.setTextSize(20);
 			} else {
 				loopElementTextView.setVisibility(View.GONE);
 			}
-			
-			
+
 			// Adding the actual question text to the view
 			TextView questionview = (TextView) rootView
 					.findViewById(R.id.questionview);
@@ -329,10 +346,14 @@ public class QuestionFragment extends Fragment implements View.OnClickListener,
 
 		if (SurveyorActivity.askingTripQuestions) {
 			selectedAnswers = SurveyHelper.selectedTrackingAnswersMap
-					.get(questionposition);
+					.get(new ArrayList<Integer>(Arrays.asList(questionposition,
+							-1, -1)));
 		} else {
-			selectedAnswers = SurveyHelper.selectedAnswersMap.get(new Tuple(
-					chapterposition, questionposition));
+			// selectedAnswers = SurveyHelper.selectedAnswersMap.get(new Tuple(
+			// chapterposition, questionposition));
+			selectedAnswers = SurveyHelper.selectedAnswersMap
+					.get(new ArrayList<Integer>(Arrays.asList(chapterposition,
+							questionposition, -1, -1)));
 		}
 		if (selectedAnswers != null) {
 			ArrayList<String> answerTempList = new ArrayList<String>();
@@ -780,37 +801,43 @@ public class QuestionFragment extends Fragment implements View.OnClickListener,
 	}
 
 	public void addThumbnail() {
-		Tuple key = new Tuple(chapterposition, questionposition);
-		if (!SurveyorActivity.askingTripQuestions
-				&& SurveyHelper.prevImages.containsKey(key)) {
-			Uri imagePath = SurveyHelper.prevImages.get(key);
-			ImageView prevImage = new ImageView(rootView.getContext());
-			try {
-				Bitmap imageBitmap = ImageHelper.decodeSampledBitmapFromPath(
-						imagePath.getPath(), 512, 512);
-				prevImage.setImageBitmap(imageBitmap);
-				prevImage.setPadding(10, 30, 10, 10);
+		// Tuple key = new Tuple(chapterposition, questionposition);
+		if (!SurveyorActivity.askingTripQuestions){
+			ArrayList<Integer> key = new ArrayList<Integer>(Arrays.asList(
+					chapterposition, questionposition, -1, -1));
+			if (SurveyHelper.prevImages.containsKey(key)) {
+				Uri imagePath = SurveyHelper.prevImages.get(key);
+				ImageView prevImage = new ImageView(rootView.getContext());
+				try {
+					Bitmap imageBitmap = ImageHelper
+							.decodeSampledBitmapFromPath(imagePath.getPath(),
+									512, 512);
+					prevImage.setImageBitmap(imageBitmap);
+					prevImage.setPadding(10, 30, 10, 10);
 
-				answerlayout.addView(prevImage);
-			} catch (Exception e) {
-				e.printStackTrace();
+					answerlayout.addView(prevImage);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
-		} else if (SurveyorActivity.askingTripQuestions
-				&& SurveyHelper.prevTrackerImages.containsKey(questionposition)) {
-			Uri imagePath = SurveyHelper.prevTrackerImages
-					.get(questionposition);
-			ImageView prevImage = new ImageView(rootView.getContext());
-			try {
-				Bitmap imageBitmap = ThumbnailUtils
-						.extractThumbnail(
-								BitmapFactory.decodeFile(imagePath.getPath()),
-								512, 512);
-				prevImage.setImageBitmap(imageBitmap);
-				prevImage.setPadding(10, 30, 10, 10);
+		} else if (SurveyorActivity.askingTripQuestions) {
+			ArrayList<Integer> key = new ArrayList<Integer>(Arrays.asList(
+					questionposition, -1, -1));
+			if (SurveyHelper.prevTrackerImages.containsKey(key)) {
+				Uri imagePath = SurveyHelper.prevTrackerImages
+						.get(questionposition);
+				ImageView prevImage = new ImageView(rootView.getContext());
+				try {
+					Bitmap imageBitmap = ThumbnailUtils.extractThumbnail(
+							BitmapFactory.decodeFile(imagePath.getPath()), 512,
+							512);
+					prevImage.setImageBitmap(imageBitmap);
+					prevImage.setPadding(10, 30, 10, 10);
 
-				answerlayout.addView(prevImage);
-			} catch (Exception e) {
-				e.printStackTrace();
+					answerlayout.addView(prevImage);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}
