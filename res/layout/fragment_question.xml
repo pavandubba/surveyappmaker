@@ -6,6 +6,14 @@
     android:orientation="vertical" >
 
     <TextView
+        android:id="@+id/loopelement"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="15dp"
+        android:textColor="@color/text_color_light"
+        android:textSize="17sp" />
+
+    <TextView
         android:id="@+id/questionview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

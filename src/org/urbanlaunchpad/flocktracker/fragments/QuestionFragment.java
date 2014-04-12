@@ -21,6 +21,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -40,14 +41,15 @@ public class QuestionFragment extends Fragment implements View.OnClickListener,
 	public static final String ARG_JSON_QUESTION = "Json question";
 	public static final String ARG_QUESTION_POSITION = "Question position";
 	public static final String ARG_CHAPTER_POSITION = "Chapter position";
-	public static final String ARG_POSITION = null;
-	public static final String ARG_IN_LOOP = null;
+	public static final String ARG_POSITION = "Position";
+	public static final String ARG_IN_LOOP = "In loop";
+	public static final String ARG_LOOP_ITERATION = "Loop iteration";
+	public static final String ARG_LOOP_TOTAL = "Loop total";
 	private static String[] answerlist = null;
 	private static Activity mainActivity;
 	LinearLayout orderanswerlayout;
 	CheckBox otherCB;
 	DynamicListView answerlistView;
-	Boolean inLoopBoolean;
 	// Passes Answer and jump information to activity.
 	AnswerSelected Callback;
 	LoopPasser Loopback;
@@ -82,6 +84,11 @@ public class QuestionFragment extends Fragment implements View.OnClickListener,
 	// Information interface with main activity.
 	private Button skipButton;
 
+	// Loop stuff
+	Boolean inLoopBoolean;
+	Integer loopTotalInteger;
+	Integer loopIterationInteger;
+
 	public QuestionFragment() {
 		// Empty constructor required for fragment subclasses
 	}
@@ -102,6 +109,11 @@ public class QuestionFragment extends Fragment implements View.OnClickListener,
 			chapterposition = args.getInt(ARG_CHAPTER_POSITION);
 			questionposition = args.getInt(ARG_QUESTION_POSITION);
 			inLoopBoolean = args.getBoolean(ARG_IN_LOOP);
+			Log.v("In loop on fragment", inLoopBoolean.toString());
+			if (inLoopBoolean) {
+				loopTotalInteger = args.getInt(ARG_LOOP_TOTAL);
+				loopIterationInteger = args.getInt(ARG_LOOP_ITERATION);
+			}
 		}
 
 		if (jquestionstring != null) {
@@ -138,8 +150,8 @@ public class QuestionFragment extends Fragment implements View.OnClickListener,
 			selectedAnswers = new ArrayList<Integer>();
 
 			jumpString = getJump(jquestion);
-			Callback.AnswerRecieve(answerString, jumpString, null,
-					null, questionkind);
+			Callback.AnswerRecieve(answerString, jumpString, null, null,
+					questionkind);
 
 			try {
 				questionstring = jquestion.getString("Question");
@@ -202,7 +214,7 @@ public class QuestionFragment extends Fragment implements View.OnClickListener,
 
 			} else if (questionkind.equals("LP")) {
 				OpenLayout();
-				//inLoopBoolean = true;
+				// inLoopBoolean = true;
 				// Prepopulate question
 				if (SurveyorActivity.askingTripQuestions) {
 					selectedAnswers = SurveyHelper.selectedTrackingAnswersMap
@@ -217,7 +229,7 @@ public class QuestionFragment extends Fragment implements View.OnClickListener,
 						openET.setText(jquestion.getString("Answer"));
 						openET.setTextColor(getResources().getColor(
 								R.color.answer_selected));
-						inLoopBoolean = true;
+						// inLoopBoolean = true;
 					} catch (JSONException e) {
 						e.printStackTrace();
 					}
@@ -253,7 +265,20 @@ public class QuestionFragment extends Fragment implements View.OnClickListener,
 				// Prepopulation occurs in the Layout creation.
 				OrderedListLayout();
 			}
-
+			
+			
+			// Adding the loop element information to the question if inside a loop.
+			TextView loopElementTextView = (TextView) rootView
+					.findViewById(R.id.loopelement);
+			if (inLoopBoolean){
+				loopElementTextView.setText("Element "+ loopIterationInteger + " of " + loopTotalInteger);
+				loopElementTextView.setTextSize(20);
+			} else {
+				loopElementTextView.setVisibility(View.GONE);
+			}
+			
+			
+			// Adding the actual question text to the view
 			TextView questionview = (TextView) rootView
 					.findViewById(R.id.questionview);
 			questionview.setText(questionstring);
@@ -261,6 +286,11 @@ public class QuestionFragment extends Fragment implements View.OnClickListener,
 		}
 		return rootView;
 
+	}
+
+	private String getText(boolean boolean1) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	public void OrderedListLayout() {
@@ -994,7 +1024,7 @@ public class QuestionFragment extends Fragment implements View.OnClickListener,
 			answerString = (String) openET.getText().toString();
 			selectedAnswers = new ArrayList<Integer>();
 			selectedAnswers.add(-1);
-			if (questionkind.equals("LP")){
+			if (questionkind.equals("LP")) {
 				inLoopBoolean = true;
 			}
 			Callback.AnswerRecieve(answerString, jumpString, selectedAnswers,

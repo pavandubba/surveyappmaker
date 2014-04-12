@@ -111,11 +111,6 @@ public class SurveyorActivity extends Activity implements
 	private boolean showingStatusPage = false;
 	private boolean showingHubPage = false;
 	@SuppressLint("HandlerLeak")
-	
-	// Loop stuff
-	private Integer looppositionInteger;
-	
-	
 	private Handler messageHandler = new Handler() {
 
 		@SuppressWarnings("deprecation")
@@ -750,9 +745,12 @@ public class SurveyorActivity extends Activity implements
 		int chapterPosition;
 		int questionPosition;
 		int loopPosition;
-		String currentQuestion = null;
+		Boolean inloop;
+		inloop = surveyHelper.inLoop;
 		
-		if (surveyHelper.inLoop){
+		String currentQuestion = null;
+
+		if (surveyHelper.inLoop) {
 			loopPosition = surveyHelper.getLoopPosition();
 		}
 
@@ -796,7 +794,16 @@ public class SurveyorActivity extends Activity implements
 				currentQuestion.toString());
 		args.putInt(QuestionFragment.ARG_CHAPTER_POSITION, chapterPosition);
 		args.putInt(QuestionFragment.ARG_QUESTION_POSITION, questionPosition);
-		args.putBoolean(QuestionFragment.ARG_IN_LOOP, surveyHelper.inLoop);
+		
+		Log.v("In loop from Surveyor", inloop.toString());
+		if (surveyHelper.inLoop) {
+			args.putBoolean(QuestionFragment.ARG_IN_LOOP, true);
+			args.putInt(QuestionFragment.ARG_LOOP_ITERATION,
+					surveyHelper.loopIteration);
+			args.putInt(QuestionFragment.ARG_LOOP_TOTAL, surveyHelper.loopTotal);
+		} else {
+			args.putBoolean(QuestionFragment.ARG_IN_LOOP, false);
+		}
 		currentQuestionFragment.setArguments(args);
 
 		FragmentManager fragmentManager = getFragmentManager();
@@ -908,8 +915,8 @@ public class SurveyorActivity extends Activity implements
 			break;
 		case NEXT:
 			currentQuestionFragment.saveState();
-			NextQuestionResult result = surveyHelper.onNextQuestionPressed(
-					askingTripQuestions);
+			NextQuestionResult result = surveyHelper
+					.onNextQuestionPressed(askingTripQuestions);
 
 			if (askingTripQuestions) {
 				if (result == NextQuestionResult.END) {
@@ -955,12 +962,14 @@ public class SurveyorActivity extends Activity implements
 			String jumpStringReceive, ArrayList<Integer> selectedAnswers,
 			Boolean inLoopReceive, String questionkindReceive) {
 		// TODO: fix loop stuff
-		surveyHelper.inLoop = (inLoopReceive == null) ? false : inLoopReceive;
+		// surveyHelper.inLoop = (inLoopReceive == null) ? false :
+		// inLoopReceive;
 
 		if (questionkindReceive.equals("LP")
 				&& ((answerStringReceive != null) && (!answerStringReceive
 						.equals("")))) {
 			surveyHelper.loopTotal = Integer.parseInt(answerStringReceive);
+			Log.v("Loop total", surveyHelper.loopTotal.toString());
 			surveyHelper.inLoop = true;
 			surveyHelper.loopPosition = -1;
 			surveyHelper.loopIteration = 0;
@@ -974,7 +983,8 @@ public class SurveyorActivity extends Activity implements
 				surveyHelper.answerCurrentTrackerQuestion(answerStringReceive,
 						selectedAnswers);
 			}
-		} else if ((answerStringReceive != null) && (surveyHelper.inLoop == false)) {
+		} else if ((answerStringReceive != null)
+				&& (!surveyHelper.inLoop)) {
 			if (!askingTripQuestions) {
 				surveyHelper.answerCurrentQuestion(answerStringReceive,
 						selectedAnswers);
@@ -982,7 +992,8 @@ public class SurveyorActivity extends Activity implements
 				surveyHelper.answerCurrentTrackerQuestion(answerStringReceive,
 						selectedAnswers);
 			}
-		} else if ((answerStringReceive != null) && (surveyHelper.inLoop = true)) {
+		} else if ((answerStringReceive != null)
+				&& (surveyHelper.inLoop)) {
 			// TODO Add answer saving to in loop questions.
 			if (!askingTripQuestions) {
 				surveyHelper.answerCurrentLoopQuestion(answerStringReceive,

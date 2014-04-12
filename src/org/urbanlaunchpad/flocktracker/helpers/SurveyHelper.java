@@ -66,11 +66,15 @@ public class SurveyHelper {
 	private Integer[] chapterQuestionCounts;
 
 	// Loop stuff
-	public Integer loopTotal = null; // Number of times loop questions repeat
-	public Boolean inLoop = false;
-	public Integer loopPosition = -1;
-	public Integer loopIteration = 0;
-	public Integer loopLimit = 0;
+	public Integer loopTotal = null; // Number of times loop questions repeat.
+	public Boolean inLoop = false; // Toggle that turns on if the survey gets
+									// into a loop.
+	public Integer loopPosition = -1; // Position in the questions array in the
+										// loop the survey is in.
+	public Integer loopIteration = 0; // Iteration step where the loop process
+										// is.
+	public Integer loopLimit = 0; // Total number of questions in the loop being
+									// asked.
 
 	public SurveyHelper(String username, String jsonSurvey, Context context) {
 		this.username = username;
@@ -878,26 +882,30 @@ public class SurveyHelper {
 			Boolean askingTripQuestions) {
 		if (askingTripQuestions && inLoop) {
 			loopPosition++;
+			Log.v("Loop position", loopPosition.toString());
 			if (loopPosition == loopLimit) {
 				loopPosition = 0;
 				loopIteration++;
 				if (loopIteration == loopTotal) {
 					loopIteration = 0;
+					loopPosition = -1;
 					tripQuestionPosition++;
 					if (tripQuestionPosition == jTrackerQuestions.length()) {
 						return NextQuestionResult.END;
 					}
 				}
 			} else {
-				
+
 			}
 		} else if (!askingTripQuestions && inLoop) {
 			loopPosition++;
+			Log.v("Loop position", loopPosition.toString());
 			if (loopPosition == loopLimit) {
 				loopPosition = 0;
 				loopIteration++;
 				if (loopIteration == loopTotal) {
 					loopIteration = 0;
+					loopPosition = -1;
 					questionPosition++;
 					if (questionPosition == chapterQuestionCounts[chapterPosition]) {
 						if (chapterPosition == jChapterList.length() - 1) {
@@ -911,7 +919,7 @@ public class SurveyHelper {
 					}
 				}
 			} else {
-				
+
 			}
 
 		} else if (askingTripQuestions && !inLoop) {
@@ -1003,6 +1011,7 @@ public class SurveyHelper {
 					.getJSONArray("Chapters").getJSONObject(chapterPosition)
 					.getJSONArray("Questions").getJSONObject(questionPosition)
 					.getJSONArray("Questions").length();
+			Log.v("Loop lenght", loopLimit.toString());
 		} else {
 			currentQuestion = jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
 					.getJSONArray("Chapters").getJSONObject(chapterPosition)
@@ -1019,6 +1028,7 @@ public class SurveyHelper {
 					.getJSONArray("Questions").getJSONObject(loopPosition);
 			loopLimit = jTrackerQuestions.getJSONObject(tripQuestionPosition)
 					.getJSONArray("Questions").length();
+			Log.v("Loop lenght", loopLimit.toString());
 		} else {
 			currentQuestion = jTrackerQuestions
 					.getJSONObject(tripQuestionPosition);
