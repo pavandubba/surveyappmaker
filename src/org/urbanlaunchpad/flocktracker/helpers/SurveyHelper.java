@@ -786,16 +786,32 @@ public class SurveyHelper {
 	public void answerCurrentQuestion(String answer,
 			ArrayList<Integer> selectedAnswers) {
 		try {
-			if (chapterPosition >= 0) {
-				jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
-						.getJSONArray("Chapters")
-						.getJSONObject(chapterPosition)
-						.getJSONArray("Questions")
-						.getJSONObject(questionPosition).put("Answer", answer);
-				// Tuple key = new Tuple(chapterPosition, questionPosition);
-				ArrayList<Integer> key = new ArrayList<Integer>(Arrays.asList(
-						chapterPosition, questionPosition, -1, -1));
-				selectedAnswersMap.put(key, selectedAnswers);
+			if (!inLoop) {
+				if (chapterPosition >= 0) {
+					jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
+							.getJSONArray("Chapters")
+							.getJSONObject(chapterPosition)
+							.getJSONArray("Questions")
+							.getJSONObject(questionPosition)
+							.put("Answer", answer);
+					// Tuple key = new Tuple(chapterPosition, questionPosition);
+					ArrayList<Integer> key = new ArrayList<Integer>(
+							Arrays.asList(chapterPosition, questionPosition,
+									-1, -1));
+					selectedAnswersMap.put(key, selectedAnswers);
+				}
+			} else {
+				// TODO Save stuff to the correct json part
+				// jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
+				// .getJSONArray("Chapters")
+				// .getJSONObject(chapterPosition)
+				// .getJSONArray("Questions")
+				// .getJSONObject(questionPosition).put("Answer", answer);
+				// // Tuple key = new Tuple(chapterPosition, questionPosition);
+				// ArrayList<Integer> key = new
+				// ArrayList<Integer>(Arrays.asList(
+				// chapterPosition, questionPosition, -1, -1));
+				// selectedAnswersMap.put(key, selectedAnswers);
 			}
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -805,12 +821,23 @@ public class SurveyHelper {
 	public void answerCurrentTrackerQuestion(String answer,
 			ArrayList<Integer> selectedAnswers) {
 		try {
-			jtracker.getJSONArray("Questions")
-					.getJSONObject(tripQuestionPosition).put("Answer", answer);
-			ArrayList<Integer> key = new ArrayList<Integer>(Arrays.asList(
-					questionPosition, -1, -1));
-			selectedTrackingAnswersMap.put(key,
-					selectedAnswers);
+			if (!inLoop) {
+				jtracker.getJSONArray("Questions")
+						.getJSONObject(tripQuestionPosition)
+						.put("Answer", answer);
+				ArrayList<Integer> key = new ArrayList<Integer>(Arrays.asList(
+						questionPosition, -1, -1));
+				selectedTrackingAnswersMap.put(key, selectedAnswers);
+			} else {
+			// TODO Fix the loop case
+//				jtracker.getJSONArray("Questions")
+//						.getJSONObject(tripQuestionPosition)
+//						.put("Answer", answer);
+//				ArrayList<Integer> key = new ArrayList<Integer>(Arrays.asList(
+//						questionPosition, -1, -1));
+//				selectedTrackingAnswersMap.put(key, selectedAnswers);
+			}
+
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}

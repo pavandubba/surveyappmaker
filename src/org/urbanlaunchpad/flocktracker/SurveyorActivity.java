@@ -809,6 +809,8 @@ public class SurveyorActivity extends Activity implements
 			args.putInt(QuestionFragment.ARG_LOOP_ITERATION,
 					surveyHelper.loopIteration);
 			args.putInt(QuestionFragment.ARG_LOOP_TOTAL, surveyHelper.loopTotal);
+			args.putInt(QuestionFragment.ARG_LOOP_POSITION,
+					surveyHelper.loopPosition);
 		} else {
 			args.putBoolean(QuestionFragment.ARG_IN_LOOP, false);
 		}
@@ -968,19 +970,13 @@ public class SurveyorActivity extends Activity implements
 
 	public void AnswerRecieve(String answerStringReceive,
 			String jumpStringReceive, ArrayList<Integer> selectedAnswers,
-			Boolean inLoopReceive, String questionkindReceive) {
+			Boolean inLoopReceive, String questionkindReceive,
+			ArrayList<Integer> questionkey) {
 		// TODO: fix loop stuff
-		// surveyHelper.inLoop = (inLoopReceive == null) ? false :
-		// inLoopReceive;
 
 		if (questionkindReceive.equals("LP")
 				&& ((answerStringReceive != null) && (!answerStringReceive
 						.equals("")))) {
-			surveyHelper.loopTotal = Integer.parseInt(answerStringReceive);
-			Log.v("Loop total", surveyHelper.loopTotal.toString());
-			surveyHelper.inLoop = true;
-			surveyHelper.loopPosition = -1;
-			surveyHelper.loopIteration = 0;
 			if (!askingTripQuestions) {
 				// Toast toast = Toast.makeText(this, "received question",
 				// Toast.LENGTH_SHORT);
@@ -991,7 +987,12 @@ public class SurveyorActivity extends Activity implements
 				surveyHelper.answerCurrentTrackerQuestion(answerStringReceive,
 						selectedAnswers);
 			}
-		} else if ((answerStringReceive != null) && (!surveyHelper.inLoop)) {
+			surveyHelper.loopTotal = Integer.parseInt(answerStringReceive);
+			Log.v("Loop total", surveyHelper.loopTotal.toString());
+			surveyHelper.inLoop = true;
+			surveyHelper.loopPosition = -1;
+			surveyHelper.loopIteration = 0;
+		} else if (answerStringReceive != null) {
 			if (!askingTripQuestions) {
 				surveyHelper.answerCurrentQuestion(answerStringReceive,
 						selectedAnswers);
@@ -999,16 +1000,17 @@ public class SurveyorActivity extends Activity implements
 				surveyHelper.answerCurrentTrackerQuestion(answerStringReceive,
 						selectedAnswers);
 			}
-		} else if ((answerStringReceive != null) && (surveyHelper.inLoop)) {
-			// TODO Add answer saving to in loop questions.
-			if (!askingTripQuestions) {
-				surveyHelper.answerCurrentLoopQuestion(answerStringReceive,
-						selectedAnswers);
-			} else {
-				surveyHelper.answerCurrentTrackerLoopQuestion(
-						answerStringReceive, selectedAnswers);
-			}
 		}
+		// else if ((answerStringReceive != null) && (surveyHelper.inLoop)) {
+		// // TODO Add answer saving to in loop questions.
+		// if (!askingTripQuestions) {
+		// surveyHelper.answerCurrentLoopQuestion(answerStringReceive,
+		// selectedAnswers);
+		// } else {
+		// surveyHelper.answerCurrentTrackerLoopQuestion(
+		// answerStringReceive, selectedAnswers);
+		// }
+		// }
 
 		if (jumpStringReceive != null) {
 			surveyHelper.updateJumpString(jumpStringReceive);
