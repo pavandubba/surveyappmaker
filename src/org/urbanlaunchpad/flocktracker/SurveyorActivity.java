@@ -991,7 +991,7 @@ public class SurveyorActivity extends Activity implements
 			Log.v("Loop total", surveyHelper.loopTotal.toString());
 			surveyHelper.inLoop = true;
 			surveyHelper.loopPosition = -1;
-			surveyHelper.loopIteration = 0;
+			surveyHelper.loopIteration = -1;
 		} else if (answerStringReceive != null) {
 			if (!askingTripQuestions) {
 				surveyHelper.answerCurrentQuestion(answerStringReceive,
@@ -1067,6 +1067,9 @@ public class SurveyorActivity extends Activity implements
 			break;
 		case NEWSURVEY:
 			surveyHelper.updateSurveyPosition(0, 0);
+			surveyHelper.inLoop = false;
+			surveyHelper.loopIteration = -1;
+			surveyHelper.loopPosition = -1;
 			showCurrentQuestion();
 			break;
 		case STATISTICS:

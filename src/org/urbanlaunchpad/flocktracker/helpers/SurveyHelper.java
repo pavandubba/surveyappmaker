@@ -83,7 +83,7 @@ public class SurveyHelper {
 									// into a loop.
 	public Integer loopPosition = -1; // Position in the questions array in the
 										// loop the survey is in.
-	public Integer loopIteration = 0; // Iteration step where the loop process
+	public Integer loopIteration = -1; // Iteration step where the loop process
 										// is.
 	public Integer loopLimit = 0; // Total number of questions in the loop being
 									// asked.
@@ -829,13 +829,14 @@ public class SurveyHelper {
 						questionPosition, -1, -1));
 				selectedTrackingAnswersMap.put(key, selectedAnswers);
 			} else {
-			// TODO Fix the loop case
-//				jtracker.getJSONArray("Questions")
-//						.getJSONObject(tripQuestionPosition)
-//						.put("Answer", answer);
-//				ArrayList<Integer> key = new ArrayList<Integer>(Arrays.asList(
-//						questionPosition, -1, -1));
-//				selectedTrackingAnswersMap.put(key, selectedAnswers);
+				// TODO Fix the loop case
+				// jtracker.getJSONArray("Questions")
+				// .getJSONObject(tripQuestionPosition)
+				// .put("Answer", answer);
+				// ArrayList<Integer> key = new
+				// ArrayList<Integer>(Arrays.asList(
+				// questionPosition, -1, -1));
+				// selectedTrackingAnswersMap.put(key, selectedAnswers);
 			}
 
 		} catch (JSONException e) {
@@ -924,34 +925,45 @@ public class SurveyHelper {
 	// TODO fix the backstack of the loop questions
 			Boolean askingTripQuestions) {
 		if (askingTripQuestions && inLoop) {
+			Integer loopTemporaryPosition = loopPosition;
+			Integer loopTemporaryIteration = loopIteration;
 			loopPosition++;
 			Log.v("Loop position", loopPosition.toString());
 			if (loopPosition == loopLimit) {
 				loopPosition = 0;
 				loopIteration++;
 				if (loopIteration == loopTotal) {
-					loopIteration = 0;
-					loopPosition = -1;
 					tripQuestionPosition++;
+					loopPosition = -1;
+					loopIteration = -1;
+					inLoop = false;
 					if (tripQuestionPosition == jTrackerQuestions.length()) {
+						loopPosition = loopTemporaryPosition;
+						loopIteration = loopTemporaryIteration;
+						inLoop = true;
+						tripQuestionPosition--;
 						return NextQuestionResult.END;
 					}
 				}
-			} else {
-
 			}
 		} else if (!askingTripQuestions && inLoop) {
+			Integer looptemporalpositionInteger = loopPosition;
+			Integer loopTemporaryIteration = loopIteration;
 			loopPosition++;
 			Log.v("Loop position", loopPosition.toString());
 			if (loopPosition == loopLimit) {
-				loopPosition = 0;
+				loopPosition = 1;
 				loopIteration++;
 				if (loopIteration == loopTotal) {
-					loopIteration = 0;
-					loopPosition = -1;
 					questionPosition++;
+					loopPosition = -1;
+					loopIteration = -1;
+					inLoop = false;
 					if (questionPosition == chapterQuestionCounts[chapterPosition]) {
 						if (chapterPosition == jChapterList.length() - 1) {
+							loopPosition = looptemporalpositionInteger;
+							loopIteration = loopTemporaryIteration;
+							inLoop = true;
 							questionPosition--;
 							return NextQuestionResult.END;
 						} else {
@@ -961,8 +973,6 @@ public class SurveyHelper {
 						}
 					}
 				}
-			} else {
-
 			}
 
 		} else if (askingTripQuestions && !inLoop) {

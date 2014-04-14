@@ -170,17 +170,17 @@ public class QuestionFragment extends Fragment implements View.OnClickListener,
 
 				// Prepopulate question
 				getselectedAnswers();
-//				if (SurveyorActivity.askingTripQuestions) {
-//					selectedAnswers = SurveyHelper.selectedTrackingAnswersMap
-//							.get(new ArrayList<Integer>(Arrays.asList(
-//									questionposition, -1, -1)));
-//				} else {
-//					// selectedAnswers = SurveyHelper.selectedAnswersMap
-//					// .get(new Tuple(chapterposition, questionposition));
-//					selectedAnswers = SurveyHelper.selectedAnswersMap
-//							.get(new ArrayList<Integer>(Arrays.asList(
-//									chapterposition, questionposition, -1, -1)));
-//				}
+				// if (SurveyorActivity.askingTripQuestions) {
+				// selectedAnswers = SurveyHelper.selectedTrackingAnswersMap
+				// .get(new ArrayList<Integer>(Arrays.asList(
+				// questionposition, -1, -1)));
+				// } else {
+				// // selectedAnswers = SurveyHelper.selectedAnswersMap
+				// // .get(new Tuple(chapterposition, questionposition));
+				// selectedAnswers = SurveyHelper.selectedAnswersMap
+				// .get(new ArrayList<Integer>(Arrays.asList(
+				// chapterposition, questionposition, -1, -1)));
+				// }
 				if (selectedAnswers != null) {
 					for (Integer id : selectedAnswers) {
 						if (id == -1) {
@@ -205,17 +205,17 @@ public class QuestionFragment extends Fragment implements View.OnClickListener,
 
 				// Prepopulate question
 				getselectedAnswers();
-//				if (SurveyorActivity.askingTripQuestions) {
-//					selectedAnswers = SurveyHelper.selectedTrackingAnswersMap
-//							.get(new ArrayList<Integer>(Arrays.asList(
-//									questionposition, -1, -1)));
-//				} else {
-//					// selectedAnswers = SurveyHelper.selectedAnswersMap
-//					// .get(new Tuple(chapterposition, questionposition));
-//					selectedAnswers = SurveyHelper.selectedAnswersMap
-//							.get(new ArrayList<Integer>(Arrays.asList(
-//									chapterposition, questionposition, -1, -1)));
-//				}
+				// if (SurveyorActivity.askingTripQuestions) {
+				// selectedAnswers = SurveyHelper.selectedTrackingAnswersMap
+				// .get(new ArrayList<Integer>(Arrays.asList(
+				// questionposition, -1, -1)));
+				// } else {
+				// // selectedAnswers = SurveyHelper.selectedAnswersMap
+				// // .get(new Tuple(chapterposition, questionposition));
+				// selectedAnswers = SurveyHelper.selectedAnswersMap
+				// .get(new ArrayList<Integer>(Arrays.asList(
+				// chapterposition, questionposition, -1, -1)));
+				// }
 
 				if (selectedAnswers != null && selectedAnswers.get(0) == -1) {
 					try {
@@ -232,17 +232,17 @@ public class QuestionFragment extends Fragment implements View.OnClickListener,
 				// inLoopBoolean = true;
 				// Prepopulate question
 				getselectedAnswers();
-//				if (SurveyorActivity.askingTripQuestions) {
-//					selectedAnswers = SurveyHelper.selectedTrackingAnswersMap
-//							.get(new ArrayList<Integer>(Arrays.asList(
-//									questionposition, -1, -1)));
-//				} else {
-//					// selectedAnswers = SurveyHelper.selectedAnswersMap
-//					// .get(new Tuple(chapterposition, questionposition));
-//					selectedAnswers = SurveyHelper.selectedAnswersMap
-//							.get(new ArrayList<Integer>(Arrays.asList(
-//									chapterposition, questionposition, -1, -1)));
-//				}
+				// if (SurveyorActivity.askingTripQuestions) {
+				// selectedAnswers = SurveyHelper.selectedTrackingAnswersMap
+				// .get(new ArrayList<Integer>(Arrays.asList(
+				// questionposition, -1, -1)));
+				// } else {
+				// // selectedAnswers = SurveyHelper.selectedAnswersMap
+				// // .get(new Tuple(chapterposition, questionposition));
+				// selectedAnswers = SurveyHelper.selectedAnswersMap
+				// .get(new ArrayList<Integer>(Arrays.asList(
+				// chapterposition, questionposition, -1, -1)));
+				// }
 
 				if (selectedAnswers != null && selectedAnswers.get(0) == -1) {
 					try {
@@ -259,17 +259,17 @@ public class QuestionFragment extends Fragment implements View.OnClickListener,
 				CheckBoxLayout();
 				// Prepopulate question
 				getselectedAnswers();
-//				if (SurveyorActivity.askingTripQuestions) {
-//					selectedAnswers = SurveyHelper.selectedTrackingAnswersMap
-//							.get(new ArrayList<Integer>(Arrays.asList(
-//									questionposition, -1, -1)));
-//				} else {
-//					// selectedAnswers = SurveyHelper.selectedAnswersMap
-//					// .get(new Tuple(chapterposition, questionposition));
-//					selectedAnswers = SurveyHelper.selectedAnswersMap
-//							.get(new ArrayList<Integer>(Arrays.asList(
-//									chapterposition, questionposition, -1, -1)));
-//				}
+				// if (SurveyorActivity.askingTripQuestions) {
+				// selectedAnswers = SurveyHelper.selectedTrackingAnswersMap
+				// .get(new ArrayList<Integer>(Arrays.asList(
+				// questionposition, -1, -1)));
+				// } else {
+				// // selectedAnswers = SurveyHelper.selectedAnswersMap
+				// // .get(new Tuple(chapterposition, questionposition));
+				// selectedAnswers = SurveyHelper.selectedAnswersMap
+				// .get(new ArrayList<Integer>(Arrays.asList(
+				// chapterposition, questionposition, -1, -1)));
+				// }
 
 				if (selectedAnswers != null) {
 					for (Integer id : selectedAnswers) {
@@ -296,7 +296,8 @@ public class QuestionFragment extends Fragment implements View.OnClickListener,
 			TextView loopElementTextView = (TextView) rootView
 					.findViewById(R.id.loopelement);
 			if (inLoopBoolean) {
-				loopElementTextView.setText("Element " + loopIterationInteger
+				Integer iterationToShowInteger = loopIterationInteger + 1;
+				loopElementTextView.setText("Element " + iterationToShowInteger
 						+ " of " + loopTotalInteger);
 				loopElementTextView.setTextSize(20);
 			} else {
@@ -352,17 +353,17 @@ public class QuestionFragment extends Fragment implements View.OnClickListener,
 
 		// Prepopulate question
 		getselectedAnswers();
-//		if (SurveyorActivity.askingTripQuestions) {
-//			selectedAnswers = SurveyHelper.selectedTrackingAnswersMap
-//					.get(new ArrayList<Integer>(Arrays.asList(questionposition,
-//							-1, -1)));
-//		} else {
-//			// selectedAnswers = SurveyHelper.selectedAnswersMap.get(new Tuple(
-//			// chapterposition, questionposition));
-//			selectedAnswers = SurveyHelper.selectedAnswersMap
-//					.get(new ArrayList<Integer>(Arrays.asList(chapterposition,
-//							questionposition, -1, -1)));
-//		}
+		// if (SurveyorActivity.askingTripQuestions) {
+		// selectedAnswers = SurveyHelper.selectedTrackingAnswersMap
+		// .get(new ArrayList<Integer>(Arrays.asList(questionposition,
+		// -1, -1)));
+		// } else {
+		// // selectedAnswers = SurveyHelper.selectedAnswersMap.get(new Tuple(
+		// // chapterposition, questionposition));
+		// selectedAnswers = SurveyHelper.selectedAnswersMap
+		// .get(new ArrayList<Integer>(Arrays.asList(chapterposition,
+		// questionposition, -1, -1)));
+		// }
 		if (selectedAnswers != null) {
 			ArrayList<String> answerTempList = new ArrayList<String>();
 			for (int i = 0; i < totalanswers; ++i) {
@@ -911,7 +912,8 @@ public class QuestionFragment extends Fragment implements View.OnClickListener,
 						selectedAnswers.add(view.getId());
 						ArrayList<Integer> key = getkey();
 						Callback.AnswerRecieve(answerString, jumpString,
-								selectedAnswers, inLoopBoolean, questionkind, key);
+								selectedAnswers, inLoopBoolean, questionkind,
+								key);
 					} else {
 						textView.setTextColor(getResources().getColor(
 								R.color.text_color_light));
@@ -1119,11 +1121,13 @@ public class QuestionFragment extends Fragment implements View.OnClickListener,
 			if (SurveyorActivity.askingTripQuestions) {
 				selectedAnswers = SurveyHelper.selectedTrackingAnswersMap
 						.get(new ArrayList<Integer>(Arrays.asList(
-								questionposition, loopIterationInteger, loopPositionInteger)));
+								questionposition, loopIterationInteger,
+								loopPositionInteger)));
 			} else {
 				selectedAnswers = SurveyHelper.selectedAnswersMap
 						.get(new ArrayList<Integer>(Arrays.asList(
-								chapterposition, questionposition, loopIterationInteger, loopPositionInteger)));
+								chapterposition, questionposition,
+								loopIterationInteger, loopPositionInteger)));
 			}
 		} else {
 			if (SurveyorActivity.askingTripQuestions) {
@@ -1137,24 +1141,26 @@ public class QuestionFragment extends Fragment implements View.OnClickListener,
 			}
 		}
 	}
-	
-	private ArrayList<Integer> getkey(){
+
+	private ArrayList<Integer> getkey() {
 		ArrayList<Integer> keyArrayList = null;
 		if (inLoopBoolean) {
 			if (SurveyorActivity.askingTripQuestions) {
-				keyArrayList = new ArrayList<Integer> (Arrays.asList(
-						questionposition, loopIterationInteger, loopPositionInteger));
+				keyArrayList = new ArrayList<Integer>(Arrays.asList(
+						questionposition, loopIterationInteger,
+						loopPositionInteger));
 			} else {
-				keyArrayList = new ArrayList<Integer> (Arrays.asList(chapterposition,
-						questionposition, loopIterationInteger, loopPositionInteger));
+				keyArrayList = new ArrayList<Integer>(Arrays.asList(
+						chapterposition, questionposition,
+						loopIterationInteger, loopPositionInteger));
 			}
 		} else {
 			if (SurveyorActivity.askingTripQuestions) {
-				keyArrayList = new ArrayList<Integer> (Arrays.asList(
+				keyArrayList = new ArrayList<Integer>(Arrays.asList(
 						questionposition, -1, -1));
 			} else {
-				keyArrayList = new ArrayList<Integer> (Arrays.asList(chapterposition,
-						questionposition, -1, -1));
+				keyArrayList = new ArrayList<Integer>(Arrays.asList(
+						chapterposition, questionposition, -1, -1));
 			}
 		}
 		return keyArrayList;
