@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+    <string name="action_settings">Settings</string> <!-- Text to go to configuration -->
+    <string name="start_trip_bus_desc">Start trip icon</string> <!-- Description of the button that starts the tracking process -->
+    <string name="stats_button_desc">Statistics button</string> <!-- Description of the button that goes to the statistics page -->
+    <string name="start_survey_button_desc">Start survey button</string> <!-- Description of the button that starts the surveying process -->
+    <string name="previous_question_desc">Previous question</string> <!-- Description of the button that takes you to the previous question -->
+    <string name="next_question_desc">Next question</string> <!-- Description of the button that takes you to the next question -->
+    <string name="submit_question_desc">Submit survey</string> <!-- Description of the button that submits a survey -->
+    
+    <string name="more_men_button_desc">More men button</string> <!-- Description of the button that adds one man to the counter -->
+    <string name="fewer_men_button_desc">Fewer men button</string> <!-- Description of the button that that substract one man to the counter -->
+    <string name="more_women_button_desc">More women button</string> <!-- Description of the button that adds one woman to the counter -->
+    <string name="fewer_women_button_desc">Fewer women button</string> <!-- Description of the button that that substract one woman to the counter -->
+    <string name="men_icon_desc">Men icon</string> <!-- Description of the men icon -->
+    <string name="women_icon_desc">Women icon</string> <!-- Description of the women icon -->
+    <string name="title_activity_iniconfig">Initial configuration</string> <!-- Title of the Initial configuration activity -->
+    <string name="title_activity_surveyor">Surveyor</string> <!-- Title of the Surveyor activity -->
+    <string name="submitting_survey">Submitting survey</string> <!-- Text shown when uploading a survey to the internet -->
+    <string name="submit_failed">Failed to submit survey</string> <!-- Text shown when survey upload to the internet din't work -->
+    <string name="survey_submitted">Survey will be submitted in the background</string> <!-- Text shown when the survey upload will be postponed and continued in the background -->
+    <string name="yes">Yes</string> <!-- Positive answer -->
+    <string name="no">No</string> <!-- Negative answer -->
+    <string name="submit_survey_question">Do you want to upload the survey to the cloud and reset the answers stored in the device? (This cannot be undone)</string> <!-- Text shown in a dialog at the end of a survey to choose if the user wants to upload a survey or continue editing it -->
+    <string name="other_hint">Other</string> <!-- Placeholder text on questions that have an "other" option before the user has entered his/her answer -->
+    <string name="answer_hint">Answer</string> <!-- Placeholder text on open questions before the user has entered his/her answer -->
+    <string name="projectNameText">Select project</string> <!-- Prompts the user to enter the name of the project the are wishing to work in -->
+    <string name="usernameText">Select user</string> <!-- Prompts the user to select a username on the list of google accounts on his/her device -->
+    <string name="projectNameTitle">Project Name</string> <!-- Name of the project entered or to be entered by the user -->
+    <string name="usernameTitle">Username</string> <!-- Username chosen or to be chosen by the user -->
+    <string name="projectNameButtonDesc">Select project</string> <!-- Description of the button that prompts the user to enter the name of the project the are wishing to work in -->
+    <string name="usernameButtonDesc">Select user</string> <!-- Description of the button that prompts the user to select a username on the list of google accounts on his/her device -->
+    <string name="default_greeting">Hi user_name!</string> <!-- Default greeting for the user in the status page. user_name will be replaced with the actual username chosen -->
+    <string name="surveys_completed">surveys completed</string> <!-- Text before the number to indicate the total number of surveys completed by the user -->
+    <string name="rides_completed">rides completed</string> <!-- Text before the number to indicate the total number of rides completed by the user -->
+    <string name="total_distance">total distance (km)</string> <!-- Text before the number to indicate the total distance on the current tracking process -->
+    <string name="current_address">current address</string> <!-- Text to indicate the current approximate adress the user is in -->
+    <string name="default_address">No address found</string> <!-- Text to indicate that no adress for the current location was found -->
+    <string name="continue_desc">Continue</string> <!-- Description for the button to continue to the next page -->
+    <string name="skip_question">Skip question</string> <!-- Text on a button to skip the question without answering it -->
+    <string name="question_skipped">Question not answered</string> <!-- Text to indicate that the current question isn't already answered -->
+    <string name="gps_network_not_enabled">GPS and Network location services are not enabled, please turn them on if you want location information on your uploads.</string> <!-- Text that reminds users that the location settings have to be on to upload georeferenced data -->
+    <string name="open_location_settings">Go to settings</string> <!-- Text shown on the button to go to location settings on the dialog to ask the user if she/he wants to go to the settings for location -->
+    <string name="cancel_location_settings">No thanks</string> <!-- Text shown on the button not to go to location settings on the dialog to ask the user if she/he wants to go to the settings for location -->
+    <string name="stop_tracker_message">Do you really want to stop tracking your movement? This cannot be undone.</string> <!-- Text shown on a dialog to ask the user if he/she wants to stop the tracking process -->
+    <string name="hub_page_title">Hub Page</string> <!-- Title of the Hub Page -->
+    <string name="statistics_page_title">Statistics</string> <!-- Title of the statistics page -->
+
+    <string name="chapter_drawer_open">Open chapter navigation drawer</string>
+    <string name="chapter_drawer_close">Close chapter navigation drawer</string>
+    
+    <string name="tracking_on">Tracking is on!</string> <!-- Text shown when the tracking process is started -->
+    <string name="disconnected">Disconnected</string> <!-- Text shown when the tracking process is ended -->
+    <string name="end_of_survey">You’ve reached the end of the survey.</string> <!-- Text shown when the user reached the end of the current survey -->
+    <string name="question_not_received">Question not received from main activity.</string> <!-- Text to inform that the question was not received from the main Activity -->
+    <string name="no_question_kind">No question kind in question.</string> <!-- Text to inform that the current question has no "question kind" attibute on the JSON file -->
+    <string name="question_parsing_problem">Poblems with question parsing, please check survey file.</string> <!-- Text to inform the user that the JSON file is not working propperly -->
+	<string name="json_format_error">Your survey JSON file is not formatted correctly.</string> <!-- Text to inform the user that the JSON file is not working propperly -->
+	<string name="fusion_tables_id_problem">Your project has messy Fusion Table IDs, uploading won’t work.</string> <!-- Text to inform that the JSON file has problems with the Fusion Tables IDs on it -->
+	<string name="chapters_not_parsed">Chapters not parsed, check survey file.</string> <!-- Text to inform the user that the JSON file has no survey chapters on it -->
+	<string name="no_tracker_questions">Project does not contain tracker questions or questions were created erroneusly.</string> <!-- Text to inform the user that the JSON file has no tracker object -->
+	
+	<string name="survey_parsed">Survey parsed!</string> <!-- Text shown when the survey JSON information was correctly downloaded and parsed in the initial configuration page -->
+	<string name="no_survey_obtained">Could not get project.</string> <!-- Text shown when the survey JSON information was not correctly downloaded and parsed in the initial configuration page -->
+	<string name="select_project">Select project</string> <!-- Prompts the user to enter the name of the project the are wishing to work in -->
+	<string name="ok">OK</string> <!-- OK -->
+	<string name="cancel">Cancel</string> <!-- Cancel the selection -->
+	<string name="select_user_first">Select user first please.</string> <!-- Prompts the user to select a user befor a project -->
+	<string name="invalid_user_project">Invalid user/project!</string> <!-- Informs that the project/user combination does not work -->
+	
+</resources>
