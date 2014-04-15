@@ -958,7 +958,6 @@ public class SurveyorActivity extends Activity implements
 					rowItem.setImageId(HALF_COMPLETE_CHAPTER);
 				}
 			}
-
 			showCurrentQuestion();
 			break;
 		case SUBMIT:
@@ -992,6 +991,7 @@ public class SurveyorActivity extends Activity implements
 			surveyHelper.inLoop = true;
 			surveyHelper.loopPosition = -1;
 			surveyHelper.loopIteration = -1;
+			surveyHelper.updateLoopLimit();
 		} else if (answerStringReceive != null) {
 			if (!askingTripQuestions) {
 				surveyHelper.answerCurrentQuestion(answerStringReceive,

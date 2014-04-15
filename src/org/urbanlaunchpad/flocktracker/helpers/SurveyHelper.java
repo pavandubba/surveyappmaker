@@ -925,8 +925,9 @@ public class SurveyHelper {
 	// TODO fix the backstack of the loop questions
 			Boolean askingTripQuestions) {
 		if (askingTripQuestions && inLoop) {
-			Integer loopTemporaryPosition = loopPosition;
-			Integer loopTemporaryIteration = loopIteration;
+			if (loopIteration == -1) {
+				loopIteration = 0;
+			}	
 			loopPosition++;
 			Log.v("Loop position", loopPosition.toString());
 			if (loopPosition == loopLimit) {
@@ -938,10 +939,6 @@ public class SurveyHelper {
 					loopIteration = -1;
 					inLoop = false;
 					if (tripQuestionPosition == jTrackerQuestions.length()) {
-						loopPosition = loopTemporaryPosition;
-						loopIteration = loopTemporaryIteration;
-						inLoop = true;
-						tripQuestionPosition--;
 						return NextQuestionResult.END;
 					}
 				}
@@ -949,10 +946,13 @@ public class SurveyHelper {
 		} else if (!askingTripQuestions && inLoop) {
 			Integer looptemporalpositionInteger = loopPosition;
 			Integer loopTemporaryIteration = loopIteration;
+			if (loopIteration == -1) {
+				loopIteration = 0;
+			}
 			loopPosition++;
 			Log.v("Loop position", loopPosition.toString());
 			if (loopPosition == loopLimit) {
-				loopPosition = 1;
+				loopPosition = 0;
 				loopIteration++;
 				if (loopIteration == loopTotal) {
 					questionPosition++;
@@ -969,6 +969,7 @@ public class SurveyHelper {
 						} else {
 							chapterPosition++;
 							questionPosition = 0;
+							inLoop = false;
 							return NextQuestionResult.CHAPTER_END;
 						}
 					}
@@ -1060,10 +1061,6 @@ public class SurveyHelper {
 					.getJSONArray("Chapters").getJSONObject(chapterPosition)
 					.getJSONArray("Questions").getJSONObject(questionPosition)
 					.getJSONArray("Questions").getJSONObject(loopPosition);
-			loopLimit = jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
-					.getJSONArray("Chapters").getJSONObject(chapterPosition)
-					.getJSONArray("Questions").getJSONObject(questionPosition)
-					.getJSONArray("Questions").length();
 			Log.v("Loop lenght", loopLimit.toString());
 		} else {
 			currentQuestion = jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
@@ -1164,5 +1161,30 @@ public class SurveyHelper {
 			return chapterPosition + "," + questionPosition;
 		}
 
+	}
+	
+	public void updateLoopLimit(){
+		if (!SurveyorActivity.askingTripQuestions){
+			try {
+				loopLimit = jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
+						.getJSONArray("Chapters").getJSONObject(chapterPosition)
+						.getJSONArray("Questions").getJSONObject(questionPosition)
+						.getJSONArray("Questions").length();
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else {
+			try {
+				loopLimit = jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
+						.getJSONArray("Questions").getJSONObject(questionPosition)
+						.getJSONArray("Questions").length();
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+		Log.v("Loop lenght", loopLimit.toString());
 	}
 }
