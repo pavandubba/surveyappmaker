@@ -170,17 +170,6 @@ public class QuestionFragment extends Fragment implements View.OnClickListener,
 
 				// Prepopulate question
 				getselectedAnswers();
-				// if (SurveyorActivity.askingTripQuestions) {
-				// selectedAnswers = SurveyHelper.selectedTrackingAnswersMap
-				// .get(new ArrayList<Integer>(Arrays.asList(
-				// questionposition, -1, -1)));
-				// } else {
-				// // selectedAnswers = SurveyHelper.selectedAnswersMap
-				// // .get(new Tuple(chapterposition, questionposition));
-				// selectedAnswers = SurveyHelper.selectedAnswersMap
-				// .get(new ArrayList<Integer>(Arrays.asList(
-				// chapterposition, questionposition, -1, -1)));
-				// }
 				if (selectedAnswers != null) {
 					for (Integer id : selectedAnswers) {
 						if (id == -1) {
@@ -205,17 +194,6 @@ public class QuestionFragment extends Fragment implements View.OnClickListener,
 
 				// Prepopulate question
 				getselectedAnswers();
-				// if (SurveyorActivity.askingTripQuestions) {
-				// selectedAnswers = SurveyHelper.selectedTrackingAnswersMap
-				// .get(new ArrayList<Integer>(Arrays.asList(
-				// questionposition, -1, -1)));
-				// } else {
-				// // selectedAnswers = SurveyHelper.selectedAnswersMap
-				// // .get(new Tuple(chapterposition, questionposition));
-				// selectedAnswers = SurveyHelper.selectedAnswersMap
-				// .get(new ArrayList<Integer>(Arrays.asList(
-				// chapterposition, questionposition, -1, -1)));
-				// }
 
 				if (selectedAnswers != null && selectedAnswers.get(0) == -1) {
 					try {
@@ -229,20 +207,8 @@ public class QuestionFragment extends Fragment implements View.OnClickListener,
 
 			} else if (questionkind.equals("LP")) {
 				OpenLayout();
-				// inLoopBoolean = true;
 				// Prepopulate question
 				getselectedAnswers();
-				// if (SurveyorActivity.askingTripQuestions) {
-				// selectedAnswers = SurveyHelper.selectedTrackingAnswersMap
-				// .get(new ArrayList<Integer>(Arrays.asList(
-				// questionposition, -1, -1)));
-				// } else {
-				// // selectedAnswers = SurveyHelper.selectedAnswersMap
-				// // .get(new Tuple(chapterposition, questionposition));
-				// selectedAnswers = SurveyHelper.selectedAnswersMap
-				// .get(new ArrayList<Integer>(Arrays.asList(
-				// chapterposition, questionposition, -1, -1)));
-				// }
 
 				if (selectedAnswers != null && selectedAnswers.get(0) == -1) {
 					try {
@@ -259,17 +225,6 @@ public class QuestionFragment extends Fragment implements View.OnClickListener,
 				CheckBoxLayout();
 				// Prepopulate question
 				getselectedAnswers();
-				// if (SurveyorActivity.askingTripQuestions) {
-				// selectedAnswers = SurveyHelper.selectedTrackingAnswersMap
-				// .get(new ArrayList<Integer>(Arrays.asList(
-				// questionposition, -1, -1)));
-				// } else {
-				// // selectedAnswers = SurveyHelper.selectedAnswersMap
-				// // .get(new Tuple(chapterposition, questionposition));
-				// selectedAnswers = SurveyHelper.selectedAnswersMap
-				// .get(new ArrayList<Integer>(Arrays.asList(
-				// chapterposition, questionposition, -1, -1)));
-				// }
 
 				if (selectedAnswers != null) {
 					for (Integer id : selectedAnswers) {
@@ -353,17 +308,7 @@ public class QuestionFragment extends Fragment implements View.OnClickListener,
 
 		// Prepopulate question
 		getselectedAnswers();
-		// if (SurveyorActivity.askingTripQuestions) {
-		// selectedAnswers = SurveyHelper.selectedTrackingAnswersMap
-		// .get(new ArrayList<Integer>(Arrays.asList(questionposition,
-		// -1, -1)));
-		// } else {
-		// // selectedAnswers = SurveyHelper.selectedAnswersMap.get(new Tuple(
-		// // chapterposition, questionposition));
-		// selectedAnswers = SurveyHelper.selectedAnswersMap
-		// .get(new ArrayList<Integer>(Arrays.asList(chapterposition,
-		// questionposition, -1, -1)));
-		// }
+		
 		if (selectedAnswers != null) {
 			ArrayList<String> answerTempList = new ArrayList<String>();
 			for (int i = 0; i < totalanswers; ++i) {

@@ -788,13 +788,14 @@ public class SurveyHelper {
 		try {
 			if (!inLoop) {
 				if (chapterPosition >= 0) {
+					// Saving the answer string in JSON
 					jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
 							.getJSONArray("Chapters")
 							.getJSONObject(chapterPosition)
 							.getJSONArray("Questions")
 							.getJSONObject(questionPosition)
 							.put("Answer", answer);
-					// Tuple key = new Tuple(chapterPosition, questionPosition);
+					// Saving the selected questions.
 					ArrayList<Integer> key = new ArrayList<Integer>(
 							Arrays.asList(chapterPosition, questionPosition,
 									-1, -1));
@@ -802,16 +803,10 @@ public class SurveyHelper {
 				}
 			} else {
 				// TODO Save stuff to the correct json part
-				// jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
-				// .getJSONArray("Chapters")
-				// .getJSONObject(chapterPosition)
-				// .getJSONArray("Questions")
-				// .getJSONObject(questionPosition).put("Answer", answer);
-				// // Tuple key = new Tuple(chapterPosition, questionPosition);
-				// ArrayList<Integer> key = new
-				// ArrayList<Integer>(Arrays.asList(
-				// chapterPosition, questionPosition, -1, -1));
-				// selectedAnswersMap.put(key, selectedAnswers);
+				ArrayList<Integer> key = new ArrayList<Integer>(
+						Arrays.asList(chapterPosition, questionPosition,
+								loopIteration, loopPosition));
+				selectedAnswersMap.put(key, selectedAnswers);
 			}
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -830,13 +825,10 @@ public class SurveyHelper {
 				selectedTrackingAnswersMap.put(key, selectedAnswers);
 			} else {
 				// TODO Fix the loop case
-				// jtracker.getJSONArray("Questions")
-				// .getJSONObject(tripQuestionPosition)
-				// .put("Answer", answer);
-				// ArrayList<Integer> key = new
-				// ArrayList<Integer>(Arrays.asList(
-				// questionPosition, -1, -1));
-				// selectedTrackingAnswersMap.put(key, selectedAnswers);
+				ArrayList<Integer> key = new ArrayList<Integer>(
+						Arrays.asList(questionPosition,
+								loopIteration, loopPosition));
+				selectedAnswersMap.put(key, selectedAnswers);
 			}
 
 		} catch (JSONException e) {
