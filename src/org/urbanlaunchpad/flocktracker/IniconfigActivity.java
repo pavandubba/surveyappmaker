@@ -137,14 +137,16 @@ public class IniconfigActivity extends Activity implements IniconfigListener {
     public void parseSurvey() {
         iniconfigManager.onParsingSurvey();
         // get and parse survey
-        new AsyncTask<Void, Void, Void>() {
+        new AsyncTask<Void, Void, Boolean>() {
 
             @Override
-            protected Void doInBackground(Void... params) {
+            protected Boolean doInBackground(Void... params) {
                 try {
                     getSurvey(ProjectConfig.get().getProjectName());
+                    return true;
                 } catch (UserRecoverableAuthIOException e) {
                     startActivityForResult(e.getIntent(), REQUEST_PERMISSIONS);
+                    return false;
                 } catch (IOException e) {
                     // If can't get updated version, use cached survey
                     if (ProjectConfig.get().getProjectName().equals(prefs.getString("lastProject", ""))) {
@@ -152,27 +154,28 @@ public class IniconfigActivity extends Activity implements IniconfigListener {
                     } else {
                         e.printStackTrace();
                     }
+                    return true;
                 }
-
-                return null;
             }
 
             @Override
-            protected void onPostExecute(Void result) {
-                super.onPostExecute(result);
-                try {
-                    if (jsonSurveyString == null) {
-                        throw new JSONException("Could not parse empty string");
+            protected void onPostExecute(Boolean success) {
+                super.onPostExecute(success);
+                if (success) {
+                    try {
+                        if (jsonSurveyString == null) {
+                            throw new JSONException("Could not parse empty string");
+                        }
+                        // Try to parse
+                        new JSONObject(jsonSurveyString);
+                        ProjectConfig.get().setOriginalJSONSurveyString(jsonSurveyString);
+                        iniconfigManager.onSurveyParsedCorrectly();
+                    } catch (JSONException e) {
+                        Log.e("JSON Parser",
+                            "Error parsing data " + e.toString());
+                        iniconfigManager.onSurveyParsedIncorrectly();
+                        ProjectConfig.get().setOriginalJSONSurveyString(null);
                     }
-                    // Try to parse
-                    new JSONObject(jsonSurveyString);
-                    ProjectConfig.get().setOriginalJSONSurveyString(jsonSurveyString);
-                    iniconfigManager.onSurveyParsedCorrectly();
-                } catch (JSONException e) {
-                    Log.e("JSON Parser",
-                        "Error parsing data " + e.toString());
-                    iniconfigManager.onSurveyParsedIncorrectly();
-                    ProjectConfig.get().setOriginalJSONSurveyString(null);
                 }
             }
         }.execute();
