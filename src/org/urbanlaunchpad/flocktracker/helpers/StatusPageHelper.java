@@ -6,10 +6,7 @@ import android.location.Location;
 import android.text.Html;
 import android.util.Log;
 import android.widget.TextView;
-import org.urbanlaunchpad.flocktracker.IniconfigActivity;
-import org.urbanlaunchpad.flocktracker.R;
-import org.urbanlaunchpad.flocktracker.SurveyorActivity;
-import org.urbanlaunchpad.flocktracker.TrackerAlarm;
+import org.urbanlaunchpad.flocktracker.*;
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -48,7 +45,7 @@ public class StatusPageHelper {
             TextView ridesCompletedText = (TextView) surveyorActivity.findViewById(R.id.ridesCompleted);
 
             // TODO Make this addaptable to different languages.
-            usernameText.setText("Hi " + IniconfigActivity.username + "!");
+            usernameText.setText("Hi " + ProjectConfig.get().getUsername() + "!");
             surveysCompletedText.setText(Integer.toString(surveysCompleted));
             ridesCompletedText.setText(Integer.toString(ridesCompleted));
             tripTimeText.setText(getElapsedTime());

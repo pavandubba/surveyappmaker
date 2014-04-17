@@ -21,6 +21,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.urbanlaunchpad.flocktracker.IniconfigActivity;
+import org.urbanlaunchpad.flocktracker.ProjectConfig;
 import org.urbanlaunchpad.flocktracker.R;
 import org.urbanlaunchpad.flocktracker.SurveyorActivity;
 
@@ -339,7 +340,7 @@ public class SurveyHelper {
 					rowID = Integer
 							.parseInt((String) IniconfigActivity.fusiontables
 									.query().sql(metaDataQuery)
-									.setKey(IniconfigActivity.API_KEY)
+									.setKey(ProjectConfig.get().getApiKey())
 									.execute().getRows().get(0).get(0));
 				} else {
 					String metaDataQuery = "INSERT INTO "
@@ -356,7 +357,7 @@ public class SurveyHelper {
 					rowID = Integer
 							.parseInt((String) IniconfigActivity.fusiontables
 									.query().sql(metaDataQuery)
-									.setKey(IniconfigActivity.API_KEY)
+									.setKey(ProjectConfig.get().getApiKey())
 									.execute().getRows().get(0).get(0));
 				}
 
@@ -369,7 +370,7 @@ public class SurveyHelper {
 				}
 			} else {
 				Sql sql = IniconfigActivity.fusiontables.query().sql(query);
-				sql.setKey(IniconfigActivity.API_KEY);
+				sql.setKey(ProjectConfig.get().getApiKey());
 				sql.execute();
 			}
 
@@ -399,7 +400,7 @@ public class SurveyHelper {
 			}
 
 			Sql sql = IniconfigActivity.fusiontables.query().sql(query);
-			sql.setKey(IniconfigActivity.API_KEY);
+			sql.setKey(ProjectConfig.get().getApiKey());
 			sql.execute();
 			return true;
 		} catch (Exception e) {
@@ -732,7 +733,7 @@ public class SurveyHelper {
 		// Returns the column list
 		Fusiontables.Column.List columnRequest = IniconfigActivity.fusiontables
 				.column().list(tableID);
-		columnRequest.setKey(IniconfigActivity.API_KEY);
+		columnRequest.setKey(ProjectConfig.get().getApiKey());
 		columnRequest.setMaxResults((long) 500);
 		ColumnList columnList = columnRequest.execute();
 
@@ -756,7 +757,7 @@ public class SurveyHelper {
 		try {
 			columnRequest = IniconfigActivity.fusiontables.column().insert(
 					tableID, newColumn);
-			columnRequest.setKey(IniconfigActivity.API_KEY);
+			columnRequest.setKey(ProjectConfig.get().getApiKey());
 			columnRequest.execute();
 			Log.v("requestColumnCreate", "Column created!");
 		} catch (IOException e) {
@@ -919,7 +920,7 @@ public class SurveyHelper {
 		if (askingTripQuestions && inLoop) {
 			if (loopIteration == -1) {
 				loopIteration = 0;
-			}	
+			}
 			loopPosition++;
 			Log.v("Loop position", loopPosition.toString());
 			if (loopPosition == loopLimit) {
@@ -1154,7 +1155,7 @@ public class SurveyHelper {
 		}
 
 	}
-	
+
 	public void updateLoopLimit(){
 		if (!SurveyorActivity.askingTripQuestions){
 			try {
