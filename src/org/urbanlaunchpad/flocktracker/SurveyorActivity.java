@@ -197,15 +197,12 @@ public class SurveyorActivity extends Activity implements
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_surveyor);
-		Bundle extras = getIntent().getExtras();
 		getWindow().setSoftInputMode(
 				WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
-		if (extras != null) {
-			username = extras.getString("username");
-			surveyHelper = new SurveyHelper(username,
-					extras.getString("jsonsurvey"), getApplicationContext());
-		}
+        username = ProjectConfig.get().getUsername();
+        surveyHelper = new SurveyHelper(username,
+                ProjectConfig.get().getOriginalJSONSurveyString(), getApplicationContext());
 
 		driveHelper = new GoogleDriveHelper(this);
 		statusPageHelper = new StatusPageHelper(this);
