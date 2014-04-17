@@ -144,14 +144,17 @@ public class IniconfigViewGroup extends LinearLayout implements IniconfigManager
 
     @Override
     public void onParsingSurvey() {
-        ProgressBar loading = new ProgressBar(getContext());
-        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
-            RelativeLayout.LayoutParams.WRAP_CONTENT);
-        params.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
-        loading.setLayoutParams(params);
+        if (continueButton.isClickable()) {
+            ProgressBar loading = new ProgressBar(getContext());
+            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.WRAP_CONTENT,
+                RelativeLayout.LayoutParams.WRAP_CONTENT);
+            params.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
+            loading.setLayoutParams(params);
 
-        navBar.addView(loading, 0);
-        continueButton.setClickable(false);
+            navBar.addView(loading, 0);
+            continueButton.setClickable(false);
+        }
     }
 
     private void onProjectNameInput() {
