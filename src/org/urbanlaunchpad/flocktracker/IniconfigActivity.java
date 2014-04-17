@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
@@ -112,7 +113,7 @@ public class IniconfigActivity extends Activity implements IniconfigListener {
         }
     }
 
-    public boolean getSurvey(String tableId) throws IOException {
+    public boolean getSurvey(String tableId) throws UserRecoverableAuthIOException, IOException {
         String MASTER_TABLE_ID = ProjectConfig.get().getSurveyTableID();
         Sql sql = fusiontables.query().sql(
             "SELECT survey_json FROM " + MASTER_TABLE_ID
@@ -142,6 +143,8 @@ public class IniconfigActivity extends Activity implements IniconfigListener {
             protected Void doInBackground(Void... params) {
                 try {
                     getSurvey(ProjectConfig.get().getProjectName());
+                } catch (UserRecoverableAuthIOException e) {
+                    startActivityForResult(e.getIntent(), REQUEST_PERMISSIONS);
                 } catch (IOException e) {
                     // If can't get updated version, use cached survey
                     if (ProjectConfig.get().getProjectName().equals(prefs.getString("lastProject", ""))) {
