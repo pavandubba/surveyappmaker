@@ -786,54 +786,72 @@ public class SurveyHelper {
 
 	public void answerCurrentQuestion(String answer,
 			ArrayList<Integer> selectedAnswers) {
-		try {
-			if (!inLoop) {
-				if (chapterPosition >= 0) {
-					// Saving the answer string in JSON
+		if (!inLoop) {
+			if (chapterPosition >= 0) {
+				// Saving the answer string in JSON
+				try {
 					jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
 							.getJSONArray("Chapters")
 							.getJSONObject(chapterPosition)
 							.getJSONArray("Questions")
 							.getJSONObject(questionPosition)
 							.put("Answer", answer);
-					// Saving the selected questions.
-					ArrayList<Integer> key = new ArrayList<Integer>(
-							Arrays.asList(chapterPosition, questionPosition,
-									-1, -1));
-					selectedAnswersMap.put(key, selectedAnswers);
+				} catch (JSONException e) {
+					e.printStackTrace();
 				}
-			} else {
-				// TODO Save stuff to the correct json part
-				ArrayList<Integer> key = new ArrayList<Integer>(
-						Arrays.asList(chapterPosition, questionPosition,
-								loopIteration, loopPosition));
+				// Saving the selected questions.
+				ArrayList<Integer> key = new ArrayList<Integer>(Arrays.asList(
+						chapterPosition, questionPosition, -1, -1));
 				selectedAnswersMap.put(key, selectedAnswers);
 			}
-		} catch (JSONException e) {
-			e.printStackTrace();
+		} else {
+			try {
+				jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
+						.getJSONArray("Chapters")
+						.getJSONObject(chapterPosition)
+						.getJSONArray("Questions")
+						.getJSONObject(questionPosition)
+						.getJSONArray("Questions").getJSONObject(loopPosition)
+						.getJSONArray("Answers").getJSONObject(loopIteration)
+						.put("Answer", answer);
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+			ArrayList<Integer> key = new ArrayList<Integer>(Arrays.asList(
+					chapterPosition, questionPosition, loopIteration,
+					loopPosition));
+			selectedAnswersMap.put(key, selectedAnswers);
 		}
 	}
 
 	public void answerCurrentTrackerQuestion(String answer,
 			ArrayList<Integer> selectedAnswers) {
-		try {
-			if (!inLoop) {
+		if (!inLoop) {
+			try {
 				jtracker.getJSONArray("Questions")
 						.getJSONObject(tripQuestionPosition)
 						.put("Answer", answer);
-				ArrayList<Integer> key = new ArrayList<Integer>(Arrays.asList(
-						questionPosition, -1, -1));
-				selectedTrackingAnswersMap.put(key, selectedAnswers);
-			} else {
-				// TODO Fix the loop case
-				ArrayList<Integer> key = new ArrayList<Integer>(
-						Arrays.asList(questionPosition,
-								loopIteration, loopPosition));
-				selectedAnswersMap.put(key, selectedAnswers);
+			} catch (JSONException e) {
+				e.printStackTrace();
 			}
-
-		} catch (JSONException e) {
-			e.printStackTrace();
+			ArrayList<Integer> key = new ArrayList<Integer>(Arrays.asList(
+					questionPosition, -1, -1));
+			selectedTrackingAnswersMap.put(key, selectedAnswers);
+		} else {
+			try {
+				jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
+						.getJSONArray("Questions")
+						.getJSONObject(questionPosition)
+						.getJSONArray("Questions").getJSONObject(loopPosition)
+						.getJSONArray("Answers").getJSONObject(loopIteration)
+						.put("Answer", answer);
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			ArrayList<Integer> key = new ArrayList<Integer>(Arrays.asList(
+					questionPosition, loopIteration, loopPosition));
+			selectedAnswersMap.put(key, selectedAnswers);
 		}
 	}
 
@@ -1137,12 +1155,14 @@ public class SurveyHelper {
 
 	}
 
-	public void updateLoopLimit(){
-		if (!SurveyorActivity.askingTripQuestions){
+	public void updateLoopLimit() {
+		if (!SurveyorActivity.askingTripQuestions) {
 			try {
 				loopLimit = jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
-						.getJSONArray("Chapters").getJSONObject(chapterPosition)
-						.getJSONArray("Questions").getJSONObject(questionPosition)
+						.getJSONArray("Chapters")
+						.getJSONObject(chapterPosition)
+						.getJSONArray("Questions")
+						.getJSONObject(questionPosition)
 						.getJSONArray("Questions").length();
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
@@ -1151,7 +1171,8 @@ public class SurveyHelper {
 		} else {
 			try {
 				loopLimit = jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
-						.getJSONArray("Questions").getJSONObject(questionPosition)
+						.getJSONArray("Questions")
+						.getJSONObject(questionPosition)
 						.getJSONArray("Questions").length();
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
@@ -1160,5 +1181,35 @@ public class SurveyHelper {
 		}
 
 		Log.v("Loop lenght", loopLimit.toString());
+	}
+
+	public void initializeAnswerArray() {
+		JSONArray tempArray = new JSONArray();
+		for (int i = 0; i < loopTotal; ++i) {
+			tempArray.put("");
+		}
+		if (!SurveyorActivity.askingTripQuestions) {
+			try {
+				jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
+						.getJSONArray("Chapters")
+						.getJSONObject(chapterPosition)
+						.getJSONArray("Questions")
+						.getJSONObject(questionPosition)
+						.getJSONArray("Questions").getJSONObject(loopPosition)
+						.put("Answers", tempArray);
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		} else {
+			try {
+				jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
+						.getJSONArray("Questions")
+						.getJSONObject(questionPosition)
+						.getJSONArray("Questions").getJSONObject(loopPosition)
+						.put("Answers", tempArray);
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 }

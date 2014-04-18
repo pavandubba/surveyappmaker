@@ -189,7 +189,8 @@ public class QuestionFragment extends Fragment implements View.OnClickListener,
 						}
 					}
 				}
-			} else if (questionkind.equals("OT") || questionkind.equals("ON")) {
+			} else if (questionkind.equals("OT") || (questionkind.equals("ON")
+					|| questionkind.equals("LP"))) {
 				OpenLayout();
 
 				// Prepopulate question
@@ -205,22 +206,6 @@ public class QuestionFragment extends Fragment implements View.OnClickListener,
 					}
 				}
 
-			} else if (questionkind.equals("LP")) {
-				OpenLayout();
-				// Prepopulate question
-				getselectedAnswers();
-
-				if (selectedAnswers != null && selectedAnswers.get(0) == -1) {
-					try {
-						openET.setText(jquestion.getString("Answer"));
-						openET.setTextColor(getResources().getColor(
-								R.color.answer_selected));
-						// inLoopBoolean = true;
-					} catch (JSONException e) {
-						e.printStackTrace();
-					}
-
-				}
 			} else if (questionkind.equals("CB")) {
 				CheckBoxLayout();
 				// Prepopulate question

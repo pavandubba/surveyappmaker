@@ -200,9 +200,9 @@ public class SurveyorActivity extends Activity implements
 		getWindow().setSoftInputMode(
 				WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
-        username = ProjectConfig.get().getUsername();
-        surveyHelper = new SurveyHelper(username,
-                ProjectConfig.get().getOriginalJSONSurveyString(), getApplicationContext());
+		username = ProjectConfig.get().getUsername();
+		surveyHelper = new SurveyHelper(username, ProjectConfig.get()
+				.getOriginalJSONSurveyString(), getApplicationContext());
 
 		driveHelper = new GoogleDriveHelper(this);
 		statusPageHelper = new StatusPageHelper(this);
@@ -753,6 +753,7 @@ public class SurveyorActivity extends Activity implements
 		Boolean inloop;
 		inloop = surveyHelper.inLoop;
 
+		JSONObject currentQuestionJsonObject = null;
 		String currentQuestion = null;
 
 		if (surveyHelper.inLoop) {
@@ -765,8 +766,8 @@ public class SurveyorActivity extends Activity implements
 
 			// get current trip question
 			try {
-				currentQuestion = surveyHelper.getCurrentTripQuestion()
-						.toString();
+				currentQuestionJsonObject = surveyHelper
+						.getCurrentTripQuestion();
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
@@ -786,11 +787,27 @@ public class SurveyorActivity extends Activity implements
 
 			// Get current question
 			try {
-				currentQuestion = surveyHelper.getCurrentQuestion().toString();
+				currentQuestionJsonObject = surveyHelper.getCurrentQuestion();
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
 		}
+
+		// If in loop, putting the answer of the current iteration on its place.
+		if (surveyHelper.inLoop) {
+			try {
+				currentQuestionJsonObject.put(
+						"Answer",
+						currentQuestionJsonObject.getJSONArray("Answers")
+								.getJSONObject(surveyHelper.loopIteration)
+								.get("Answer").toString());
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+		currentQuestion = currentQuestionJsonObject.toString();
 
 		// Starting question fragment and passing json question information.
 		currentQuestionFragment = new QuestionFragment();
@@ -989,6 +1006,7 @@ public class SurveyorActivity extends Activity implements
 			surveyHelper.loopPosition = -1;
 			surveyHelper.loopIteration = -1;
 			surveyHelper.updateLoopLimit();
+			surveyHelper.initializeAnswerArray();
 		} else if (answerStringReceive != null) {
 			if (!askingTripQuestions) {
 				surveyHelper.answerCurrentQuestion(answerStringReceive,
@@ -1094,7 +1112,6 @@ public class SurveyorActivity extends Activity implements
 			break;
 		}
 	}
-
 
 	/*
 	 * Status Page Event Handlers
