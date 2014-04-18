@@ -1088,25 +1088,6 @@ public class SurveyHelper {
 		return chapterTitles;
 	}
 
-	// public void setLoopLimits(String loopend) {
-	// loopEndPosition = findIDPosition(loopend);
-	// if (questionPosition + 1 == chapterQuestionCounts[chapterPosition]) {
-	// if (chapterPosition == jChapterList.length() - 1) {
-	// Toast.makeText(context,
-	// "Loop at the end of a survey will not work",
-	// Toast.LENGTH_SHORT).show();
-	// } else {
-	// loopStartPosition[0] = chapterPosition + 1;
-	// loopStartPosition[1] = 0;
-	// }
-	// } else {
-	// loopStartPosition[0] = chapterPosition;
-	// loopStartPosition[1] = questionPosition + 1;
-	//
-	// }
-	//
-	// }
-
 	private enum SurveyType {
 		SURVEY, TRACKER, LOOP
 	}

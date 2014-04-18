@@ -998,16 +998,6 @@ public class SurveyorActivity extends Activity implements
 						selectedAnswers);
 			}
 		}
-		// else if ((answerStringReceive != null) && (surveyHelper.inLoop)) {
-		// // TODO Add answer saving to in loop questions.
-		// if (!askingTripQuestions) {
-		// surveyHelper.answerCurrentLoopQuestion(answerStringReceive,
-		// selectedAnswers);
-		// } else {
-		// surveyHelper.answerCurrentTrackerLoopQuestion(
-		// answerStringReceive, selectedAnswers);
-		// }
-		// }
 
 		if (jumpStringReceive != null) {
 			surveyHelper.updateJumpString(jumpStringReceive);
@@ -1105,12 +1095,6 @@ public class SurveyorActivity extends Activity implements
 		}
 	}
 
-	// public void LoopReceive(String Loopend) {
-	// if (Loopend != null) {
-	// surveyHelper.inLoop = true;
-	// surveyHelper.setLoopLimits(Loopend);
-	// }
-	// }
 
 	/*
 	 * Status Page Event Handlers
