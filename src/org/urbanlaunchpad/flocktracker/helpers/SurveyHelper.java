@@ -11,11 +11,13 @@ import android.net.Uri;
 import android.provider.Settings;
 import android.util.Log;
 import android.widget.Toast;
+
 import com.google.api.services.fusiontables.Fusiontables;
 import com.google.api.services.fusiontables.Fusiontables.Column.Insert;
 import com.google.api.services.fusiontables.Fusiontables.Query.Sql;
 import com.google.api.services.fusiontables.model.Column;
 import com.google.api.services.fusiontables.model.ColumnList;
+
 import org.apache.http.client.ClientProtocolException;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -812,8 +814,18 @@ public class SurveyHelper {
 						.getJSONArray("Questions")
 						.getJSONObject(questionPosition)
 						.getJSONArray("Questions").getJSONObject(loopPosition)
-						.getJSONArray("Answers").getJSONObject(loopIteration)
-						.put("Answer", answer);
+						.getJSONArray("LoopAnswers").put(loopIteration, answer);
+				// .getJSONObject(loopIteration).put("Answer", answer);
+				String seeeString = jsurv
+						.getJSONObject(SurveyorActivity.SURVEY_TYPE)
+						.getJSONArray("Chapters")
+						.getJSONObject(chapterPosition)
+						.getJSONArray("Questions")
+						.getJSONObject(questionPosition)
+						.getJSONArray("Questions").getJSONObject(loopPosition)
+						.getJSONArray("LoopAnswers").get(loopIteration)
+						.toString();
+				Log.v("Answer", seeeString);
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
@@ -843,8 +855,9 @@ public class SurveyHelper {
 						.getJSONArray("Questions")
 						.getJSONObject(questionPosition)
 						.getJSONArray("Questions").getJSONObject(loopPosition)
-						.getJSONArray("Answers").getJSONObject(loopIteration)
-						.put("Answer", answer);
+						.getJSONArray("LoopAnswers").put(loopIteration, answer);
+
+				// .getJSONObject(loopIteration).put("Answer", answer);
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -853,16 +866,6 @@ public class SurveyHelper {
 					questionPosition, loopIteration, loopPosition));
 			selectedAnswersMap.put(key, selectedAnswers);
 		}
-	}
-
-	public void answerCurrentTrackerLoopQuestion(String answer,
-			ArrayList<Integer> selectedAnswers) {
-
-	}
-
-	public void answerCurrentLoopQuestion(String answer,
-			ArrayList<Integer> selectedAnswers) {
-
 	}
 
 	public void resetSurvey() {
@@ -1165,7 +1168,6 @@ public class SurveyHelper {
 						.getJSONObject(questionPosition)
 						.getJSONArray("Questions").length();
 			} catch (JSONException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		} else {
@@ -1175,7 +1177,6 @@ public class SurveyHelper {
 						.getJSONObject(questionPosition)
 						.getJSONArray("Questions").length();
 			} catch (JSONException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -1183,33 +1184,94 @@ public class SurveyHelper {
 		Log.v("Loop lenght", loopLimit.toString());
 	}
 
-	public void initializeAnswerArray() {
+	public void initializeAnswerLoopArray() {
 		JSONArray tempArray = new JSONArray();
+		// JSONObject emptyanswer = null;
+		// try {
+		// emptyanswer = new JSONObject("{\"Answer\":\"\"}");
+		// } catch (JSONException e1) {
+		// e1.printStackTrace();
+		// }
 		for (int i = 0; i < loopTotal; ++i) {
-			tempArray.put("");
+			try {
+				tempArray.put(i, "");
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
 		}
+		for (int i = 0; i < loopLimit; ++i) {
+			if (!SurveyorActivity.askingTripQuestions) {
+				try {
+					// jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
+					// .getJSONArray("Chapters")
+					// .getJSONObject(chapterPosition)
+					// .getJSONArray("Questions")
+					// .getJSONObject(questionPosition)
+					// .getJSONArray("Questions")
+					// .getJSONObject(i).remove("LoopAnswers");
+					jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
+							.getJSONArray("Chapters")
+							.getJSONObject(chapterPosition)
+							.getJSONArray("Questions")
+							.getJSONObject(questionPosition)
+							.getJSONArray("Questions").getJSONObject(i)
+							.put("LoopAnswers", tempArray);
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			} else {
+				try {
+					// jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
+					// .getJSONArray("Questions")
+					// .getJSONObject(questionPosition)
+					// .getJSONArray("Questions")
+					// .getJSONObject(i).remove("LoopAnswers");
+					jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
+							.getJSONArray("Questions")
+							.getJSONObject(questionPosition)
+							.getJSONArray("Questions").getJSONObject(i)
+							.put("LoopAnswers", tempArray);
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		Log.v("Initialize loop array", "Loop initialized!");
+	}
+
+	public Integer getCurrentLoopTotal() {
+		Integer currentLoopTotal = null;
+		String currentAnswerString = null;
 		if (!SurveyorActivity.askingTripQuestions) {
 			try {
-				jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
+				currentAnswerString = jsurv
+						.getJSONObject(SurveyorActivity.SURVEY_TYPE)
 						.getJSONArray("Chapters")
 						.getJSONObject(chapterPosition)
 						.getJSONArray("Questions")
-						.getJSONObject(questionPosition)
-						.getJSONArray("Questions").getJSONObject(loopPosition)
-						.put("Answers", tempArray);
+						.getJSONObject(questionPosition).getString("Answer");
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
 		} else {
 			try {
-				jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
+				currentAnswerString = jsurv
+						.getJSONObject(SurveyorActivity.SURVEY_TYPE)
 						.getJSONArray("Questions")
-						.getJSONObject(questionPosition)
-						.getJSONArray("Questions").getJSONObject(loopPosition)
-						.put("Answers", tempArray);
+						.getJSONObject(questionPosition).getString("Answer");
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
 		}
+		if (currentAnswerString != null) {
+			if (!currentAnswerString.equals("")) {
+				currentLoopTotal = Integer.parseInt(currentAnswerString);
+			} else {
+				currentLoopTotal = 0;
+			}
+		} else {
+			currentLoopTotal = 0;
+		}
+		return currentLoopTotal;
 	}
 }

@@ -1,6 +1,5 @@
 package org.urbanlaunchpad.flocktracker;
 
-import android.R.integer;
 import android.annotation.SuppressLint;
 import android.app.*;
 import android.app.AlertDialog.Builder;
@@ -796,11 +795,9 @@ public class SurveyorActivity extends Activity implements
 		// If in loop, putting the answer of the current iteration on its place.
 		if (surveyHelper.inLoop) {
 			try {
-				currentQuestionJsonObject.put(
-						"Answer",
-						currentQuestionJsonObject.getJSONArray("Answers")
-								.getJSONObject(surveyHelper.loopIteration)
-								.get("Answer").toString());
+				currentQuestionJsonObject.put("Answer",
+						currentQuestionJsonObject.getJSONArray("LoopAnswers")
+								.get(surveyHelper.loopIteration).toString());
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -990,24 +987,34 @@ public class SurveyorActivity extends Activity implements
 		if (questionkindReceive.equals("LP")
 				&& ((answerStringReceive != null) && (!answerStringReceive
 						.equals("")))) {
+			
+			Integer loopTempTotalInteger = surveyHelper.getCurrentLoopTotal();
+			Integer loopRecieveTotal = null;
+			if (!answerStringReceive.equals("")) {
+				loopRecieveTotal = Integer.parseInt(answerStringReceive);
+			}
+			if (loopRecieveTotal != null) {
+				surveyHelper.loopTotal = loopRecieveTotal;
+			} else {
+				surveyHelper.loopTotal = loopTempTotalInteger;
+			}
+			surveyHelper.updateLoopLimit();
+			if (loopRecieveTotal != loopTempTotalInteger) {
+				surveyHelper.initializeAnswerLoopArray();
+			}
 			if (!askingTripQuestions) {
-				// Toast toast = Toast.makeText(this, "received question",
-				// Toast.LENGTH_SHORT);
-				// toast.show();
 				surveyHelper.answerCurrentQuestion(answerStringReceive,
 						selectedAnswers);
 			} else {
 				surveyHelper.answerCurrentTrackerQuestion(answerStringReceive,
 						selectedAnswers);
 			}
-			surveyHelper.loopTotal = Integer.parseInt(answerStringReceive);
 			Log.v("Loop total", surveyHelper.loopTotal.toString());
 			surveyHelper.inLoop = true;
 			surveyHelper.loopPosition = -1;
 			surveyHelper.loopIteration = -1;
-			surveyHelper.updateLoopLimit();
-			surveyHelper.initializeAnswerArray();
-		} else if (answerStringReceive != null) {
+
+		} else if ((answerStringReceive != null)) {
 			if (!askingTripQuestions) {
 				surveyHelper.answerCurrentQuestion(answerStringReceive,
 						selectedAnswers);
