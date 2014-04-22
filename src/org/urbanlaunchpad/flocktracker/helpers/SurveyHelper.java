@@ -270,7 +270,7 @@ public class SurveyHelper {
 								.getJSONArray("Questions").getJSONObject(key)
 								.put("Answer", fileLink);
 					} else if (type.equals(SurveyorActivity.SURVEY_TYPE)) {
-						Tuple key = new Tuple(keyString);
+						Quadruple key = new Quadruple(keyString);
 						jsurvQueueObject.getJSONObject(type)
 								.getJSONArray("Chapters")
 								.getJSONObject(key.chapterPosition)
@@ -1118,7 +1118,7 @@ public class SurveyHelper {
 	}
 
 	public static class Tuple {
-
+		//TODO Erase this class
 		public final Integer chapterPosition;
 		public final Integer questionPosition;
 
@@ -1158,6 +1158,52 @@ public class SurveyHelper {
 
 	}
 
+	public static class Quadruple {
+
+		public final Integer chapterPosition;
+		public final Integer questionPosition;
+		public final Integer loopPosition;
+		public final Integer loopIteration;
+
+		public Quadruple(Integer chapterPosition, Integer questionPosition, Integer loopIteration, Integer loopPosition) {
+			this.chapterPosition = chapterPosition;
+			this.questionPosition = questionPosition;
+			this.loopIteration = loopIteration;
+			this.loopPosition = loopPosition;		
+		}
+
+		public Quadruple(String quadrupleString) {
+			String tempString = quadrupleString.substring(1, quadrupleString.length()-1);
+			String[] positions = tempString.split(",");
+			this.chapterPosition = Integer.parseInt(positions[0]);
+			this.questionPosition = Integer.parseInt(positions[1].substring(1,positions[1].length()));
+			this.loopIteration = Integer.parseInt(positions[2].substring(1,positions[2].length()));
+			this.loopPosition = Integer.parseInt(positions[3].substring(1,positions[3].length()));
+
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (o == null) {
+				return false;
+			}
+			if (!(o instanceof Quadruple)) {
+				return false;
+			}
+			Tuple tuple = (Tuple) o;
+			return this.chapterPosition.equals(tuple.chapterPosition)
+					&& this.questionPosition.equals(tuple.questionPosition);
+		}
+
+		@Override
+		public String toString() {
+			return "[" + chapterPosition + "," + questionPosition + "," + loopIteration + "," + loopPosition + "]";
+		}
+
+	}
+	
+	
+	
 	public void updateLoopLimit() {
 		if (!SurveyorActivity.askingTripQuestions) {
 			try {
