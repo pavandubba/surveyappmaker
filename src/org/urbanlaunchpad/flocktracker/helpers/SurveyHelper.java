@@ -1256,7 +1256,7 @@ public class SurveyHelper {
 						.getJSONObject(questionPosition)
 						.getJSONArray("Questions").length();
 			} catch (JSONException e) {
-				e.printStackTrace();
+				// e.printStackTrace();
 			}
 		} else {
 			try {
@@ -1265,7 +1265,7 @@ public class SurveyHelper {
 						.getJSONObject(questionPosition)
 						.getJSONArray("Questions").length();
 			} catch (JSONException e) {
-				e.printStackTrace();
+				// e.printStackTrace();
 			}
 		}
 
@@ -1273,12 +1273,37 @@ public class SurveyHelper {
 	}
 
 	public void initializeAnswerLoopArray() {
+		for (int i = 0; i < loopLimit; ++i) {
+			if (!SurveyorActivity.askingTripQuestions) {
+				try {
+					jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
+							.getJSONArray("Chapters")
+							.getJSONObject(chapterPosition)
+							.getJSONArray("Questions")
+							.getJSONObject(questionPosition)
+							.getJSONArray("Questions").getJSONObject(i)
+							.remove("LoopAnswers");
+				} catch (JSONException e) {
+					// e.printStackTrace();
+				}
+			} else {
+				try {
+					jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
+							.getJSONArray("Questions")
+							.getJSONObject(questionPosition)
+							.getJSONArray("Questions").getJSONObject(i)
+							.remove("LoopAnswers");
+				} catch (JSONException e) {
+					// e.printStackTrace();
+				}
+			}
+		}
 		JSONArray tempArray = new JSONArray();
 		for (int i = 0; i < loopTotal; ++i) {
 			try {
 				tempArray.put(i, "");
 			} catch (JSONException e) {
-				e.printStackTrace();
+				// e.printStackTrace();
 			}
 		}
 		for (int i = 0; i < loopLimit; ++i) {
@@ -1292,7 +1317,7 @@ public class SurveyHelper {
 							.getJSONArray("Questions").getJSONObject(i)
 							.put("LoopAnswers", tempArray);
 				} catch (JSONException e) {
-					e.printStackTrace();
+					// e.printStackTrace();
 				}
 			} else {
 				try {
@@ -1302,7 +1327,7 @@ public class SurveyHelper {
 							.getJSONArray("Questions").getJSONObject(i)
 							.put("LoopAnswers", tempArray);
 				} catch (JSONException e) {
-					e.printStackTrace();
+					// e.printStackTrace();
 				}
 			}
 		}
@@ -1321,7 +1346,7 @@ public class SurveyHelper {
 						.getJSONArray("Questions")
 						.getJSONObject(questionPosition).getString("Answer");
 			} catch (JSONException e) {
-				e.printStackTrace();
+				// e.printStackTrace();
 			}
 		} else {
 			try {
@@ -1330,7 +1355,7 @@ public class SurveyHelper {
 						.getJSONArray("Questions")
 						.getJSONObject(questionPosition).getString("Answer");
 			} catch (JSONException e) {
-				e.printStackTrace();
+				// e.printStackTrace();
 			}
 		}
 		if (currentAnswerString != null) {

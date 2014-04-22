@@ -799,8 +799,7 @@ public class SurveyorActivity extends Activity implements
 						currentQuestionJsonObject.getJSONArray("LoopAnswers")
 								.get(surveyHelper.loopIteration).toString());
 			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+//				e.printStackTrace();
 			}
 		}
 
@@ -991,6 +990,7 @@ public class SurveyorActivity extends Activity implements
 				receivedLoopTotal = Integer.parseInt(answerStringReceive);
 				if (currentLoopTotal != receivedLoopTotal) {
 					surveyHelper.loopTotal = receivedLoopTotal;
+					surveyHelper.updateLoopLimit();
 					surveyHelper.initializeAnswerLoopArray();
 					if (!askingTripQuestions) {
 						surveyHelper.answerCurrentQuestion(answerStringReceive,
