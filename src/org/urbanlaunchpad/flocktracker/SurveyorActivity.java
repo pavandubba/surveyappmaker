@@ -984,35 +984,23 @@ public class SurveyorActivity extends Activity implements
 			ArrayList<Integer> questionkey) {
 		// TODO: fix loop stuff
 
-		if (questionkindReceive.equals("LP")
-				&& ((answerStringReceive != null) && (!answerStringReceive
-						.equals("")))) {
-			
-			Integer loopTempTotalInteger = surveyHelper.getCurrentLoopTotal();
-			Integer loopRecieveTotal = null;
+		if (questionkindReceive.equals("LP") && (answerStringReceive != null)) {
+			Integer receivedLoopTotal = null;
+			Integer currentLoopTotal = surveyHelper.getCurrentLoopTotal();
 			if (!answerStringReceive.equals("")) {
-				loopRecieveTotal = Integer.parseInt(answerStringReceive);
+				receivedLoopTotal = Integer.parseInt(answerStringReceive);
+				if (currentLoopTotal != receivedLoopTotal) {
+					surveyHelper.loopTotal = receivedLoopTotal;
+					surveyHelper.initializeAnswerLoopArray();
+					if (!askingTripQuestions) {
+						surveyHelper.answerCurrentQuestion(answerStringReceive,
+								selectedAnswers);
+					} else {
+						surveyHelper.answerCurrentTrackerQuestion(
+								answerStringReceive, selectedAnswers);
+					}
+				}
 			}
-			if (loopRecieveTotal != null) {
-				surveyHelper.loopTotal = loopRecieveTotal;
-			} else {
-				surveyHelper.loopTotal = loopTempTotalInteger;
-			}
-			surveyHelper.updateLoopLimit();
-			if (loopRecieveTotal != loopTempTotalInteger) {
-				surveyHelper.initializeAnswerLoopArray();
-			}
-			if (!askingTripQuestions) {
-				surveyHelper.answerCurrentQuestion(answerStringReceive,
-						selectedAnswers);
-			} else {
-				surveyHelper.answerCurrentTrackerQuestion(answerStringReceive,
-						selectedAnswers);
-			}
-			Log.v("Loop total", surveyHelper.loopTotal.toString());
-			surveyHelper.inLoop = true;
-			surveyHelper.loopPosition = -1;
-			surveyHelper.loopIteration = -1;
 
 		} else if ((answerStringReceive != null)) {
 			if (!askingTripQuestions) {

@@ -136,6 +136,7 @@ public class QuestionFragment extends Fragment implements View.OnClickListener,
 
 			try {
 				questionkind = jquestion.getString("Kind");
+				SurveyHelper.questionKind = questionkind;
 			} catch (JSONException e) {
 				e.printStackTrace();
 				questionkind = "no kind";

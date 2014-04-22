@@ -12,6 +12,7 @@ import android.provider.Settings;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.android.gms.drive.internal.e;
 import com.google.api.services.fusiontables.Fusiontables;
 import com.google.api.services.fusiontables.Fusiontables.Column.Insert;
 import com.google.api.services.fusiontables.Fusiontables.Query.Sql;
@@ -79,7 +80,7 @@ public class SurveyHelper {
 	private JSONArray jTrackerQuestions;
 	private String[] chapterTitles;
 	private Integer[] chapterQuestionCounts;
-
+	public static String questionKind;
 	// Loop stuff
 	public Integer loopTotal = null; // Number of times loop questions repeat.
 	public Boolean inLoop = false; // Toggle that turns on if the survey gets
@@ -990,13 +991,15 @@ public class SurveyHelper {
 				}
 			}
 
-		} else if (askingTripQuestions && !inLoop) {
+		} else if ((askingTripQuestions && !inLoop)
+				&& (!questionKind.equals("LP"))) {
 			prevTrackingPositions.add(tripQuestionPosition);
 			tripQuestionPosition++;
 			if (tripQuestionPosition == jTrackerQuestions.length()) {
 				return NextQuestionResult.END;
 			}
-		} else if (!askingTripQuestions && !inLoop) {
+		} else if ((!askingTripQuestions && !inLoop)
+				&& (!questionKind.equals("LP"))) {
 			prevPositions.add(new Tuple(chapterPosition, questionPosition));
 			questionPosition++;
 			if (questionPosition == chapterQuestionCounts[chapterPosition]) {
@@ -1008,6 +1011,41 @@ public class SurveyHelper {
 					questionPosition = 0;
 					return NextQuestionResult.CHAPTER_END;
 				}
+			}
+		} else if ((askingTripQuestions && !inLoop)
+				&& (questionKind.equals("LP"))) {
+			loopTotal = getCurrentLoopTotal();
+			prevTrackingPositions.add(tripQuestionPosition);
+			if (loopTotal == 0) {
+				tripQuestionPosition++;
+				if (tripQuestionPosition == jTrackerQuestions.length()) {
+					return NextQuestionResult.END;
+				}
+			} else {
+				loopIteration = 0;
+				loopPosition = 0;
+				inLoop = true;
+			}
+		} else if ((!askingTripQuestions && !inLoop)
+				&& (questionKind.equals("LP"))) {
+			loopTotal = getCurrentLoopTotal();
+			prevPositions.add(new Tuple(chapterPosition, questionPosition));
+			if (loopTotal == 0) {
+				questionPosition++;
+				if (questionPosition == chapterQuestionCounts[chapterPosition]) {
+					if (chapterPosition == jChapterList.length() - 1) {
+						questionPosition--;
+						return NextQuestionResult.END;
+					} else {
+						chapterPosition++;
+						questionPosition = 0;
+						return NextQuestionResult.CHAPTER_END;
+					}
+				}
+			} else {
+				loopIteration = 0;
+				loopPosition = 0;
+				inLoop = true;
 			}
 		}
 
@@ -1118,7 +1156,7 @@ public class SurveyHelper {
 	}
 
 	public static class Tuple {
-		//TODO Erase this class
+		// TODO Erase this class
 		public final Integer chapterPosition;
 		public final Integer questionPosition;
 
@@ -1165,20 +1203,25 @@ public class SurveyHelper {
 		public final Integer loopPosition;
 		public final Integer loopIteration;
 
-		public Quadruple(Integer chapterPosition, Integer questionPosition, Integer loopIteration, Integer loopPosition) {
+		public Quadruple(Integer chapterPosition, Integer questionPosition,
+				Integer loopIteration, Integer loopPosition) {
 			this.chapterPosition = chapterPosition;
 			this.questionPosition = questionPosition;
 			this.loopIteration = loopIteration;
-			this.loopPosition = loopPosition;		
+			this.loopPosition = loopPosition;
 		}
 
 		public Quadruple(String quadrupleString) {
-			String tempString = quadrupleString.substring(1, quadrupleString.length()-1);
+			String tempString = quadrupleString.substring(1,
+					quadrupleString.length() - 1);
 			String[] positions = tempString.split(",");
 			this.chapterPosition = Integer.parseInt(positions[0]);
-			this.questionPosition = Integer.parseInt(positions[1].substring(1,positions[1].length()));
-			this.loopIteration = Integer.parseInt(positions[2].substring(1,positions[2].length()));
-			this.loopPosition = Integer.parseInt(positions[3].substring(1,positions[3].length()));
+			this.questionPosition = Integer.parseInt(positions[1].substring(1,
+					positions[1].length()));
+			this.loopIteration = Integer.parseInt(positions[2].substring(1,
+					positions[2].length()));
+			this.loopPosition = Integer.parseInt(positions[3].substring(1,
+					positions[3].length()));
 
 		}
 
@@ -1197,13 +1240,12 @@ public class SurveyHelper {
 
 		@Override
 		public String toString() {
-			return "[" + chapterPosition + "," + questionPosition + "," + loopIteration + "," + loopPosition + "]";
+			return "[" + chapterPosition + "," + questionPosition + ","
+					+ loopIteration + "," + loopPosition + "]";
 		}
 
 	}
-	
-	
-	
+
 	public void updateLoopLimit() {
 		if (!SurveyorActivity.askingTripQuestions) {
 			try {
@@ -1232,12 +1274,6 @@ public class SurveyHelper {
 
 	public void initializeAnswerLoopArray() {
 		JSONArray tempArray = new JSONArray();
-		// JSONObject emptyanswer = null;
-		// try {
-		// emptyanswer = new JSONObject("{\"Answer\":\"\"}");
-		// } catch (JSONException e1) {
-		// e1.printStackTrace();
-		// }
 		for (int i = 0; i < loopTotal; ++i) {
 			try {
 				tempArray.put(i, "");
@@ -1248,13 +1284,6 @@ public class SurveyHelper {
 		for (int i = 0; i < loopLimit; ++i) {
 			if (!SurveyorActivity.askingTripQuestions) {
 				try {
-					// jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
-					// .getJSONArray("Chapters")
-					// .getJSONObject(chapterPosition)
-					// .getJSONArray("Questions")
-					// .getJSONObject(questionPosition)
-					// .getJSONArray("Questions")
-					// .getJSONObject(i).remove("LoopAnswers");
 					jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
 							.getJSONArray("Chapters")
 							.getJSONObject(chapterPosition)
@@ -1267,11 +1296,6 @@ public class SurveyHelper {
 				}
 			} else {
 				try {
-					// jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
-					// .getJSONArray("Questions")
-					// .getJSONObject(questionPosition)
-					// .getJSONArray("Questions")
-					// .getJSONObject(i).remove("LoopAnswers");
 					jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
 							.getJSONArray("Questions")
 							.getJSONObject(questionPosition)
