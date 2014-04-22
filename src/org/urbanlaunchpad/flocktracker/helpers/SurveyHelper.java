@@ -1298,15 +1298,17 @@ public class SurveyHelper {
 				}
 			}
 		}
-		JSONArray tempArray = new JSONArray();
-		for (int i = 0; i < loopTotal; ++i) {
-			try {
-				tempArray.put(i, "");
-			} catch (JSONException e) {
-				// e.printStackTrace();
-			}
-		}
 		for (int i = 0; i < loopLimit; ++i) {
+			// Creating an empty array
+			JSONArray tempArray = new JSONArray();
+			for (int j = 0; j < loopTotal; ++j) {
+				try {
+					tempArray.put(j, "");
+				} catch (JSONException e) {
+					// e.printStackTrace();
+				}
+			}
+			// Putting it on the JSON structure
 			if (!SurveyorActivity.askingTripQuestions) {
 				try {
 					jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
