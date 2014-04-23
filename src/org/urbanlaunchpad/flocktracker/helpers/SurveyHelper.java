@@ -14,6 +14,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.drive.internal.e;
+import com.google.android.gms.drive.internal.o;
 import com.google.api.services.fusiontables.Fusiontables;
 import com.google.api.services.fusiontables.Fusiontables.Column.Insert;
 import com.google.api.services.fusiontables.Fusiontables.Query.Sql;
@@ -453,7 +454,8 @@ public class SurveyHelper {
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
-		} else if (triporsurvey.equals(SurveyorActivity.TRACKER_TYPE)) {
+		} else if ((triporsurvey.equals(SurveyorActivity.TRACKER_TYPE))
+				|| (triporsurvey.equals(SurveyorActivity.LOOP_TYPE))) {
 			totalchapters = 1;
 		}
 
@@ -473,15 +475,78 @@ public class SurveyHelper {
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
-			}
-			for (int j = 0; j < questionsArray.length(); ++j) {
+			} else if (triporsurvey.equals(SurveyorActivity.LOOP_TYPE)) {
 				try {
-					names.add(questionsArray.getJSONObject(j).getString(
-							nametoget));
+					questionsArray = survey.getJSONArray("Questions");
 				} catch (JSONException e) {
-					names.add("");
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
 			}
+			if (triporsurvey.equals(triporsurvey
+					.equals(SurveyorActivity.LOOP_TYPE))) {
+				Integer loopLimitInteger = questionsArray.length();
+				Integer loopTotalInteger;
+				JSONArray loopAnswersArray = null;
+				String answertempString = null;
+				try {
+					loopTotalInteger = questionsArray.getJSONObject(0)
+							.getJSONArray("LoopAnswers").length();
+				} catch (JSONException e) {
+					loopTotalInteger = 0;
+					e.printStackTrace();
+				}
+
+				for (int k = 0; k < loopLimitInteger; k++) {
+					answertempString = "";
+					if (nametoget.equals("Answer")) {
+						try {
+							loopAnswersArray = questionsArray.getJSONObject(k)
+									.getJSONArray("LoopAnswers");
+							for (int j = 0; j < loopTotalInteger; j++) {
+								if (j == 0) {
+									answertempString = "(";
+								}
+								answertempString = answertempString
+										+ loopAnswersArray.getString(j);
+								if (j == loopTotalInteger - 1) {
+									answertempString = answertempString + ")";
+								} else {
+									answertempString = answertempString + ",";
+								}
+							}
+							Log.v("Loop answer" + k, answertempString);
+						} catch (JSONException e) {
+							e.printStackTrace();
+						}
+						names.add(answertempString);
+					} else {
+						try {
+							names.add(questionsArray.getJSONObject(k)
+									.getString(nametoget));
+						} catch (JSONException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+			} else {
+				for (int j = 0; j < questionsArray.length(); ++j) {
+					try {
+						names.add(questionsArray.getJSONObject(j).getString(
+								nametoget));
+						String questionkind = questionsArray.getJSONObject(j)
+								.getString("Kind");
+						if (questionkind.equals("LP")) {
+							names.addAll(getNamesArray(nametoget,
+									SurveyorActivity.LOOP_TYPE,
+									questionsArray.getJSONObject(j)));
+						}
+					} catch (JSONException e) {
+						names.add("");
+					}
+				}
+			}
+
 		}
 		return names;
 	}
@@ -1145,7 +1210,8 @@ public class SurveyHelper {
 	}
 
 	public static class Tuple {
-		// TODO Erase this class
+		// TODO Change this class to accept loop variables (Quaduple class
+		// already there)
 		public final Integer chapterPosition;
 		public final Integer questionPosition;
 
@@ -1271,7 +1337,8 @@ public class SurveyHelper {
 
 	public void initializeLoop() {
 		// Clearing hashmap
-		clearLoopAnswerHashMap(chapterPosition, questionPosition, SurveyorActivity.askingTripQuestions);
+		clearLoopAnswerHashMap(chapterPosition, questionPosition,
+				SurveyorActivity.askingTripQuestions);
 		// Clearing Loop answers arrays
 		for (int i = 0; i < loopLimit; ++i) {
 			if (!SurveyorActivity.askingTripQuestions) {
@@ -1336,7 +1403,8 @@ public class SurveyHelper {
 
 	public void clearLoopAnswerHashMap(Integer chapterPosition,
 			Integer questionPosition, Boolean askingTripQuestions) {
-		Integer loopTotalInteger = getLoopTotal(chapterPosition, questionPosition, askingTripQuestions);
+		Integer loopTotalInteger = getLoopTotal(chapterPosition,
+				questionPosition, askingTripQuestions);
 		Integer loopLimitInteger = getLoopLimit(chapterPosition,
 				questionPosition, askingTripQuestions);
 
