@@ -424,12 +424,12 @@ public class SurveyHelper {
 
 		String namesString = "";
 
-		if (syntaxtype.equals("wq")) {
+		if (syntaxtype.equals("wq")) { // With quotes
 			namesString = "'" + names.get(0) + "'";
 			for (int i = 1; i < names.size(); i++) {
 				namesString += ",'" + names.get(i) + "'";
 			}
-		} else if (syntaxtype.equals("nq")) {
+		} else if (syntaxtype.equals("nq")) { // No quotes
 			namesString = names.get(0);
 			for (int i = 1; i < names.size(); i++) {
 				namesString += "," + names.get(i);
@@ -483,8 +483,7 @@ public class SurveyHelper {
 					e.printStackTrace();
 				}
 			}
-			if (triporsurvey.equals(triporsurvey
-					.equals(SurveyorActivity.LOOP_TYPE))) {
+			if (triporsurvey.equals(SurveyorActivity.LOOP_TYPE)) {
 				Integer loopLimitInteger = questionsArray.length();
 				Integer loopTotalInteger;
 				JSONArray loopAnswersArray = null;
@@ -498,8 +497,8 @@ public class SurveyHelper {
 				}
 
 				for (int k = 0; k < loopLimitInteger; k++) {
-					answertempString = "";
 					if (nametoget.equals("Answer")) {
+						answertempString = "";
 						try {
 							loopAnswersArray = questionsArray.getJSONObject(k)
 									.getJSONArray("LoopAnswers");
@@ -534,15 +533,26 @@ public class SurveyHelper {
 					try {
 						names.add(questionsArray.getJSONObject(j).getString(
 								nametoget));
-						String questionkind = questionsArray.getJSONObject(j)
+					} catch (JSONException e) {
+						names.add("");
+					}
+					String questionkind;
+					try {
+						questionkind = questionsArray.getJSONObject(j)
 								.getString("Kind");
-						if (questionkind.equals("LP")) {
+					} catch (JSONException e) {
+						questionkind = "";
+						e.printStackTrace();
+					}
+					if (questionkind.equals("LP")) {
+						try {
 							names.addAll(getNamesArray(nametoget,
 									SurveyorActivity.LOOP_TYPE,
 									questionsArray.getJSONObject(j)));
+						} catch (JSONException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
 						}
-					} catch (JSONException e) {
-						names.add("");
 					}
 				}
 			}
@@ -1410,7 +1420,7 @@ public class SurveyHelper {
 
 		for (int i = 0; i < loopLimitInteger; ++i) {
 			if (!SurveyorActivity.askingTripQuestions) {
-				for (int j = 0; j < loopTotal; ++j) {
+				for (int j = 0; j < loopTotalInteger; ++j) {
 					ArrayList<Integer> key = new ArrayList<Integer>(
 							Arrays.asList(chapterPosition, questionPosition, i,
 									j));
