@@ -799,7 +799,7 @@ public class SurveyorActivity extends Activity implements
 						currentQuestionJsonObject.getJSONArray("LoopAnswers")
 								.get(surveyHelper.loopIteration).toString());
 			} catch (JSONException e) {
-//				e.printStackTrace();
+				// e.printStackTrace();
 			}
 		}
 
@@ -988,10 +988,12 @@ public class SurveyorActivity extends Activity implements
 			Integer currentLoopTotal = surveyHelper.getCurrentLoopTotal();
 			if (!answerStringReceive.equals("")) {
 				receivedLoopTotal = Integer.parseInt(answerStringReceive);
-				if (currentLoopTotal != receivedLoopTotal) {
+				if ((currentLoopTotal != receivedLoopTotal)
+						|| (receivedLoopTotal == 0)) {
+					surveyHelper.clearLoopAnswerHashMap(questionkey.get(0),questionkey.get(1), askingTripQuestions);
 					surveyHelper.loopTotal = receivedLoopTotal;
 					surveyHelper.updateLoopLimit();
-					surveyHelper.initializeAnswerLoopArray();
+					surveyHelper.initializeLoop();
 					if (!askingTripQuestions) {
 						surveyHelper.answerCurrentQuestion(answerStringReceive,
 								selectedAnswers);
