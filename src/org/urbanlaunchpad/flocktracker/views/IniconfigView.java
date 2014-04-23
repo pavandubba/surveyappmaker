@@ -7,11 +7,10 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
-import org.urbanlaunchpad.flocktracker.IniconfigListener;
 import org.urbanlaunchpad.flocktracker.ProjectConfig;
 import org.urbanlaunchpad.flocktracker.R;
 
-public class IniconfigViewGroup extends LinearLayout implements IniconfigManager {
+public class IniconfigView extends LinearLayout implements IniconfigManager {
     private TextView usernameField;
     private TextView projectNameField;
     private RelativeLayout navBar;
@@ -21,7 +20,7 @@ public class IniconfigViewGroup extends LinearLayout implements IniconfigManager
 
     private AlertDialog alertDialog;
 
-    public IniconfigViewGroup(Context context, AttributeSet attrs) {
+    public IniconfigView(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 

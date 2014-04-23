@@ -1,7 +1,5 @@
 package org.urbanlaunchpad.flocktracker;
 
-import org.json.JSONObject;
-
 public class ProjectConfig {
 
     private static ProjectConfig applicationConfig;

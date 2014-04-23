@@ -48,4 +48,5 @@
         android:textSize="17sp" >
     </LinearLayout>
 
+    <include layout="@layout/question_nav_buttons" />
 </LinearLayout>

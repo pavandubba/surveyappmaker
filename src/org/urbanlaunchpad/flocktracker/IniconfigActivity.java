@@ -21,6 +21,7 @@ import com.google.api.services.fusiontables.model.Sqlresponse;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.urbanlaunchpad.flocktracker.views.IniconfigManager;
+import org.urbanlaunchpad.flocktracker.views.IniconfigManager.IniconfigListener;
 
 import java.io.IOException;
 import java.util.Arrays;

@@ -30,19 +30,23 @@ import org.urbanlaunchpad.flocktracker.SurveyorActivity;
 import org.urbanlaunchpad.flocktracker.adapters.StableArrayAdapter;
 import org.urbanlaunchpad.flocktracker.helpers.ImageHelper;
 import org.urbanlaunchpad.flocktracker.helpers.SurveyHelper;
-import org.urbanlaunchpad.flocktracker.helpers.SurveyHelper.Tuple;
 import org.urbanlaunchpad.flocktracker.menu.DynamicListView;
+import org.urbanlaunchpad.flocktracker.views.NavButtonsManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class QuestionFragment extends Fragment implements View.OnClickListener,
+public class QuestionFragment extends Fragment implements QuestionManager, View.OnClickListener,
 		DynamicListView.SwappingEnded {
 
-	public static final String ARG_JSON_QUESTION = "Json question";
+    QuestionAnswerListener listener;
+
+
+    public static final String ARG_JSON_QUESTION = "Json question";
 	public static final String ARG_QUESTION_POSITION = "Question position";
 	public static final String ARG_CHAPTER_POSITION = "Chapter position";
-	public static final String ARG_POSITION = "Position";
+    public static final String ARG_CHAPTER_POSITION = "Chapter position";
+    public static final String ARG_POSITION = "Position";
 	public static final String ARG_IN_LOOP = "In loop";
 	public static final String ARG_LOOP_ITERATION = "Loop iteration";
 	public static final String ARG_LOOP_TOTAL = "Loop total";
@@ -57,7 +61,7 @@ public class QuestionFragment extends Fragment implements View.OnClickListener,
 	LoopPasser Loopback;
 	private Toast toast;
 	private String jquestionstring;
-	private JSONObject jquestion = null;
+	protected JSONObject jquestion = null;
 	private JSONArray janswerlist = null;
 	private String questionstring = "No questions on chapter";
 	private Integer totalanswers;
@@ -85,6 +89,7 @@ public class QuestionFragment extends Fragment implements View.OnClickListener,
 
 	// Information interface with main activity.
 	private Button skipButton;
+    private NavButtonsManager navButtonsManager;
 
 	// Loop stuff
 	Boolean inLoopBoolean;
@@ -120,7 +125,10 @@ public class QuestionFragment extends Fragment implements View.OnClickListener,
 			}
 		}
 
-		if (jquestionstring != null) {
+        setupNavButtons();
+
+
+        if (jquestionstring != null) {
 			try {
 				jquestion = new JSONObject(jquestionstring);
 			} catch (JSONException e) {
@@ -255,11 +263,12 @@ public class QuestionFragment extends Fragment implements View.OnClickListener,
 
 	}
 
-	private String getText(boolean boolean1) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    private void initializeQuestion()
 
+    private void setupNavButtons() {
+        navButtonsManager = (NavButtonsManager) rootView.findViewById(R.id.questionButtons);
+        navButtonsManager.setQuestionType(listener);
+    }
 	public void OrderedListLayout() {
 		originalAnswerList = new ArrayList<String>();
 		try {
@@ -294,7 +303,7 @@ public class QuestionFragment extends Fragment implements View.OnClickListener,
 
 		// Prepopulate question
 		getselectedAnswers();
-		
+
 		if (selectedAnswers != null) {
 			ArrayList<String> answerTempList = new ArrayList<String>();
 			for (int i = 0; i < totalanswers; ++i) {
@@ -1031,7 +1040,7 @@ public class QuestionFragment extends Fragment implements View.OnClickListener,
 
 		/**
 		 * Called by Fragment when an answer is selected
-		 * 
+		 *
 		 * @param selectedAnswers
 		 */
 		public void AnswerRecieve(String answerString, String jumpString,

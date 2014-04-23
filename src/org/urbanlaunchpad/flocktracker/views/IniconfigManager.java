@@ -1,7 +1,5 @@
 package org.urbanlaunchpad.flocktracker.views;
 
-import org.urbanlaunchpad.flocktracker.IniconfigListener;
-
 public interface IniconfigManager {
 
     void setUsername(String username);
@@ -9,4 +7,13 @@ public interface IniconfigManager {
     void onSurveyParsedIncorrectly();
     void initialize(IniconfigListener listener, String lastProjectName);
     void onParsingSurvey();
+
+    /**
+     * Interface for listener to handle user actions
+     */
+    public interface IniconfigListener {
+        void onProjectNameInput(String projectName);
+        void displayUsernameSelection();
+        void onContinue();
+    }
 }

@@ -37,7 +37,6 @@ import org.json.JSONObject;
 import org.urbanlaunchpad.flocktracker.adapters.DrawerListViewAdapter;
 import org.urbanlaunchpad.flocktracker.fragments.HubPageFragment;
 import org.urbanlaunchpad.flocktracker.fragments.QuestionFragment;
-import org.urbanlaunchpad.flocktracker.fragments.QuestionNavigatorFragment;
 import org.urbanlaunchpad.flocktracker.fragments.StatusPageFragment;
 import org.urbanlaunchpad.flocktracker.fragments.StatusPageFragment.StatusPageUpdate;
 import org.urbanlaunchpad.flocktracker.helpers.GoogleDriveHelper;
@@ -47,6 +46,7 @@ import org.urbanlaunchpad.flocktracker.helpers.SurveyHelper;
 import org.urbanlaunchpad.flocktracker.helpers.SurveyHelper.NextQuestionResult;
 import org.urbanlaunchpad.flocktracker.helpers.SurveyHelper.Tuple;
 import org.urbanlaunchpad.flocktracker.menu.RowItem;
+import org.urbanlaunchpad.flocktracker.models.Question;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -96,7 +96,6 @@ public class SurveyorActivity extends Activity implements
 	private CharSequence title;
 	private List<RowItem> rowItems;
 	private QuestionFragment currentQuestionFragment;
-	private Fragment navButtons;
 	private SurveyHelper surveyHelper;
 	private StatusPageHelper statusPageHelper;
 
@@ -114,15 +113,7 @@ public class SurveyorActivity extends Activity implements
 
 		@SuppressWarnings("deprecation")
 		public void handleMessage(Message msg) {
-			if (msg.what == EVENT_TYPE.SHOW_NAV_BUTTONS.ordinal()) {
-				if (!showingStatusPage && !showingHubPage) {
-					FragmentManager fragmentManager = getFragmentManager();
-					FragmentTransaction transactionShow = fragmentManager
-							.beginTransaction();
-					transactionShow.show(navButtons);
-					transactionShow.commit();
-				}
-			} else if (msg.what == EVENT_TYPE.MALE_UPDATE.ordinal()) {
+			if (msg.what == EVENT_TYPE.MALE_UPDATE.ordinal()) {
 				// update male count
 				TextView maleCountView = (TextView) findViewById(R.id.maleCount);
 				maleCountView.setText(maleCount.toString());
@@ -138,32 +129,6 @@ public class SurveyorActivity extends Activity implements
 				totalCount.setText("" + (maleCount + femaleCount));
 			} else if (msg.what == EVENT_TYPE.UPDATE_HUB_PAGE.ordinal()) {
 				askingTripQuestions = false;
-
-				// hide navigation buttons
-				FragmentManager fragmentManager = getFragmentManager();
-
-				FragmentTransaction transactionHide = fragmentManager
-						.beginTransaction();
-				transactionHide.hide(navButtons);
-				transactionHide.commit();
-
-				// update male count
-				TextView maleCountView = (TextView) findViewById(R.id.maleCount);
-				if (maleCountView != null) {
-					maleCountView.setText(maleCount.toString());
-				}
-
-				// update female count
-				TextView femaleCountView = (TextView) findViewById(R.id.femaleCount);
-				if (femaleCountView != null) {
-					femaleCountView.setText(femaleCount.toString());
-				}
-
-				// update total count
-				TextView totalCount = (TextView) findViewById(R.id.totalPersonCount);
-				if (totalCount != null) {
-					totalCount.setText("" + (maleCount + femaleCount));
-				}
 
 				if (isTripStarted) {
 					ImageView gear = (ImageView) findViewById(R.id.start_trip_button);
@@ -743,9 +708,6 @@ public class SurveyorActivity extends Activity implements
 		showingHubPage = false;
 		showingStatusPage = false;
 
-		navButtons.getView().findViewById(R.id.submit_survey_button)
-				.setVisibility(View.VISIBLE);
-
 		int chapterPosition;
 		int questionPosition;
 		int loopPosition;
@@ -807,11 +769,13 @@ public class SurveyorActivity extends Activity implements
 
 		// Starting question fragment and passing json question information.
 		currentQuestionFragment = new QuestionFragment();
+        Question question = new Question();
 		Bundle args = new Bundle();
 		args.putString(QuestionFragment.ARG_JSON_QUESTION,
 				currentQuestion.toString());
 		args.putInt(QuestionFragment.ARG_CHAPTER_POSITION, chapterPosition);
 		args.putInt(QuestionFragment.ARG_QUESTION_POSITION, questionPosition);
+        args.putInt(QuestionFrag)
 
 		Log.v("In loop from Surveyor", inloop.toString());
 		if (surveyHelper.inLoop) {

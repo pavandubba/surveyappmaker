@@ -27,6 +27,7 @@ import org.urbanlaunchpad.flocktracker.IniconfigActivity;
 import org.urbanlaunchpad.flocktracker.ProjectConfig;
 import org.urbanlaunchpad.flocktracker.R;
 import org.urbanlaunchpad.flocktracker.SurveyorActivity;
+import org.urbanlaunchpad.flocktracker.models.Chapter;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -76,6 +77,7 @@ public class SurveyHelper {
 	private Context context;
 	private String jsonSurvey = null;
 	private String jTrackerString = null;
+    private Chapter[] chapterList;
 	private JSONArray jChapterList;
 	private JSONArray jTrackerQuestions;
 	private String[] chapterTitles;
@@ -205,12 +207,15 @@ public class SurveyHelper {
 	// Get chapter titles
 	public void parseChapters() {
 		try {
-			jChapterList = jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
+			JSONArray jChapterList = jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
 					.getJSONArray("Chapters");
-			chapterTitles = new String[jChapterList.length()];
+
+			chapterList = new Chapter[jChapterList.length()];
 			for (int i = 0; i < jChapterList.length(); ++i) {
-				chapterTitles[i] = jChapterList.getJSONObject(i).getString(
-						"Chapter");
+                Chapter chapter = new Chapter();
+                chapter.setChapterNumber(i);
+                chapter.setTitle(jChapterList.getJSONObject(i).getString("Chapter"));
+                chapterList[i] = chapter;
 			}
 		} catch (JSONException e) {
 			e.printStackTrace();
