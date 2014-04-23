@@ -50,6 +50,7 @@ import org.urbanlaunchpad.flocktracker.models.Question;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.security.PublicKey;
 import java.util.*;
 
 public class SurveyorActivity extends Activity implements
@@ -64,6 +65,7 @@ public class SurveyorActivity extends Activity implements
 	public static final Integer HALF_COMPLETE_CHAPTER = R.drawable.complete_orange;
 	public static final String TRACKER_TYPE = "Tracker";
 	public static final String SURVEY_TYPE = "Survey";
+	public static final String LOOP_TYPE = "Loop";
 	public static final int UPDATE_INTERVAL_IN_SECONDS = 5;
 	private static final int MILLISECONDS_PER_SECOND = 1000;
 	private static final long UPDATE_INTERVAL = MILLISECONDS_PER_SECOND
@@ -761,7 +763,7 @@ public class SurveyorActivity extends Activity implements
 						currentQuestionJsonObject.getJSONArray("LoopAnswers")
 								.get(surveyHelper.loopIteration).toString());
 			} catch (JSONException e) {
-//				e.printStackTrace();
+				// e.printStackTrace();
 			}
 		}
 
@@ -952,10 +954,12 @@ public class SurveyorActivity extends Activity implements
 			Integer currentLoopTotal = surveyHelper.getCurrentLoopTotal();
 			if (!answerStringReceive.equals("")) {
 				receivedLoopTotal = Integer.parseInt(answerStringReceive);
-				if (currentLoopTotal != receivedLoopTotal) {
+				if ((currentLoopTotal != receivedLoopTotal)
+						|| (receivedLoopTotal == 0)) {
+					surveyHelper.clearLoopAnswerHashMap(questionkey.get(0),questionkey.get(1), askingTripQuestions);
 					surveyHelper.loopTotal = receivedLoopTotal;
 					surveyHelper.updateLoopLimit();
-					surveyHelper.initializeAnswerLoopArray();
+					surveyHelper.initializeLoop();
 					if (!askingTripQuestions) {
 						surveyHelper.answerCurrentQuestion(answerStringReceive,
 								selectedAnswers);

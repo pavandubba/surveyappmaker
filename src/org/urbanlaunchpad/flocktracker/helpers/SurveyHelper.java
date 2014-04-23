@@ -5,6 +5,7 @@ import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.inputmethodservice.Keyboard.Key;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
@@ -13,6 +14,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.drive.internal.e;
+import com.google.android.gms.drive.internal.o;
 import com.google.api.services.fusiontables.Fusiontables;
 import com.google.api.services.fusiontables.Fusiontables.Column.Insert;
 import com.google.api.services.fusiontables.Fusiontables.Query.Sql;
@@ -427,12 +429,12 @@ public class SurveyHelper {
 
 		String namesString = "";
 
-		if (syntaxtype.equals("wq")) {
+		if (syntaxtype.equals("wq")) { // With quotes
 			namesString = "'" + names.get(0) + "'";
 			for (int i = 1; i < names.size(); i++) {
 				namesString += ",'" + names.get(i) + "'";
 			}
-		} else if (syntaxtype.equals("nq")) {
+		} else if (syntaxtype.equals("nq")) { // No quotes
 			namesString = names.get(0);
 			for (int i = 1; i < names.size(); i++) {
 				namesString += "," + names.get(i);
@@ -457,7 +459,8 @@ public class SurveyHelper {
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
-		} else if (triporsurvey.equals(SurveyorActivity.TRACKER_TYPE)) {
+		} else if ((triporsurvey.equals(SurveyorActivity.TRACKER_TYPE))
+				|| (triporsurvey.equals(SurveyorActivity.LOOP_TYPE))) {
 			totalchapters = 1;
 		}
 
@@ -477,15 +480,88 @@ public class SurveyHelper {
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
-			}
-			for (int j = 0; j < questionsArray.length(); ++j) {
+			} else if (triporsurvey.equals(SurveyorActivity.LOOP_TYPE)) {
 				try {
-					names.add(questionsArray.getJSONObject(j).getString(
-							nametoget));
+					questionsArray = survey.getJSONArray("Questions");
 				} catch (JSONException e) {
-					names.add("");
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
 			}
+			if (triporsurvey.equals(SurveyorActivity.LOOP_TYPE)) {
+				Integer loopLimitInteger = questionsArray.length();
+				Integer loopTotalInteger;
+				JSONArray loopAnswersArray = null;
+				String answertempString = null;
+				try {
+					loopTotalInteger = questionsArray.getJSONObject(0)
+							.getJSONArray("LoopAnswers").length();
+				} catch (JSONException e) {
+					loopTotalInteger = 0;
+					e.printStackTrace();
+				}
+
+				for (int k = 0; k < loopLimitInteger; k++) {
+					if (nametoget.equals("Answer")) {
+						answertempString = "";
+						try {
+							loopAnswersArray = questionsArray.getJSONObject(k)
+									.getJSONArray("LoopAnswers");
+							for (int j = 0; j < loopTotalInteger; j++) {
+								if (j == 0) {
+									answertempString = "(";
+								}
+								answertempString = answertempString
+										+ loopAnswersArray.getString(j);
+								if (j == loopTotalInteger - 1) {
+									answertempString = answertempString + ")";
+								} else {
+									answertempString = answertempString + ",";
+								}
+							}
+							Log.v("Loop answer" + k, answertempString);
+						} catch (JSONException e) {
+							e.printStackTrace();
+						}
+						names.add(answertempString);
+					} else {
+						try {
+							names.add(questionsArray.getJSONObject(k)
+									.getString(nametoget));
+						} catch (JSONException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+			} else {
+				for (int j = 0; j < questionsArray.length(); ++j) {
+					try {
+						names.add(questionsArray.getJSONObject(j).getString(
+								nametoget));
+					} catch (JSONException e) {
+						names.add("");
+					}
+					String questionkind;
+					try {
+						questionkind = questionsArray.getJSONObject(j)
+								.getString("Kind");
+					} catch (JSONException e) {
+						questionkind = "";
+						e.printStackTrace();
+					}
+					if (questionkind.equals("LP")) {
+						try {
+							names.addAll(getNamesArray(nametoget,
+									SurveyorActivity.LOOP_TYPE,
+									questionsArray.getJSONObject(j)));
+						} catch (JSONException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				}
+			}
+
 		}
 		return names;
 	}
@@ -821,17 +897,6 @@ public class SurveyHelper {
 						.getJSONObject(questionPosition)
 						.getJSONArray("Questions").getJSONObject(loopPosition)
 						.getJSONArray("LoopAnswers").put(loopIteration, answer);
-				// .getJSONObject(loopIteration).put("Answer", answer);
-				String seeeString = jsurv
-						.getJSONObject(SurveyorActivity.SURVEY_TYPE)
-						.getJSONArray("Chapters")
-						.getJSONObject(chapterPosition)
-						.getJSONArray("Questions")
-						.getJSONObject(questionPosition)
-						.getJSONArray("Questions").getJSONObject(loopPosition)
-						.getJSONArray("LoopAnswers").get(loopIteration)
-						.toString();
-				Log.v("Answer", seeeString);
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
@@ -857,8 +922,7 @@ public class SurveyHelper {
 			selectedTrackingAnswersMap.put(key, selectedAnswers);
 		} else {
 			try {
-				jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
-						.getJSONArray("Questions")
+				jtracker.getJSONArray("Questions")
 						.getJSONObject(questionPosition)
 						.getJSONArray("Questions").getJSONObject(loopPosition)
 						.getJSONArray("LoopAnswers").put(loopIteration, answer);
@@ -1161,7 +1225,8 @@ public class SurveyHelper {
 	}
 
 	public static class Tuple {
-		// TODO Erase this class
+		// TODO Change this class to accept loop variables (Quaduple class
+		// already there)
 		public final Integer chapterPosition;
 		public final Integer questionPosition;
 
@@ -1252,32 +1317,44 @@ public class SurveyHelper {
 	}
 
 	public void updateLoopLimit() {
-		if (!SurveyorActivity.askingTripQuestions) {
+		loopLimit = getLoopLimit(chapterPosition, questionPosition,
+				SurveyorActivity.askingTripQuestions);
+	}
+
+	private Integer getLoopLimit(Integer chapterPositionString,
+			Integer questionPositionString, Boolean askingTripQuestionsBoolean) {
+		if (!askingTripQuestionsBoolean) {
 			try {
 				loopLimit = jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
 						.getJSONArray("Chapters")
-						.getJSONObject(chapterPosition)
+						.getJSONObject(chapterPositionString)
 						.getJSONArray("Questions")
-						.getJSONObject(questionPosition)
+						.getJSONObject(questionPositionString)
 						.getJSONArray("Questions").length();
 			} catch (JSONException e) {
 				// e.printStackTrace();
+				loopLimit = 0;
 			}
 		} else {
 			try {
-				loopLimit = jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
-						.getJSONArray("Questions")
-						.getJSONObject(questionPosition)
+				loopLimit = jtracker.getJSONArray("Questions")
+						.getJSONObject(questionPositionString)
 						.getJSONArray("Questions").length();
 			} catch (JSONException e) {
 				// e.printStackTrace();
+				loopLimit = 0;
 			}
 		}
 
 		Log.v("Loop lenght", loopLimit.toString());
+		return loopLimit;
 	}
 
-	public void initializeAnswerLoopArray() {
+	public void initializeLoop() {
+		// Clearing hashmap
+		clearLoopAnswerHashMap(chapterPosition, questionPosition,
+				SurveyorActivity.askingTripQuestions);
+		// Clearing Loop answers arrays
 		for (int i = 0; i < loopLimit; ++i) {
 			if (!SurveyorActivity.askingTripQuestions) {
 				try {
@@ -1293,8 +1370,7 @@ public class SurveyHelper {
 				}
 			} else {
 				try {
-					jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
-							.getJSONArray("Questions")
+					jtracker.getJSONArray("Questions")
 							.getJSONObject(questionPosition)
 							.getJSONArray("Questions").getJSONObject(i)
 							.remove("LoopAnswers");
@@ -1328,8 +1404,7 @@ public class SurveyHelper {
 				}
 			} else {
 				try {
-					jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
-							.getJSONArray("Questions")
+					jtracker.getJSONArray("Questions")
 							.getJSONObject(questionPosition)
 							.getJSONArray("Questions").getJSONObject(i)
 							.put("LoopAnswers", tempArray);
@@ -1341,39 +1416,75 @@ public class SurveyHelper {
 		Log.v("Initialize loop array", "Loop initialized!");
 	}
 
-	public Integer getCurrentLoopTotal() {
-		Integer currentLoopTotal = null;
-		String currentAnswerString = null;
-		if (!SurveyorActivity.askingTripQuestions) {
-			try {
-				currentAnswerString = jsurv
-						.getJSONObject(SurveyorActivity.SURVEY_TYPE)
-						.getJSONArray("Chapters")
-						.getJSONObject(chapterPosition)
-						.getJSONArray("Questions")
-						.getJSONObject(questionPosition).getString("Answer");
-			} catch (JSONException e) {
-				// e.printStackTrace();
-			}
-		} else {
-			try {
-				currentAnswerString = jsurv
-						.getJSONObject(SurveyorActivity.SURVEY_TYPE)
-						.getJSONArray("Questions")
-						.getJSONObject(questionPosition).getString("Answer");
-			} catch (JSONException e) {
-				// e.printStackTrace();
-			}
-		}
-		if (currentAnswerString != null) {
-			if (!currentAnswerString.equals("")) {
-				currentLoopTotal = Integer.parseInt(currentAnswerString);
+	public void clearLoopAnswerHashMap(Integer chapterPosition,
+			Integer questionPosition, Boolean askingTripQuestions) {
+		Integer loopTotalInteger = getLoopTotal(chapterPosition,
+				questionPosition, askingTripQuestions);
+		Integer loopLimitInteger = getLoopLimit(chapterPosition,
+				questionPosition, askingTripQuestions);
+
+		for (int i = 0; i < loopLimitInteger; ++i) {
+			if (!SurveyorActivity.askingTripQuestions) {
+				for (int j = 0; j < loopTotalInteger; ++j) {
+					ArrayList<Integer> key = new ArrayList<Integer>(
+							Arrays.asList(chapterPosition, questionPosition, i,
+									j));
+					if (selectedAnswersMap.containsKey(key)) {
+						selectedAnswersMap.remove(key);
+					}
+				}
 			} else {
-				currentLoopTotal = 0;
+				for (int j = 0; j < loopTotalInteger; ++j) {
+					ArrayList<Integer> key = new ArrayList<Integer>(
+							Arrays.asList(questionPosition, i, j));
+					if (selectedTrackingAnswersMap.containsKey(key)) {
+						selectedTrackingAnswersMap.remove(key);
+					}
+				}
+			}
+		}
+		Log.v("Clear Loop", "Loop cleared!");
+	}
+
+	public Integer getCurrentLoopTotal() {
+		Integer currentLoopTotal = getLoopTotal(chapterPosition,
+				questionPosition, SurveyorActivity.askingTripQuestions);
+		return currentLoopTotal;
+	}
+
+	private Integer getLoopTotal(Integer chapterPositionInteger,
+			Integer questionPositionInteger, Boolean askingTripQuestionsBoolean) {
+		String answer = null;
+		Integer localLoopTotal = null;
+		if (!askingTripQuestionsBoolean) {
+			try {
+				answer = jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
+						.getJSONArray("Chapters")
+						.getJSONObject(chapterPositionInteger)
+						.getJSONArray("Questions")
+						.getJSONObject(questionPositionInteger)
+						.getString("Answer");
+			} catch (JSONException e) {
+				// e.printStackTrace();
 			}
 		} else {
-			currentLoopTotal = 0;
+			try {
+				answer = jtracker.getJSONArray("Questions")
+						.getJSONObject(questionPositionInteger)
+						.getString("Answer");
+			} catch (JSONException e) {
+				// e.printStackTrace();
+			}
 		}
-		return currentLoopTotal;
+		if (answer != null) {
+			if (!answer.equals("")) {
+				localLoopTotal = Integer.parseInt(answer);
+			} else {
+				localLoopTotal = 0;
+			}
+		} else {
+			localLoopTotal = 0;
+		}
+		return localLoopTotal;
 	}
 }
