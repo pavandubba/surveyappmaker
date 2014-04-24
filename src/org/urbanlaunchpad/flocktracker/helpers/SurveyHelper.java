@@ -23,6 +23,7 @@ import org.urbanlaunchpad.flocktracker.SurveyorActivity;
 import org.urbanlaunchpad.flocktracker.models.Chapter;
 import org.urbanlaunchpad.flocktracker.models.Question;
 import org.urbanlaunchpad.flocktracker.models.QuestionUtil;
+import org.urbanlaunchpad.flocktracker.models.Survey;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -117,6 +118,7 @@ public class SurveyHelper {
                 for (int j = 0; j < jsonQuestionList.length(); j++) {
                     JSONObject jsonQuestion = jsonQuestionList.getJSONObject(j);
                     questions[i] = new Question();
+                    questions[i].setQuestionID(jsonQuestion.getString("id"));
                     questions[i].setType(QuestionUtil.getQuestionTypeFromString(jsonQuestion.getString("Kind")));
 
                     JSONArray jsonAnswers = jsonQuestion.getJSONArray("Answers");
@@ -152,6 +154,7 @@ public class SurveyHelper {
                 JSONObject jsonQuestion = jTrackerQuestions.getJSONObject(i);
 
                 trackingQuestions[i] = new Question();
+                trackingQuestions[i].setQuestionID(jsonQuestion.getString("id"));
                 trackingQuestions[i].setType(QuestionUtil.getQuestionTypeFromString(jsonQuestion.getString("Kind")));
 
                 JSONArray jsonAnswers = jsonQuestion.getJSONArray("Answers");
@@ -211,10 +214,17 @@ public class SurveyHelper {
             }
 
             // Create and submit query
-            String columnnamesString = getNames("id", "nq", type,
-                    jsurvQueueObject);
-            String answerfinalString = getNames("Answer", "wq", type,
-                    jsurvQueueObject);
+            StringBuilder questionIDString = new StringBuilder();
+            StringBuilder answerString = new StringBuilder();
+
+            Survey survey = new Survey();
+            for (Chapter chapter : survey.getChapters()) {
+                for (Question question : chapter.getQuestions()) {
+                    questionIDString.append("'" + question.getQuestionID() + "',");
+                    answerString.append(question.getSelectedAnswers());
+                }
+            }
+
             String lnglat = LocationHelper.getLngLatAlt(lng, lat, alt);
             String query = "";
 
@@ -222,9 +232,9 @@ public class SurveyHelper {
                 query = "INSERT INTO "
                         + TRIP_TABLE_ID
                         + " ("
-                        + columnnamesString
-                        + ",Location,Lat,Lng,Alt,Date,TripID,Username,TotalCount,FemaleCount,MaleCount,Speed) VALUES ("
-                        + answerfinalString + ",'<Point><coordinates>" + lnglat
+                        + questionIDString
+                        + "Location,Lat,Lng,Alt,Date,TripID,Username,TotalCount,FemaleCount,MaleCount,Speed) VALUES ("
+                        + answerString + ",'<Point><coordinates>" + lnglat
                         + "</coordinates></Point>','" + lat + "','" + lng
                         + "','" + alt + "','" + timestamp + "','" + tripID
                         + "','" + ProjectConfig.get().getUsername() + "','" + totalCount + "','"
@@ -235,9 +245,9 @@ public class SurveyHelper {
                 query = "INSERT INTO "
                         + SURVEY_TABLE_ID
                         + " ("
-                        + columnnamesString
+                        + questionIDString
                         + ",Location,Lat,Lng,Alt,Date,SurveyID,TripID,Username,TotalCount,FemaleCount,MaleCount,Speed"
-                        + ") VALUES (" + answerfinalString
+                        + ") VALUES (" + answerString
                         + ",'<Point><coordinates>" + lnglat
                         + "</coordinates></Point>','" + lat + "','" + lng
                         + "','" + alt + "','" + timestamp + "','" + surveyID
@@ -343,28 +353,6 @@ public class SurveyHelper {
     /*
      * Column Check Code
      */
-
-    public String getNames(String nametoget, String syntaxtype,
-            String triporsurvey, JSONObject survey) {
-        ArrayList<String> names = getNamesArray(nametoget, triporsurvey, survey);
-
-        String namesString = "";
-
-        if (syntaxtype.equals("wq")) { // With quotes
-            namesString = "'" + names.get(0) + "'";
-            for (int i = 1; i < names.size(); i++) {
-                namesString += ",'" + names.get(i) + "'";
-            }
-        } else if (syntaxtype.equals("nq")) { // No quotes
-            namesString = names.get(0);
-            for (int i = 1; i < names.size(); i++) {
-                namesString += "," + names.get(i);
-            }
-        }
-
-        Log.v("Names", triporsurvey + " " + namesString);
-        return namesString;
-    }
 
     public ArrayList<String> getNamesArray(String nametoget,
             String triporsurvey, JSONObject survey) {
