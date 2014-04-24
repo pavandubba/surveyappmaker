@@ -1,11 +1,9 @@
 package org.urbanlaunchpad.flocktracker.models;
 
-import java.util.List;
-
 public class Chapter {
     private int chapterNumber;
     private String title;
-    private List<Question> questions;
+    private Question[] questions;
 
     public int getChapterNumber() {
         return chapterNumber;
@@ -23,11 +21,15 @@ public class Chapter {
         this.title = title;
     }
 
-    public List<Question> getQuestions() {
+    public Question[] getQuestions() {
         return questions;
     }
 
-    public void setQuestions(List<Question> questions) {
+    public void setQuestions(Question[] questions) {
         this.questions = questions;
+    }
+
+    public int getQuestionCount() {
+        return questions.length;
     }
 }
