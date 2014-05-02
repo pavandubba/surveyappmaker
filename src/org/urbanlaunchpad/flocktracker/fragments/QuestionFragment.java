@@ -45,7 +45,6 @@ public class QuestionFragment extends Fragment implements QuestionManager, View.
     public static final String ARG_JSON_QUESTION = "Json question";
 	public static final String ARG_QUESTION_POSITION = "Question position";
 	public static final String ARG_CHAPTER_POSITION = "Chapter position";
-    public static final String ARG_CHAPTER_POSITION = "Chapter position";
     public static final String ARG_POSITION = "Position";
 	public static final String ARG_IN_LOOP = "In loop";
 	public static final String ARG_LOOP_ITERATION = "Loop iteration";
