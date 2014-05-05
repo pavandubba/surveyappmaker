@@ -28,7 +28,7 @@ public class OpenQuestionFragment extends QuestionFragment {
 		}
 	};
 	
-	public void setupLayout(boolean hasOther) throws JSONException {
+	public void setupLayout() throws JSONException {
 		
 		
 		String questionkind = jquestion.getString("kind");
