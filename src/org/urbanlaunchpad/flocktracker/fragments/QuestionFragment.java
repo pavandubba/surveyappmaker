@@ -1003,9 +1003,9 @@ public class QuestionFragment extends Fragment implements QuestionManager, View.
 			answerString = (String) openET.getText().toString();
 			selectedAnswers = new ArrayList<Integer>();
 			selectedAnswers.add(-1);
-			if (questionkind.equals("LP")) {
-				inLoopBoolean = true;
-			}
+//			if (questionkind.equals("LP")) {
+//				inLoopBoolean = true;
+//			}
 			ArrayList<Integer> key = getkey();
 			Callback.AnswerRecieve(answerString, jumpString, selectedAnswers,
 					inLoopBoolean, questionkind, key);

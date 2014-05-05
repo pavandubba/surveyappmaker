@@ -148,7 +148,7 @@ public class CheckBoxQuestionFragment extends QuestionFragment {
 			answers[i].setOrientation(LinearLayout.HORIZONTAL);
 			answers[i].addView(otherCB);
 			answers[i].addView(otherET);
-			answers[i].setId(ANSWER_TAG);
+			answers[i].setId(ANSWER_TAG + i);
 			answers[i].setOnClickListener(this);
 			
 //			answerlayout.addView(answers[i]);
