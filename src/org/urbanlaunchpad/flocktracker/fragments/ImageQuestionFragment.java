@@ -1,18 +1,8 @@
 package org.urbanlaunchpad.flocktracker.fragments;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
 import org.json.JSONException;
 import org.urbanlaunchpad.flocktracker.R;
 import org.urbanlaunchpad.flocktracker.SurveyorActivity;
-import org.urbanlaunchpad.flocktracker.helpers.ImageHelper;
-import org.urbanlaunchpad.flocktracker.helpers.SurveyHelper;
-
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.media.ThumbnailUtils;
-import android.net.Uri;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
