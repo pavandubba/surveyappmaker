@@ -70,7 +70,7 @@ public class QuestionFragment extends Fragment implements QuestionManager, View.
 	private String jumpString = null;
 	private String answerjumpString = null;
 	private ViewGroup answerlayout;
-	private View rootView;
+	protected View rootView;
 	private String questionkind = null;
 	private Integer questionposition;
 	private Integer chapterposition;
