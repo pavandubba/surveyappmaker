@@ -575,6 +575,7 @@ public class DynamicListView extends ListView {
         /**
          * Called when the swapping is over.
          */
+    	// TODO call this from the OrderedList fragment
         public void orderedListSendAnswer();
     }
 }

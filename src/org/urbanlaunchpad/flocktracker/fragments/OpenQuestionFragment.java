@@ -28,9 +28,7 @@ public class OpenQuestionFragment extends QuestionFragment {
 		}
 	};
 	
-	public void setupLayout() throws JSONException {
-		
-		
+	public void setupLayout() throws JSONException {		
 		String questionkind = jquestion.getString("kind");
 		if ((questionkind.equals("ON"))||questionkind.equals("LP")){
 			askingNumbers = true;
