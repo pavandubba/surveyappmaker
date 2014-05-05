@@ -13,15 +13,26 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.ImageView;
 
 public class ImageQuestionFragment extends QuestionFragment {
+	
+	private OnClickListener skipButtonOnClickListener = new OnClickListener() {
+
+		@Override
+		public void onClick(View v) {
+			SurveyorActivity.driveHelper.startCameraIntent();		
+		}
+	
+	};
 	
 	
 	public void setupLayout() throws JSONException {
 		ImageView cameraButton = new ImageView(getActivity());
 		cameraButton.setImageResource(R.drawable.camera);
-		cameraButton.setOnClickListener(this);
+		cameraButton.setOnClickListener(skipButtonOnClickListener);
 //		answerlayout.addView(cameraButton);
 		addThumbnail();
 	}
