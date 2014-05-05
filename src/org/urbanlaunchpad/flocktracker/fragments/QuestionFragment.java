@@ -890,9 +890,6 @@ public class QuestionFragment extends Fragment implements QuestionManager, View.
 	}
 
 	private void CheckBoxOnClick(View view, Boolean editingtextBoolean) {
-
-		Log.e("CheckBoxOnClick", "I'm in!");
-
 		if (!editingtextBoolean) {
 			if (view instanceof LinearLayout) {
 				int i = view.getId();

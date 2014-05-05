@@ -33,6 +33,7 @@ public class MultipleChoiceQuestionFragment extends QuestionFragment {
 		}
 	};
 
+	// TODO Handle other answer.
 	private void unCheckView(LinearLayout view) {
 		ImageView iconImageView = (ImageView) view.findViewById(IMAGE_TAG);
 		iconImageView.setImageResource(R.drawable.ft_cir_gry);

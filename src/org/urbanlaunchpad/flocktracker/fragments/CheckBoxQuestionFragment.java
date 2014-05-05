@@ -2,13 +2,10 @@ package org.urbanlaunchpad.flocktracker.fragments;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.urbanlaunchpad.flocktracker.R;
 
 import android.graphics.Typeface;
 import android.graphics.drawable.StateListDrawable;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -19,28 +16,38 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.inputmethod.EditorInfo;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class CheckBoxQuestionFragment extends QuestionFragment {
 	private LinearLayout[] answers;
 
-	private final int IMAGE_TAG = -2;
+	private final int CB_TAG = -2;
 	private final int ANSWER_TAG = -3;
-	private Integer lastAnswerId;
 	
 	
 	private OnClickListener onClickListener = new OnClickListener() {
 
 		@Override
 		public void onClick(View v) {
-			// TODO Auto-generated method stub
-			
+			toggleCheckBox((LinearLayout) v);			
 		}
-	
 	};
+	
+	private void toggleCheckBox(LinearLayout v) {
+		CheckBox cb = (CheckBox) v.findViewById(CB_TAG);
+		TextView tv = (TextView) v.findViewById(ANSWER_TAG);
+		if (cb.isChecked()){
+			cb.setChecked(false);
+			tv.setTextColor(getResources().getColor(
+			R.color.text_color_light));
+		} else {
+			cb.setChecked(true);
+			tv.setTextColor(getResources().getColor(
+			R.color.answer_selected));
+		}
+		
+	}
 	
 
 	public void setupLayout(boolean hasOther) throws JSONException {
@@ -55,6 +62,7 @@ public class CheckBoxQuestionFragment extends QuestionFragment {
 			
 			// Custom Checkbox.
 			CheckBox cbanswer = new CheckBox(getActivity());
+			cbanswer.setId(CB_TAG);
 			cbanswer.setBackgroundResource(R.drawable.custom_checkbox);
 			cbanswer.setButtonDrawable(new StateListDrawable());
 			cbanswer.setClickable(false);
@@ -82,14 +90,17 @@ public class CheckBoxQuestionFragment extends QuestionFragment {
 			// Adding both to LinearLayout.
 			answers[i].addView(cbanswer);
 			answers[i].addView(tvanswer);
-			answers[i].setId(i); // TODO Fix the ID behavior
+			answers[i].setId(ANSWER_TAG);
 			answers[i].setOnClickListener(onClickListener);
 //			answerlayout.addView(answers[i]);
 
 		}
 		if (hasOther) {
+			final int i = numAnswers - 1;
+			
 			// Custom checkbox
-			otherCB = new CheckBox(rootView.getContext());
+			otherCB = new CheckBox(getActivity());
+			otherCB.setId(CB_TAG);
 			otherCB.setBackgroundResource(R.drawable.custom_checkbox);
 			otherCB.setButtonDrawable(new StateListDrawable());
 			otherCB.setClickable(false);
@@ -126,51 +137,27 @@ public class CheckBoxQuestionFragment extends QuestionFragment {
 				@Override
 				public boolean onTouch(View v, MotionEvent event) {
 					if (MotionEvent.ACTION_UP == event.getAction()) {
-						CheckBoxOnClick(otherfield, false);
+						toggleCheckBox(answers[i]);
 					}
 					return false;
 				}
 			});
 
 			// Add both to a linear layout
-			otherfield = new LinearLayout(rootView.getContext());
-			otherfield.setOrientation(LinearLayout.HORIZONTAL);
-			otherfield.addView(otherCB);
-			otherfield.addView(otherET);
-			answerlayout.addView(otherfield);
-			otherfield.setId(totalanswers);
-			otherfield.setOnClickListener(this);
-
-			// Listen for changes on the content of Edit text.
-			otherET.addTextChangedListener(new TextWatcher() {
-
-				@Override
-				public void onTextChanged(CharSequence s, int start,
-						int before, int count) {
-
-				}
-
-				@Override
-				public void beforeTextChanged(CharSequence s, int start,
-						int count, int after) {
-
-				}
-
-				@Override
-				public void afterTextChanged(Editable s) {
-					CheckBoxOnClick(otherfield, true);
-				}
-			});
+			answers[i] = new LinearLayout(getActivity());
+			answers[i].setOrientation(LinearLayout.HORIZONTAL);
+			answers[i].addView(otherCB);
+			answers[i].addView(otherET);
+			answers[i].setId(ANSWER_TAG);
+			answers[i].setOnClickListener(this);
+			
+//			answerlayout.addView(answers[i]);
 
 			otherET.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 				@Override
 				public boolean onEditorAction(TextView v, int actionId,
 						KeyEvent event) {
-					// if (actionId == EditorInfo.IME_ACTION_DONE) {
-					CheckBoxOnClick(otherfield, false);
-					// return false; // If false hides the keyboard after
-					// // pressing Done.
-					// }
+					toggleCheckBox(answers[i]);
 					return false;
 				}
 			});
