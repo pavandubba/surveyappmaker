@@ -261,6 +261,10 @@ public class QuestionFragment extends Fragment implements QuestionManager, View.
 		return rootView;
 
 	}
+	
+	public interface questionInterface{
+		public void setupLayout();
+	}
 
     private void initializeQuestion()
 

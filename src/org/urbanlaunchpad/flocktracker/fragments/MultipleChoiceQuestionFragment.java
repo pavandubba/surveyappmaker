@@ -10,11 +10,13 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.urbanlaunchpad.flocktracker.R;
+import org.urbanlaunchpad.flocktracker.fragments.QuestionFragment.questionInterface;
 
-public class MultipleChoiceQuestionFragment extends QuestionFragment {
+public class MultipleChoiceQuestionFragment extends QuestionFragment implements questionInterface {
 	private LinearLayout[] answers;
 
 	private final int IMAGE_TAG = -2;
@@ -173,5 +175,23 @@ public class MultipleChoiceQuestionFragment extends QuestionFragment {
 				}
 			});
 		}
+	}
+
+	@Override
+	public void onClick(View v) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void orderedListSendAnswer() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setupLayout() {
+		// TODO Auto-generated method stub
+		
 	}
 }
