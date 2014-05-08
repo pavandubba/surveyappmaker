@@ -263,7 +263,8 @@ public class QuestionFragment extends Fragment implements QuestionManager, View.
 	}
 	
 	public interface questionInterface{
-		public void setupLayout();
+		public void setupLayout() throws JSONException;
+		public void sendAnswer();
 	}
 
     private void initializeQuestion()

@@ -6,6 +6,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.urbanlaunchpad.flocktracker.R;
 import org.urbanlaunchpad.flocktracker.adapters.StableArrayAdapter;
+import org.urbanlaunchpad.flocktracker.fragments.QuestionFragment.questionInterface;
 import org.urbanlaunchpad.flocktracker.menu.DynamicListView;
 
 import android.view.View;
@@ -17,7 +18,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ScrollView;
 
-public class OrderedListQuestionFragment extends QuestionFragment {
+public class OrderedListQuestionFragment extends QuestionFragment implements questionInterface {
 
 	Integer totalanswers = null;
 	ArrayList<String> answerList = null;
@@ -104,6 +105,24 @@ public class OrderedListQuestionFragment extends QuestionFragment {
 			answerList.clear();
 			answerList.addAll(answerTempList);
 		}
+	}
+
+	@Override
+	public void onClick(View v) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void orderedListSendAnswer() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void sendAnswer() {
+		// TODO Auto-generated method stub
+		
 	}
 	
 	

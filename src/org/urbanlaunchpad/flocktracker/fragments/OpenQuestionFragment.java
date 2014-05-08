@@ -2,6 +2,7 @@ package org.urbanlaunchpad.flocktracker.fragments;
 
 import org.json.JSONException;
 import org.urbanlaunchpad.flocktracker.R;
+import org.urbanlaunchpad.flocktracker.fragments.QuestionFragment.questionInterface;
 
 import android.graphics.Typeface;
 import android.text.InputType;
@@ -15,12 +16,12 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class OpenQuestionFragment extends QuestionFragment {
+public class OpenQuestionFragment extends QuestionFragment  implements questionInterface  {
 	EditText openET;
 	Boolean askingNumbers;
 	LinearLayout answerLayout;
 	
-	private OnClickListener onClickListener = new OnClickListener() {
+	private OnClickListener onClickListener = new OnClickListener()  {
 
 		@Override
 		public void onClick(View v) {
@@ -70,6 +71,24 @@ public class OpenQuestionFragment extends QuestionFragment {
 		
 		
 		
+		
+	}
+
+	@Override
+	public void onClick(View v) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void orderedListSendAnswer() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void sendAnswer() {
+		// TODO Auto-generated method stub
 		
 	}
 	

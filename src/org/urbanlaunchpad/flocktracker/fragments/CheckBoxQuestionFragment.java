@@ -3,6 +3,7 @@ package org.urbanlaunchpad.flocktracker.fragments;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.urbanlaunchpad.flocktracker.R;
+import org.urbanlaunchpad.flocktracker.fragments.QuestionFragment.questionInterface;
 
 import android.graphics.Typeface;
 import android.graphics.drawable.StateListDrawable;
@@ -19,7 +20,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class CheckBoxQuestionFragment extends QuestionFragment {
+public class CheckBoxQuestionFragment extends QuestionFragment  implements questionInterface {
 	private LinearLayout[] answers;
 
 	private final int CB_TAG = -2;
@@ -163,5 +164,33 @@ public class CheckBoxQuestionFragment extends QuestionFragment {
 			});
 		}
 
+	}
+
+
+	@Override
+	public void onClick(View v) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void orderedListSendAnswer() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void setupLayout() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void sendAnswer() {
+		// TODO Auto-generated method stub
+		
 	}
 }

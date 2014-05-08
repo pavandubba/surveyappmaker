@@ -194,4 +194,10 @@ public class MultipleChoiceQuestionFragment extends QuestionFragment implements 
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public void sendAnswer() {
+		// TODO Auto-generated method stub
+		
+	}
 }

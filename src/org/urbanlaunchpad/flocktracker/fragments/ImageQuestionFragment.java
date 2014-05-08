@@ -3,11 +3,13 @@ package org.urbanlaunchpad.flocktracker.fragments;
 import org.json.JSONException;
 import org.urbanlaunchpad.flocktracker.R;
 import org.urbanlaunchpad.flocktracker.SurveyorActivity;
+import org.urbanlaunchpad.flocktracker.fragments.QuestionFragment.questionInterface;
+
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
 
-public class ImageQuestionFragment extends QuestionFragment {
+public class ImageQuestionFragment extends QuestionFragment  implements questionInterface  {
 	
 	private OnClickListener skipButtonOnClickListener = new OnClickListener() {
 
@@ -68,6 +70,27 @@ public class ImageQuestionFragment extends QuestionFragment {
 //				}
 //			}
 //		}
+	}
+
+
+	@Override
+	public void onClick(View v) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void orderedListSendAnswer() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void sendAnswer() {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }
