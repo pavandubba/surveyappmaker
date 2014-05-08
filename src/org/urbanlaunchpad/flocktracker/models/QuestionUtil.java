@@ -20,6 +20,28 @@ public class QuestionUtil {
             return QuestionType.CHECKBOX;
         }
 
+        if (type.equals("LP")) {
+          return QuestionType.LOOP;
+        }
+
         return null;
+    }
+
+    public static String getColumnTypeFromQuestionType(QuestionType type) {
+      switch (type) {
+        case MULTIPLE_CHOICE:
+          return "STRING";
+        case OPEN:
+          return "NUMBER";
+        case IMAGE:
+          return "STRING";
+        case CHECKBOX:
+          return "STRING";
+        case ORDERED:
+          return "STRING";
+        case LOOP:
+          return "STRING";
+      }
+      return null;
     }
 }

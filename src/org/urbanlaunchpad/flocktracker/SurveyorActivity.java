@@ -64,7 +64,7 @@ public class SurveyorActivity extends Activity implements
 	public static final Integer COMPLETE_CHAPTER = R.drawable.complete_green;
 	public static final Integer HALF_COMPLETE_CHAPTER = R.drawable.complete_orange;
 	public static final String TRACKER_TYPE = "Tracker";
-	public static final String SURVEY_TYPE = "Survey";
+	public static final String SURVEY_TYPE = "Submission";
 	public static final String LOOP_TYPE = "Loop";
 	public static final int UPDATE_INTERVAL_IN_SECONDS = 5;
 	private static final int MILLISECONDS_PER_SECOND = 1000;
@@ -167,8 +167,7 @@ public class SurveyorActivity extends Activity implements
 				WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
 		username = ProjectConfig.get().getUsername();
-		surveyHelper = new SurveyHelper(username, ProjectConfig.get()
-				.getOriginalJSONSurveyString(), getApplicationContext());
+		surveyHelper = new SurveyHelper(this);
 
 		driveHelper = new GoogleDriveHelper(this);
 		statusPageHelper = new StatusPageHelper(this);
@@ -217,8 +216,6 @@ public class SurveyorActivity extends Activity implements
 
 		chapterDrawerLayout.setDrawerListener(chapterDrawerToggle);
 
-		navButtons = getFragmentManager().findFragmentById(
-				R.id.survey_question_navigator_fragment);
 		maleCount = 0;
 		femaleCount = 0;
 
@@ -542,10 +539,10 @@ public class SurveyorActivity extends Activity implements
 					// save location tagged survey
 					surveyHelper.saveSubmission(statusPageHelper.startLocation,
 							surveyID, tripID, jsurvString, imagePaths,
-							TRACKER_TYPE, maleCount.toString(),
-							femaleCount.toString(),
-							((Integer) (maleCount + femaleCount)).toString(),
-							statusPageHelper.getSpeed().toString());
+							TRACKER_TYPE, maleCount,
+							femaleCount,
+							maleCount + femaleCount,
+							statusPageHelper.getSpeed());
 				}
 			}).start();
 		}
