@@ -50,7 +50,6 @@ import org.urbanlaunchpad.flocktracker.models.Question;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.security.PublicKey;
 import java.util.*;
 
 public class SurveyorActivity extends Activity implements
@@ -64,7 +63,7 @@ public class SurveyorActivity extends Activity implements
 	public static final Integer COMPLETE_CHAPTER = R.drawable.complete_green;
 	public static final Integer HALF_COMPLETE_CHAPTER = R.drawable.complete_orange;
 	public static final String TRACKER_TYPE = "Tracker";
-	public static final String SURVEY_TYPE = "Survey";
+	public static final String SURVEY_TYPE = "Submission";
 	public static final String LOOP_TYPE = "Loop";
 	public static final int UPDATE_INTERVAL_IN_SECONDS = 5;
 	private static final int MILLISECONDS_PER_SECOND = 1000;
@@ -167,8 +166,7 @@ public class SurveyorActivity extends Activity implements
 				WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
 		username = ProjectConfig.get().getUsername();
-		surveyHelper = new SurveyHelper(username, ProjectConfig.get()
-				.getOriginalJSONSurveyString(), getApplicationContext());
+		surveyHelper = new SurveyHelper(this);
 
 		driveHelper = new GoogleDriveHelper(this);
 		statusPageHelper = new StatusPageHelper(this);
@@ -217,8 +215,6 @@ public class SurveyorActivity extends Activity implements
 
 		chapterDrawerLayout.setDrawerListener(chapterDrawerToggle);
 
-		navButtons = getFragmentManager().findFragmentById(
-				R.id.survey_question_navigator_fragment);
 		maleCount = 0;
 		femaleCount = 0;
 
@@ -386,7 +382,7 @@ public class SurveyorActivity extends Activity implements
 	public void onBackPressed() {
 		if (askingTripQuestions) {
 			if (surveyHelper.prevTrackingPositions.empty()
-					|| surveyHelper.getTripQuestionPosition() == 0) {
+					|| surveyHelper.getTrackerQuestionPosition() == 0) {
 				surveyHelper
 						.updateTrackerPositionOnBack(SurveyHelper.HUB_PAGE_QUESTION_POSITION);
 				showHubPage();
@@ -542,10 +538,10 @@ public class SurveyorActivity extends Activity implements
 					// save location tagged survey
 					surveyHelper.saveSubmission(statusPageHelper.startLocation,
 							surveyID, tripID, jsurvString, imagePaths,
-							TRACKER_TYPE, maleCount.toString(),
-							femaleCount.toString(),
-							((Integer) (maleCount + femaleCount)).toString(),
-							statusPageHelper.getSpeed().toString());
+							TRACKER_TYPE, maleCount,
+							femaleCount,
+							maleCount + femaleCount,
+							statusPageHelper.getSpeed());
 				}
 			}).start();
 		}
@@ -569,7 +565,7 @@ public class SurveyorActivity extends Activity implements
 				if (askingTripQuestions) {
 					ArrayList<Integer> key = new ArrayList<Integer>(
 							Arrays.asList(
-									surveyHelper.getTripQuestionPosition(), -1,
+									surveyHelper.getTrackerQuestionPosition(), -1,
 									-1));
 					SurveyHelper.prevTrackerImages
 							.put(key, driveHelper.fileUri);
@@ -610,7 +606,7 @@ public class SurveyorActivity extends Activity implements
 				if (askingTripQuestions) {
 					ArrayList<Integer> key = new ArrayList<Integer>(
 							Arrays.asList(
-									surveyHelper.getTripQuestionPosition(), -1,
+									surveyHelper.getTrackerQuestionPosition(), -1,
 									-1));
 					SurveyHelper.prevTrackerImages
 							.put(key, driveHelper.fileUri);
@@ -802,7 +798,7 @@ public class SurveyorActivity extends Activity implements
 		}
 
 		// selectively show previous question button
-		if ((askingTripQuestions && surveyHelper.getTripQuestionPosition() == 0)
+		if ((askingTripQuestions && surveyHelper.getTrackerQuestionPosition() == 0)
 				|| (!askingTripQuestions && questionPosition == 0)) {
 			navButtons.getView().findViewById(R.id.previous_question_button)
 					.setVisibility(View.INVISIBLE);

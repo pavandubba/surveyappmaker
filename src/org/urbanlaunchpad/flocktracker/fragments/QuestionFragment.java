@@ -267,7 +267,7 @@ public class QuestionFragment extends Fragment implements QuestionManager, View.
 		public void sendAnswer();
 	}
 
-    private void initializeQuestion()
+    private void initializeQuestion();
 
     private void setupNavButtons() {
         navButtonsManager = (NavButtonsManager) rootView.findViewById(R.id.questionButtons);

@@ -31,7 +31,7 @@ public final class LocationHelper {
         }
     }
 
-    public static String getLngLatAlt(String lng, String lat, String alt) {
+    public static String getLngLatAlt(double lng, double lat, double alt) {
         // Return the latitude and longitude as strings
         return lng + "," + lat + "," +
                alt;

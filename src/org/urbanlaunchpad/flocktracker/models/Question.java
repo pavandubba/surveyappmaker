@@ -2,121 +2,145 @@ package org.urbanlaunchpad.flocktracker.models;
 
 import android.net.Uri;
 
+import java.util.HashSet;
 import java.util.Set;
 
 public class Question {
-    private QuestionType type;
 
-    private Chapter chapter;
-    private String questionText;
-    private String[] answers;
-    private String questionID;
-    private boolean otherEnabled;
+  private QuestionType type;
 
-    // Loop related variables
-    private boolean inLoop;
-    private int loopTotal;
-    private int loopIteration;
-    private int loopPosition;
+  private Chapter chapter;
+  private Question[] loopQuestions;
 
-    // Image
-    private Uri image;
+  private int questionNumber;
+  private String questionText;
+  private String[] answers;
+  private String questionID;
+  private boolean otherEnabled;
 
-    // Selected Answers
-    private Set<String> selectedAnswers;
+  // Loop related variables
+  private boolean inLoop;
+  private int loopTotal;
+  private int loopIteration;
+  private int loopPosition;
 
-    public enum QuestionType { MULTIPLE_CHOICE, OPEN, IMAGE, CHECKBOX, ORDERED };
+  // Image
+  private Uri image;
 
-    public QuestionType getType() {
-        return type;
-    }
+  // Selected Answers
+  private Set<String> selectedAnswers = new HashSet<String>();
 
-    public void setType(QuestionType type) {
-        this.type = type;
-    }
+  public QuestionType getType() {
+    return type;
+  }
 
-    public Chapter getChapter() {
-        return chapter;
-    }
+  public void setType(QuestionType type) {
+    this.type = type;
+  }
 
-    public void setChapter(Chapter chapter) {
-        this.chapter = chapter;
-    }
+  public Chapter getChapter() {
+    return chapter;
+  }
 
-    public String getQuestionText() {
-        return questionText;
-    }
+  public void setChapter(Chapter chapter) {
+    this.chapter = chapter;
+  }
 
-    public void setQuestionText(String questionText) {
-        this.questionText = questionText;
-    }
+  public String getQuestionText() {
+    return questionText;
+  }
 
-    public String[] getAnswers() {
-        return answers;
-    }
+  public void setQuestionText(String questionText) {
+    this.questionText = questionText;
+  }
 
-    public void setAnswers(String[] answers) {
-        this.answers = answers;
-    }
+  public String[] getAnswers() {
+    return answers;
+  }
 
-    public String getQuestionID() {
-        return questionID;
-    }
+  public void setAnswers(String[] answers) {
+    this.answers = answers;
+  }
 
-    public void setQuestionID(String questionID) {
-        this.questionID = questionID;
-    }
+  public String getQuestionID() {
+    return questionID;
+  }
 
-    public boolean isOtherEnabled() {
-        return otherEnabled;
-    }
+  public void setQuestionID(String questionID) {
+    this.questionID = questionID;
+  }
 
-    public void setOtherEnabled(boolean otherEnabled) {
-        this.otherEnabled = otherEnabled;
-    }
+  public boolean isOtherEnabled() {
+    return otherEnabled;
+  }
 
-    public boolean isInLoop() {
-        return inLoop;
-    }
+  public void setOtherEnabled(boolean otherEnabled) {
+    this.otherEnabled = otherEnabled;
+  }
 
-    public void setInLoop(boolean inLoop) {
-        this.inLoop = inLoop;
-    }
+  public boolean isInLoop() {
+    return inLoop;
+  }
 
-    public int getLoopTotal() {
-        return loopTotal;
-    }
+  public void setInLoop(boolean inLoop) {
+    this.inLoop = inLoop;
+  }
 
-    public void setLoopTotal(int loopTotal) {
-        this.loopTotal = loopTotal;
-    }
+  public int getLoopTotal() {
+    return loopTotal;
+  }
 
-    public int getLoopIteration() {
-        return loopIteration;
-    }
+  public void setLoopTotal(int loopTotal) {
+    this.loopTotal = loopTotal;
+  }
 
-    public void setLoopIteration(int loopIteration) {
-        this.loopIteration = loopIteration;
-    }
+  public int getLoopIteration() {
+    return loopIteration;
+  }
 
-    public int getLoopPosition() {
-        return loopPosition;
-    }
+  public void setLoopIteration(int loopIteration) {
+    this.loopIteration = loopIteration;
+  }
 
-    public void setLoopPosition(int loopPosition) {
-        this.loopPosition = loopPosition;
-    }
+  public int getLoopPosition() {
+    return loopPosition;
+  }
 
-    public Set<String> getSelectedAnswers() {
-        return selectedAnswers;
-    }
+  public void setLoopPosition(int loopPosition) {
+    this.loopPosition = loopPosition;
+  }
 
-    public Uri getImage() {
-        return image;
-    }
+  public Set<String> getSelectedAnswers() {
+    return selectedAnswers;
+  }
 
-    public void setImage(Uri image) {
-        this.image = image;
-    }
+  public void setSelectedAnswers(Set<String> selectedAnswers) {
+    this.selectedAnswers = selectedAnswers;
+  }
 
+  public Uri getImage() {
+    return image;
+  }
+
+  public void setImage(Uri image) {
+    this.image = image;
+  }
+
+  public int getQuestionNumber() {
+    return questionNumber;
+  }
+
+  public void setQuestionNumber(int questionNumber) {
+    this.questionNumber = questionNumber;
+  }
+
+  public Question[] getLoopQuestions() {
+    return loopQuestions;
+  }
+
+  public void setLoopQuestions(Question[] loopQuestions) {
+    this.loopQuestions = loopQuestions;
+  }
+
+  public enum QuestionType {MULTIPLE_CHOICE, OPEN, IMAGE, CHECKBOX, ORDERED, LOOP}
 }

@@ -41,7 +41,7 @@
             android:layout_weight="1"
             android:contentDescription="@string/start_survey_button_desc"
             android:padding="5dp"
-            android:src="@drawable/survey" />
+            android:src="@drawable/submission" />
 
         <ImageView
             android:id="@+id/statsButton"
