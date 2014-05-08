@@ -32,8 +32,6 @@ public class GoogleDriveHelper {
     public static Drive service;
     public Uri fileUri;
     private SurveyorActivity activity;
-    private String jumpString = null;
-
     public GoogleDriveHelper(SurveyorActivity mainActivity) {
         this.activity = mainActivity;
         service = getDriveService(IniconfigActivity.credential);
@@ -49,8 +47,6 @@ public class GoogleDriveHelper {
 
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
-
-        this.jumpString = jumpString;
 
         activity.startActivityForResult(cameraIntent, CAPTURE_IMAGE);
     }
@@ -85,9 +81,6 @@ public class GoogleDriveHelper {
                 .setId(PHOTO_FOLDER_ID)));
 
             File file = service.files().insert(body, mediaContent).execute();
-
-            // Notify that we have captured an image
-            jumpString = null;
 
             if (file != null) {
                 showToast("Photo uploaded: " + file.getTitle());
