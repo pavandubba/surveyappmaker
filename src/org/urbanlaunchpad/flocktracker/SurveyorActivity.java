@@ -50,7 +50,6 @@ import org.urbanlaunchpad.flocktracker.models.Question;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.security.PublicKey;
 import java.util.*;
 
 public class SurveyorActivity extends Activity implements
@@ -383,7 +382,7 @@ public class SurveyorActivity extends Activity implements
 	public void onBackPressed() {
 		if (askingTripQuestions) {
 			if (surveyHelper.prevTrackingPositions.empty()
-					|| surveyHelper.getTripQuestionPosition() == 0) {
+					|| surveyHelper.getTrackerQuestionPosition() == 0) {
 				surveyHelper
 						.updateTrackerPositionOnBack(SurveyHelper.HUB_PAGE_QUESTION_POSITION);
 				showHubPage();
@@ -566,7 +565,7 @@ public class SurveyorActivity extends Activity implements
 				if (askingTripQuestions) {
 					ArrayList<Integer> key = new ArrayList<Integer>(
 							Arrays.asList(
-									surveyHelper.getTripQuestionPosition(), -1,
+									surveyHelper.getTrackerQuestionPosition(), -1,
 									-1));
 					SurveyHelper.prevTrackerImages
 							.put(key, driveHelper.fileUri);
@@ -607,7 +606,7 @@ public class SurveyorActivity extends Activity implements
 				if (askingTripQuestions) {
 					ArrayList<Integer> key = new ArrayList<Integer>(
 							Arrays.asList(
-									surveyHelper.getTripQuestionPosition(), -1,
+									surveyHelper.getTrackerQuestionPosition(), -1,
 									-1));
 					SurveyHelper.prevTrackerImages
 							.put(key, driveHelper.fileUri);
@@ -799,7 +798,7 @@ public class SurveyorActivity extends Activity implements
 		}
 
 		// selectively show previous question button
-		if ((askingTripQuestions && surveyHelper.getTripQuestionPosition() == 0)
+		if ((askingTripQuestions && surveyHelper.getTrackerQuestionPosition() == 0)
 				|| (!askingTripQuestions && questionPosition == 0)) {
 			navButtons.getView().findViewById(R.id.previous_question_button)
 					.setVisibility(View.INVISIBLE);
