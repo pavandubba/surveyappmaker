@@ -36,16 +36,15 @@ import org.urbanlaunchpad.flocktracker.views.NavButtonsManager;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class QuestionFragment extends Fragment implements QuestionManager, View.OnClickListener,
-		DynamicListView.SwappingEnded {
+public abstract class QuestionFragment extends Fragment implements
+		QuestionManager, View.OnClickListener, DynamicListView.SwappingEnded {
 
-    QuestionAnswerListener listener;
+	QuestionAnswerListener listener;
 
-
-    public static final String ARG_JSON_QUESTION = "Json question";
+	public static final String ARG_JSON_QUESTION = "Json question";
 	public static final String ARG_QUESTION_POSITION = "Question position";
 	public static final String ARG_CHAPTER_POSITION = "Chapter position";
-    public static final String ARG_POSITION = "Position";
+	public static final String ARG_POSITION = "Position";
 	public static final String ARG_IN_LOOP = "In loop";
 	public static final String ARG_LOOP_ITERATION = "Loop iteration";
 	public static final String ARG_LOOP_TOTAL = "Loop total";
@@ -88,7 +87,7 @@ public class QuestionFragment extends Fragment implements QuestionManager, View.
 
 	// Information interface with main activity.
 	private Button skipButton;
-    private NavButtonsManager navButtonsManager;
+	private NavButtonsManager navButtonsManager;
 
 	// Loop stuff
 	Boolean inLoopBoolean;
@@ -124,10 +123,9 @@ public class QuestionFragment extends Fragment implements QuestionManager, View.
 			}
 		}
 
-        setupNavButtons();
+		setupNavButtons();
 
-
-        if (jquestionstring != null) {
+		if (jquestionstring != null) {
 			try {
 				jquestion = new JSONObject(jquestionstring);
 			} catch (JSONException e) {
@@ -197,8 +195,8 @@ public class QuestionFragment extends Fragment implements QuestionManager, View.
 						}
 					}
 				}
-			} else if (questionkind.equals("OT") || (questionkind.equals("ON")
-					|| questionkind.equals("LP"))) {
+			} else if (questionkind.equals("OT")
+					|| (questionkind.equals("ON") || questionkind.equals("LP"))) {
 				OpenLayout();
 
 				// Prepopulate question
@@ -261,19 +259,19 @@ public class QuestionFragment extends Fragment implements QuestionManager, View.
 		return rootView;
 
 	}
-	
-	public interface questionInterface{
-		public void setupLayout() throws JSONException;
-		public void sendAnswer();
+
+	public abstract void setupLayout() throws JSONException;
+
+	public abstract void sendAnswer();
+
+	private void initializeQuestion();
+
+	private void setupNavButtons() {
+		navButtonsManager = (NavButtonsManager) rootView
+				.findViewById(R.id.questionButtons);
+		navButtonsManager.setQuestionType(listener);
 	}
 
-    private void initializeQuestion();
-
-    private void setupNavButtons() {
-        navButtonsManager = (NavButtonsManager) rootView.findViewById(R.id.questionButtons);
-        navButtonsManager.setQuestionType(listener);
-    }
-	
 	public void saveState() {
 		if (selectedAnswers != null && selectedAnswers.contains(-1)) {
 			if (otherfield != null) {
@@ -296,7 +294,6 @@ public class QuestionFragment extends Fragment implements QuestionManager, View.
 		}
 	}
 
-
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
@@ -317,14 +314,13 @@ public class QuestionFragment extends Fragment implements QuestionManager, View.
 
 		/**
 		 * Called by Fragment when an answer is selected
-		 *
+		 * 
 		 * @param selectedAnswers
 		 */
 		public void AnswerRecieve(String answerString, String jumpString,
 				ArrayList<Integer> selectedAnswers, Boolean inLoop,
 				String questionkindRecieve, ArrayList<Integer> questionkey);
 	}
-
 
 	private void getselectedAnswers() {
 		if (inLoopBoolean) {
@@ -351,6 +347,5 @@ public class QuestionFragment extends Fragment implements QuestionManager, View.
 			}
 		}
 	}
-
 
 }

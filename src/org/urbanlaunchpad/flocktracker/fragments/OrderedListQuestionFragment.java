@@ -6,7 +6,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.urbanlaunchpad.flocktracker.R;
 import org.urbanlaunchpad.flocktracker.adapters.StableArrayAdapter;
-import org.urbanlaunchpad.flocktracker.fragments.QuestionFragment.questionInterface;
 import org.urbanlaunchpad.flocktracker.menu.DynamicListView;
 
 import android.view.View;
@@ -18,44 +17,43 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ScrollView;
 
-public class OrderedListQuestionFragment extends QuestionFragment implements questionInterface {
+public class OrderedListQuestionFragment extends QuestionFragment {
 
 	Integer totalanswers = null;
 	ArrayList<String> answerList = null;
 	Button skipButton;
-	
+
 	private OnClickListener skipButtonOnClickListener = new OnClickListener() {
 
 		@Override
 		public void onClick(View v) {
 			skipButton.setEnabled(false);
-			skipButton.setText(R.string.question_skipped);			
+			skipButton.setText(R.string.question_skipped);
 		}
-	
+
 	};
-	
+
 	public void setupLayout() throws JSONException {
-		
+
 		ArrayList<String> originalAnswerList = new ArrayList<String>();
 		JSONArray jsonAnswers = jquestion.getJSONArray("Answers");
 		totalanswers = jsonAnswers.length();
 
 		// Filling array adapter with the answers.
-			String aux;
-			for (int i = 0; i < totalanswers; ++i) {
-				try {
-					aux = jsonAnswers.getJSONObject(i).getString("Answer");
-					originalAnswerList.add(aux);
-				} catch (JSONException e) {
-					e.printStackTrace();
-					originalAnswerList.add("");
-				}
-
+		String aux;
+		for (int i = 0; i < totalanswers; ++i) {
+			try {
+				aux = jsonAnswers.getJSONObject(i).getString("Answer");
+				originalAnswerList.add(aux);
+			} catch (JSONException e) {
+				e.printStackTrace();
+				originalAnswerList.add("");
 			}
+
+		}
 
 		answerList = new ArrayList<String>();
 		answerList.addAll(originalAnswerList);
-
 
 		ViewGroup questionLayoutView = (ViewGroup) rootView
 				.findViewById(R.id.questionlayout);
@@ -91,11 +89,11 @@ public class OrderedListQuestionFragment extends QuestionFragment implements que
 		skipButton.setLayoutParams(lParams2);
 		skipButton.setOnClickListener(skipButtonOnClickListener);
 	}
-	
-	void PrepopulateQuestion(){
+
+	void PrepopulateQuestion() {
 		// TODO Fix prepopulation
-//		getselectedAnswers();
-		
+		// getselectedAnswers();
+
 		ArrayList<Integer> selectedAnswers = null;
 		if (selectedAnswers != null) {
 			ArrayList<String> answerTempList = new ArrayList<String>();
@@ -110,20 +108,19 @@ public class OrderedListQuestionFragment extends QuestionFragment implements que
 	@Override
 	public void onClick(View v) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void orderedListSendAnswer() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void sendAnswer() {
 		// TODO Auto-generated method stub
-		
+
 	}
-	
-	
+
 }

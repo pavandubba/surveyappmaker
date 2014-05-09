@@ -3,8 +3,6 @@ package org.urbanlaunchpad.flocktracker.fragments;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.urbanlaunchpad.flocktracker.R;
-import org.urbanlaunchpad.flocktracker.fragments.QuestionFragment.questionInterface;
-
 import android.graphics.Typeface;
 import android.graphics.drawable.StateListDrawable;
 import android.view.Gravity;
@@ -20,36 +18,32 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class CheckBoxQuestionFragment extends QuestionFragment  implements questionInterface {
+public class CheckBoxQuestionFragment extends QuestionFragment {
 	private LinearLayout[] answers;
 
 	private final int CB_TAG = -2;
 	private final int ANSWER_TAG = -3;
-	
-	
+
 	private OnClickListener onClickListener = new OnClickListener() {
 
 		@Override
 		public void onClick(View v) {
-			toggleCheckBox((LinearLayout) v);			
+			toggleCheckBox((LinearLayout) v);
 		}
 	};
-	
+
 	private void toggleCheckBox(LinearLayout v) {
 		CheckBox cb = (CheckBox) v.findViewById(CB_TAG);
 		TextView tv = (TextView) v.findViewById(ANSWER_TAG);
-		if (cb.isChecked()){
+		if (cb.isChecked()) {
 			cb.setChecked(false);
-			tv.setTextColor(getResources().getColor(
-			R.color.text_color_light));
+			tv.setTextColor(getResources().getColor(R.color.text_color_light));
 		} else {
 			cb.setChecked(true);
-			tv.setTextColor(getResources().getColor(
-			R.color.answer_selected));
+			tv.setTextColor(getResources().getColor(R.color.answer_selected));
 		}
-		
+
 	}
-	
 
 	public void setupLayout(boolean hasOther) throws JSONException {
 		final int numAnswers = hasOther ? jquestion.getJSONArray("Answers")
@@ -60,7 +54,7 @@ public class CheckBoxQuestionFragment extends QuestionFragment  implements quest
 
 		for (int i = 0; i < jsonAnswers.length(); ++i) {
 			String answer = jsonAnswers.getString(i);
-			
+
 			// Custom Checkbox.
 			CheckBox cbanswer = new CheckBox(getActivity());
 			cbanswer.setId(CB_TAG);
@@ -93,12 +87,12 @@ public class CheckBoxQuestionFragment extends QuestionFragment  implements quest
 			answers[i].addView(tvanswer);
 			answers[i].setId(ANSWER_TAG);
 			answers[i].setOnClickListener(onClickListener);
-//			answerlayout.addView(answers[i]);
+			// answerlayout.addView(answers[i]);
 
 		}
 		if (hasOther) {
 			final int i = numAnswers - 1;
-			
+
 			// Custom checkbox
 			otherCB = new CheckBox(getActivity());
 			otherCB.setId(CB_TAG);
@@ -151,8 +145,8 @@ public class CheckBoxQuestionFragment extends QuestionFragment  implements quest
 			answers[i].addView(otherET);
 			answers[i].setId(ANSWER_TAG + i);
 			answers[i].setOnClickListener(this);
-			
-//			answerlayout.addView(answers[i]);
+
+			// answerlayout.addView(answers[i]);
 
 			otherET.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 				@Override
@@ -166,31 +160,27 @@ public class CheckBoxQuestionFragment extends QuestionFragment  implements quest
 
 	}
 
-
 	@Override
 	public void onClick(View v) {
 		// TODO Auto-generated method stub
-		
-	}
 
+	}
 
 	@Override
 	public void orderedListSendAnswer() {
 		// TODO Auto-generated method stub
-		
-	}
 
+	}
 
 	@Override
 	public void setupLayout() {
 		// TODO Auto-generated method stub
-		
-	}
 
+	}
 
 	@Override
 	public void sendAnswer() {
 		// TODO Auto-generated method stub
-		
+
 	}
 }
