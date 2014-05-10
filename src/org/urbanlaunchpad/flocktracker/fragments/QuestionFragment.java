@@ -263,6 +263,8 @@ public abstract class QuestionFragment extends Fragment implements
 	public abstract void setupLayout() throws JSONException;
 
 	public abstract void sendAnswer();
+	
+	public abstract void prepopulateQuestion();
 
 	private void initializeQuestion();
 

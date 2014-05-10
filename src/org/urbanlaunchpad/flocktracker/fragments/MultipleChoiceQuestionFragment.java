@@ -199,4 +199,10 @@ public class MultipleChoiceQuestionFragment extends QuestionFragment {
 		// TODO Auto-generated method stub
 
 	}
+
+	@Override
+	public void prepopulateQuestion() {
+		// TODO Auto-generated method stub
+		
+	}
 }

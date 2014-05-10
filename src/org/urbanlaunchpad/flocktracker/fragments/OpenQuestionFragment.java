@@ -88,4 +88,10 @@ public class OpenQuestionFragment extends QuestionFragment {
 
 	}
 
+	@Override
+	public void prepopulateQuestion() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

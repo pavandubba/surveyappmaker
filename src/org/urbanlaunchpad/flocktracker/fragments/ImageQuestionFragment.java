@@ -86,4 +86,10 @@ public class ImageQuestionFragment extends QuestionFragment {
 
 	}
 
+	@Override
+	public void prepopulateQuestion() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
