@@ -122,5 +122,48 @@ public class OrderedListQuestionFragment extends QuestionFragment {
 		// TODO Auto-generated method stub
 
 	}
+	
+	public void orderedListSendAnswer() {
+		if (skipButton != null) {
+			skipButton.setEnabled(true);
+			skipButton.setText(R.string.skip_question);
+		}
+		answerString = getorderedAnswers();
+		selectedAnswers = new ArrayList<Integer>();
+
+		for (int i = 0; i < totalanswers; ++i) {
+			for (int j = 0; j < totalanswers; ++j) {
+				if (originalAnswerList.get(i).equals(answerList.get(j))) {
+					selectedAnswers.add(j);
+					// toast = Toast.makeText(getActivity(), answerList.get(j)
+					// + " " + selectedAnswers.get(j+1), Toast.LENGTH_SHORT);
+					// toast.show();
+					break;
+				}
+			}
+		}
+		ArrayList<Integer> key = getkey();
+		Callback.AnswerRecieve(answerString, null, selectedAnswers,
+				inLoopBoolean, questionkind, key);
+	}
+
+	private String getorderedAnswers() {
+		String answer = null;
+		StableArrayAdapter List = (StableArrayAdapter) answerlistView
+				.getAdapter();
+		for (int i = 0; i < totalanswers; ++i) {
+			if (i == 0) {
+				answer = "(";
+			} else {
+				answer = answer + ",";
+			}
+			answer = answer + List.getItem(i);
+			if (i == (totalanswers - 1)) {
+				answer = answer + ")";
+			}
+		}
+		return answer;
+	}
+
 
 }
