@@ -29,6 +29,7 @@ public class CheckBoxQuestionFragment extends QuestionFragment {
 		@Override
 		public void onClick(View v) {
 			toggleCheckBox((LinearLayout) v);
+			sendAnswer();
 		}
 	};
 
@@ -157,7 +158,7 @@ public class CheckBoxQuestionFragment extends QuestionFragment {
 				}
 			});
 		}
-
+		sendAnswer();
 	}
 
 	@Override
@@ -188,5 +189,70 @@ public class CheckBoxQuestionFragment extends QuestionFragment {
 	public void prepopulateQuestion() {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	private void CheckBoxOnClick(View view, Boolean editingtextBoolean) {
+		if (!editingtextBoolean) {
+			if (view instanceof LinearLayout) {
+				int i = view.getId();
+
+				// Getting answers from fields other than other.
+				if (i < tvanswerlist.length) {
+					TextView textView = tvanswerlist[i];
+					CheckBox checkBox = cbanswer[i];
+					if (checkBox.isChecked()) {
+						selectedAnswers.remove((Integer) i);
+						textView.setTextColor(getResources().getColor(
+								R.color.text_color_light));
+						checkBox.setChecked(false);
+					} else if (!checkBox.isChecked()) {
+						selectedAnswers.add(i);
+						textView.setTextColor(getResources().getColor(
+								R.color.answer_selected));
+						checkBox.setChecked(true);
+					}
+				}
+
+				// Getting answer from other field.
+				else {
+					if (otherCB.isChecked()) {
+						otherET.setTextColor(getResources().getColor(
+								R.color.text_color_light));
+						selectedAnswers.remove((Integer) i);
+						otherCB.setChecked(false);
+					} else if (!otherCB.isChecked()) {
+						otherET.setTextColor(getResources().getColor(
+								R.color.answer_selected));
+						selectedAnswers.add(i);
+						otherCB.setChecked(true);
+					}
+
+				}
+			}
+		}
+		// Sending the answer to the main activity.
+		if (!selectedAnswers.isEmpty()) {
+			answerString = "";
+			for (int j = 0; j <= totalanswers; ++j) {
+				if (selectedAnswers.contains(j)) {
+					if (j < tvanswerlist.length && selectedAnswers.contains(j)) {
+						answerString += tvanswerlist[j].getText() + ",";
+					} else {
+						answerString += otherET.getText() + ",";
+					}
+				}
+			}
+			answerString = answerString.substring(0, answerString.length() - 1);
+
+			ArrayList<Integer> key = getkey();
+			Callback.AnswerRecieve("(" + answerString + ")", null,
+					selectedAnswers, inLoopBoolean, questionkind, key);
+		} else {
+			ArrayList<Integer> key = getkey();
+			Callback.AnswerRecieve(null, null, selectedAnswers, inLoopBoolean,
+					questionkind, key);
+		}
+		Log.e("CheckBoxOnClick", answerString);
+
 	}
 }
