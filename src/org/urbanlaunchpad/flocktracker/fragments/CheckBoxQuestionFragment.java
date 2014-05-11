@@ -1,8 +1,13 @@
 package org.urbanlaunchpad.flocktracker.fragments;
 
+import java.util.ArrayList;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.urbanlaunchpad.flocktracker.R;
+
+import com.google.gson.InstanceCreator;
+
 import android.graphics.Typeface;
 import android.graphics.drawable.StateListDrawable;
 import android.view.Gravity;
@@ -23,6 +28,8 @@ public class CheckBoxQuestionFragment extends QuestionFragment {
 
 	private final int CB_TAG = -2;
 	private final int ANSWER_TAG = -3;
+	private ArrayList<Integer> selectedAnswers;
+	private int numAnswers;
 
 	private OnClickListener onClickListener = new OnClickListener() {
 
@@ -47,7 +54,7 @@ public class CheckBoxQuestionFragment extends QuestionFragment {
 	}
 
 	public void setupLayout(boolean hasOther) throws JSONException {
-		final int numAnswers = hasOther ? jquestion.getJSONArray("Answers")
+		numAnswers = hasOther ? jquestion.getJSONArray("Answers")
 				.length() : jquestion.getJSONArray("Answers").length() + 1;
 		answers = new LinearLayout[numAnswers];
 
@@ -144,7 +151,7 @@ public class CheckBoxQuestionFragment extends QuestionFragment {
 			answers[i].setOrientation(LinearLayout.HORIZONTAL);
 			answers[i].addView(otherCB);
 			answers[i].addView(otherET);
-			answers[i].setId(ANSWER_TAG + i);
+			answers[i].setId(ANSWER_TAG);
 			answers[i].setOnClickListener(this);
 
 			// answerlayout.addView(answers[i]);
@@ -181,8 +188,32 @@ public class CheckBoxQuestionFragment extends QuestionFragment {
 
 	@Override
 	public void sendAnswer() {
-		// TODO Auto-generated method stub
+		// Sending the answer to the main activity.
+		if (!selectedAnswers.isEmpty()) {
+			String answerString = "";
+			for (int j = 0; j <= numAnswers; ++j) {
+				if (selectedAnswers.contains(j)) {
+					View answerView = answers[j].findViewById(ANSWER_TAG);
+					if (answerView instanceof TextView){
+						TextView answerTextView = (TextView) answerView; 
+						answerString += answerTextView.getText() + ",";
+					} else if (answerView instanceof EditText){
+						EditText answerEditText = (EditText) answerView; 
+						answerString += answerEditText.getText() + ",";
+					}
+					
 
+				}
+			}
+			answerString = answerString.substring(0, answerString.length() - 1);
+			ArrayList<Integer> key = getkey();
+			Callback.AnswerRecieve("(" + answerString + ")", null,
+					selectedAnswers, inLoopBoolean, questionkind, key);
+		} else {
+			ArrayList<Integer> key = getkey();
+			Callback.AnswerRecieve(null, null, selectedAnswers, inLoopBoolean,
+					questionkind, key);
+		}
 	}
 
 	@Override
@@ -197,7 +228,7 @@ public class CheckBoxQuestionFragment extends QuestionFragment {
 				int i = view.getId();
 
 				// Getting answers from fields other than other.
-				if (i < tvanswerlist.length) {
+				if (i < answers.length) {
 					TextView textView = tvanswerlist[i];
 					CheckBox checkBox = cbanswer[i];
 					if (checkBox.isChecked()) {
@@ -230,29 +261,6 @@ public class CheckBoxQuestionFragment extends QuestionFragment {
 				}
 			}
 		}
-		// Sending the answer to the main activity.
-		if (!selectedAnswers.isEmpty()) {
-			answerString = "";
-			for (int j = 0; j <= totalanswers; ++j) {
-				if (selectedAnswers.contains(j)) {
-					if (j < tvanswerlist.length && selectedAnswers.contains(j)) {
-						answerString += tvanswerlist[j].getText() + ",";
-					} else {
-						answerString += otherET.getText() + ",";
-					}
-				}
-			}
-			answerString = answerString.substring(0, answerString.length() - 1);
-
-			ArrayList<Integer> key = getkey();
-			Callback.AnswerRecieve("(" + answerString + ")", null,
-					selectedAnswers, inLoopBoolean, questionkind, key);
-		} else {
-			ArrayList<Integer> key = getkey();
-			Callback.AnswerRecieve(null, null, selectedAnswers, inLoopBoolean,
-					questionkind, key);
-		}
-		Log.e("CheckBoxOnClick", answerString);
 
 	}
 }
