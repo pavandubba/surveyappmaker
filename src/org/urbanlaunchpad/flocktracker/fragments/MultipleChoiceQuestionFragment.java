@@ -31,6 +31,7 @@ public class MultipleChoiceQuestionFragment extends QuestionFragment {
 
 			checkView((LinearLayout) v);
 			lastAnswerId = v.getId();
+			sendAnswer();
 		}
 	};
 
@@ -174,6 +175,8 @@ public class MultipleChoiceQuestionFragment extends QuestionFragment {
 				}
 			});
 		}
+		prepopulateQuestion();
+		sendAnswer();
 	}
 
 	@Override
