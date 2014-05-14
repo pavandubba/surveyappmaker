@@ -1,5 +1,7 @@
 package org.urbanlaunchpad.flocktracker.fragments;
 
+import java.util.ArrayList;
+
 import android.content.Context;
 import android.graphics.Typeface;
 import android.view.*;
@@ -23,6 +25,7 @@ public class MultipleChoiceQuestionFragment extends QuestionFragment {
 	private final int ANSWER_TAG = -3;
 	private Integer answerId;
 	private String answerString;
+	private ArrayList<Integer> selectedAnswers;
 
 	private OnClickListener onClickListener = new OnClickListener() {
 		@Override
@@ -206,7 +209,11 @@ public class MultipleChoiceQuestionFragment extends QuestionFragment {
 	@Override
 	public void sendAnswer() {
 		for (int i = 0; i <= answers.length; i++){
-			if (answers[i].getId() == answerId){
+			int tempAnswerID = answers[i].getId();
+			if (tempAnswerID == answerId){
+				selectedAnswers = new ArrayList<Integer>();
+				selectedAnswers.add(answerId);
+				
 				View answerView = answers[i].findViewById(ANSWER_TAG);
 				if (answerView instanceof TextView){
 					TextView answerTextView = (TextView) answerView;
@@ -217,7 +224,6 @@ public class MultipleChoiceQuestionFragment extends QuestionFragment {
 				}
 			}
 		}
-
 	}
 
 	@Override
