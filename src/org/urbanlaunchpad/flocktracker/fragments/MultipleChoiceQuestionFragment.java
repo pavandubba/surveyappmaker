@@ -14,6 +14,9 @@ import android.widget.TextView;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import com.google.android.gms.drive.internal.i;
+import com.google.android.gms.internal.ig;
+
 public class MultipleChoiceQuestionFragment extends QuestionFragment {
 	private LinearLayout[] answers;
 	private final int IMAGE_TAG = -2;
@@ -37,20 +40,37 @@ public class MultipleChoiceQuestionFragment extends QuestionFragment {
 	private void unCheckView(LinearLayout view) {
 		ImageView iconImageView = (ImageView) view.findViewById(IMAGE_TAG);
 		iconImageView.setImageResource(R.drawable.ft_cir_gry);
-
-		TextView answerText = (TextView) view.findViewById(ANSWER_TAG);
-		answerText.setTextColor(getResources().getColor(
-				R.color.text_color_light));
+				
+		View answerText = (View) view.findViewById(ANSWER_TAG);
+		if (answerText instanceof TextView){
+			TextView answerTextView = (TextView) answerText;
+			answerTextView.setTextColor(getResources()
+					.getColor(R.color.text_color_light));
+			answerText.requestFocus();
+		} else if (answerText instanceof EditText){
+			EditText answerEditText = (EditText) answerText;
+			answerEditText.setTextColor(getResources()
+					.getColor(R.color.text_color_light));
+			answerEditText.requestFocus();
+		}
 	}
 
 	private void checkView(LinearLayout view) {
 		ImageView iconImageView = (ImageView) view.findViewById(IMAGE_TAG);
 		iconImageView.setImageResource(R.drawable.ft_cir_grn);
 
-		TextView answerText = (TextView) view.findViewById(ANSWER_TAG);
-		answerText.setTextColor(getResources()
-				.getColor(R.color.answer_selected));
-		answerText.requestFocus();
+		View answerText = (View) view.findViewById(ANSWER_TAG);
+		if (answerText instanceof TextView){
+			TextView answerTextView = (TextView) answerText;
+			answerTextView.setTextColor(getResources()
+					.getColor(R.color.answer_selected));
+			answerText.requestFocus();
+		} else if (answerText instanceof EditText){
+			EditText answerEditText = (EditText) answerText;
+			answerEditText.setTextColor(getResources()
+					.getColor(R.color.answer_selected));
+			answerEditText.requestFocus();
+		}
 	}
 
 	public void setupLayout() throws JSONException {
