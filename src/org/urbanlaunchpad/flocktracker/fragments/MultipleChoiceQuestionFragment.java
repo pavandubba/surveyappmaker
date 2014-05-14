@@ -13,7 +13,6 @@ import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.urbanlaunchpad.flocktracker.R;
 
 public class MultipleChoiceQuestionFragment extends QuestionFragment {
 	private LinearLayout[] answers;
@@ -79,7 +78,7 @@ public class MultipleChoiceQuestionFragment extends QuestionFragment {
 
 			// Answer Text
 			LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			TextView answerTextView = (TextView) inflater.inflate(getActivity(),R.drawable.answer_edit_text, null);
+			TextView answerTextView = (TextView) inflater.inflate(getActivity(),R.layout.answer_edit_text, null);
 			answerTextView.setId(ANSWER_TAG);
 			answerTextView.setText(answer);
 			LinearLayout.LayoutParams layoutParamsText = new LinearLayout.LayoutParams(
