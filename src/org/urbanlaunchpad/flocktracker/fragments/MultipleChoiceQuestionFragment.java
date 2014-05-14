@@ -21,17 +21,18 @@ public class MultipleChoiceQuestionFragment extends QuestionFragment {
 	private LinearLayout[] answers;
 	private final int IMAGE_TAG = -2;
 	private final int ANSWER_TAG = -3;
-	private Integer lastAnswerId;
+	private Integer answerId;
+	private String answerString;
 
 	private OnClickListener onClickListener = new OnClickListener() {
 		@Override
 		public void onClick(View v) {
-			if (lastAnswerId != null) {
-				unCheckView(answers[lastAnswerId]);
+			if (answerId != null) {
+				unCheckView(answers[answerId]);
 			}
 
 			checkView((LinearLayout) v);
-			lastAnswerId = v.getId();
+			answerId = v.getId();
 			sendAnswer();
 		}
 	};
@@ -195,76 +196,6 @@ public class MultipleChoiceQuestionFragment extends QuestionFragment {
 		sendAnswer();
 	}
 	
-	
-	public void MultipleChoiceOnClick(View view) {
-		boolean foundAnswer = false;
-
-		if (view instanceof LinearLayout) {
-			if (view.getId() >= 0) {
-				for (int i = 0; i < totalanswers; ++i) {
-					TextView textView = (TextView) tvanswerlist[i];
-					ImageView imageView = (ImageView) answerImages[i];
-					if (view.getId() == textView.getId()) {
-						foundAnswer = true;
-						if (otherET != null) {
-							otherET.setTextColor(getResources().getColor(
-									R.color.text_color_light));
-							otherImage.setImageResource(R.drawable.ft_cir_gry);
-						}
-						textView.setTextColor(getResources().getColor(
-								R.color.answer_selected));
-						imageView.setImageResource(R.drawable.ft_cir_grn);
-						try {
-							answerjumpString = getJump(janswerlist
-									.getJSONObject(i));
-							if (answerjumpString != null) {
-								jumpString = answerjumpString;
-							}
-						} catch (JSONException e) {
-						}
-						answerString = answerlist[i];
-						selectedAnswers = new ArrayList<Integer>();
-						selectedAnswers.add(view.getId());
-						ArrayList<Integer> key = getkey();
-						Callback.AnswerRecieve(answerString, jumpString,
-								selectedAnswers, inLoopBoolean, questionkind,
-								key);
-					} else {
-						textView.setTextColor(getResources().getColor(
-								R.color.text_color_light));
-						imageView.setImageResource(R.drawable.ft_cir_gry);
-					}
-				}
-			}
-		}
-
-		if (view instanceof EditText || !foundAnswer) {
-			for (int i = 0; i < totalanswers; ++i) {
-				TextView textView = (TextView) tvanswerlist[i];
-				ImageView imageView = (ImageView) answerImages[i];
-				textView.setTextColor(getResources().getColor(
-						R.color.text_color_light));
-				imageView.setImageResource(R.drawable.ft_cir_gry);
-			}
-
-			// focus ET
-			otherET.requestFocusFromTouch();
-			InputMethodManager lManager = (InputMethodManager) getActivity()
-					.getSystemService(Context.INPUT_METHOD_SERVICE);
-			lManager.showSoftInput(otherET, 0);
-
-			otherET.setTextColor(getResources().getColor(
-					R.color.answer_selected));
-			otherImage.setImageResource(R.drawable.ft_cir_grn);
-			answerString = (String) otherET.getText().toString();
-			selectedAnswers = new ArrayList<Integer>();
-			selectedAnswers.add(-1);
-			ArrayList<Integer> key = getkey();
-			Callback.AnswerRecieve(answerString, jumpString, selectedAnswers,
-					inLoopBoolean, questionkind, key);
-		}
-	}
-	
 
 	@Override
 	public void onClick(View v) {
@@ -274,7 +205,18 @@ public class MultipleChoiceQuestionFragment extends QuestionFragment {
 
 	@Override
 	public void sendAnswer() {
-		// TODO Auto-generated method stub
+		for (int i = 0; i <= answers.length; i++){
+			if (answers[i].getId() == answerId){
+				View answerView = answers[i].findViewById(ANSWER_TAG);
+				if (answerView instanceof TextView){
+					TextView answerTextView = (TextView) answerView;
+					answerString = (String) answerTextView.getText();
+				} else if (answerView instanceof EditText){
+					EditText answerEditText = (EditText) answerView;
+					answerString = answerEditText.getText().toString();
+				}
+			}
+		}
 
 	}
 
