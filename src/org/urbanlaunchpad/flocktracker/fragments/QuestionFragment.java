@@ -263,7 +263,7 @@ public abstract class QuestionFragment extends Fragment implements
 
 	public abstract void sendAnswer();
 	
-	public abstract void prepopulateQuestion();
+	public abstract void prepopulateQuestion() throws JSONException;
 
 	private void initializeQuestion();
 

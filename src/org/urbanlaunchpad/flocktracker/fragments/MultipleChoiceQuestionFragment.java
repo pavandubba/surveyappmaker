@@ -229,9 +229,13 @@ public class MultipleChoiceQuestionFragment extends QuestionFragment {
 	}
 
 	@Override
-	public void prepopulateQuestion() {
+	public void prepopulateQuestion() throws JSONException {
 		if (selectedAnswers != null){
 			checkView(answers[selectedAnswers.get(0)]);
+			if (selectedAnswers.get(0) == answers.length){
+				EditText answerText = (EditText) answers[answers.length].findViewById(ANSWER_TAG);
+				answerText.setText(jquestion.getString("Answer"));
+			}
 		}		
 	}
 
