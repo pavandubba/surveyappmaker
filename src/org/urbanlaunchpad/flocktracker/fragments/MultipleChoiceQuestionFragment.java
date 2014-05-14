@@ -55,7 +55,10 @@ public class MultipleChoiceQuestionFragment extends QuestionFragment {
 		answerText.requestFocus();
 	}
 
-	public void setupLayout(boolean hasOther) throws JSONException {
+	public void setupLayout() throws JSONException {
+		
+		Boolean hasOther = jquestion.getBoolean("Other");
+		
 		final int numAnswers = hasOther ? jquestion.getJSONArray("Answers")
 				.length() : jquestion.getJSONArray("Answers").length() + 1;
 		answers = new LinearLayout[numAnswers];
@@ -187,12 +190,6 @@ public class MultipleChoiceQuestionFragment extends QuestionFragment {
 
 	@Override
 	public void orderedListSendAnswer() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void setupLayout() {
 		// TODO Auto-generated method stub
 
 	}
