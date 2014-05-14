@@ -44,10 +44,12 @@ public class CheckBoxQuestionFragment extends QuestionFragment {
 		CheckBox cb = (CheckBox) v.findViewById(CB_TAG);
 		TextView tv = (TextView) v.findViewById(ANSWER_TAG);
 		if (cb.isChecked()) {
+			selectedAnswers.remove((Integer) v.getId());
 			cb.setChecked(false);
 			tv.setTextColor(getResources().getColor(R.color.text_color_light));
 		} else {
 			cb.setChecked(true);
+			selectedAnswers.add((Integer) v.getId());
 			tv.setTextColor(getResources().getColor(R.color.answer_selected));
 		}
 
@@ -206,7 +208,6 @@ public class CheckBoxQuestionFragment extends QuestionFragment {
 				}
 			}
 			answerString = answerString.substring(0, answerString.length() - 1);
-			ArrayList<Integer> key = getkey();
 			Callback.AnswerRecieve("(" + answerString + ")", null,
 					selectedAnswers, inLoopBoolean, questionkind, key);
 		} else {
@@ -226,7 +227,6 @@ public class CheckBoxQuestionFragment extends QuestionFragment {
 		if (!editingtextBoolean) {
 			if (view instanceof LinearLayout) {
 				int i = view.getId();
-
 				// Getting answers from fields other than other.
 				if (i < answers.length) {
 					TextView textView = tvanswerlist[i];
