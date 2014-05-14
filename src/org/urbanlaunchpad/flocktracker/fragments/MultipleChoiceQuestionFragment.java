@@ -44,17 +44,17 @@ public class MultipleChoiceQuestionFragment extends QuestionFragment {
 	private void unCheckView(LinearLayout view) {
 		ImageView iconImageView = (ImageView) view.findViewById(IMAGE_TAG);
 		iconImageView.setImageResource(R.drawable.ft_cir_gry);
-				
+
 		View answerText = (View) view.findViewById(ANSWER_TAG);
-		if (answerText instanceof TextView){
+		if (answerText instanceof TextView) {
 			TextView answerTextView = (TextView) answerText;
-			answerTextView.setTextColor(getResources()
-					.getColor(R.color.text_color_light));
+			answerTextView.setTextColor(getResources().getColor(
+					R.color.text_color_light));
 			answerText.requestFocus();
-		} else if (answerText instanceof EditText){
+		} else if (answerText instanceof EditText) {
 			EditText answerEditText = (EditText) answerText;
-			answerEditText.setTextColor(getResources()
-					.getColor(R.color.text_color_light));
+			answerEditText.setTextColor(getResources().getColor(
+					R.color.text_color_light));
 			answerEditText.requestFocus();
 		}
 	}
@@ -64,23 +64,23 @@ public class MultipleChoiceQuestionFragment extends QuestionFragment {
 		iconImageView.setImageResource(R.drawable.ft_cir_grn);
 
 		View answerText = (View) view.findViewById(ANSWER_TAG);
-		if (answerText instanceof TextView){
+		if (answerText instanceof TextView) {
 			TextView answerTextView = (TextView) answerText;
-			answerTextView.setTextColor(getResources()
-					.getColor(R.color.answer_selected));
+			answerTextView.setTextColor(getResources().getColor(
+					R.color.answer_selected));
 			answerText.requestFocus();
-		} else if (answerText instanceof EditText){
+		} else if (answerText instanceof EditText) {
 			EditText answerEditText = (EditText) answerText;
-			answerEditText.setTextColor(getResources()
-					.getColor(R.color.answer_selected));
+			answerEditText.setTextColor(getResources().getColor(
+					R.color.answer_selected));
 			answerEditText.requestFocus();
 		}
 	}
 
 	public void setupLayout() throws JSONException {
-		
+
 		Boolean hasOther = jquestion.getBoolean("Other");
-		
+
 		final int numAnswers = hasOther ? jquestion.getJSONArray("Answers")
 				.length() : jquestion.getJSONArray("Answers").length() + 1;
 		answers = new LinearLayout[numAnswers];
@@ -101,8 +101,10 @@ public class MultipleChoiceQuestionFragment extends QuestionFragment {
 			iconImageView.setLayoutParams(layoutParams);
 
 			// Answer Text
-			LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			TextView answerTextView = (TextView) inflater.inflate(getActivity(),R.layout.answer_edit_text, null);
+			LayoutInflater inflater = (LayoutInflater) getActivity()
+					.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			TextView answerTextView = (TextView) inflater.inflate(
+					getActivity(), R.layout.answer_edit_text, null);
 			answerTextView.setId(ANSWER_TAG);
 			answerTextView.setText(answer);
 			LinearLayout.LayoutParams layoutParamsText = new LinearLayout.LayoutParams(
@@ -198,7 +200,6 @@ public class MultipleChoiceQuestionFragment extends QuestionFragment {
 		prepopulateQuestion();
 		sendAnswer();
 	}
-	
 
 	@Override
 	public void onClick(View v) {
@@ -208,18 +209,18 @@ public class MultipleChoiceQuestionFragment extends QuestionFragment {
 
 	@Override
 	public void sendAnswer() {
-		if (selectedAnswers != null){
-			for (int i = 0; i <= answers.length; i++){
+		if (selectedAnswers != null) {
+			for (int i = 0; i <= answers.length; i++) {
 				int tempAnswerID = answers[i].getId();
-				if (tempAnswerID == answerId){
+				if (tempAnswerID == answerId) {
 					selectedAnswers = new ArrayList<Integer>();
 					selectedAnswers.add(answerId);
-					
+
 					View answerView = answers[i].findViewById(ANSWER_TAG);
-					if (answerView instanceof TextView){
+					if (answerView instanceof TextView) {
 						TextView answerTextView = (TextView) answerView;
 						answerString = (String) answerTextView.getText();
-					} else if (answerView instanceof EditText){
+					} else if (answerView instanceof EditText) {
 						EditText answerEditText = (EditText) answerView;
 						answerString = answerEditText.getText().toString();
 					}
@@ -230,18 +231,19 @@ public class MultipleChoiceQuestionFragment extends QuestionFragment {
 
 	@Override
 	public void prepopulateQuestion() throws JSONException {
-		if (selectedAnswers != null){
+		if (selectedAnswers != null) {
 			checkView(answers[selectedAnswers.get(0)]);
-			if (selectedAnswers.get(0) == answers.length){
-				EditText answerText = (EditText) answers[answers.length].findViewById(ANSWER_TAG);
+			if (selectedAnswers.get(0) == answers.length) {
+				EditText answerText = (EditText) answers[answers.length]
+						.findViewById(ANSWER_TAG);
 				answerText.setText(jquestion.getString("Answer"));
 			}
-		}		
+		}
 	}
 
 	@Override
 	public void orderedListSendAnswer() {
 		// TODO Auto-generated method stub
-		
+
 	}
 }

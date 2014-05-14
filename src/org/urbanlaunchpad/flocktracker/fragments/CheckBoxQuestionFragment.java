@@ -55,11 +55,12 @@ public class CheckBoxQuestionFragment extends QuestionFragment {
 
 	}
 
-	public void setupLayout(boolean hasOther) throws JSONException {
-		numAnswers = hasOther ? jquestion.getJSONArray("Answers")
-				.length() : jquestion.getJSONArray("Answers").length() + 1;
-		answers = new LinearLayout[numAnswers];
+	public void setupLayout() throws JSONException {
 
+		Boolean hasOther = jquestion.getBoolean("other");
+		numAnswers = hasOther ? jquestion.getJSONArray("Answers").length()
+				: jquestion.getJSONArray("Answers").length() + 1;
+		answers = new LinearLayout[numAnswers];
 		JSONArray jsonAnswers = jquestion.getJSONArray("Answers");
 
 		for (int i = 0; i < jsonAnswers.length(); ++i) {
@@ -171,19 +172,7 @@ public class CheckBoxQuestionFragment extends QuestionFragment {
 	}
 
 	@Override
-	public void onClick(View v) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public void orderedListSendAnswer() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void setupLayout() {
 		// TODO Auto-generated method stub
 
 	}
@@ -196,33 +185,26 @@ public class CheckBoxQuestionFragment extends QuestionFragment {
 			for (int j = 0; j <= numAnswers; ++j) {
 				if (selectedAnswers.contains(j)) {
 					View answerView = answers[j].findViewById(ANSWER_TAG);
-					if (answerView instanceof TextView){
-						TextView answerTextView = (TextView) answerView; 
+					if (answerView instanceof TextView) {
+						TextView answerTextView = (TextView) answerView;
 						answerString += answerTextView.getText() + ",";
-					} else if (answerView instanceof EditText){
-						EditText answerEditText = (EditText) answerView; 
+					} else if (answerView instanceof EditText) {
+						EditText answerEditText = (EditText) answerView;
 						answerString += answerEditText.getText() + ",";
 					}
-					
 
 				}
 			}
 			answerString = answerString.substring(0, answerString.length() - 1);
-			Callback.AnswerRecieve("(" + answerString + ")", null,
-					selectedAnswers, inLoopBoolean, questionkind, key);
-		} else {
-			ArrayList<Integer> key = getkey();
-			Callback.AnswerRecieve(null, null, selectedAnswers, inLoopBoolean,
-					questionkind, key);
 		}
 	}
 
 	@Override
 	public void prepopulateQuestion() {
 		// TODO Auto-generated method stub
-		
+
 	}
-	
+
 	private void CheckBoxOnClick(View view, Boolean editingtextBoolean) {
 		if (!editingtextBoolean) {
 			if (view instanceof LinearLayout) {
