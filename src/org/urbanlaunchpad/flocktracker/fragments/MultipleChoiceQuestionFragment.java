@@ -17,7 +17,6 @@ import org.urbanlaunchpad.flocktracker.R;
 
 public class MultipleChoiceQuestionFragment extends QuestionFragment {
 	private LinearLayout[] answers;
-
 	private final int IMAGE_TAG = -2;
 	private final int ANSWER_TAG = -3;
 	private Integer lastAnswerId;
@@ -79,15 +78,10 @@ public class MultipleChoiceQuestionFragment extends QuestionFragment {
 			iconImageView.setLayoutParams(layoutParams);
 
 			// Answer Text
-			TextView answerTextView = new TextView(getActivity());
+			LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			TextView answerTextView = (TextView) inflater.inflate(getActivity(),R.drawable.answer_edit_text, null);
 			answerTextView.setId(ANSWER_TAG);
 			answerTextView.setText(answer);
-			answerTextView.setTextColor(getResources().getColor(
-					R.color.text_color_light));
-			answerTextView.setTextSize(20);
-			answerTextView.setPadding(10, 10, 10, 10);
-			answerTextView.setTypeface(Typeface.create("sans-serif-light",
-					Typeface.NORMAL));
 			LinearLayout.LayoutParams layoutParamsText = new LinearLayout.LayoutParams(
 					ViewGroup.LayoutParams.WRAP_CONTENT,
 					ViewGroup.LayoutParams.WRAP_CONTENT);
