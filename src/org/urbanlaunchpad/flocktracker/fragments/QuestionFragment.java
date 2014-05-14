@@ -56,7 +56,6 @@ public abstract class QuestionFragment extends Fragment implements
 	DynamicListView answerlistView;
 	// Passes Answer and jump information to activity.
 	AnswerSelected Callback;
-	LoopPasser Loopback;
 	private Toast toast;
 	private String jquestionstring;
 	protected JSONObject jquestion = null;

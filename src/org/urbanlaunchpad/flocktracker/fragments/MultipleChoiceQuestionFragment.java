@@ -208,19 +208,21 @@ public class MultipleChoiceQuestionFragment extends QuestionFragment {
 
 	@Override
 	public void sendAnswer() {
-		for (int i = 0; i <= answers.length; i++){
-			int tempAnswerID = answers[i].getId();
-			if (tempAnswerID == answerId){
-				selectedAnswers = new ArrayList<Integer>();
-				selectedAnswers.add(answerId);
-				
-				View answerView = answers[i].findViewById(ANSWER_TAG);
-				if (answerView instanceof TextView){
-					TextView answerTextView = (TextView) answerView;
-					answerString = (String) answerTextView.getText();
-				} else if (answerView instanceof EditText){
-					EditText answerEditText = (EditText) answerView;
-					answerString = answerEditText.getText().toString();
+		if (selectedAnswers != null){
+			for (int i = 0; i <= answers.length; i++){
+				int tempAnswerID = answers[i].getId();
+				if (tempAnswerID == answerId){
+					selectedAnswers = new ArrayList<Integer>();
+					selectedAnswers.add(answerId);
+					
+					View answerView = answers[i].findViewById(ANSWER_TAG);
+					if (answerView instanceof TextView){
+						TextView answerTextView = (TextView) answerView;
+						answerString = (String) answerTextView.getText();
+					} else if (answerView instanceof EditText){
+						EditText answerEditText = (EditText) answerView;
+						answerString = answerEditText.getText().toString();
+					}
 				}
 			}
 		}
@@ -228,8 +230,9 @@ public class MultipleChoiceQuestionFragment extends QuestionFragment {
 
 	@Override
 	public void prepopulateQuestion() {
-		// TODO Auto-generated method stub
-		
+		if (selectedAnswers != null){
+			checkView(answers[selectedAnswers.get(0)]);
+		}		
 	}
 
 	@Override
