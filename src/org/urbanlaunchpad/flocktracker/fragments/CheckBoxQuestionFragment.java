@@ -52,7 +52,6 @@ public class CheckBoxQuestionFragment extends QuestionFragment {
 			selectedAnswers.add((Integer) v.getId());
 			tv.setTextColor(getResources().getColor(R.color.answer_selected));
 		}
-
 	}
 
 	public void setupLayout() throws JSONException {
@@ -202,47 +201,6 @@ public class CheckBoxQuestionFragment extends QuestionFragment {
 	@Override
 	public void prepopulateQuestion() {
 		// TODO Auto-generated method stub
-
-	}
-
-	private void CheckBoxOnClick(View view, Boolean editingtextBoolean) {
-		if (!editingtextBoolean) {
-			if (view instanceof LinearLayout) {
-				int i = view.getId();
-				// Getting answers from fields other than other.
-				if (i < answers.length) {
-					TextView textView = tvanswerlist[i];
-					CheckBox checkBox = cbanswer[i];
-					if (checkBox.isChecked()) {
-						selectedAnswers.remove((Integer) i);
-						textView.setTextColor(getResources().getColor(
-								R.color.text_color_light));
-						checkBox.setChecked(false);
-					} else if (!checkBox.isChecked()) {
-						selectedAnswers.add(i);
-						textView.setTextColor(getResources().getColor(
-								R.color.answer_selected));
-						checkBox.setChecked(true);
-					}
-				}
-
-				// Getting answer from other field.
-				else {
-					if (otherCB.isChecked()) {
-						otherET.setTextColor(getResources().getColor(
-								R.color.text_color_light));
-						selectedAnswers.remove((Integer) i);
-						otherCB.setChecked(false);
-					} else if (!otherCB.isChecked()) {
-						otherET.setTextColor(getResources().getColor(
-								R.color.answer_selected));
-						selectedAnswers.add(i);
-						otherCB.setChecked(true);
-					}
-
-				}
-			}
-		}
 
 	}
 }
