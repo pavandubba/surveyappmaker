@@ -167,6 +167,7 @@ public class CheckBoxQuestionFragment extends QuestionFragment {
 				}
 			});
 		}
+		prepopulateQuestion();
 		sendAnswer();
 	}
 
@@ -200,7 +201,26 @@ public class CheckBoxQuestionFragment extends QuestionFragment {
 
 	@Override
 	public void prepopulateQuestion() {
-		// TODO Auto-generated method stub
+		for (int j = 0; j <= numAnswers; ++j) {
+			if (selectedAnswers.contains(j)) {
+				if (j == numAnswers) {
+					String otheranswerString = jquestion.getString("Answer");
+					otheranswerString = otheranswerString.substring(1,
+							otheranswerString.length() - 1);
+					for (int k = 0; k < numAnswers; ++k) {
+						if (selectedAnswers.contains(k)) {
+							TextView tvAnswer = (TextView) answers[k]
+									.findViewById(ANSWER_TAG);
+							String aux = (String) tvAnswer.getText();
+							otheranswerString = otheranswerString.substring(
+									aux.length() + 1,
+									otheranswerString.length());
+						}
+					}
+				}
+				toggleCheckBox(answers[j]);
+			}
+		}
 
 	}
 }
