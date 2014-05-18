@@ -67,7 +67,8 @@ public class OpenQuestionFragment extends QuestionFragment {
 				return false;
 			}
 		});
-
+		prepopulateQuestion();
+		sendAnswer();
 	}
 
 	@Override
@@ -84,14 +85,12 @@ public class OpenQuestionFragment extends QuestionFragment {
 
 	@Override
 	public void sendAnswer() {
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public void prepopulateQuestion() {
-		// TODO Auto-generated method stub
-		
+		openET.setText(jquestion.getString("Answer"));
 	}
 
 }
