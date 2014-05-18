@@ -73,7 +73,7 @@ public class OpenQuestionFragment extends QuestionFragment {
 
 	@Override
 	public void onClick(View v) {
-		// TODO Auto-generated method stub
+		sendAnswer();
 
 	}
 
@@ -85,7 +85,7 @@ public class OpenQuestionFragment extends QuestionFragment {
 
 	@Override
 	public void sendAnswer() {
-
+		openET.getText().toString();
 	}
 
 	@Override
