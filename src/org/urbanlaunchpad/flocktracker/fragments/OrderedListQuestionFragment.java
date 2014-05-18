@@ -88,21 +88,9 @@ public class OrderedListQuestionFragment extends QuestionFragment {
 		answerlistView.setLayoutParams(lParams1);
 		skipButton.setLayoutParams(lParams2);
 		skipButton.setOnClickListener(skipButtonOnClickListener);
-	}
-
-	void PrepopulateQuestion() {
-		// TODO Fix prepopulation
-		// getselectedAnswers();
-
-		ArrayList<Integer> selectedAnswers = null;
-		if (selectedAnswers != null) {
-			ArrayList<String> answerTempList = new ArrayList<String>();
-			for (int i = 0; i < totalanswers; ++i) {
-				answerTempList.add(answerList.get(selectedAnswers.get(i)));
-			}
-			answerList.clear();
-			answerList.addAll(answerTempList);
-		}
+		
+		prepopulateQuestion();
+		sendAnswer();
 	}
 
 	@Override
@@ -119,7 +107,7 @@ public class OrderedListQuestionFragment extends QuestionFragment {
 
 	@Override
 	public void sendAnswer() {
-		// TODO Auto-generated method stub
+		getorderedAnswers();
 
 	}
 	
@@ -167,7 +155,18 @@ public class OrderedListQuestionFragment extends QuestionFragment {
 
 	@Override
 	public void prepopulateQuestion() {
-		// TODO Auto-generated method stub
+		// TODO Fix prepopulation
+		// getselectedAnswers();
+
+		ArrayList<Integer> selectedAnswers = null;
+		if (selectedAnswers != null) {
+			ArrayList<String> answerTempList = new ArrayList<String>();
+			for (int i = 0; i < totalanswers; ++i) {
+				answerTempList.add(answerList.get(selectedAnswers.get(i)));
+			}
+			answerList.clear();
+			answerList.addAll(answerTempList);
+		}
 		
 	}
 
