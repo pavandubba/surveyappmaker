@@ -107,11 +107,6 @@ public class OrderedListQuestionFragment extends QuestionFragment {
 
 	@Override
 	public void sendAnswer() {
-		getorderedAnswers();
-
-	}
-	
-	public void orderedListSendAnswer() {
 		if (skipButton != null) {
 			skipButton.setEnabled(true);
 			skipButton.setText(R.string.skip_question);
@@ -123,18 +118,12 @@ public class OrderedListQuestionFragment extends QuestionFragment {
 			for (int j = 0; j < totalanswers; ++j) {
 				if (originalAnswerList.get(i).equals(answerList.get(j))) {
 					selectedAnswers.add(j);
-					// toast = Toast.makeText(getActivity(), answerList.get(j)
-					// + " " + selectedAnswers.get(j+1), Toast.LENGTH_SHORT);
-					// toast.show();
 					break;
 				}
 			}
 		}
-		ArrayList<Integer> key = getkey();
-		Callback.AnswerRecieve(answerString, null, selectedAnswers,
-				inLoopBoolean, questionkind, key);
 	}
-
+	
 	private String getorderedAnswers() {
 		String answer = null;
 		StableArrayAdapter List = (StableArrayAdapter) answerlistView
