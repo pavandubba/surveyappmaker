@@ -9,19 +9,17 @@ import android.widget.ImageView;
 
 public class ImageQuestionFragment extends QuestionFragment {
 
-	private OnClickListener skipButtonOnClickListener = new OnClickListener() {
-
+	private OnClickListener cameraButtonOnClickListener = new OnClickListener() {
 		@Override
 		public void onClick(View v) {
 			SurveyorActivity.driveHelper.startCameraIntent();
 		}
-
 	};
 
 	public void setupLayout() throws JSONException {
 		ImageView cameraButton = new ImageView(getActivity());
 		cameraButton.setImageResource(R.drawable.camera);
-		cameraButton.setOnClickListener(skipButtonOnClickListener);
+		cameraButton.setOnClickListener(cameraButtonOnClickListener);
 		// answerlayout.addView(cameraButton);
 		addThumbnail();
 	}
