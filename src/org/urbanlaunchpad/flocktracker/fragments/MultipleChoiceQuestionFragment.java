@@ -24,58 +24,7 @@ public class MultipleChoiceQuestionFragment extends QuestionFragment {
 	private final int IMAGE_TAG = -2;
 	private final int ANSWER_TAG = -3;
 	private Integer answerId;
-	private String answerString;
 	private ArrayList<Integer> selectedAnswers;
-
-	private OnClickListener onClickListener = new OnClickListener() {
-		@Override
-		public void onClick(View v) {
-			if (answerId != null) {
-				unCheckView(answers[answerId]);
-			}
-
-			checkView((LinearLayout) v);
-			answerId = v.getId();
-			sendAnswer();
-		}
-	};
-
-	// TODO Handle other answer.
-	private void unCheckView(LinearLayout view) {
-		ImageView iconImageView = (ImageView) view.findViewById(IMAGE_TAG);
-		iconImageView.setImageResource(R.drawable.ft_cir_gry);
-
-		View answerText = (View) view.findViewById(ANSWER_TAG);
-		if (answerText instanceof TextView) {
-			TextView answerTextView = (TextView) answerText;
-			answerTextView.setTextColor(getResources().getColor(
-					R.color.text_color_light));
-			answerText.requestFocus();
-		} else if (answerText instanceof EditText) {
-			EditText answerEditText = (EditText) answerText;
-			answerEditText.setTextColor(getResources().getColor(
-					R.color.text_color_light));
-			answerEditText.requestFocus();
-		}
-	}
-
-	private void checkView(LinearLayout view) {
-		ImageView iconImageView = (ImageView) view.findViewById(IMAGE_TAG);
-		iconImageView.setImageResource(R.drawable.ft_cir_grn);
-
-		View answerText = (View) view.findViewById(ANSWER_TAG);
-		if (answerText instanceof TextView) {
-			TextView answerTextView = (TextView) answerText;
-			answerTextView.setTextColor(getResources().getColor(
-					R.color.answer_selected));
-			answerText.requestFocus();
-		} else if (answerText instanceof EditText) {
-			EditText answerEditText = (EditText) answerText;
-			answerEditText.setTextColor(getResources().getColor(
-					R.color.answer_selected));
-			answerEditText.requestFocus();
-		}
-	}
 
 	public void setupLayout() throws JSONException {
 
@@ -202,12 +151,6 @@ public class MultipleChoiceQuestionFragment extends QuestionFragment {
 	}
 
 	@Override
-	public void onClick(View v) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public void sendAnswer() {
 		if (selectedAnswers != null) {
 			for (int i = 0; i <= answers.length; i++) {
@@ -238,6 +181,55 @@ public class MultipleChoiceQuestionFragment extends QuestionFragment {
 						.findViewById(ANSWER_TAG);
 				answerText.setText(jquestion.getString("Answer"));
 			}
+		}
+	}
+	
+	private OnClickListener onClickListener = new OnClickListener() {
+		@Override
+		public void onClick(View v) {
+			if (answerId != null) {
+				unCheckView(answers[answerId]);
+			}
+			checkView((LinearLayout) v);
+			answerId = v.getId();
+			sendAnswer();
+		}
+	};
+
+	// TODO Handle other answer.
+	private void unCheckView(LinearLayout view) {
+		ImageView iconImageView = (ImageView) view.findViewById(IMAGE_TAG);
+		iconImageView.setImageResource(R.drawable.ft_cir_gry);
+
+		View answerText = (View) view.findViewById(ANSWER_TAG);
+		if (answerText instanceof TextView) {
+			TextView answerTextView = (TextView) answerText;
+			answerTextView.setTextColor(getResources().getColor(
+					R.color.text_color_light));
+			answerText.requestFocus();
+		} else if (answerText instanceof EditText) {
+			EditText answerEditText = (EditText) answerText;
+			answerEditText.setTextColor(getResources().getColor(
+					R.color.text_color_light));
+			answerEditText.requestFocus();
+		}
+	}
+
+	private void checkView(LinearLayout view) {
+		ImageView iconImageView = (ImageView) view.findViewById(IMAGE_TAG);
+		iconImageView.setImageResource(R.drawable.ft_cir_grn);
+
+		View answerText = (View) view.findViewById(ANSWER_TAG);
+		if (answerText instanceof TextView) {
+			TextView answerTextView = (TextView) answerText;
+			answerTextView.setTextColor(getResources().getColor(
+					R.color.answer_selected));
+			answerText.requestFocus();
+		} else if (answerText instanceof EditText) {
+			EditText answerEditText = (EditText) answerText;
+			answerEditText.setTextColor(getResources().getColor(
+					R.color.answer_selected));
+			answerEditText.requestFocus();
 		}
 	}
 }

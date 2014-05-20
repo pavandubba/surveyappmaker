@@ -149,13 +149,6 @@ public abstract class QuestionFragment extends Fragment implements
 				toast.show();
 			}
 
-			try {
-				other = jquestion.getBoolean("Other");
-			} catch (JSONException e1) {
-				// e1.printStackTrace();
-				other = false;
-			}
-
 			selectedAnswers = new ArrayList<Integer>();
 
 			jumpString = getJump(jquestion);
@@ -168,15 +161,22 @@ public abstract class QuestionFragment extends Fragment implements
 			} catch (JSONException e) {
 				// e.printStackTrace();
 			}
+			
+			try {
+				setupLayout();
+				prepopulateQuestion();
+			} catch (JSONException e) {
+			}
 
-		return rootView;
+			return rootView;
 
+		}
 	}
 
 	public abstract void setupLayout() throws JSONException;
 
 	public abstract void sendAnswer();
-	
+
 	public abstract void prepopulateQuestion() throws JSONException;
 
 	private void initializeQuestion();
@@ -262,7 +262,7 @@ public abstract class QuestionFragment extends Fragment implements
 			}
 		}
 	}
-	
+
 	@Override
 	public void orderedListSendAnswer() {
 	}
