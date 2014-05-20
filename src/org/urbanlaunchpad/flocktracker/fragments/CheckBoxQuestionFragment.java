@@ -172,12 +172,6 @@ public class CheckBoxQuestionFragment extends QuestionFragment {
 	}
 
 	@Override
-	public void orderedListSendAnswer() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public void sendAnswer() {
 		// Sending the answer to the main activity.
 		if (!selectedAnswers.isEmpty()) {
@@ -223,4 +217,11 @@ public class CheckBoxQuestionFragment extends QuestionFragment {
 		}
 
 	}
+
+	@Override
+	public void onClick(View v) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

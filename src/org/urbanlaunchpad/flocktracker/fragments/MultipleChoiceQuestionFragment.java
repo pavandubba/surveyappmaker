@@ -240,10 +240,4 @@ public class MultipleChoiceQuestionFragment extends QuestionFragment {
 			}
 		}
 	}
-
-	@Override
-	public void orderedListSendAnswer() {
-		// TODO Auto-generated method stub
-
-	}
 }

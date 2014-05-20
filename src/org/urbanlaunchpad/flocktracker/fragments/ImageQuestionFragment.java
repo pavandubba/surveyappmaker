@@ -73,12 +73,6 @@ public class ImageQuestionFragment extends QuestionFragment {
 	}
 
 	@Override
-	public void orderedListSendAnswer() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public void sendAnswer() {
 		// TODO Auto-generated method stub
 

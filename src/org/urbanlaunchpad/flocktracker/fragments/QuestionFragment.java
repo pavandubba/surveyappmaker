@@ -262,5 +262,9 @@ public abstract class QuestionFragment extends Fragment implements
 			}
 		}
 	}
+	
+	@Override
+	public void orderedListSendAnswer() {
+	}
 
 }

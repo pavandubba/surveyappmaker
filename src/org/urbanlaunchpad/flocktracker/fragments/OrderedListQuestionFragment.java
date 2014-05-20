@@ -100,12 +100,6 @@ public class OrderedListQuestionFragment extends QuestionFragment {
 	}
 
 	@Override
-	public void orderedListSendAnswer() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public void sendAnswer() {
 		if (skipButton != null) {
 			skipButton.setEnabled(true);

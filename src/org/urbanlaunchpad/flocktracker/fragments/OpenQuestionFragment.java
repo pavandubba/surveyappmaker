@@ -73,13 +73,7 @@ public class OpenQuestionFragment extends QuestionFragment {
 
 	@Override
 	public void onClick(View v) {
-		sendAnswer();
-
-	}
-
-	@Override
-	public void orderedListSendAnswer() {
-		// TODO Auto-generated method stub
+		sendAnswer();	
 
 	}
 
