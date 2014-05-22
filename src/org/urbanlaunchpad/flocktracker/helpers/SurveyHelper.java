@@ -1,7 +1,6 @@
 package org.urbanlaunchpad.flocktracker.helpers;
 
 import android.content.Context;
-import android.net.Uri;
 import android.util.Log;
 import android.widget.Toast;
 import com.google.gson.Gson;
@@ -12,10 +11,15 @@ import org.urbanlaunchpad.flocktracker.IniconfigActivity;
 import org.urbanlaunchpad.flocktracker.ProjectConfig;
 import org.urbanlaunchpad.flocktracker.R;
 import org.urbanlaunchpad.flocktracker.SurveyorActivity;
-import org.urbanlaunchpad.flocktracker.models.*;
+import org.urbanlaunchpad.flocktracker.models.Chapter;
+import org.urbanlaunchpad.flocktracker.models.Question;
+import org.urbanlaunchpad.flocktracker.models.Submission;
 import org.urbanlaunchpad.flocktracker.models.Submission.Type;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.Stack;
 
 public class SurveyHelper {
 
@@ -24,7 +28,6 @@ public class SurveyHelper {
   public static final Integer HUB_PAGE_QUESTION_POSITION = -15;
   public static final Integer STATS_PAGE_CHAPTER_POSITION = -16;
   public static final Integer STATS_PAGE_QUESTION_POSITION = -16;
-
   // Backstack
   public Stack<Tuple> prevPositions = new Stack<Tuple>();
   public Stack<Integer> prevTrackingPositions = new Stack<Integer>();
@@ -36,7 +39,6 @@ public class SurveyHelper {
   public Integer loopPosition = -1; // Position in the questions array in the loop the survey is in.
   public Integer loopIteration = -1; // Iteration step where the loop process is.
   public Integer loopLimit = 0; // Total number of questions in the loop being asked.
-  // Submission / Tracker State
   private Integer chapterPosition = HUB_PAGE_CHAPTER_POSITION;
   private Integer questionPosition = HUB_PAGE_QUESTION_POSITION;
   private Integer trackerQuestionPosition = 0;
@@ -326,6 +328,7 @@ public class SurveyHelper {
   public Integer getChapterPosition() {
     return chapterPosition;
   }
+
   public Integer getQuestionPosition() {
     return questionPosition;
   }
@@ -384,11 +387,11 @@ public class SurveyHelper {
     if (!askingTripQuestionsBoolean) {
       try {
         loopLimit = jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
-                         .getJSONArray("Chapters")
-                         .getJSONObject(chapterPositionString)
-                         .getJSONArray("Questions")
-                         .getJSONObject(questionPositionString)
-                         .getJSONArray("Questions").length();
+          .getJSONArray("Chapters")
+          .getJSONObject(chapterPositionString)
+          .getJSONArray("Questions")
+          .getJSONObject(questionPositionString)
+          .getJSONArray("Questions").length();
       } catch (JSONException e) {
         // e.printStackTrace();
         loopLimit = 0;
@@ -396,8 +399,8 @@ public class SurveyHelper {
     } else {
       try {
         loopLimit = jtracker.getJSONArray("Questions")
-                            .getJSONObject(questionPositionString)
-                            .getJSONArray("Questions").length();
+          .getJSONObject(questionPositionString)
+          .getJSONArray("Questions").length();
       } catch (JSONException e) {
         // e.printStackTrace();
         loopLimit = 0;
@@ -417,17 +420,17 @@ public class SurveyHelper {
       if (!SurveyorActivity.askingTripQuestions) {
         try {
           chapterList[chapterPosition].getQuestions()[questionPosition]
-               .getJSONArray("Questions").getJSONObject(i)
-               .remove("LoopAnswers");
+            .getJSONArray("Questions").getJSONObject(i)
+            .remove("LoopAnswers");
         } catch (JSONException e) {
           // e.printStackTrace();
         }
       } else {
         try {
           jtracker.getJSONArray("Questions")
-                  .getJSONObject(questionPosition)
-                  .getJSONArray("Questions").getJSONObject(i)
-                  .remove("LoopAnswers");
+            .getJSONObject(questionPosition)
+            .getJSONArray("Questions").getJSONObject(i)
+            .remove("LoopAnswers");
         } catch (JSONException e) {
           // e.printStackTrace();
         }
@@ -447,17 +450,17 @@ public class SurveyHelper {
       if (!SurveyorActivity.askingTripQuestions) {
         try {
           chapterList[chapterPosition].getQuestions()[questionPosition]
-               .getJSONArray("Questions").getJSONObject(i)
-               .put("LoopAnswers", tempArray);
+            .getJSONArray("Questions").getJSONObject(i)
+            .put("LoopAnswers", tempArray);
         } catch (JSONException e) {
           // e.printStackTrace();
         }
       } else {
         try {
           jtracker.getJSONArray("Questions")
-                  .getJSONObject(questionPosition)
-                  .getJSONArray("Questions").getJSONObject(i)
-                  .put("LoopAnswers", tempArray);
+            .getJSONObject(questionPosition)
+            .getJSONArray("Questions").getJSONObject(i)
+            .put("LoopAnswers", tempArray);
         } catch (JSONException e) {
           // e.printStackTrace();
         }
@@ -510,19 +513,19 @@ public class SurveyHelper {
     if (!askingTripQuestionsBoolean) {
       try {
         answer = jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
-                      .getJSONArray("Chapters")
-                      .getJSONObject(chapterPositionInteger)
-                      .getJSONArray("Questions")
-                      .getJSONObject(questionPositionInteger)
-                      .getString("Answer");
+          .getJSONArray("Chapters")
+          .getJSONObject(chapterPositionInteger)
+          .getJSONArray("Questions")
+          .getJSONObject(questionPositionInteger)
+          .getString("Answer");
       } catch (JSONException e) {
         // e.printStackTrace();
       }
     } else {
       try {
         answer = jtracker.getJSONArray("Questions")
-                         .getJSONObject(questionPositionInteger)
-                         .getString("Answer");
+          .getJSONObject(questionPositionInteger)
+          .getString("Answer");
       } catch (JSONException e) {
         // e.printStackTrace();
       }
@@ -537,10 +540,6 @@ public class SurveyHelper {
       localLoopTotal = 0;
     }
     return localLoopTotal;
-  }
-
-  private enum SurveyType {
-    SURVEY, TRACKER, LOOP
   }
 
   public enum NextQuestionResult {
