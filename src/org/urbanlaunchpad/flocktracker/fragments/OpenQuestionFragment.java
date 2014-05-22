@@ -24,6 +24,7 @@ public class OpenQuestionFragment extends QuestionFragment {
 		@Override
 		public void onClick(View v) {
 			// TODO Handling of changes in the answer.
+			sendAnswer();
 		}
 	};
 
@@ -69,12 +70,6 @@ public class OpenQuestionFragment extends QuestionFragment {
 		});
 		prepopulateQuestion();
 		sendAnswer();
-	}
-
-	@Override
-	public void onClick(View v) {
-		sendAnswer();	
-
 	}
 
 	@Override

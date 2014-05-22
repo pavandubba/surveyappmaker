@@ -218,10 +218,4 @@ public class CheckBoxQuestionFragment extends QuestionFragment {
 
 	}
 
-	@Override
-	public void onClick(View v) {
-		// TODO Auto-generated method stub
-		
-	}
-
 }

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.urbanlaunchpad.flocktracker.R;
 import org.urbanlaunchpad.flocktracker.adapters.StableArrayAdapter;
 import org.urbanlaunchpad.flocktracker.menu.DynamicListView;
 
@@ -17,7 +16,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ScrollView;
 
-public class OrderedListQuestionFragment extends QuestionFragment {
+public class OrderedListQuestionFragment extends QuestionFragment implements DynamicListView.SwappingEnded {
 
 	Integer totalanswers = null;
 	ArrayList<String> answerList = null;

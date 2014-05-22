@@ -232,4 +232,10 @@ public class MultipleChoiceQuestionFragment extends QuestionFragment {
 			answerEditText.requestFocus();
 		}
 	}
+
+	@Override
+	public void onClick(View v) {
+		// TODO Auto-generated method stub
+		
+	}
 }

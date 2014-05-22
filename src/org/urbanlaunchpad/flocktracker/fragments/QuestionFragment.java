@@ -25,7 +25,6 @@ import android.widget.*;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.urbanlaunchpad.flocktracker.R;
 import org.urbanlaunchpad.flocktracker.SurveyorActivity;
 import org.urbanlaunchpad.flocktracker.adapters.StableArrayAdapter;
 import org.urbanlaunchpad.flocktracker.helpers.ImageHelper;
@@ -37,7 +36,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public abstract class QuestionFragment extends Fragment implements
-		QuestionManager, View.OnClickListener, DynamicListView.SwappingEnded {
+		QuestionManager {
 
 	QuestionAnswerListener listener;
 

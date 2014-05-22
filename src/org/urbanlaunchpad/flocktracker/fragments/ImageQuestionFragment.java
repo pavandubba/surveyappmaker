@@ -67,12 +67,6 @@ public class ImageQuestionFragment extends QuestionFragment {
 	}
 
 	@Override
-	public void onClick(View v) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public void sendAnswer() {
 		// TODO Auto-generated method stub
 
