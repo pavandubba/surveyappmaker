@@ -2,7 +2,6 @@ package org.urbanlaunchpad.flocktracker.fragments;
 
 import org.json.JSONException;
 import org.urbanlaunchpad.flocktracker.R;
-
 import android.graphics.Typeface;
 import android.text.InputType;
 import android.view.KeyEvent;
@@ -19,21 +18,23 @@ public class OpenQuestionFragment extends QuestionFragment {
 	EditText openET;
 	Boolean askingNumbers;
 	LinearLayout answerLayout;
-	
+
 	private OnClickListener onClickListener = new OnClickListener() {
 
 		@Override
 		public void onClick(View v) {
-		// TODO Handling of changes in the answer.
+			// TODO Handling of changes in the answer.
+			sendAnswer();
 		}
 	};
-	
-	public void setupLayout() throws JSONException {		
+
+	public void setupLayout() throws JSONException {
 		String questionkind = jquestion.getString("kind");
-		if ((questionkind.equals("ON"))||questionkind.equals("LP")){
+		if ((questionkind.equals("ON")) || questionkind.equals("LP")) {
 			askingNumbers = true;
-		};
-		
+		}
+		;
+
 		openET = new EditText(getActivity());
 		openET.setHint(getResources().getString(R.string.answer_hint));
 		openET.setImeOptions(EditorInfo.IME_ACTION_DONE);
@@ -67,13 +68,18 @@ public class OpenQuestionFragment extends QuestionFragment {
 				return false;
 			}
 		});
-		
-		
-		
-		
+		prepopulateQuestion();
+		sendAnswer();
 	}
-	
-	
-	
+
+	@Override
+	public void sendAnswer() {
+		openET.getText().toString();
+	}
+
+	@Override
+	public void prepopulateQuestion() {
+		openET.setText(jquestion.getString("Answer"));
+	}
 
 }

@@ -1,8 +1,12 @@
 package org.urbanlaunchpad.flocktracker.fragments;
 
+import java.util.ArrayList;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.urbanlaunchpad.flocktracker.R;
+
+import com.google.gson.InstanceCreator;
 
 import android.graphics.Typeface;
 import android.graphics.drawable.StateListDrawable;
@@ -24,42 +28,43 @@ public class CheckBoxQuestionFragment extends QuestionFragment {
 
 	private final int CB_TAG = -2;
 	private final int ANSWER_TAG = -3;
-	
-	
+	private ArrayList<Integer> selectedAnswers;
+	private int numAnswers;
+
 	private OnClickListener onClickListener = new OnClickListener() {
 
 		@Override
 		public void onClick(View v) {
-			toggleCheckBox((LinearLayout) v);			
+			toggleCheckBox((LinearLayout) v);
+			sendAnswer();
 		}
 	};
-	
+
 	private void toggleCheckBox(LinearLayout v) {
 		CheckBox cb = (CheckBox) v.findViewById(CB_TAG);
 		TextView tv = (TextView) v.findViewById(ANSWER_TAG);
-		if (cb.isChecked()){
+		if (cb.isChecked()) {
+			selectedAnswers.remove((Integer) v.getId());
 			cb.setChecked(false);
-			tv.setTextColor(getResources().getColor(
-			R.color.text_color_light));
+			tv.setTextColor(getResources().getColor(R.color.text_color_light));
 		} else {
 			cb.setChecked(true);
-			tv.setTextColor(getResources().getColor(
-			R.color.answer_selected));
+			selectedAnswers.add((Integer) v.getId());
+			tv.setTextColor(getResources().getColor(R.color.answer_selected));
 		}
-		
 	}
-	
 
-	public void setupLayout(boolean hasOther) throws JSONException {
-		final int numAnswers = hasOther ? jquestion.getJSONArray("Answers")
-				.length() : jquestion.getJSONArray("Answers").length() + 1;
+	public void setupLayout() throws JSONException {
+
+		Boolean hasOther = jquestion.getBoolean("other");
+		numAnswers = hasOther ? jquestion.getJSONArray("Answers").length()
+				: jquestion.getJSONArray("Answers").length() + 1;
 		answers = new LinearLayout[numAnswers];
-
 		JSONArray jsonAnswers = jquestion.getJSONArray("Answers");
 
 		for (int i = 0; i < jsonAnswers.length(); ++i) {
 			String answer = jsonAnswers.getString(i);
-			
+
 			// Custom Checkbox.
 			CheckBox cbanswer = new CheckBox(getActivity());
 			cbanswer.setId(CB_TAG);
@@ -92,12 +97,12 @@ public class CheckBoxQuestionFragment extends QuestionFragment {
 			answers[i].addView(tvanswer);
 			answers[i].setId(ANSWER_TAG);
 			answers[i].setOnClickListener(onClickListener);
-//			answerlayout.addView(answers[i]);
+			// answerlayout.addView(answers[i]);
 
 		}
 		if (hasOther) {
 			final int i = numAnswers - 1;
-			
+
 			// Custom checkbox
 			otherCB = new CheckBox(getActivity());
 			otherCB.setId(CB_TAG);
@@ -148,10 +153,10 @@ public class CheckBoxQuestionFragment extends QuestionFragment {
 			answers[i].setOrientation(LinearLayout.HORIZONTAL);
 			answers[i].addView(otherCB);
 			answers[i].addView(otherET);
-			answers[i].setId(ANSWER_TAG + i);
+			answers[i].setId(ANSWER_TAG);
 			answers[i].setOnClickListener(this);
-			
-//			answerlayout.addView(answers[i]);
+
+			// answerlayout.addView(answers[i]);
 
 			otherET.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 				@Override
@@ -162,6 +167,55 @@ public class CheckBoxQuestionFragment extends QuestionFragment {
 				}
 			});
 		}
+		prepopulateQuestion();
+		sendAnswer();
+	}
+
+	@Override
+	public void sendAnswer() {
+		// Sending the answer to the main activity.
+		if (!selectedAnswers.isEmpty()) {
+			String answerString = "";
+			for (int j = 0; j <= numAnswers; ++j) {
+				if (selectedAnswers.contains(j)) {
+					View answerView = answers[j].findViewById(ANSWER_TAG);
+					if (answerView instanceof TextView) {
+						TextView answerTextView = (TextView) answerView;
+						answerString += answerTextView.getText() + ",";
+					} else if (answerView instanceof EditText) {
+						EditText answerEditText = (EditText) answerView;
+						answerString += answerEditText.getText() + ",";
+					}
+
+				}
+			}
+			answerString = answerString.substring(0, answerString.length() - 1);
+		}
+	}
+
+	@Override
+	public void prepopulateQuestion() {
+		for (int j = 0; j <= numAnswers; ++j) {
+			if (selectedAnswers.contains(j)) {
+				if (j == numAnswers) {
+					String otheranswerString = jquestion.getString("Answer");
+					otheranswerString = otheranswerString.substring(1,
+							otheranswerString.length() - 1);
+					for (int k = 0; k < numAnswers; ++k) {
+						if (selectedAnswers.contains(k)) {
+							TextView tvAnswer = (TextView) answers[k]
+									.findViewById(ANSWER_TAG);
+							String aux = (String) tvAnswer.getText();
+							otheranswerString = otheranswerString.substring(
+									aux.length() + 1,
+									otheranswerString.length());
+						}
+					}
+				}
+				toggleCheckBox(answers[j]);
+			}
+		}
 
 	}
+
 }

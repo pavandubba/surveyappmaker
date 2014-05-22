@@ -1,5 +1,7 @@
 package org.urbanlaunchpad.flocktracker.fragments;
 
+import java.util.ArrayList;
+
 import android.content.Context;
 import android.graphics.Typeface;
 import android.view.*;
@@ -13,49 +15,21 @@ import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.urbanlaunchpad.flocktracker.R;
-import org.urbanlaunchpad.flocktracker.fragments.QuestionFragment.questionInterface;
 
-public class MultipleChoiceQuestionFragment extends QuestionFragment implements questionInterface {
+import com.google.android.gms.drive.internal.i;
+import com.google.android.gms.internal.ig;
+
+public class MultipleChoiceQuestionFragment extends QuestionFragment {
 	private LinearLayout[] answers;
-
 	private final int IMAGE_TAG = -2;
 	private final int ANSWER_TAG = -3;
-	private Integer lastAnswerId;
+	private Integer answerId;
+	private ArrayList<Integer> selectedAnswers;
 
-	private OnClickListener onClickListener = new OnClickListener() {
-		@Override
-		public void onClick(View v) {
-			if (lastAnswerId != null) {
-				unCheckView(answers[lastAnswerId]);
-			}
+	public void setupLayout() throws JSONException {
 
-			checkView((LinearLayout) v);
-			lastAnswerId = v.getId();
-		}
-	};
+		Boolean hasOther = jquestion.getBoolean("Other");
 
-	// TODO Handle other answer.
-	private void unCheckView(LinearLayout view) {
-		ImageView iconImageView = (ImageView) view.findViewById(IMAGE_TAG);
-		iconImageView.setImageResource(R.drawable.ft_cir_gry);
-
-		TextView answerText = (TextView) view.findViewById(ANSWER_TAG);
-		answerText.setTextColor(getResources().getColor(
-				R.color.text_color_light));
-	}
-
-	private void checkView(LinearLayout view) {
-		ImageView iconImageView = (ImageView) view.findViewById(IMAGE_TAG);
-		iconImageView.setImageResource(R.drawable.ft_cir_grn);
-
-		TextView answerText = (TextView) view.findViewById(ANSWER_TAG);
-		answerText.setTextColor(getResources()
-				.getColor(R.color.answer_selected));
-		answerText.requestFocus();
-	}
-
-	public void setupLayout(boolean hasOther) throws JSONException {
 		final int numAnswers = hasOther ? jquestion.getJSONArray("Answers")
 				.length() : jquestion.getJSONArray("Answers").length() + 1;
 		answers = new LinearLayout[numAnswers];
@@ -76,15 +50,12 @@ public class MultipleChoiceQuestionFragment extends QuestionFragment implements 
 			iconImageView.setLayoutParams(layoutParams);
 
 			// Answer Text
-			TextView answerTextView = new TextView(getActivity());
+			LayoutInflater inflater = (LayoutInflater) getActivity()
+					.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			TextView answerTextView = (TextView) inflater.inflate(
+					getActivity(), R.layout.answer_edit_text, null);
 			answerTextView.setId(ANSWER_TAG);
 			answerTextView.setText(answer);
-			answerTextView.setTextColor(getResources().getColor(
-					R.color.text_color_light));
-			answerTextView.setTextSize(20);
-			answerTextView.setPadding(10, 10, 10, 10);
-			answerTextView.setTypeface(Typeface.create("sans-serif-light",
-					Typeface.NORMAL));
 			LinearLayout.LayoutParams layoutParamsText = new LinearLayout.LayoutParams(
 					ViewGroup.LayoutParams.WRAP_CONTENT,
 					ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -175,22 +146,95 @@ public class MultipleChoiceQuestionFragment extends QuestionFragment implements 
 				}
 			});
 		}
+		prepopulateQuestion();
+		sendAnswer();
+	}
+
+	@Override
+	public void sendAnswer() {
+		if (selectedAnswers != null) {
+			for (int i = 0; i <= answers.length; i++) {
+				int tempAnswerID = answers[i].getId();
+				if (tempAnswerID == answerId) {
+					selectedAnswers = new ArrayList<Integer>();
+					selectedAnswers.add(answerId);
+
+					View answerView = answers[i].findViewById(ANSWER_TAG);
+					if (answerView instanceof TextView) {
+						TextView answerTextView = (TextView) answerView;
+						answerString = (String) answerTextView.getText();
+					} else if (answerView instanceof EditText) {
+						EditText answerEditText = (EditText) answerView;
+						answerString = answerEditText.getText().toString();
+					}
+				}
+			}
+		}
+	}
+
+	@Override
+	public void prepopulateQuestion() throws JSONException {
+		if (selectedAnswers != null) {
+			checkView(answers[selectedAnswers.get(0)]);
+			if (selectedAnswers.get(0) == answers.length) {
+				EditText answerText = (EditText) answers[answers.length]
+						.findViewById(ANSWER_TAG);
+				answerText.setText(jquestion.getString("Answer"));
+			}
+		}
+	}
+	
+	private OnClickListener onClickListener = new OnClickListener() {
+		@Override
+		public void onClick(View v) {
+			if (answerId != null) {
+				unCheckView(answers[answerId]);
+			}
+			checkView((LinearLayout) v);
+			answerId = v.getId();
+			sendAnswer();
+		}
+	};
+
+	// TODO Handle other answer.
+	private void unCheckView(LinearLayout view) {
+		ImageView iconImageView = (ImageView) view.findViewById(IMAGE_TAG);
+		iconImageView.setImageResource(R.drawable.ft_cir_gry);
+
+		View answerText = (View) view.findViewById(ANSWER_TAG);
+		if (answerText instanceof TextView) {
+			TextView answerTextView = (TextView) answerText;
+			answerTextView.setTextColor(getResources().getColor(
+					R.color.text_color_light));
+			answerText.requestFocus();
+		} else if (answerText instanceof EditText) {
+			EditText answerEditText = (EditText) answerText;
+			answerEditText.setTextColor(getResources().getColor(
+					R.color.text_color_light));
+			answerEditText.requestFocus();
+		}
+	}
+
+	private void checkView(LinearLayout view) {
+		ImageView iconImageView = (ImageView) view.findViewById(IMAGE_TAG);
+		iconImageView.setImageResource(R.drawable.ft_cir_grn);
+
+		View answerText = (View) view.findViewById(ANSWER_TAG);
+		if (answerText instanceof TextView) {
+			TextView answerTextView = (TextView) answerText;
+			answerTextView.setTextColor(getResources().getColor(
+					R.color.answer_selected));
+			answerText.requestFocus();
+		} else if (answerText instanceof EditText) {
+			EditText answerEditText = (EditText) answerText;
+			answerEditText.setTextColor(getResources().getColor(
+					R.color.answer_selected));
+			answerEditText.requestFocus();
+		}
 	}
 
 	@Override
 	public void onClick(View v) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void orderedListSendAnswer() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setupLayout() {
 		// TODO Auto-generated method stub
 		
 	}
