@@ -139,7 +139,6 @@ public class OrderedListQuestionFragment extends QuestionFragment implements Dyn
 	public void prepopulateQuestion() {
 		// TODO Fix prepopulation
 		// getselectedAnswers();
-
 		ArrayList<Integer> selectedAnswers = null;
 		if (selectedAnswers != null) {
 			ArrayList<String> answerTempList = new ArrayList<String>();

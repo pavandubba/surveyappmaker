@@ -14,7 +14,7 @@ public class Question {
 
   private int questionNumber;
   private String questionText;
-  private String[] answers;
+  private static String[] answers;
   private String questionID;
   private boolean otherEnabled;
 
@@ -54,7 +54,7 @@ public class Question {
     this.questionText = questionText;
   }
 
-  public String[] getAnswers() {
+  public static String[] getAnswers() {
     return answers;
   }
 
@@ -70,7 +70,7 @@ public class Question {
     this.questionID = questionID;
   }
 
-  public boolean isOtherEnabled() {
+  public static boolean isOtherEnabled() {
     return otherEnabled;
   }
 

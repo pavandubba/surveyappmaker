@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.urbanlaunchpad.flocktracker.models.Question;
 
 import com.google.android.gms.drive.internal.i;
 import com.google.android.gms.internal.ig;
@@ -26,12 +27,12 @@ public class MultipleChoiceQuestionFragment extends QuestionFragment {
 	private Integer answerId;
 	private ArrayList<Integer> selectedAnswers;
 
-	public void setupLayout() throws JSONException {
+	public void setupLayout() {
 
-		Boolean hasOther = jquestion.getBoolean("Other");
-
-		final int numAnswers = hasOther ? jquestion.getJSONArray("Answers")
-				.length() : jquestion.getJSONArray("Answers").length() + 1;
+		Boolean hasOther = Question.isOtherEnabled();
+		String[] answerStringArray = Question.getAnswers();
+		final int numAnswers = hasOther ? answerStringArray.length
+				: answerStringArray.length + 1;
 		answers = new LinearLayout[numAnswers];
 
 		JSONArray jsonAnswers = jquestion.getJSONArray("Answers");
@@ -183,7 +184,7 @@ public class MultipleChoiceQuestionFragment extends QuestionFragment {
 			}
 		}
 	}
-	
+
 	private OnClickListener onClickListener = new OnClickListener() {
 		@Override
 		public void onClick(View v) {
@@ -236,6 +237,6 @@ public class MultipleChoiceQuestionFragment extends QuestionFragment {
 	@Override
 	public void onClick(View v) {
 		// TODO Auto-generated method stub
-		
+
 	}
 }

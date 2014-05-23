@@ -160,7 +160,7 @@ public abstract class QuestionFragment extends Fragment implements
 			} catch (JSONException e) {
 				// e.printStackTrace();
 			}
-			
+
 			try {
 				setupLayout();
 				prepopulateQuestion();
@@ -172,7 +172,7 @@ public abstract class QuestionFragment extends Fragment implements
 		}
 	}
 
-	public abstract void setupLayout() throws JSONException;
+	public abstract void setupLayout();
 
 	public abstract void sendAnswer();
 
@@ -261,9 +261,4 @@ public abstract class QuestionFragment extends Fragment implements
 			}
 		}
 	}
-
-	@Override
-	public void orderedListSendAnswer() {
-	}
-
 }
