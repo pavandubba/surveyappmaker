@@ -67,12 +67,17 @@ public class StatisticsPageFragment extends Fragment {
 
   private void updateStatusPage() {
     // TODO Make this adaptable to different languages.
-    usernameText.setText("Hi " + ProjectConfig.get().getUsername() + "!");
-    surveysCompletedText.setText(Integer.toString(statistics.getSurveysCompleted()));
-    ridesCompletedText.setText(Integer.toString(statistics.getRidesCompleted()));
-    tripTimeText.setText(statistics.getElapsedTime());
-    currentAddressText.setText(statistics.getCurrentAddress());
-    tripDistanceText.setText(statistics.getFormattedTripDistance());
-    totalDistanceText.setText(statistics.getFormattedTotalDistance());
+    getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        usernameText.setText("Hi " + ProjectConfig.get().getUsername() + "!");
+        surveysCompletedText.setText(Integer.toString(statistics.getSurveysCompleted()));
+        ridesCompletedText.setText(Integer.toString(statistics.getRidesCompleted()));
+        tripTimeText.setText(statistics.getElapsedTime());
+        currentAddressText.setText(statistics.getCurrentAddress());
+        tripDistanceText.setText(statistics.getFormattedTripDistance());
+        totalDistanceText.setText(statistics.getFormattedTotalDistance());
+      }
+    });
   }
 }
