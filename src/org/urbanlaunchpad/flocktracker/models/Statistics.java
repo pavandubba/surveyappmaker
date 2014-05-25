@@ -34,22 +34,20 @@ public class Statistics {
     this.metadata = metadata;
   }
 
-  public Location getCurrentLocation() {
-    return metadata.getCurrentLocation();
-  }
-
   public CharSequence getCurrentAddress() {
-    new Thread(new Runnable() {
-      public void run() {
-        try {
-          Geocoder geocoder = new Geocoder(context, Locale.getDefault());
-          addresses = geocoder.getFromLocation(metadata.getCurrentLocation().getLatitude(),
-              metadata.getCurrentLocation().getLongitude(), 1);
-        } catch (IOException e) {
-          e.printStackTrace();
+    if (metadata.getCurrentLocation() != null) {
+      new Thread(new Runnable() {
+        public void run() {
+          try {
+            Geocoder geocoder = new Geocoder(context, Locale.getDefault());
+            addresses = geocoder.getFromLocation(metadata.getCurrentLocation().getLatitude(),
+                metadata.getCurrentLocation().getLongitude(), 1);
+          } catch (IOException e) {
+            e.printStackTrace();
+          }
         }
-      }
-    }).start();
+      }).start();
+    }
 
     if (addresses != null) {
       // Get the first address
