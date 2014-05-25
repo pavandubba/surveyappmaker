@@ -25,15 +25,14 @@ public class OpenQuestionFragment extends QuestionFragment {
 		@Override
 		public void onClick(View v) {
 			// TODO Handling of changes in the answer.
-			sendAnswer();
 		}
 	};
 
-  public OpenQuestionFragment(Question question) {
-    super(question);
+  public OpenQuestionFragment(QuestionActionListener listener, Question question, QuestionType questionType) {
+    super(listener, question, questionType);
   }
 
-  public void setupLayout() throws JSONException {
+  public void setupLayout() {
     Question.QuestionType questionType = getQuestion().getType();
 		if (questionType.equals(Question.QuestionType.OPEN) || questionType.equals(Question.QuestionType.LOOP)) {
       askingNumbers = true;
@@ -73,16 +72,10 @@ public class OpenQuestionFragment extends QuestionFragment {
 			}
 		});
 		prepopulateQuestion();
-		sendAnswer();
 	}
 
 	@Override
-	public void sendAnswer() {
-		openET.getText().toString();
-	}
-
-	@Override
-	public void prepopulateQuestion() throws JSONException {
+	public void prepopulateQuestion() {
 //		openET.setText(jquestion.getString("Answer"));
 	}
 

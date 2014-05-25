@@ -49,7 +49,6 @@ import java.io.FileOutputStream;
 import java.util.*;
 
 public class SurveyorActivity extends Activity implements
-		QuestionFragment.AnswerSelected,
 		GooglePlayServicesClient.ConnectionCallbacks,
 		GooglePlayServicesClient.OnConnectionFailedListener {
 

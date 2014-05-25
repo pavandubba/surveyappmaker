@@ -41,140 +41,48 @@ import java.util.Set;
 public abstract class QuestionFragment extends Fragment implements
 		QuestionManager {
 
-	QuestionAnswerListener listener;
-  NavButtonsManager.NavButtonsListener navButtonsListener;
-
-	private static String[] answerlist = null;
-	private static Activity mainActivity;
-	LinearLayout orderanswerlayout;
-	CheckBox otherCB;
-	DynamicListView answerlistView;
-	// Passes Answer and jump information to activity.
-	AnswerSelected Callback;
-	private Toast toast;
-	private JSONArray janswerlist = null;
-	private String questionstring = "No questions on chapter";
-	private Integer totalanswers;
-	private TextView[] tvanswerlist = null;
-	private String answerString;
-	private ArrayList<Integer> selectedAnswers;
-	private String jumpString = null;
-	private String answerjumpString = null;
-	private ViewGroup answerlayout;
-	protected View rootView;
-	private String questionkind = null;
-	protected Integer questionposition;
-  protected Integer chapterposition;
-	private boolean other;
-	private EditText otherET = null;
-	private LinearLayout otherfield = null;
-	private LinearLayout answerfield;
-	private EditText openET;
-	private LinearLayout[] answerinsert;
-	private CheckBox[] cbanswer;
-	private ImageView[] answerImages;
-	private ImageView otherImage;
-	private ArrayList<String> answerList;
-	private ArrayList<String> originalAnswerList;
-
-	// Information interface with main activity.
-	private Button skipButton;
+	private QuestionActionListener listener;
 	private NavButtonsManager navButtonsManager;
 
   private Question question;
+  private QuestionType questionType;
 
-	public QuestionFragment(Question question) {
+	public QuestionFragment(QuestionActionListener listener, Question question, QuestionType questionType) {
+    this.listener = listener;
     this.question = question;
+    this.questionType = questionType;
 	}
-
-	// Passes information about looped question.
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		rootView = inflater.inflate(R.layout.fragment_question, container,
-				false);
+		View rootView = inflater.inflate(R.layout.fragment_question, container, false);
 
-		setupNavButtons();
+    navButtonsManager = (NavButtonsManager) rootView.findViewById(R.id.questionButtons);
+    navButtonsManager.setQuestionType(listener, questionType);
 
-			try {
-				setupLayout();
-				prepopulateQuestion();
-			} catch (JSONException e) {
-			}
+    setupLayout();
+    prepopulateQuestion();
 
-			return rootView;
-
-
+		return rootView;
 	}
 
-	public abstract void setupLayout() throws JSONException;
+	abstract void setupLayout();
+	abstract void prepopulateQuestion();
 
-	public abstract void sendAnswer();
-
-	public abstract void prepopulateQuestion() throws JSONException;
-
-	private void setupNavButtons() {
-		navButtonsManager = (NavButtonsManager) rootView
-				.findViewById(R.id.questionButtons);
-		navButtonsManager.setQuestionType(navButtonsListener, QuestionType.FIRST);
-	}
-
-	public void saveState() {
-		if (selectedAnswers != null && selectedAnswers.contains(-1)) {
-			if (otherfield != null) {
-//				MultipleChoiceOnClick(otherfield);
-				InputMethodManager lManager = (InputMethodManager) mainActivity
-						.getSystemService(Context.INPUT_METHOD_SERVICE);
-				if (mainActivity.getCurrentFocus() != null) {
-					lManager.hideSoftInputFromWindow(mainActivity
-							.getCurrentFocus().getWindowToken(), 0);
-				}
-			} else if (openET != null) {
-//				OpenOnClick(openET);
-				InputMethodManager lManager = (InputMethodManager) mainActivity
-						.getSystemService(Context.INPUT_METHOD_SERVICE);
-				if (mainActivity.getCurrentFocus() != null) {
-					lManager.hideSoftInputFromWindow(mainActivity
-							.getCurrentFocus().getWindowToken(), 0);
-				}
-			}
-		}
-	}
-
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-
-		// This makes sure that the container activity has implemented
-		// the callback interface. If not, it throws an exception.
-		try {
-			Callback = (AnswerSelected) activity;
-		} catch (ClassCastException e) {
-			throw new ClassCastException(activity.toString()
-					+ " must implement QuestionFragment.AnswerSelected");
-		}
-	}
-
-	// The container Activity must implement this interface so the fragment can
-	// deliver messages
-	public interface AnswerSelected {
-
-		/**
-		 * Called by Fragment when an answer is selected
-		 * 
-		 * @param selectedAnswers
-		 */
-		public void AnswerRecieve(String answerString, String jumpString,
-				ArrayList<Integer> selectedAnswers, Boolean inLoop,
-				String questionkindRecieve, ArrayList<Integer> questionkey);
-	}
-
-	protected Set<String> getSelectedAnswers() {
-    return question.getSelectedAnswers();
+  protected Question getQuestion() {
+    return question;
   }
 
-  public Question getQuestion() {
-    return question;
+  protected QuestionType getQuestionType() {
+    return questionType;
+  }
+
+  protected QuestionActionListener getListener() {
+    return listener;
+  }
+
+  protected LayoutInflater getInflater() {
+    return (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
   }
 }

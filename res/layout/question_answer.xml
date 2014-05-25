@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<org.urbanlaunchpad.flocktracker.views.AnswerView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="10dp">
+  <ImageView
+      android:id="@+id/answer_image"
+      android:layout_width="wrap_content"
+      android:layout_height="30dp"
+      android:layout_gravity="center_vertical"
+      android:adjustViewBounds="true"
+      android:paddingRight="20dp"
+      android:src="@drawable/ft_cir_gry"/>
+
+  <TextView
+      android:id="@+id/answer_text"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="center_vertical"
+      android:padding="10dp"
+      android:text="HIIII"
+      android:textColor="@color/text_color_light"
+      android:textSize="20sp"
+      android:fontFamily="sans-serif-light"/>
+
+  <EditText
+      android:id="@+id/other_answer"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="center_vertical"
+      android:hint="@string/other_hint"
+      android:inputType="text"
+      android:singleLine="true"
+      android:textColor="@color/text_color_light"
+      android:textSize="20sp"
+      android:visibility="gone"/>
+</org.urbanlaunchpad.flocktracker.views.AnswerView>

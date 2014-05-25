@@ -8,7 +8,8 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 import org.urbanlaunchpad.flocktracker.R;
-import org.urbanlaunchpad.flocktracker.fragments.QuestionManager.QuestionType;
+import org.urbanlaunchpad.flocktracker.fragments.QuestionManager;
+import org.urbanlaunchpad.flocktracker.fragments.QuestionManager.*;
 
 public class NavButtonsView extends LinearLayout implements NavButtonsManager {
 
@@ -16,7 +17,7 @@ public class NavButtonsView extends LinearLayout implements NavButtonsManager {
   private View nextQuestionButton;
   private View submitSurveyButton;
 
-  private NavButtonsListener listener;
+  private QuestionManager.QuestionActionListener listener;
 
   private DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
     @Override
@@ -84,22 +85,26 @@ public class NavButtonsView extends LinearLayout implements NavButtonsManager {
   }
 
   @Override
-  public void setQuestionType(NavButtonsListener listener, QuestionType type) {
+  public void setQuestionType(QuestionActionListener listener, QuestionType type) {
     this.listener = listener;
 
     switch (type) {
+      case TRIP_FIRST:
+        submitSurveyButton.setVisibility(GONE);
       case FIRST:
         previousQuestionButton.setVisibility(GONE);
         nextQuestionButton.setVisibility(VISIBLE);
+        break;
+      case TRIP_NORMAL:
+        submitSurveyButton.setVisibility(GONE);
       case NORMAL:
         previousQuestionButton.setVisibility(VISIBLE);
         nextQuestionButton.setVisibility(VISIBLE);
+        break;
       case LAST:
         previousQuestionButton.setVisibility(VISIBLE);
         nextQuestionButton.setVisibility(GONE);
-      case IS_WHOLE_CHAPTER:
-        previousQuestionButton.setVisibility(GONE);
-        nextQuestionButton.setVisibility(GONE);
+        break;
     }
   }
 

@@ -6,8 +6,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class Question {
-
   private QuestionType type;
+  private boolean isTracker;
 
   private Chapter chapter;
   private Question[] loopQuestions;
@@ -140,6 +140,14 @@ public class Question {
 
   public void setLoopQuestions(Question[] loopQuestions) {
     this.loopQuestions = loopQuestions;
+  }
+
+  public boolean isTracker() {
+    return isTracker;
+  }
+
+  public void setTracker(boolean isTracker) {
+    this.isTracker = isTracker;
   }
 
   public enum QuestionType {MULTIPLE_CHOICE, OPEN, IMAGE, CHECKBOX, ORDERED, LOOP}

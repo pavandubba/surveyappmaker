@@ -9,7 +9,7 @@ import org.json.JSONObject;
 import org.urbanlaunchpad.flocktracker.ProjectConfig;
 import org.urbanlaunchpad.flocktracker.R;
 import org.urbanlaunchpad.flocktracker.fragments.*;
-import org.urbanlaunchpad.flocktracker.fragments.QuestionManager.QuestionAnswerListener;
+import org.urbanlaunchpad.flocktracker.fragments.QuestionManager.*;
 import org.urbanlaunchpad.flocktracker.helpers.ColumnCheckHelper;
 import org.urbanlaunchpad.flocktracker.util.JSONUtil;
 import org.urbanlaunchpad.flocktracker.helpers.SubmissionHelper;
@@ -17,9 +17,9 @@ import org.urbanlaunchpad.flocktracker.models.Chapter;
 import org.urbanlaunchpad.flocktracker.models.Metadata;
 import org.urbanlaunchpad.flocktracker.models.Question;
 import org.urbanlaunchpad.flocktracker.models.Submission;
-import org.urbanlaunchpad.flocktracker.views.NavButtonsManager.NavButtonsListener;
+import org.urbanlaunchpad.flocktracker.util.QuestionUtil;
 
-public class QuestionController implements QuestionAnswerListener, NavButtonsListener {
+public class QuestionController implements QuestionActionListener {
   private Context context;
   private Metadata metadata;
   private FragmentManager fragmentManager;
@@ -64,21 +64,27 @@ public class QuestionController implements QuestionAnswerListener, NavButtonsLis
   public void showCurrentQuestion() {
     Question currentQuestion = getCurrentQuestion();
     QuestionFragment fragment = null;
+
     switch (currentQuestion.getType()) {
       case MULTIPLE_CHOICE:
-        fragment = new MultipleChoiceQuestionFragment(currentQuestion);
+        fragment = new MultipleChoiceQuestionFragment(this, currentQuestion,
+            QuestionUtil.getQuestionPositionType(currentQuestion, chapterList.length));
         break;
       case OPEN:
-        fragment = new OpenQuestionFragment(currentQuestion);
+        fragment = new OpenQuestionFragment(this, currentQuestion,
+            QuestionUtil.getQuestionPositionType(currentQuestion, chapterList.length));
         break;
       case IMAGE:
-        fragment = new ImageQuestionFragment(currentQuestion);
+        fragment = new ImageQuestionFragment(this, currentQuestion,
+            QuestionUtil.getQuestionPositionType(currentQuestion, chapterList.length));
         break;
       case CHECKBOX:
-        fragment = new CheckBoxQuestionFragment(currentQuestion);
+        fragment = new CheckBoxQuestionFragment(this, currentQuestion,
+            QuestionUtil.getQuestionPositionType(currentQuestion, chapterList.length));
         break;
       case ORDERED:
-        fragment = new OrderedListQuestionFragment(currentQuestion);
+        fragment = new OrderedListQuestionFragment(this, currentQuestion,
+            QuestionUtil.getQuestionPositionType(currentQuestion, chapterList.length));
         break;
       case LOOP:
         break;
@@ -101,9 +107,9 @@ public class QuestionController implements QuestionAnswerListener, NavButtonsLis
       }
     } else {
       if (inLoop) {
-        currentQuestion = chapterList[chapterPosition].getQuestions()[questionPosition].getLoopQuestions()[loopPosition];
+        currentQuestion = getCurrentChapter().getQuestions()[questionPosition].getLoopQuestions()[loopPosition];
       } else {
-        currentQuestion = chapterList[chapterPosition].getQuestions()[questionPosition];
+        currentQuestion = getCurrentChapter().getQuestions()[questionPosition];
       }
     }
     return currentQuestion;
@@ -122,7 +128,7 @@ public class QuestionController implements QuestionAnswerListener, NavButtonsLis
     } else {
       if (questionPosition == 0) {
         chapterPosition--;
-        questionPosition = chapterList[chapterPosition].getQuestionCount() - 1;
+        questionPosition = getCurrentChapter().getQuestionCount() - 1;
         showCurrentQuestion();
       } else {
         questionPosition--;
@@ -141,7 +147,7 @@ public class QuestionController implements QuestionAnswerListener, NavButtonsLis
         showCurrentQuestion();
       }
     } else {
-      if (questionPosition == chapterList[chapterPosition].getQuestionCount() - 1) {
+      if (questionPosition == getCurrentChapter().getQuestionCount() - 1) {
         chapterPosition++;
         questionPosition = 0;
         showCurrentQuestion();
@@ -211,5 +217,9 @@ public class QuestionController implements QuestionAnswerListener, NavButtonsLis
     // Tracking information.
     trackingQuestions = JSONUtil.parseTrackingQuestions(context, surveyJSONObject);
     trackerQuestionPosition = 0;
+  }
+
+  private Chapter getCurrentChapter() {
+    return chapterList[chapterPosition];
   }
 }

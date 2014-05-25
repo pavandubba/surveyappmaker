@@ -37,12 +37,12 @@ public class CheckBoxQuestionFragment extends QuestionFragment {
 		@Override
 		public void onClick(View v) {
 			toggleCheckBox((LinearLayout) v);
-			sendAnswer();
+//			sendAnswer();
 		}
 	};
 
-  public CheckBoxQuestionFragment(Question question) {
-    super(question);
+  public CheckBoxQuestionFragment(QuestionActionListener listener, Question question, QuestionType questionType) {
+    super(listener, question, questionType);
   }
 
   private void toggleCheckBox(LinearLayout v) {
@@ -59,7 +59,7 @@ public class CheckBoxQuestionFragment extends QuestionFragment {
 		}
 	}
 
-	public void setupLayout() throws JSONException {
+	public void setupLayout() {
 
     boolean hasOther = getQuestion().isOtherEnabled();
     String[] answers = getQuestion().getAnswers();
@@ -75,11 +75,11 @@ public class CheckBoxQuestionFragment extends QuestionFragment {
 			cbanswer.setClickable(false);
 
 			// Text for the answer
-			TextView tvanswer = new TextView(rootView.getContext());
+			TextView tvanswer = new TextView(getActivity());
 			tvanswer.setText(answers[i]);
 
 			// linearlayout for checkbox and answer.
-			answersLayout[i] = new LinearLayout(rootView.getContext());
+			answersLayout[i] = new LinearLayout(getActivity());
 			answersLayout[i].setOrientation(LinearLayout.HORIZONTAL);
 
 			// Text formating.
@@ -106,97 +106,97 @@ public class CheckBoxQuestionFragment extends QuestionFragment {
 			final int i = numAnswers - 1;
 
 			// Custom checkbox
-			otherCB = new CheckBox(getActivity());
-			otherCB.setId(CB_TAG);
-			otherCB.setBackgroundResource(R.drawable.custom_checkbox);
-			otherCB.setButtonDrawable(new StateListDrawable());
-			otherCB.setClickable(false);
-
-			// Answer text
-			final EditText otherET = new EditText(getActivity());
-			otherET.setHint(getResources().getString(R.string.other_hint));
-			otherET.setImeOptions(EditorInfo.IME_ACTION_DONE);
-			otherET.setTextColor(getResources().getColor(
-					R.color.text_color_light));
-
-			// Checkbox formatting
-			LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
-					60, 60);
-			layoutParams.gravity = Gravity.CENTER_VERTICAL;
-			otherCB.setLayoutParams(layoutParams);
-
-			// Text formatting.
-
-			LinearLayout.LayoutParams layoutParamsText = new LinearLayout.LayoutParams(
-					LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-			layoutParamsText.gravity = Gravity.CENTER_VERTICAL;
-			layoutParamsText.setMargins(20, 20, 0, 20);
-			otherET.setLayoutParams(layoutParamsText);
-			otherET.setBackgroundResource(R.drawable.edit_text);
-			otherET.setSingleLine();
-			otherET.setTextColor(getResources().getColor(
-					R.color.text_color_light));
-			otherET.setTextSize(20);
-			otherET.setTypeface(Typeface.create("sans-serif-light",
-					Typeface.NORMAL));
-
-			otherET.setOnTouchListener(new OnTouchListener() {
-				@Override
-				public boolean onTouch(View v, MotionEvent event) {
-					if (MotionEvent.ACTION_UP == event.getAction()) {
-						toggleCheckBox(answersLayout[i]);
-					}
-					return false;
-				}
-			});
-
-			// Add both to a linear layout
-			answersLayout[i] = new LinearLayout(getActivity());
-			answersLayout[i].setOrientation(LinearLayout.HORIZONTAL);
-			answersLayout[i].addView(otherCB);
-			answersLayout[i].addView(otherET);
-			answersLayout[i].setId(ANSWER_TAG);
-			answersLayout[i].setOnClickListener(onClickListener);
+//			otherCB = new CheckBox(getActivity());
+//			otherCB.setId(CB_TAG);
+//			otherCB.setBackgroundResource(R.drawable.custom_checkbox);
+//			otherCB.setButtonDrawable(new StateListDrawable());
+//			otherCB.setClickable(false);
+//
+//			// Answer text
+//			final EditText otherET = new EditText(getActivity());
+//			otherET.setHint(getResources().getString(R.string.other_hint));
+//			otherET.setImeOptions(EditorInfo.IME_ACTION_DONE);
+//			otherET.setTextColor(getResources().getColor(
+//					R.color.text_color_light));
+//
+//			// Checkbox formatting
+//			LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+//					60, 60);
+//			layoutParams.gravity = Gravity.CENTER_VERTICAL;
+//			otherCB.setLayoutParams(layoutParams);
+//
+//			// Text formatting.
+//
+//			LinearLayout.LayoutParams layoutParamsText = new LinearLayout.LayoutParams(
+//					LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+//			layoutParamsText.gravity = Gravity.CENTER_VERTICAL;
+//			layoutParamsText.setMargins(20, 20, 0, 20);
+//			otherET.setLayoutParams(layoutParamsText);
+//			otherET.setBackgroundResource(R.drawable.edit_text);
+//			otherET.setSingleLine();
+//			otherET.setTextColor(getResources().getColor(
+//					R.color.text_color_light));
+//			otherET.setTextSize(20);
+//			otherET.setTypeface(Typeface.create("sans-serif-light",
+//					Typeface.NORMAL));
+//
+//			otherET.setOnTouchListener(new OnTouchListener() {
+//				@Override
+//				public boolean onTouch(View v, MotionEvent event) {
+//					if (MotionEvent.ACTION_UP == event.getAction()) {
+//						toggleCheckBox(answersLayout[i]);
+//					}
+//					return false;
+//				}
+//			});
+//
+//			// Add both to a linear layout
+//			answersLayout[i] = new LinearLayout(getActivity());
+//			answersLayout[i].setOrientation(LinearLayout.HORIZONTAL);
+//			answersLayout[i].addView(otherCB);
+//			answersLayout[i].addView(otherET);
+//			answersLayout[i].setId(ANSWER_TAG);
+//			answersLayout[i].setOnClickListener(onClickListener);
 
 			// answerlayout.addView(answersLayout[i]);
 
-			otherET.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-				@Override
-				public boolean onEditorAction(TextView v, int actionId,
-						KeyEvent event) {
-					toggleCheckBox(answersLayout[i]);
-					return false;
-				}
-			});
+//			otherET.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+//				@Override
+//				public boolean onEditorAction(TextView v, int actionId,
+//						KeyEvent event) {
+//					toggleCheckBox(answersLayout[i]);
+//					return false;
+//				}
+//			});
 		}
 		prepopulateQuestion();
-		sendAnswer();
+//		sendAnswer();
 	}
 
-	@Override
-	public void sendAnswer() {
-		// Sending the answer to the main activity.
-		if (!selectedAnswers.isEmpty()) {
-			String answerString = "";
-			for (int j = 0; j <= numAnswers; ++j) {
-				if (selectedAnswers.contains(j)) {
-					View answerView = answersLayout[j].findViewById(ANSWER_TAG);
-					if (answerView instanceof TextView) {
-						TextView answerTextView = (TextView) answerView;
-						answerString += answerTextView.getText() + ",";
-					} else if (answerView instanceof EditText) {
-						EditText answerEditText = (EditText) answerView;
-						answerString += answerEditText.getText() + ",";
-					}
+//	@Override
+//	public void sendAnswer() {
+//		// Sending the answer to the main activity.
+//		if (!selectedAnswers.isEmpty()) {
+//			String answerString = "";
+//			for (int j = 0; j <= numAnswers; ++j) {
+//				if (selectedAnswers.contains(j)) {
+//					View answerView = answersLayout[j].findViewById(ANSWER_TAG);
+//					if (answerView instanceof TextView) {
+//						TextView answerTextView = (TextView) answerView;
+//						answerString += answerTextView.getText() + ",";
+//					} else if (answerView instanceof EditText) {
+//						EditText answerEditText = (EditText) answerView;
+//						answerString += answerEditText.getText() + ",";
+//					}
+//
+//				}
+//			}
+//			answerString = answerString.substring(0, answerString.length() - 1);
+//		}
+//	}
 
-				}
-			}
-			answerString = answerString.substring(0, answerString.length() - 1);
-		}
-	}
-
 	@Override
-	public void prepopulateQuestion() throws JSONException {
+	public void prepopulateQuestion() {
 		for (int j = 0; j <= numAnswers; ++j) {
 			if (selectedAnswers.contains(j)) {
 				if (j == numAnswers) {

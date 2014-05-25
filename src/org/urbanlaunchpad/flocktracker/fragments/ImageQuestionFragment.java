@@ -24,11 +24,11 @@ public class ImageQuestionFragment extends QuestionFragment {
 		}
 	};
 
-  public ImageQuestionFragment(Question question) {
-    super(question);
+  public ImageQuestionFragment(QuestionActionListener listener, Question question, QuestionType questionType) {
+    super(listener, question, questionType);
   }
 
-  public void setupLayout() throws JSONException {
+  public void setupLayout() {
 		ImageView cameraButton = new ImageView(getActivity());
 		cameraButton.setImageResource(R.drawable.camera);
 		cameraButton.setOnClickListener(cameraButtonOnClickListener);
@@ -37,12 +37,7 @@ public class ImageQuestionFragment extends QuestionFragment {
 	}
 
   @Override
-  public void sendAnswer() {
-
-  }
-
-  @Override
-  public void prepopulateQuestion() throws JSONException {
+  public void prepopulateQuestion() {
 
   }
 

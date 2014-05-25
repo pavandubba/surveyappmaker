@@ -1,5 +1,7 @@
 package org.urbanlaunchpad.flocktracker.util;
 
+import org.urbanlaunchpad.flocktracker.fragments.QuestionManager;
+import org.urbanlaunchpad.flocktracker.models.Question;
 import org.urbanlaunchpad.flocktracker.models.Question.QuestionType;
 
 public class QuestionUtil {
@@ -44,5 +46,26 @@ public class QuestionUtil {
         return "STRING";
     }
     return null;
+  }
+
+  public static QuestionManager.QuestionType getQuestionPositionType(Question question, int numChapters) {
+    int questionPosition = question.getQuestionNumber();
+    if (question.isTracker()) {
+      if (questionPosition == 0) {
+        return QuestionManager.QuestionType.TRIP_FIRST;
+      } else {
+        return QuestionManager.QuestionType.TRIP_NORMAL;
+      }
+    } else {
+      int chapterQuestionCount = question.getChapter().getQuestionCount();
+      int chapterPosition = question.getChapter().getChapterNumber();
+      if (questionPosition == 0 && chapterPosition == 0) {
+        return QuestionManager.QuestionType.FIRST;
+      } else if (questionPosition == chapterQuestionCount - 1 && chapterPosition == numChapters - 1) {
+        return QuestionManager.QuestionType.LAST;
+      } else {
+        return QuestionManager.QuestionType.NORMAL;
+      }
+    }
   }
 }

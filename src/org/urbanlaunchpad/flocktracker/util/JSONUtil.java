@@ -33,6 +33,8 @@ public class JSONUtil {
         // Parse questions
         for (int j = 0; j < jsonQuestionList.length(); j++) {
           questions[j] = parseQuestion(jsonQuestionList.getJSONObject(j));
+          questions[j].setChapter(chapter);
+          questions[j].setTracker(false);
         }
 
         chapter.setQuestions(questions);
@@ -61,6 +63,7 @@ public class JSONUtil {
       // Parse questions
       for (int i = 0; i < trackingQuestions.length; i++) {
         trackingQuestions[i] = parseQuestion(jTrackerQuestions.getJSONObject(i));
+        trackingQuestions[i].setTracker(true);
       }
 
       // Update trip table ID if any
