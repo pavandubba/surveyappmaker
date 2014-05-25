@@ -80,12 +80,14 @@ public class JSONUtil {
         trackingQuestions[i].setQuestionID(jsonQuestion.getString("id"));
         trackingQuestions[i].setType(QuestionUtil.getQuestionTypeFromString(jsonQuestion.getString("Kind")));
 
-        JSONArray jsonAnswers = jsonQuestion.getJSONArray("Answers");
-        String[] answers = new String[jsonAnswers.length()];
-        for (int j = 0; j < answers.length; j++) {
-          answers[j] = jsonAnswers.getJSONObject(j).getString("Answer");
+        if (jsonQuestion.has("Answers")) {
+          JSONArray jsonAnswers = jsonQuestion.getJSONArray("Answers");
+          String[] answers = new String[jsonAnswers.length()];
+          for (int j = 0; j < answers.length; j++) {
+            answers[j] = jsonAnswers.getJSONObject(j).getString("Answer");
+          }
+          trackingQuestions[i].setAnswers(answers);
         }
-        trackingQuestions[i].setAnswers(answers);
       }
 
       // Update trip table ID if any
