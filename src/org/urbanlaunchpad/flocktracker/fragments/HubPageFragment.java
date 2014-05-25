@@ -124,8 +124,8 @@ public class HubPageFragment extends Fragment {
   }
 
   @Override
-  public void onAttach(Activity activity) {
-    super.onAttach(activity);
+  public void onStart() {
+    super.onStart();
     maleCountView.setText(Integer.toString(maleCount));
     femaleCountView.setText(Integer.toString(femaleCount));
     totalCountView.setText(Integer.toString(maleCount + femaleCount));

@@ -50,7 +50,7 @@ import java.io.FileOutputStream;
 import java.util.*;
 
 public class SurveyorActivity extends Activity implements
-		QuestionFragment.AnswerSelected, StatusPageUpdate,
+		QuestionFragment.AnswerSelected,
 		GooglePlayServicesClient.ConnectionCallbacks,
 		GooglePlayServicesClient.OnConnectionFailedListener {
 
@@ -100,14 +100,13 @@ public class SurveyorActivity extends Activity implements
   private TrackerController trackerController;
 
 	// Metadata
+  private Metadata metadata = new Metadata();
 	private String username;
 	private String surveyID;
 	private String tripID;
 	private Integer maleCount = 0;
 	private Integer femaleCount = 0;
 	private boolean isTripStarted = false;
-	private boolean showingStatusPage = false;
-	private boolean showingHubPage = false;
 
 	@SuppressLint("HandlerLeak")
 	private Handler messageHandler = new Handler() {
@@ -222,7 +221,6 @@ public class SurveyorActivity extends Activity implements
 		LocationHelper.checkLocationConfig(this);
 
     SubmissionHelper submissionHelper = new SubmissionHelper();
-    Metadata metadata = new Metadata();
     questionController = new QuestionController(this, metadata, getFragmentManager(), submissionHelper);
     hubPageController = new HubPageController(metadata, questionController);
     statisticsPageController = new StatisticsPageController(this);
@@ -503,33 +501,27 @@ public class SurveyorActivity extends Activity implements
 	}
 
 	private void showHubPage() {
-//		showingHubPage = true;
-//		showingStatusPage = false;
-//
-//		// Update fragments
-//		FragmentManager fragmentManager = getFragmentManager();
-//		Fragment fragment = new HubPageFragment();
-//
-//		FragmentTransaction transaction = fragmentManager.beginTransaction();
-//		transaction.replace(R.id.surveyor_frame, fragment);
-//		transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-//		transaction.addToBackStack(null);
-//		transaction.commit();
-//
-//		// update selected item and title, then close the drawer.
-//		fixedNavigationList.setItemChecked(0, true);
-//		chapterDrawerList.setItemChecked(-1, true);
-//		setTitle(getString(R.string.hub_page_title));
-//		chapterDrawerLayout.closeDrawer(drawer);
-//
-//		// update ui
-//		messageHandler.sendEmptyMessage(EVENT_TYPE.UPDATE_HUB_PAGE.ordinal());
+		// Update fragments
+		FragmentManager fragmentManager = getFragmentManager();
+		Fragment fragment = new HubPageFragment(hubPageController, metadata.getMaleCount(), metadata.getFemaleCount());
+
+		FragmentTransaction transaction = fragmentManager.beginTransaction();
+		transaction.replace(R.id.surveyor_frame, fragment);
+		transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+		transaction.addToBackStack(null);
+		transaction.commit();
+
+		// update selected item and title, then close the drawer.
+		fixedNavigationList.setItemChecked(0, true);
+		chapterDrawerList.setItemChecked(-1, true);
+		setTitle(getString(R.string.hub_page_title));
+		chapterDrawerLayout.closeDrawer(drawer);
+
+		// update ui
+		messageHandler.sendEmptyMessage(EVENT_TYPE.UPDATE_HUB_PAGE.ordinal());
 	}
 
 	private void showStatusPage() {
-		showingHubPage = false;
-		showingStatusPage = true;
-
 		FragmentManager fragmentManager = getFragmentManager();
 		Fragment fragment = new StatusPageFragment();
 
@@ -547,8 +539,7 @@ public class SurveyorActivity extends Activity implements
 	}
 
 	private void showCurrentQuestion() {
-		showingHubPage = false;
-		showingStatusPage = false;
+    questionController.showCurrentQuestion();
 //
 //		int chapterPosition;
 //		int questionPosition;
@@ -617,8 +608,8 @@ public class SurveyorActivity extends Activity implements
 //		args.putInt(QuestionFragment.ARG_CHAPTER_POSITION, question.getChapter().getChapterNumber());
 //		args.putInt(QuestionFragment.ARG_QUESTION_POSITION, question.getQuestionNumber());
 
-		FragmentManager fragmentManager = getFragmentManager();
-		FragmentTransaction transaction = fragmentManager.beginTransaction();
+//		FragmentManager fragmentManager = getFragmentManager();
+//		FragmentTransaction transaction = fragmentManager.beginTransaction();
 
 		// show navigation buttons and add new question
 //		if (!navButtons.isVisible()) {
@@ -636,12 +627,12 @@ public class SurveyorActivity extends Activity implements
 //					.setVisibility(View.VISIBLE);
 //		}
 
-		transaction.replace(R.id.surveyor_frame, currentQuestionFragment);
-		transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-		if (!askingTripQuestions) {
-			transaction.addToBackStack(null);
-		}
-		transaction.commit();
+//		transaction.replace(R.id.surveyor_frame, currentQuestionFragment);
+//		transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+//		if (!askingTripQuestions) {
+//			transaction.addToBackStack(null);
+//		}
+//		transaction.commit();
 	}
 
 	/*
@@ -810,27 +801,22 @@ public class SurveyorActivity extends Activity implements
 //		}
 	}
 
-	@Override
-	public void updateStatusPage() {
-		// hide navigation buttons
-		FragmentManager fragmentManager = getFragmentManager();
+//	@Override
+//	public void updateStatusPage() {
+//		// hide navigation buttons
+//		FragmentManager fragmentManager = getFragmentManager();
 
 //		FragmentTransaction transactionHide = fragmentManager
 //				.beginTransaction();
 //		transactionHide.hide(navButtons);
 //		transactionHide.commit();
 
-		messageHandler.sendEmptyMessage(EVENT_TYPE.UPDATE_STATS_PAGE.ordinal());
-	}
+//		messageHandler.sendEmptyMessage(EVENT_TYPE.UPDATE_STATS_PAGE.ordinal());
+//	}
 
 	/*
 	 * Question Navigation Event Handlers
 	 */
-
-	@Override
-	public void leftStatusPage() {
-		showingStatusPage = false;
-	}
 
 	/*
 	 * Question Event Handlers
@@ -1017,12 +1003,7 @@ public class SurveyorActivity extends Activity implements
 			if (askingTripQuestions) {
 				resetTrackerSurvey();
 			}
-			surveyHelper.updateSurveyPosition(position, 0);
-			surveyHelper.jumpString = null;
-			showingHubPage = false;
-			showingStatusPage = false;
-			surveyHelper.inLoop = false;
-			surveyHelper.loopTotal = 0;
+			questionController.updateSurveyPosition(position, 0);
 			showCurrentQuestion();
 		}
 	}

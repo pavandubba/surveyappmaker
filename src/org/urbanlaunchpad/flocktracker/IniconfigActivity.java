@@ -36,7 +36,7 @@ public class IniconfigActivity extends Activity implements IniconfigListener {
 
   public static GoogleAccountCredential credential;
   public static Fusiontables fusiontables;
-  public static SharedPreferences prefs;
+  private SharedPreferences prefs;
   String jsonSurveyString;
   private IniconfigManager iniconfigManager;
 

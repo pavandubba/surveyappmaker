@@ -25,7 +25,7 @@ public class HubPageController implements HubPageManager.HubPageActionListener {
 
   @Override
   public void onGetStatistics() {
-    // TODO(adchia): implement
+    //TODO(adchia): implement
   }
 
   @Override

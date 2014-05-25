@@ -165,6 +165,12 @@ public class QuestionController implements QuestionAnswerListener, NavButtonsLis
     }).start();
   }
 
+  public void updateSurveyPosition(int chapterPosition, int questionPosition) {
+    this.chapterPosition = chapterPosition;
+    this.questionPosition = questionPosition;
+    this.inLoop = false;
+  }
+
   private void resetSurvey() {
     JSONObject surveyJSONObject = null;
 

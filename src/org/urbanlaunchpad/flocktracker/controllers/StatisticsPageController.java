@@ -1,5 +1,6 @@
 package org.urbanlaunchpad.flocktracker.controllers;
 
+import android.content.SharedPreferences;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -25,13 +26,15 @@ public class StatisticsPageController {
   private int ridesCompleted = 0;
   private List<Address> addresses;
   private static final double SECONDS_PER_HOUR = 3600;
+  private SharedPreferences prefs;
 
   public StatisticsPageController(SurveyorActivity surveyorActivity) {
     this.surveyorActivity = surveyorActivity;
+    prefs = ProjectConfig.get().getSharedPreferences();
     // Load statistics from previous run-through
-    totalDistanceBefore = IniconfigActivity.prefs.getFloat("tripDistanceBefore", 0);
-    ridesCompleted = IniconfigActivity.prefs.getInt("ridesCompleted", 0);
-    surveysCompleted = IniconfigActivity.prefs.getInt("surveysCompleted", 0);
+    totalDistanceBefore = prefs.getFloat("tripDistanceBefore", 0);
+    ridesCompleted = prefs.getInt("ridesCompleted", 0);
+    surveysCompleted = prefs.getInt("surveysCompleted", 0);
   }
 
   public void updateStatusPage() {
@@ -67,11 +70,11 @@ public class StatisticsPageController {
   }
 
   public void onPause() {
-    IniconfigActivity.prefs.edit().putInt("ridesCompleted", ridesCompleted)
+    prefs.edit().putInt("ridesCompleted", ridesCompleted)
         .commit();
-    IniconfigActivity.prefs.edit().putInt("surveysCompleted", surveysCompleted)
+    prefs.edit().putInt("surveysCompleted", surveysCompleted)
         .commit();
-    IniconfigActivity.prefs.edit()
+    prefs.edit()
         .putFloat("totalDistanceBefore", (float) totalDistanceBefore)
         .commit();
   }
