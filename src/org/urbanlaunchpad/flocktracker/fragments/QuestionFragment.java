@@ -30,6 +30,7 @@ import org.urbanlaunchpad.flocktracker.adapters.StableArrayAdapter;
 import org.urbanlaunchpad.flocktracker.helpers.ImageHelper;
 import org.urbanlaunchpad.flocktracker.helpers.SurveyHelper;
 import org.urbanlaunchpad.flocktracker.menu.DynamicListView;
+import org.urbanlaunchpad.flocktracker.models.Question;
 import org.urbanlaunchpad.flocktracker.views.NavButtonsManager;
 
 import java.util.ArrayList;
@@ -92,6 +93,8 @@ public abstract class QuestionFragment extends Fragment implements
 	Integer loopTotalInteger;
 	Integer loopIterationInteger;
 	Integer loopPositionInteger;
+	
+	Question question;
 
 	public QuestionFragment() {
 		// Empty constructor required for fragment subclasses
