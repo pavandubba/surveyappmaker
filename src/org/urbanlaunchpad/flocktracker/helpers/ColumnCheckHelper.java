@@ -35,6 +35,7 @@ public class ColumnCheckHelper {
       }
     }).start();
   }
+
   private void checkSurveyColumns() {
     String[] metadataColumnNames = new String[]{"Location", "Date", "Lat",
       "Alt", "Lng", "SurveyID", "TripID", "TotalCount",

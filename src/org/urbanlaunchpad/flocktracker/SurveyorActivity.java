@@ -155,6 +155,27 @@ public class SurveyorActivity extends Activity implements
 
     driveHelper = new GoogleDriveHelper(this);
 
+    mLocationClient = new LocationClient(this, this, this);
+
+    mLocationRequest = LocationRequest.create();
+    mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+    mLocationRequest.setInterval(UPDATE_INTERVAL);
+    mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
+
+    // Creating a random survey ID
+
+    surveyID = "S" + createID();
+
+    // Check for location services.
+    LocationHelper.checkLocationConfig(this);
+
+    SubmissionHelper submissionHelper = new SubmissionHelper();
+    questionController = new QuestionController(this, metadata, getFragmentManager(), submissionHelper);
+    hubPageController = new HubPageController(metadata, questionController);
+    statisticsPageController = new StatisticsPageController(this);
+    metadataController = new MetadataController(metadata);
+    trackerController = new TrackerController(metadata, submissionHelper, mLocationClient);
+
 		// Navigation drawer information.
 		title = chapterDrawerTitle = getTitle();
 		chapterDrawerLayout = (DrawerLayout) findViewById(R.id.chapter_drawer_layout);
@@ -162,7 +183,7 @@ public class SurveyorActivity extends Activity implements
 		fixedNavigationList = (ListView) findViewById(R.id.fixed_navigation);
 		drawer = (LinearLayout) findViewById(R.id.drawer);
 		rowItems = new ArrayList<RowItem>();
-		for (String chapterTitle : surveyHelper.getChapterTitles()) {
+		for (String chapterTitle : questionController.getChapterTitles()) {
 			RowItem rowItem = new RowItem(INCOMPLETE_CHAPTER, chapterTitle);
 			rowItems.add(rowItem);
 		}
@@ -205,27 +226,6 @@ public class SurveyorActivity extends Activity implements
 		if (savedInstanceState == null) {
 			showHubPage();
 		}
-
-		mLocationClient = new LocationClient(this, this, this);
-
-		mLocationRequest = LocationRequest.create();
-		mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-		mLocationRequest.setInterval(UPDATE_INTERVAL);
-		mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
-
-		// Creating a random survey ID
-
-		surveyID = "S" + createID();
-
-		// Check for location services.
-		LocationHelper.checkLocationConfig(this);
-
-    SubmissionHelper submissionHelper = new SubmissionHelper();
-    questionController = new QuestionController(this, metadata, getFragmentManager(), submissionHelper);
-    hubPageController = new HubPageController(metadata, questionController);
-    statisticsPageController = new StatisticsPageController(this);
-    metadataController = new MetadataController(metadata);
-    trackerController = new TrackerController(metadata, submissionHelper, mLocationClient);
 	}
 
 	/*

@@ -7,7 +7,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.urbanlaunchpad.flocktracker.ProjectConfig;
 import org.urbanlaunchpad.flocktracker.R;
-import org.urbanlaunchpad.flocktracker.SurveyorActivity;
 import org.urbanlaunchpad.flocktracker.models.Chapter;
 import org.urbanlaunchpad.flocktracker.models.Question;
 import org.urbanlaunchpad.flocktracker.models.QuestionUtil;
@@ -22,7 +21,7 @@ public class JSONUtil {
       Chapter[] chapterList = new Chapter[jsonChapterList.length()];
 
       // Parse chapters
-      for (int i = 0; i < jsonChapterList.length(); ++i) {
+      for (int i = 0; i < jsonChapterList.length(); i++) {
         Chapter chapter = new Chapter();
         chapter.setChapterNumber(i);
         chapter.setTitle(jsonChapterList.getJSONObject(i).getString("Chapter"));
@@ -33,27 +32,14 @@ public class JSONUtil {
 
         // Parse questions
         for (int j = 0; j < jsonQuestionList.length(); j++) {
-          JSONObject jsonQuestion = jsonQuestionList.getJSONObject(j);
-          questions[j] = new Question();
-          questions[j].setQuestionID(jsonQuestion.getString("id"));
-          questions[j].setType(QuestionUtil.getQuestionTypeFromString(jsonQuestion.getString("Kind")));
-
-          if (jsonQuestion.has("Answers")) {
-            JSONArray jsonAnswers = jsonQuestion.getJSONArray("Answers");
-            String[] answers = new String[jsonAnswers.length()];
-            for (int k = 0; k < answers.length; k++) {
-              answers[k] = jsonAnswers.getJSONObject(k).getString("Answer");
-            }
-            questions[j].setAnswers(answers);
-          }
+          questions[j] = parseQuestion(jsonQuestionList.getJSONObject(j));
         }
 
+        chapter.setQuestions(questions);
         chapterList[i] = chapter;
       }
 
       ProjectConfig.get().setSurveyUploadTableID(jsonSurvey.getJSONObject("Survey").getString("TableID"));
-      ProjectConfig.get().setTrackerTableID(jsonSurvey.getJSONObject("Tracker").getString("TableID"));
-
       return chapterList;
     } catch (JSONException e) {
       e.printStackTrace();
@@ -72,27 +58,13 @@ public class JSONUtil {
       JSONArray jTrackerQuestions = jsonSurvey.getJSONObject("Tracker").getJSONArray("Questions");
       Question[] trackingQuestions = new Question[jTrackerQuestions.length()];
 
-      // Create Question objects
+      // Parse questions
       for (int i = 0; i < trackingQuestions.length; i++) {
-        JSONObject jsonQuestion = jTrackerQuestions.getJSONObject(i);
-
-        trackingQuestions[i] = new Question();
-        trackingQuestions[i].setQuestionID(jsonQuestion.getString("id"));
-        trackingQuestions[i].setType(QuestionUtil.getQuestionTypeFromString(jsonQuestion.getString("Kind")));
-
-        if (jsonQuestion.has("Answers")) {
-          JSONArray jsonAnswers = jsonQuestion.getJSONArray("Answers");
-          String[] answers = new String[jsonAnswers.length()];
-          for (int j = 0; j < answers.length; j++) {
-            answers[j] = jsonAnswers.getJSONObject(j).getString("Answer");
-          }
-          trackingQuestions[i].setAnswers(answers);
-        }
+        trackingQuestions[i] = parseQuestion(jTrackerQuestions.getJSONObject(i));
       }
 
       // Update trip table ID if any
       ProjectConfig.get().setTrackerTableID(jsonSurvey.getJSONObject("Tracker").getString("TableID"));
-
       return trackingQuestions;
     } catch (JSONException e2) {
       Toast.makeText(context, R.string.no_tracker_questions,
@@ -101,5 +73,34 @@ public class JSONUtil {
     }
 
     return null;
+  }
+
+  /**
+   * Helper to parse recursive questions with loop questions
+   */
+  private static Question parseQuestion(JSONObject jsonQuestion) throws JSONException {
+    Question question = new Question();
+    question.setQuestionID(jsonQuestion.getString("id"));
+    question.setType(QuestionUtil.getQuestionTypeFromString(jsonQuestion.getString("Kind")));
+
+    if (jsonQuestion.has("Answers")) {
+      JSONArray jsonAnswers = jsonQuestion.getJSONArray("Answers");
+      String[] answers = new String[jsonAnswers.length()];
+      for (int k = 0; k < answers.length; k++) {
+        answers[k] = jsonAnswers.getJSONObject(k).getString("Answer");
+      }
+      question.setAnswers(answers);
+    }
+
+    if (jsonQuestion.has("Questions")) {
+      JSONArray jsonLoopQuestions = jsonQuestion.getJSONArray("Questions");
+      Question[] loopQuestions = new Question[jsonLoopQuestions.length()];
+      for (int k = 0; k < loopQuestions.length; k++) {
+        loopQuestions[k] = parseQuestion(jsonLoopQuestions.getJSONObject(k));
+      }
+      question.setLoopQuestions(loopQuestions);
+    }
+
+    return question;
   }
 }

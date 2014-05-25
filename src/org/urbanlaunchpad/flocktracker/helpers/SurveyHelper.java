@@ -42,15 +42,15 @@ public class SurveyHelper {
 
   public SurveyHelper(Context context) {
     this.context = context;
-    resetSurvey();
-
-    // Checking existence of columns in the Fusion Tables.
-    new Thread(new Runnable() {
-      @Override
-      public void run() {
-        new ColumnCheckHelper(chapterList, trackingQuestions).runChecks();
-      }
-    }).run();
+//    resetSurvey();
+//
+//    // Checking existence of columns in the Fusion Tables.
+//    new Thread(new Runnable() {
+//      @Override
+//      public void run() {
+//        new ColumnCheckHelper(chapterList, trackingQuestions).runChecks();
+//      }
+//    }).run();
   }
 
     /*

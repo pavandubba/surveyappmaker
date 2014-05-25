@@ -171,6 +171,15 @@ public class QuestionController implements QuestionAnswerListener, NavButtonsLis
     this.inLoop = false;
   }
 
+  // TODO(adchia): move into a view
+  public String[] getChapterTitles() {
+    String[] chapterTitles = new String[chapterList.length];
+    for (int i = 0; i < chapterTitles.length; i++) {
+      chapterTitles[i] = chapterList[i].getTitle();
+    }
+    return chapterTitles;
+  }
+
   private void resetSurvey() {
     JSONObject surveyJSONObject = null;
 
