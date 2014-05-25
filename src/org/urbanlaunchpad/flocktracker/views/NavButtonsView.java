@@ -1,84 +1,115 @@
 package org.urbanlaunchpad.flocktracker.views;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 import org.urbanlaunchpad.flocktracker.R;
-import org.urbanlaunchpad.flocktracker.fragments.QuestionManager.QuestionType;
+import org.urbanlaunchpad.flocktracker.fragments.QuestionManager;
+import org.urbanlaunchpad.flocktracker.fragments.QuestionManager.*;
 
 public class NavButtonsView extends LinearLayout implements NavButtonsManager {
 
-    private View previousQuestionButton;
-    private View nextQuestionButton;
-    private View submitSurveyButton;
+  private View previousQuestionButton;
+  private View nextQuestionButton;
+  private View submitSurveyButton;
 
-    private NavButtonsListener listener;
+  private QuestionManager.QuestionActionListener listener;
 
-    public NavButtonsView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
-
+  private DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
     @Override
-    protected void onFinishInflate() {
-        super.onFinishInflate();
-        this.previousQuestionButton = findViewById(R.id.previous_question_button);
-        this.nextQuestionButton = findViewById(R.id.next_question_button);
-        this.submitSurveyButton = findViewById(R.id.submit_survey_button);
+    public void onClick(DialogInterface dialog, int which) {
+      switch (which) {
+        case DialogInterface.BUTTON_POSITIVE:
+          // Yes button clicked
+          Toast.makeText(getContext(), getResources().getString(R.string.submitting_survey), Toast.LENGTH_SHORT).show();
+          listener.onSubmitButtonClicked();
+          break;
+        case DialogInterface.BUTTON_NEGATIVE:
+          // No button clicked
+          break;
+      }
     }
+  };
 
-    @Override
-    protected void onAttachedToWindow() {
-        super.onAttachedToWindow();
+  public NavButtonsView(Context context, AttributeSet attrs) {
+    super(context, attrs);
+  }
 
-        previousQuestionButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (listener != null) {
-                    listener.onPrevQuestionButtonClicked();
-                }
-            }
-        });
-        nextQuestionButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (listener != null) {
-                    listener.onNextQuestionButtonClicked();
-                }
-            }
-        });
-        submitSurveyButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (listener != null) {
-                    listener.onSubmitButtonClicked();
-                }
-            }
-        });
-    }
+  @Override
+  protected void onFinishInflate() {
+    super.onFinishInflate();
+    this.previousQuestionButton = findViewById(R.id.previous_question_button);
+    this.nextQuestionButton = findViewById(R.id.next_question_button);
+    this.submitSurveyButton = findViewById(R.id.submit_survey_button);
+  }
 
-    @Override
-    public void setQuestionType(NavButtonsListener listener, QuestionType type) {
-        this.listener = listener;
+  @Override
+  protected void onAttachedToWindow() {
+    super.onAttachedToWindow();
 
-        switch (type) {
-            case FIRST:
-                previousQuestionButton.setVisibility(GONE);
-                nextQuestionButton.setVisibility(VISIBLE);
-            case NORMAL:
-                previousQuestionButton.setVisibility(VISIBLE);
-                nextQuestionButton.setVisibility(VISIBLE);
-            case LAST:
-                previousQuestionButton.setVisibility(VISIBLE);
-                nextQuestionButton.setVisibility(GONE);
-            case IS_WHOLE_CHAPTER:
-                previousQuestionButton.setVisibility(GONE);
-                nextQuestionButton.setVisibility(GONE);
+    previousQuestionButton.setOnClickListener(new OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        if (listener != null) {
+          listener.onPrevQuestionButtonClicked();
         }
-    }
+      }
+    });
+    nextQuestionButton.setOnClickListener(new OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        if (listener != null) {
+          listener.onNextQuestionButtonClicked();
+        }
+      }
+    });
+    submitSurveyButton.setOnClickListener(new OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        if (listener != null) {
+          listener.onSubmitButtonClicked();
 
-    @Override
-    public void cleanUp() {
-        this.listener = null;
+          // Show submitting dialog.
+          AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+          builder.setMessage(getResources().getString(R.string.submit_survey_question))
+              .setPositiveButton(getResources().getString(R.string.yes), dialogClickListener)
+              .setNegativeButton(getResources().getString(R.string.no), dialogClickListener)
+              .show();
+        }
+      }
+    });
+  }
+
+  @Override
+  public void setQuestionType(QuestionActionListener listener, QuestionType type) {
+    this.listener = listener;
+
+    switch (type) {
+      case TRIP_FIRST:
+        submitSurveyButton.setVisibility(GONE);
+      case FIRST:
+        previousQuestionButton.setVisibility(GONE);
+        nextQuestionButton.setVisibility(VISIBLE);
+        break;
+      case TRIP_NORMAL:
+        submitSurveyButton.setVisibility(GONE);
+      case NORMAL:
+        previousQuestionButton.setVisibility(VISIBLE);
+        nextQuestionButton.setVisibility(VISIBLE);
+        break;
+      case LAST:
+        previousQuestionButton.setVisibility(VISIBLE);
+        nextQuestionButton.setVisibility(GONE);
+        break;
     }
+  }
+
+  @Override
+  public void cleanUp() {
+    this.listener = null;
+  }
 }

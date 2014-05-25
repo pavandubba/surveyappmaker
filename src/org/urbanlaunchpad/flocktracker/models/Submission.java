@@ -1,18 +1,18 @@
 package org.urbanlaunchpad.flocktracker.models;
 
+import android.location.Location;
 import com.google.api.services.fusiontables.Fusiontables;
 import org.urbanlaunchpad.flocktracker.IniconfigActivity;
 import org.urbanlaunchpad.flocktracker.ProjectConfig;
 import org.urbanlaunchpad.flocktracker.SurveyorActivity;
-import org.urbanlaunchpad.flocktracker.helpers.LocationHelper;
+import org.urbanlaunchpad.flocktracker.util.LocationUtil;
 
 import java.io.IOException;
-import java.util.List;
 
 public class Submission {
   public static final Integer MAX_QUERY_LENGTH = 2000; // max length allowed by fusion table
 
-  private List<Chapter> chapters;
+  private Chapter[] chapters;
   private Metadata metadata;
   private Type type;
 
@@ -24,11 +24,11 @@ public class Submission {
     this.metadata = metadata;
   }
 
-  public List<Chapter> getChapters() {
+  public Chapter[] getChapters() {
     return chapters;
   }
 
-  public void setChapters(List<Chapter> chapters) {
+  public void setChapters(Chapter[] chapters) {
     this.chapters = chapters;
   }
 
@@ -43,6 +43,7 @@ public class Submission {
 
   /**
    * Submits this submission to the appropriate table.
+   *
    * @return true if submission succeeded.
    */
   public boolean submit() {
@@ -56,10 +57,10 @@ public class Submission {
         // Send initial insert and get row ID
         query = getMetadataInsertQuery();
         int rowID = Integer
-          .parseInt((String) IniconfigActivity.fusiontables
-            .query().sql(query)
-            .setKey(ProjectConfig.get().getApiKey())
-            .execute().getRows().get(0).get(0));
+            .parseInt((String) IniconfigActivity.fusiontables
+                .query().sql(query)
+                .setKey(ProjectConfig.get().getApiKey())
+                .execute().getRows().get(0).get(0));
 
         // Send rest of info one at a time
         sendQuery(getUpdateQueryGivenRow(rowID, "Username", ProjectConfig.get().getUsername()));
@@ -67,7 +68,7 @@ public class Submission {
         for (Chapter chapter : chapters) {
           for (Question question : chapter.getQuestions()) {
             sendQuery(getUpdateQueryGivenRow(rowID, question.getQuestionID(),
-              question.getSelectedAnswers().toString()));
+                question.getSelectedAnswers().toString()));
           }
         }
       } else {
@@ -119,39 +120,37 @@ public class Submission {
       }
     }
 
-    String locationString = LocationHelper.getLngLatAlt(
-      metadata.getLongitude(),
-      metadata.getLatitude(),
-      metadata.getAltitude());
+    Location currentLocation = metadata.getCurrentLocation();
+    String locationString = LocationUtil.getLngLatAlt(currentLocation);
     String query = "";
 
     switch (type) {
       case TRACKER:
         query = "INSERT INTO "
-                + ProjectConfig.get().getTrackerTableID()
-                + " ("
-                + questionIDString
-                + "Location,Lat,Lng,Alt,Date,TripID,Username,TotalCount,FemaleCount,MaleCount,Speed) VALUES ("
-                + answerString + "<Point><coordinates>" + locationString
-                + "</coordinates></Point>','" + metadata.getLatitude() + "','" + metadata.getLongitude()
-                + "','" + metadata.getAltitude() + "','" + metadata.getTimeStamp() + "','" + metadata.getTripID()
-                + "','" + ProjectConfig.get().getUsername() + "','"
-                + (metadata.getMaleCount() + metadata.getFemaleCount()) + "','"
-                + metadata.getFemaleCount() + "','" + metadata.getMaleCount() + "','" + metadata.getSpeed() + "');";
+            + ProjectConfig.get().getTrackerTableID()
+            + " ("
+            + questionIDString
+            + "Location,Lat,Lng,Alt,Date,TripID,Username,TotalCount,FemaleCount,MaleCount,Speed) VALUES ("
+            + answerString + "<Point><coordinates>" + locationString
+            + "</coordinates></Point>','" + currentLocation.getLatitude() + "','" + currentLocation.getLongitude()
+            + "','" + currentLocation.getAltitude() + "','" + metadata.getTimeStamp() + "','" + metadata.getTripID()
+            + "','" + ProjectConfig.get().getUsername() + "','"
+            + (metadata.getMaleCount() + metadata.getFemaleCount()) + "','"
+            + metadata.getFemaleCount() + "','" + metadata.getMaleCount() + "','" + metadata.getSpeed() + "');";
         break;
       case SURVEY:
         query = "INSERT INTO "
-                + ProjectConfig.get().getSurveyUploadTableID()
-                + " ("
-                + questionIDString
-                + "Location,Lat,Lng,Alt,Date,SurveyID,TripID,Username,TotalCount,FemaleCount,MaleCount,Speed"
-                + ") VALUES (" + answerString
-                + "<Point><coordinates>" + locationString
-                + "</coordinates></Point>','" + metadata.getLatitude() + "','" + metadata.getLongitude()
-                + "','" + metadata.getAltitude() + "','" + metadata.getTimeStamp() + "','" + metadata.getSurveyID()
-                + "','" + metadata.getTripID() + "','" + ProjectConfig.get().getUsername() + "','"
-                + (metadata.getMaleCount() + metadata.getFemaleCount()) + "','" + metadata.getFemaleCount()
-                + "','" + metadata.getMaleCount() + "','" + metadata.getSpeed() + "');";
+            + ProjectConfig.get().getSurveyUploadTableID()
+            + " ("
+            + questionIDString
+            + "Location,Lat,Lng,Alt,Date,SurveyID,TripID,Username,TotalCount,FemaleCount,MaleCount,Speed"
+            + ") VALUES (" + answerString
+            + "<Point><coordinates>" + locationString
+            + "</coordinates></Point>','" + currentLocation.getLatitude() + "','" + currentLocation.getLongitude()
+            + "','" + currentLocation.getAltitude() + "','" + metadata.getTimeStamp() + "','" + metadata.getSurveyID()
+            + "','" + metadata.getTripID() + "','" + ProjectConfig.get().getUsername() + "','"
+            + (metadata.getMaleCount() + metadata.getFemaleCount()) + "','" + metadata.getFemaleCount()
+            + "','" + metadata.getMaleCount() + "','" + metadata.getSpeed() + "');";
         break;
     }
 
@@ -160,41 +159,40 @@ public class Submission {
 
   /**
    * Helper method to get the string query needed to insert only the metadata.
+   *
    * @return
    */
   private String getMetadataInsertQuery() {
     String query = null;
 
-    String locationString = LocationHelper.getLngLatAlt(
-      metadata.getLongitude(),
-      metadata.getLatitude(),
-      metadata.getAltitude());
+    Location currentLocation = metadata.getCurrentLocation();
+    String locationString = LocationUtil.getLngLatAlt(currentLocation);
 
     switch (type) {
       case TRACKER:
         query = "INSERT INTO "
-                + ProjectConfig.get().getTrackerTableID()
-                + " (Location,Lat,Lng,Alt,Date,TripID,TotalCount,FemaleCount,MaleCount,Speed)"
-                + " VALUES (" + "'<Point><coordinates>" + locationString
-                + "</coordinates></Point>','" + metadata.getLatitude() + "','"
-                + metadata.getLongitude() + "','" + metadata.getAltitude() + "','"
-                + metadata.getTimeStamp() + "','" + metadata.getTripID()
-                + "','" + (metadata.getMaleCount() + metadata.getFemaleCount()) + "','"
-                + metadata.getFemaleCount() + "','" + metadata.getMaleCount() + "','"
-                + metadata.getSpeed() + "');";
+            + ProjectConfig.get().getTrackerTableID()
+            + " (Location,Lat,Lng,Alt,Date,TripID,TotalCount,FemaleCount,MaleCount,Speed)"
+            + " VALUES (" + "'<Point><coordinates>" + locationString
+            + "</coordinates></Point>','" + currentLocation.getLatitude() + "','"
+            + currentLocation.getLongitude() + "','" + currentLocation.getAltitude() + "','"
+            + metadata.getTimeStamp() + "','" + metadata.getTripID()
+            + "','" + (metadata.getMaleCount() + metadata.getFemaleCount()) + "','"
+            + metadata.getFemaleCount() + "','" + metadata.getMaleCount() + "','"
+            + metadata.getSpeed() + "');";
         break;
       case SURVEY:
         query = "INSERT INTO "
-                + ProjectConfig.get().getSurveyUploadTableID()
-                + " (Location,Lat,Lng,Alt,Date,SurveyID,TripID,TotalCount,FemaleCount,"
-                + "MaleCount,Speed)" + " VALUES ("
-                + "'<Point><coordinates>" + locationString
-                + "</coordinates></Point>','" + metadata.getLatitude() + "','"
-                + metadata.getLongitude() + "','" + metadata.getAltitude() + "','"
-                + metadata.getTimeStamp() + "','" + metadata.getSurveyID() + "','"
-                + metadata.getTripID() + "','" + (metadata.getMaleCount() + metadata.getFemaleCount())
-                + "','" + metadata.getFemaleCount() + "','" + metadata.getMaleCount() + "','"
-                + metadata.getSpeed() + "');";
+            + ProjectConfig.get().getSurveyUploadTableID()
+            + " (Location,Lat,Lng,Alt,Date,SurveyID,TripID,TotalCount,FemaleCount,"
+            + "MaleCount,Speed)" + " VALUES ("
+            + "'<Point><coordinates>" + locationString
+            + "</coordinates></Point>','" + currentLocation.getLatitude() + "','"
+            + currentLocation.getLongitude() + "','" + currentLocation.getAltitude() + "','"
+            + metadata.getTimeStamp() + "','" + metadata.getSurveyID() + "','"
+            + metadata.getTripID() + "','" + (metadata.getMaleCount() + metadata.getFemaleCount())
+            + "','" + metadata.getFemaleCount() + "','" + metadata.getMaleCount() + "','"
+            + metadata.getSpeed() + "');";
         break;
     }
 
@@ -203,6 +201,7 @@ public class Submission {
 
   /**
    * Helper method to get the string query to update a key-value pair given the rowID of the existing table entry.
+   *
    * @param rowID
    * @param key
    * @param value
@@ -217,11 +216,11 @@ public class Submission {
     switch (type) {
       case TRACKER:
         query = "UPDATE " + ProjectConfig.get().getTrackerTableID() + " SET " + key + " = '"
-                + value + "' WHERE ROWID = '" + rowID + "'";
+            + value + "' WHERE ROWID = '" + rowID + "'";
         break;
       case SURVEY:
         query = "UPDATE " + ProjectConfig.get().getSurveyUploadTableID() + " SET " + key + " = '"
-                + value + "' WHERE ROWID = '" + rowID + "'";
+            + value + "' WHERE ROWID = '" + rowID + "'";
         break;
     }
 
@@ -230,6 +229,7 @@ public class Submission {
 
   /**
    * Helper method to send a fusion table query.
+   *
    * @param query
    * @throws IOException
    */

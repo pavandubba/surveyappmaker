@@ -36,7 +36,7 @@ public class IniconfigActivity extends Activity implements IniconfigListener {
 
   public static GoogleAccountCredential credential;
   public static Fusiontables fusiontables;
-  public static SharedPreferences prefs;
+  private SharedPreferences prefs;
   String jsonSurveyString;
   private IniconfigManager iniconfigManager;
 
@@ -46,13 +46,13 @@ public class IniconfigActivity extends Activity implements IniconfigListener {
     setContentView(R.layout.activity_iniconfig);
 
     prefs = this.getSharedPreferences("org.urbanlaunchpad.flocktracker", Context.MODE_PRIVATE);
-
     // get credential with scopes
     credential = GoogleAccountCredential.usingOAuth2(this,
       Arrays.asList(FUSION_TABLE_SCOPE, DriveScopes.DRIVE));
 
     iniconfigManager = (IniconfigManager) findViewById(R.id.iniconfig_view);
     iniconfigManager.initialize(this, prefs.getString("lastProject", null));
+    ProjectConfig.get().setSharedPreferences(prefs);
     ProjectConfig.get().setSurveyDownloadTableID("1isCCC51fe6nWx27aYWKfZWmk9w2Zj6a4yTyQ5c4");
     ProjectConfig.get().setSurveyUploadTableID("11lGsm8B2SNNGmEsTmuGVrAy1gcJF9TQBo3G1Vw0");
     ProjectConfig.get().setTrackerTableID("1Q2mr8ni5LTxtZRRi3PNSYxAYS8HWikWqlfoIUK4");

@@ -13,6 +13,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import org.urbanlaunchpad.flocktracker.models.Question;
 
 public class OpenQuestionFragment extends QuestionFragment {
 	EditText openET;
@@ -24,16 +25,18 @@ public class OpenQuestionFragment extends QuestionFragment {
 		@Override
 		public void onClick(View v) {
 			// TODO Handling of changes in the answer.
-			sendAnswer();
 		}
 	};
 
-	public void setupLayout() throws JSONException {
-		String questionkind = jquestion.getString("kind");
-		if ((questionkind.equals("ON")) || questionkind.equals("LP")) {
-			askingNumbers = true;
+  public OpenQuestionFragment(QuestionActionListener listener, Question question, QuestionType questionType) {
+    super(listener, question, questionType);
+  }
+
+  public void setupLayout() {
+    Question.QuestionType questionType = getQuestion().getType();
+		if (questionType.equals(Question.QuestionType.OPEN) || questionType.equals(Question.QuestionType.LOOP)) {
+      askingNumbers = true;
 		}
-		;
 
 		openET = new EditText(getActivity());
 		openET.setHint(getResources().getString(R.string.answer_hint));
@@ -53,7 +56,7 @@ public class OpenQuestionFragment extends QuestionFragment {
 			public boolean onEditorAction(TextView v, int actionId,
 					KeyEvent event) {
 				if (actionId == EditorInfo.IME_ACTION_DONE) {
-					onClick(openET);
+//					onClick(openET);
 					return false; // If false hides the keyboard after
 				}
 				return false;
@@ -63,23 +66,17 @@ public class OpenQuestionFragment extends QuestionFragment {
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
 				if (MotionEvent.ACTION_UP == event.getAction()) {
-					onClick(openET);
+//					onClick(openET);
 				}
 				return false;
 			}
 		});
 		prepopulateQuestion();
-		sendAnswer();
-	}
-
-	@Override
-	public void sendAnswer() {
-		openET.getText().toString();
 	}
 
 	@Override
 	public void prepopulateQuestion() {
-		openET.setText(jquestion.getString("Answer"));
+//		openET.setText(jquestion.getString("Answer"));
 	}
 
 }
