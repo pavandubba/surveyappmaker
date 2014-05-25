@@ -37,9 +37,9 @@ public class JSONUtil {
         // Parse questions
         for (int j = 0; j < jsonQuestionList.length(); j++) {
           JSONObject jsonQuestion = jsonQuestionList.getJSONObject(j);
-          questions[i] = new Question();
-          questions[i].setQuestionID(jsonQuestion.getString("id"));
-          questions[i].setType(QuestionUtil.getQuestionTypeFromString(jsonQuestion.getString("Kind")));
+          questions[j] = new Question();
+          questions[j].setQuestionID(jsonQuestion.getString("id"));
+          questions[j].setType(QuestionUtil.getQuestionTypeFromString(jsonQuestion.getString("Kind")));
 
           if (jsonQuestion.has("Answers")) {
             JSONArray jsonAnswers = jsonQuestion.getJSONArray("Answers");
@@ -47,7 +47,7 @@ public class JSONUtil {
             for (int k = 0; k < answers.length; k++) {
               answers[k] = jsonAnswers.getJSONObject(k).getString("Answer");
             }
-            questions[i].setAnswers(answers);
+            questions[j].setAnswers(answers);
           }
         }
 
