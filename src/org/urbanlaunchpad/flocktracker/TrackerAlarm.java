@@ -13,7 +13,7 @@ import org.urbanlaunchpad.flocktracker.controllers.TrackerController;
 public class TrackerAlarm extends BroadcastReceiver {
 
   public static final Integer TRACKER_INTERVAL = 30000;
-  static TrackerController trackerController;
+  public static TrackerController trackerController;
 
   @SuppressLint("Wakelock")
   @Override

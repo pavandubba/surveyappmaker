@@ -14,14 +14,14 @@ import java.io.IOException;
 import java.util.HashSet;
 
 /**
- * ColumnCheckManager checks to make sure the tables online have the necessary columns.
+ * ColumnCheckHelper checks to make sure the tables online have the necessary columns.
  *
  */
-public class ColumnCheckManager {
+public class ColumnCheckHelper {
   private Chapter[] surveyChapters;
   private Question[] trackingQuestions;
 
-  public ColumnCheckManager(Chapter[] surveyChapters, Question[] trackingQuestions) {
+  public ColumnCheckHelper(Chapter[] surveyChapters, Question[] trackingQuestions) {
     this.surveyChapters = surveyChapters;
     this.trackingQuestions = trackingQuestions;
   }

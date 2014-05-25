@@ -3,18 +3,13 @@ package org.urbanlaunchpad.flocktracker.helpers;
 import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
-import com.google.gson.Gson;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.urbanlaunchpad.flocktracker.IniconfigActivity;
 import org.urbanlaunchpad.flocktracker.ProjectConfig;
 import org.urbanlaunchpad.flocktracker.R;
 import org.urbanlaunchpad.flocktracker.SurveyorActivity;
 import org.urbanlaunchpad.flocktracker.models.Chapter;
 import org.urbanlaunchpad.flocktracker.models.Question;
-import org.urbanlaunchpad.flocktracker.models.Submission;
-import org.urbanlaunchpad.flocktracker.models.Submission.Type;
 
 import java.util.*;
 
@@ -53,29 +48,9 @@ public class SurveyHelper {
     new Thread(new Runnable() {
       @Override
       public void run() {
-        new ColumnCheckManager(chapterList, trackingQuestions).runChecks();
+        new ColumnCheckHelper(chapterList, trackingQuestions).runChecks();
       }
     }).run();
-  }
-
-  public void saveSubmission(Submission submission) {
-    if (submission.getType().equals(Type.TRACKER)) {
-      synchronized (SurveyorActivity.trackerSubmissionQueue) {
-        SurveyorActivity.trackerSubmissionQueue.add(new Gson().toJson(submission));
-        IniconfigActivity.prefs.edit().putStringSet("trackerSubmissionQueue",
-          (Set<String>) SurveyorActivity.trackerSubmissionQueue.clone()).commit();
-        SurveyorActivity.savingTrackerSubmission = false;
-        SurveyorActivity.trackerSubmissionQueue.notify();
-      }
-    } else if (submission.getType().equals(Type.SURVEY)) {
-      synchronized (SurveyorActivity.surveySubmissionQueue) {
-        SurveyorActivity.surveySubmissionQueue.add(new Gson().toJson(submission));
-        IniconfigActivity.prefs.edit().putStringSet("surveySubmissionQueue",
-          (Set<String>) SurveyorActivity.surveySubmissionQueue.clone()).commit();
-        SurveyorActivity.savingSurveySubmission = false;
-        SurveyorActivity.surveySubmissionQueue.notify();
-      }
-    }
   }
 
     /*

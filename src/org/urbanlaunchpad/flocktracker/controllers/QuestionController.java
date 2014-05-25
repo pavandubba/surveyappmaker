@@ -1,36 +1,23 @@
 package org.urbanlaunchpad.flocktracker.controllers;
 
-import android.app.Activity;
-import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.util.Log;
 import android.widget.Toast;
-import com.google.gson.Gson;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.urbanlaunchpad.flocktracker.IniconfigActivity;
 import org.urbanlaunchpad.flocktracker.ProjectConfig;
 import org.urbanlaunchpad.flocktracker.R;
-import org.urbanlaunchpad.flocktracker.SurveyorActivity;
 import org.urbanlaunchpad.flocktracker.fragments.*;
 import org.urbanlaunchpad.flocktracker.fragments.QuestionManager.QuestionAnswerListener;
-import org.urbanlaunchpad.flocktracker.helpers.ColumnCheckManager;
+import org.urbanlaunchpad.flocktracker.helpers.ColumnCheckHelper;
 import org.urbanlaunchpad.flocktracker.helpers.JSONUtil;
 import org.urbanlaunchpad.flocktracker.helpers.SubmissionHelper;
-import org.urbanlaunchpad.flocktracker.helpers.SurveyHelper;
 import org.urbanlaunchpad.flocktracker.models.Chapter;
 import org.urbanlaunchpad.flocktracker.models.Metadata;
 import org.urbanlaunchpad.flocktracker.models.Question;
 import org.urbanlaunchpad.flocktracker.models.Submission;
 import org.urbanlaunchpad.flocktracker.views.NavButtonsManager.NavButtonsListener;
-
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.Set;
-import java.util.Stack;
 
 public class QuestionController implements QuestionAnswerListener, NavButtonsListener {
   private Context context;
@@ -59,10 +46,11 @@ public class QuestionController implements QuestionAnswerListener, NavButtonsLis
     resetSurvey();
     resetTrip();
 
+    // Do column checks.
     new Thread(new Runnable() {
       @Override
       public void run() {
-        new ColumnCheckManager(chapterList, trackingQuestions).runChecks();
+        new ColumnCheckHelper(chapterList, trackingQuestions).runChecks();
       }
     }).run();
   }
@@ -166,11 +154,15 @@ public class QuestionController implements QuestionAnswerListener, NavButtonsLis
 
   @Override
   public void onSubmitButtonClicked() {
-    Submission submission = new Submission();
-    submission.setChapters(chapterList);
-    submission.setType(Submission.Type.SURVEY);
-    submission.setMetadata(metadata);
-    submissionHelper.saveSubmission(submission);
+    new Thread(new Runnable() {
+      public void run() {
+        Submission submission = new Submission();
+        submission.setChapters(chapterList);
+        submission.setType(Submission.Type.SURVEY);
+        submission.setMetadata(metadata);
+        submissionHelper.saveSubmission(submission);
+      }
+    }).start();
   }
 
   private void resetSurvey() {

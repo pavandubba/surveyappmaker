@@ -74,8 +74,6 @@ public class SurveyorActivity extends Activity implements
 	public static boolean savingTrackerSubmission = false;
 
 	// Stored queues of surveys to submit
-	public static HashSet<String> surveySubmissionQueue;
-	public static HashSet<String> trackerSubmissionQueue;
 	private final int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 	public LocationClient mLocationClient;
 
@@ -116,21 +114,7 @@ public class SurveyorActivity extends Activity implements
 
 		@SuppressWarnings("deprecation")
 		public void handleMessage(Message msg) {
-			if (msg.what == EVENT_TYPE.MALE_UPDATE.ordinal()) {
-				// update male count
-				TextView maleCountView = (TextView) findViewById(R.id.maleCount);
-				maleCountView.setText(maleCount.toString());
-				// update total count
-				TextView totalCount = (TextView) findViewById(R.id.totalPersonCount);
-				totalCount.setText("" + (maleCount + femaleCount));
-			} else if (msg.what == EVENT_TYPE.FEMALE_UPDATE.ordinal()) {
-				// update female count
-				TextView femaleCountView = (TextView) findViewById(R.id.femaleCount);
-				femaleCountView.setText(femaleCount.toString());
-				// update total count
-				TextView totalCount = (TextView) findViewById(R.id.totalPersonCount);
-				totalCount.setText("" + (maleCount + femaleCount));
-			} else if (msg.what == EVENT_TYPE.UPDATE_HUB_PAGE.ordinal()) {
+			if (msg.what == EVENT_TYPE.UPDATE_HUB_PAGE.ordinal()) {
 				askingTripQuestions = false;
 
 				if (isTripStarted) {
@@ -164,8 +148,7 @@ public class SurveyorActivity extends Activity implements
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_surveyor);
-		getWindow().setSoftInputMode(
-				WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
 
 		username = ProjectConfig.get().getUsername();
@@ -235,20 +218,6 @@ public class SurveyorActivity extends Activity implements
 
 		surveyID = "S" + createID();
 
-		// location tracking
-//		TrackerAlarm.surveyorActivity = this;
-
-		trackerSubmissionQueue = new HashSet<String>(
-				IniconfigActivity.prefs.getStringSet("trackerSubmissionQueue",
-						new HashSet<String>()));
-		surveySubmissionQueue = new HashSet<String>(
-				IniconfigActivity.prefs.getStringSet("surveySubmissionQueue",
-						new HashSet<String>()));
-		if (!surveySubmissionQueue.isEmpty()
-				|| !trackerSubmissionQueue.isEmpty()) {
-			spawnSubmission();
-		}
-
 		// Check for location services.
 		LocationHelper.checkLocationConfig(this);
 
@@ -264,95 +233,6 @@ public class SurveyorActivity extends Activity implements
 	/*
 	 * Activity Lifecycle Handlers
 	 */
-
-	// Spawn a thread that continuously pops off a survey to submit
-	public void spawnSubmission() {
-		new Thread(new Runnable() {
-			@SuppressWarnings("unchecked")
-			public void run() {
-				while (true) {
-					synchronized (trackerSubmissionQueue) {
-						if (trackerSubmissionQueue.isEmpty()) {
-							submittingSubmission = false;
-						} else {
-							submittingSubmission = true;
-						}
-					}
-
-					if (!submittingSubmission) {
-						synchronized (surveySubmissionQueue) {
-							if (surveySubmissionQueue.isEmpty()) {
-							} else {
-								submittingSubmission = true;
-							}
-						}
-					}
-
-					if (!submittingSubmission) {
-						Log.d("Spawn submission queue", "Queue is empty");
-						break;
-					}
-
-					// Iterate through queues to submit surveys
-					submitFromQueue(surveySubmissionQueue,
-							"surveySubmissionQueue");
-					submitFromQueue(trackerSubmissionQueue,
-							"trackerSubmissionQueue");
-				}
-			}
-		}).start();
-	}
-
-	public void submitFromQueue(HashSet<String> queue, String queueName) {
-		synchronized (queue) {
-
-			Iterator<String> i = queue.iterator();
-			if (i.hasNext()) {
-				boolean success = false;
-				try {
-					JSONObject submission = new JSONObject(i.next());
-					String tripIDString = submission.has("tripID") ? submission
-							.getString("tripID") : "";
-					String surveyIDString = submission.has("surveyID") ? submission
-							.getString("surveyID") : "";
-//					success = surveyHelper.submitSubmission(
-//							submission.getString("jsurv"),
-//							submission.getString("lat"),
-//							submission.getString("lng"),
-//							submission.getString("alt"),
-//							submission.getString("imagePaths"), surveyIDString,
-//							tripIDString, submission.getString("timestamp"),
-//							submission.getString("type"),
-//							submission.getString("maleCount"),
-//							submission.getString("femaleCount"),
-//							submission.getString("totalCount"),
-//							submission.getString("speed"));
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-
-				// Finished submitting. Remove from queue and
-				// commit
-				if (success) {
-					Log.d("Spawn submission queue", "Submission success.");
-					i.remove();
-					IniconfigActivity.prefs
-							.edit()
-							.putStringSet(queueName,
-									(Set<String>) queue.clone()).commit();
-
-				} else { // no connection, sleep for a while and try
-					// again
-					try {
-						Thread.sleep(3000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-
-			}
-		}
-	}
 
 	@Override
 	protected void onPause() {
@@ -1031,54 +911,6 @@ public class SurveyorActivity extends Activity implements
 		} else if (gender.equals("female")) {
 			messageHandler.sendEmptyMessage(EVENT_TYPE.FEMALE_UPDATE.ordinal());
 		}
-	}
-
-	public void submitSurveyInterface() {
-		DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				switch (which) {
-				case DialogInterface.BUTTON_POSITIVE:
-					// Yes button clicked
-					Toast toast = Toast.makeText(getApplicationContext(),
-							getResources()
-									.getString(R.string.submitting_survey),
-							Toast.LENGTH_SHORT);
-					toast.show();
-					new Thread(new Runnable() {
-						public void run() {
-							saveSurvey();
-							synchronized (surveySubmissionQueue) {
-								while (savingSurveySubmission) {
-									try {
-										surveySubmissionQueue.wait();
-									} catch (Exception e) {
-										e.printStackTrace();
-										return;
-									}
-								}
-
-								if (!submittingSubmission) {
-									spawnSubmission();
-								}
-							}
-						}
-					}).start();
-
-					break;
-				case DialogInterface.BUTTON_NEGATIVE:
-					// No button clicked
-					break;
-				}
-			}
-		};
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage(
-				getResources().getString(R.string.submit_survey_question))
-				.setPositiveButton(getResources().getString(R.string.yes),
-						dialogClickListener)
-				.setNegativeButton(getResources().getString(R.string.no),
-						dialogClickListener).show();
 	}
 
 	/*

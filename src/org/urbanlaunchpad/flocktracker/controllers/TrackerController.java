@@ -1,6 +1,7 @@
 package org.urbanlaunchpad.flocktracker.controllers;
 
 import com.google.android.gms.location.LocationClient;
+import org.urbanlaunchpad.flocktracker.TrackerAlarm;
 import org.urbanlaunchpad.flocktracker.helpers.SubmissionHelper;
 import org.urbanlaunchpad.flocktracker.models.Metadata;
 import org.urbanlaunchpad.flocktracker.models.Submission;
@@ -14,6 +15,8 @@ public class TrackerController {
     this.metadata = metadata;
     this.submissionHelper = submissionHelper;
     this.locationClient = locationClient;
+
+    TrackerAlarm.trackerController = this;
   }
 
   public void saveLocation() {
