@@ -35,6 +35,7 @@ import com.google.android.gms.location.LocationRequest;
 import org.json.JSONObject;
 import org.urbanlaunchpad.flocktracker.adapters.DrawerListViewAdapter;
 import org.urbanlaunchpad.flocktracker.controllers.QuestionController;
+import org.urbanlaunchpad.flocktracker.controllers.StatisticsPageController;
 import org.urbanlaunchpad.flocktracker.fragments.HubPageFragment;
 import org.urbanlaunchpad.flocktracker.fragments.HubPageManager;
 import org.urbanlaunchpad.flocktracker.fragments.QuestionFragment;
@@ -92,7 +93,10 @@ public class SurveyorActivity extends Activity implements
 	private List<RowItem> rowItems;
 	private QuestionFragment currentQuestionFragment;
 	private SurveyHelper surveyHelper;
-	private StatusPageHelper statusPageHelper;
+
+  // Controllers
+  private QuestionController questionController;
+  private StatisticsPageController statisticsPageController;
 
 	// Metadata
 	private String username;
@@ -103,8 +107,6 @@ public class SurveyorActivity extends Activity implements
 	private boolean isTripStarted = false;
 	private boolean showingStatusPage = false;
 	private boolean showingHubPage = false;
-
-  private QuestionController questionController;
 
 	@SuppressLint("HandlerLeak")
 	private Handler messageHandler = new Handler() {
@@ -136,7 +138,7 @@ public class SurveyorActivity extends Activity implements
 					gear.setImageResource(R.drawable.ft_red_st);
 				}
 			} else if (msg.what == EVENT_TYPE.UPDATE_STATS_PAGE.ordinal()) {
-				statusPageHelper.updateStatusPage();
+				statisticsPageController.updateStatusPage();
 			} else if (msg.what == EVENT_TYPE.SUBMITTED_SURVEY.ordinal()) {
 				Toast toast = Toast.makeText(getApplicationContext(),
 						getResources().getString(R.string.survey_submitted),
@@ -169,7 +171,7 @@ public class SurveyorActivity extends Activity implements
     questionController = new QuestionController(this, getFragmentManager(), submissionHelper);
 
 		driveHelper = new GoogleDriveHelper(this);
-		statusPageHelper = new StatusPageHelper(this);
+		statisticsPageController = new StatisticsPageController(this);
 
 		// Navigation drawer information.
 		title = chapterDrawerTitle = getTitle();
@@ -347,7 +349,7 @@ public class SurveyorActivity extends Activity implements
 
 	@Override
 	protected void onPause() {
-		statusPageHelper.onPause();
+		statisticsPageController.onPause();
 		super.onPause();
 	}
 
@@ -485,7 +487,7 @@ public class SurveyorActivity extends Activity implements
 //							tripID, jsurvString, imagePaths, SURVEY_TYPE,
 //							maleCount.toString(), femaleCount.toString(),
 //							((Integer) (maleCount + femaleCount)).toString(),
-//							statusPageHelper.getSpeed().toString());
+//							statisticsPageController.getSpeed().toString());
 //					// disconnect if not tracking or not currently
 //					// submitting
 //					// surveys
@@ -493,7 +495,7 @@ public class SurveyorActivity extends Activity implements
 //						mLocationClient.disconnect();
 //					}
 //
-//					statusPageHelper.surveysCompleted++;
+//					statisticsPageController.surveysCompleted++;
 //				}
 //			}).start();
 
@@ -797,7 +799,7 @@ public class SurveyorActivity extends Activity implements
 				new LocationListener() {
 					@Override
 					public void onLocationChanged(final Location location) {
-						statusPageHelper.onLocationChanged(isTripStarted,
+						statisticsPageController.onLocationChanged(isTripStarted,
 								location);
 					}
 				});
@@ -811,7 +813,7 @@ public class SurveyorActivity extends Activity implements
 				}
 			}).start();
 		} else { // connecting for tracking
-			statusPageHelper.startLocation = mLocationClient.getLastLocation();
+			statisticsPageController.startLocation = mLocationClient.getLastLocation();
 			Toast.makeText(this, R.string.tracking_on, Toast.LENGTH_SHORT)
 					.show();
 		}
@@ -849,7 +851,7 @@ public class SurveyorActivity extends Activity implements
 //					surveyHelper.prevTrackingPositions = new Stack<Integer>();
 //					showHubPage();
 //					startTrip();
-//					statusPageHelper.startTrip();
+//					statisticsPageController.startTrip();
 //					startTracker();
 //					break;
 //				}
@@ -1134,7 +1136,7 @@ public class SurveyorActivity extends Activity implements
 		cancelTracker();
 		messageHandler.sendEmptyMessage(EVENT_TYPE.UPDATE_HUB_PAGE.ordinal());
 		surveyHelper.resetTracker();
-		statusPageHelper.stopTrip();
+		statisticsPageController.stopTrip();
 	}
 
 	private enum EVENT_TYPE {
