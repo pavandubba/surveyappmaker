@@ -54,7 +54,7 @@ public class Question {
     this.questionText = questionText;
   }
 
-  public static String[] getAnswers() {
+  public String[] getAnswers() {
     return answers;
   }
 

@@ -18,11 +18,8 @@ import org.json.JSONException;
 import org.urbanlaunchpad.flocktracker.R;
 import org.urbanlaunchpad.flocktracker.models.Question;
 
-import com.google.android.gms.drive.internal.i;
-import com.google.android.gms.internal.ig;
-
 public class MultipleChoiceQuestionFragment extends QuestionFragment {
-	private LinearLayout[] answers;
+	private LinearLayout[] answersLayout;
 	private final int IMAGE_TAG = -2;
 	private final int ANSWER_TAG = -3;
 	private Integer answerId;
@@ -35,14 +32,12 @@ public class MultipleChoiceQuestionFragment extends QuestionFragment {
   public void setupLayout() throws JSONException {
 
 		Boolean hasOther = getQuestion().isOtherEnabled();
-		String[] answerStringArray = Question.getAnswers();
-		final int numAnswers = hasOther ? answerStringArray.length
-				: answerStringArray.length + 1;
-		answers = new LinearLayout[numAnswers];
+		String[] answers = getQuestion().getAnswers();
+		int numAnswers = hasOther ? answers.length : answers.length + 1;
+		answersLayout = new LinearLayout[numAnswers];
 
-		JSONArray jsonAnswers = jquestion.getJSONArray("Answers");
-		for (int i = 0; i < jsonAnswers.length(); i++) {
-			String answer = jsonAnswers.getString(i);
+		for (int i = 0; i < answers.length; i++) {
+			String answer = answers[i];
 
 			// Image
 			ImageView iconImageView = new ImageView(getActivity());
@@ -70,19 +65,19 @@ public class MultipleChoiceQuestionFragment extends QuestionFragment {
 			answerTextView.setLayoutParams(layoutParamsText);
 
 			// Add both to a linear layout
-			answers[i] = new LinearLayout(getActivity());
-			answers[i].setId(i);
-			answers[i].setWeightSum(4);
+			answersLayout[i] = new LinearLayout(getActivity());
+			answersLayout[i].setId(i);
+			answersLayout[i].setWeightSum(4);
 			LinearLayout.LayoutParams layoutParamsParent = new LinearLayout.LayoutParams(
 					ViewGroup.LayoutParams.MATCH_PARENT,
 					ViewGroup.LayoutParams.WRAP_CONTENT);
-			answers[i].setLayoutParams(layoutParamsParent);
-			answers[i].setPadding(10, 10, 10, 10);
-			answers[i].addView(iconImageView);
-			answers[i].addView(answerTextView);
+			answersLayout[i].setLayoutParams(layoutParamsParent);
+			answersLayout[i].setPadding(10, 10, 10, 10);
+			answersLayout[i].addView(iconImageView);
+			answersLayout[i].addView(answerTextView);
 
 			// Set onClick
-			answers[i].setOnClickListener(onClickListener);
+			answersLayout[i].setOnClickListener(onClickListener);
 		}
 
 		if (hasOther) {
@@ -130,24 +125,24 @@ public class MultipleChoiceQuestionFragment extends QuestionFragment {
 			otherET.setBackgroundResource(R.drawable.edit_text);
 
 			// Add both to a linear layout
-			answers[i] = new LinearLayout(getActivity());
-			answers[i].setId(i);
-			answers[i].setWeightSum(4);
+			answersLayout[i] = new LinearLayout(getActivity());
+			answersLayout[i].setId(i);
+			answersLayout[i].setWeightSum(4);
 			LinearLayout.LayoutParams layoutParamsParent = new LinearLayout.LayoutParams(
 					ViewGroup.LayoutParams.MATCH_PARENT,
 					ViewGroup.LayoutParams.WRAP_CONTENT);
-			answers[i].setLayoutParams(layoutParamsParent);
-			answers[i].setPadding(10, 10, 10, 10);
-			answers[i].addView(otherImage);
-			answers[i].addView(otherET);
-			answers[i].setOnClickListener(onClickListener);
+			answersLayout[i].setLayoutParams(layoutParamsParent);
+			answersLayout[i].setPadding(10, 10, 10, 10);
+			answersLayout[i].addView(otherImage);
+			answersLayout[i].addView(otherET);
+			answersLayout[i].setOnClickListener(onClickListener);
 
 			// Used to override the touch mechanism for the EditText
 			otherET.setOnTouchListener(new View.OnTouchListener() {
 				@Override
 				public boolean onTouch(View v, MotionEvent event) {
 					if (MotionEvent.ACTION_UP == event.getAction()) {
-						onClickListener.onClick(answers[i]);
+						onClickListener.onClick(answersLayout[i]);
 					}
 					return false;
 				}
@@ -160,13 +155,13 @@ public class MultipleChoiceQuestionFragment extends QuestionFragment {
 	@Override
 	public void sendAnswer() {
 		if (selectedAnswers != null) {
-			for (int i = 0; i <= answers.length; i++) {
-				int tempAnswerID = answers[i].getId();
+			for (int i = 0; i <= answersLayout.length; i++) {
+				int tempAnswerID = answersLayout[i].getId();
 				if (tempAnswerID == answerId) {
 					selectedAnswers = new ArrayList<Integer>();
 					selectedAnswers.add(answerId);
 
-					View answerView = answers[i].findViewById(ANSWER_TAG);
+					View answerView = answersLayout[i].findViewById(ANSWER_TAG);
 					if (answerView instanceof TextView) {
 						TextView answerTextView = (TextView) answerView;
 //						answerString = (String) answerTextView.getText();
@@ -182,11 +177,11 @@ public class MultipleChoiceQuestionFragment extends QuestionFragment {
 	@Override
 	public void prepopulateQuestion() throws JSONException {
 		if (selectedAnswers != null) {
-			checkView(answers[selectedAnswers.get(0)]);
-			if (selectedAnswers.get(0) == answers.length) {
-				EditText answerText = (EditText) answers[answers.length]
+			checkView(answersLayout[selectedAnswers.get(0)]);
+			if (selectedAnswers.get(0) == answersLayout.length) {
+				EditText answerText = (EditText) answersLayout[answersLayout.length]
 						.findViewById(ANSWER_TAG);
-				answerText.setText(jquestion.getString("Answer"));
+//				answerText.setText(jquestion.getString("Answer"));
 			}
 		}
 	}
@@ -195,7 +190,7 @@ public class MultipleChoiceQuestionFragment extends QuestionFragment {
 		@Override
 		public void onClick(View v) {
 			if (answerId != null) {
-				unCheckView(answers[answerId]);
+				unCheckView(answersLayout[answerId]);
 			}
 			checkView((LinearLayout) v);
 			answerId = v.getId();

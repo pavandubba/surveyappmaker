@@ -44,14 +44,6 @@ public abstract class QuestionFragment extends Fragment implements
 	QuestionAnswerListener listener;
   NavButtonsManager.NavButtonsListener navButtonsListener;
 
-	public static final String ARG_JSON_QUESTION = "Json question";
-	public static final String ARG_QUESTION_POSITION = "Question position";
-	public static final String ARG_CHAPTER_POSITION = "Chapter position";
-	public static final String ARG_POSITION = "Position";
-	public static final String ARG_IN_LOOP = "In loop";
-	public static final String ARG_LOOP_ITERATION = "Loop iteration";
-	public static final String ARG_LOOP_TOTAL = "Loop total";
-	public static final String ARG_LOOP_POSITION = "Loop position";
 	private static String[] answerlist = null;
 	private static Activity mainActivity;
 	LinearLayout orderanswerlayout;
@@ -60,8 +52,6 @@ public abstract class QuestionFragment extends Fragment implements
 	// Passes Answer and jump information to activity.
 	AnswerSelected Callback;
 	private Toast toast;
-	private String jquestionstring;
-	protected JSONObject jquestion = null;
 	private JSONArray janswerlist = null;
 	private String questionstring = "No questions on chapter";
 	private Integer totalanswers;
