@@ -1,4 +1,4 @@
-package org.urbanlaunchpad.flocktracker.helpers;
+package org.urbanlaunchpad.flocktracker.util;
 
 import android.content.Context;
 import android.widget.Toast;
@@ -9,7 +9,7 @@ import org.urbanlaunchpad.flocktracker.ProjectConfig;
 import org.urbanlaunchpad.flocktracker.R;
 import org.urbanlaunchpad.flocktracker.models.Chapter;
 import org.urbanlaunchpad.flocktracker.models.Question;
-import org.urbanlaunchpad.flocktracker.models.QuestionUtil;
+import org.urbanlaunchpad.flocktracker.util.QuestionUtil;
 
 public class JSONUtil {
   /**

@@ -34,11 +34,10 @@ public class OpenQuestionFragment extends QuestionFragment {
   }
 
   public void setupLayout() throws JSONException {
-		String questionkind = jquestion.getString("kind");
-		if ((questionkind.equals("ON")) || questionkind.equals("LP")) {
-			askingNumbers = true;
+    Question.QuestionType questionType = getQuestion().getType();
+		if (questionType.equals(Question.QuestionType.OPEN) || questionType.equals(Question.QuestionType.LOOP)) {
+      askingNumbers = true;
 		}
-		;
 
 		openET = new EditText(getActivity());
 		openET.setHint(getResources().getString(R.string.answer_hint));
@@ -84,7 +83,7 @@ public class OpenQuestionFragment extends QuestionFragment {
 
 	@Override
 	public void prepopulateQuestion() throws JSONException {
-		openET.setText(jquestion.getString("Answer"));
+//		openET.setText(jquestion.getString("Answer"));
 	}
 
 }

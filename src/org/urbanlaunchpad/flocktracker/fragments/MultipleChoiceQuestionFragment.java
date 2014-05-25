@@ -31,7 +31,7 @@ public class MultipleChoiceQuestionFragment extends QuestionFragment {
 
   public void setupLayout() throws JSONException {
 
-		Boolean hasOther = getQuestion().isOtherEnabled();
+		boolean hasOther = getQuestion().isOtherEnabled();
 		String[] answers = getQuestion().getAnswers();
 		int numAnswers = hasOther ? answers.length : answers.length + 1;
 		answersLayout = new LinearLayout[numAnswers];

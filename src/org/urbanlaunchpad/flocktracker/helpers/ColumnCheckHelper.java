@@ -8,7 +8,7 @@ import org.urbanlaunchpad.flocktracker.IniconfigActivity;
 import org.urbanlaunchpad.flocktracker.ProjectConfig;
 import org.urbanlaunchpad.flocktracker.models.Chapter;
 import org.urbanlaunchpad.flocktracker.models.Question;
-import org.urbanlaunchpad.flocktracker.models.QuestionUtil;
+import org.urbanlaunchpad.flocktracker.util.QuestionUtil;
 
 import java.io.IOException;
 import java.util.HashSet;

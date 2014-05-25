@@ -1,4 +1,4 @@
-package org.urbanlaunchpad.flocktracker.models;
+package org.urbanlaunchpad.flocktracker.util;
 
 import org.urbanlaunchpad.flocktracker.models.Question.QuestionType;
 

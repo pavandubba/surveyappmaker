@@ -1,6 +1,7 @@
 package org.urbanlaunchpad.flocktracker.fragments;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,7 +21,6 @@ import org.urbanlaunchpad.flocktracker.models.Question;
 
 public class OrderedListQuestionFragment extends QuestionFragment implements DynamicListView.SwappingEnded {
 
-	Integer totalanswers = null;
 	ArrayList<String> answerList = null;
 	Button skipButton;
 
@@ -40,25 +40,7 @@ public class OrderedListQuestionFragment extends QuestionFragment implements Dyn
 
   public void setupLayout() throws JSONException {
 
-		ArrayList<String> originalAnswerList = new ArrayList<String>();
-		JSONArray jsonAnswers = jquestion.getJSONArray("Answers");
-		totalanswers = jsonAnswers.length();
-
-		// Filling array adapter with the answers.
-		String aux;
-		for (int i = 0; i < totalanswers; ++i) {
-			try {
-				aux = jsonAnswers.getJSONObject(i).getString("Answer");
-				originalAnswerList.add(aux);
-			} catch (JSONException e) {
-				e.printStackTrace();
-				originalAnswerList.add("");
-			}
-
-		}
-
-		answerList = new ArrayList<String>();
-		answerList.addAll(originalAnswerList);
+    answerList = new ArrayList<String>(Arrays.asList(getQuestion().getAnswers()));
 
 		ViewGroup questionLayoutView = (ViewGroup) rootView
 				.findViewById(R.id.questionlayout);
@@ -121,14 +103,14 @@ public class OrderedListQuestionFragment extends QuestionFragment implements Dyn
 		String answer = null;
 		StableArrayAdapter List = (StableArrayAdapter) answerlistView
 				.getAdapter();
-		for (int i = 0; i < totalanswers; ++i) {
+		for (int i = 0; i < answerList.size(); ++i) {
 			if (i == 0) {
 				answer = "(";
 			} else {
 				answer = answer + ",";
 			}
 			answer = answer + List.getItem(i);
-			if (i == (totalanswers - 1)) {
+			if (i == (answerList.size() - 1)) {
 				answer = answer + ")";
 			}
 		}
@@ -142,7 +124,7 @@ public class OrderedListQuestionFragment extends QuestionFragment implements Dyn
 		ArrayList<Integer> selectedAnswers = null;
 		if (selectedAnswers != null) {
 			ArrayList<String> answerTempList = new ArrayList<String>();
-			for (int i = 0; i < totalanswers; ++i) {
+			for (int i = 0; i < answerList.size(); ++i) {
 				answerTempList.add(answerList.get(selectedAnswers.get(i)));
 			}
 			answerList.clear();

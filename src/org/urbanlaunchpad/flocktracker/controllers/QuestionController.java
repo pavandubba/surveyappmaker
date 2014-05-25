@@ -11,7 +11,7 @@ import org.urbanlaunchpad.flocktracker.R;
 import org.urbanlaunchpad.flocktracker.fragments.*;
 import org.urbanlaunchpad.flocktracker.fragments.QuestionManager.QuestionAnswerListener;
 import org.urbanlaunchpad.flocktracker.helpers.ColumnCheckHelper;
-import org.urbanlaunchpad.flocktracker.helpers.JSONUtil;
+import org.urbanlaunchpad.flocktracker.util.JSONUtil;
 import org.urbanlaunchpad.flocktracker.helpers.SubmissionHelper;
 import org.urbanlaunchpad.flocktracker.models.Chapter;
 import org.urbanlaunchpad.flocktracker.models.Metadata;

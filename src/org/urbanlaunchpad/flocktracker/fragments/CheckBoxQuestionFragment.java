@@ -25,7 +25,7 @@ import android.widget.TextView;
 import org.urbanlaunchpad.flocktracker.models.Question;
 
 public class CheckBoxQuestionFragment extends QuestionFragment {
-	private LinearLayout[] answers;
+	private LinearLayout[] answersLayout;
 
 	private final int CB_TAG = -2;
 	private final int ANSWER_TAG = -3;
@@ -61,15 +61,12 @@ public class CheckBoxQuestionFragment extends QuestionFragment {
 
 	public void setupLayout() throws JSONException {
 
-		Boolean hasOther = jquestion.getBoolean("other");
-		numAnswers = hasOther ? jquestion.getJSONArray("Answers").length()
-				: jquestion.getJSONArray("Answers").length() + 1;
-		answers = new LinearLayout[numAnswers];
-		JSONArray jsonAnswers = jquestion.getJSONArray("Answers");
+    boolean hasOther = getQuestion().isOtherEnabled();
+    String[] answers = getQuestion().getAnswers();
+    int numAnswers = hasOther ? answers.length : answers.length + 1;
+    answersLayout = new LinearLayout[numAnswers];
 
-		for (int i = 0; i < jsonAnswers.length(); ++i) {
-			String answer = jsonAnswers.getString(i);
-
+		for (int i = 0; i < answers.length; ++i) {
 			// Custom Checkbox.
 			CheckBox cbanswer = new CheckBox(getActivity());
 			cbanswer.setId(CB_TAG);
@@ -79,11 +76,11 @@ public class CheckBoxQuestionFragment extends QuestionFragment {
 
 			// Text for the answer
 			TextView tvanswer = new TextView(rootView.getContext());
-			tvanswer.setText(answer);
+			tvanswer.setText(answers[i]);
 
 			// linearlayout for checkbox and answer.
-			answers[i] = new LinearLayout(rootView.getContext());
-			answers[i].setOrientation(LinearLayout.HORIZONTAL);
+			answersLayout[i] = new LinearLayout(rootView.getContext());
+			answersLayout[i].setOrientation(LinearLayout.HORIZONTAL);
 
 			// Text formating.
 			tvanswer.setTextSize(20);
@@ -98,11 +95,11 @@ public class CheckBoxQuestionFragment extends QuestionFragment {
 			cbanswer.setLayoutParams(layoutParams);
 
 			// Adding both to LinearLayout.
-			answers[i].addView(cbanswer);
-			answers[i].addView(tvanswer);
-			answers[i].setId(ANSWER_TAG);
-			answers[i].setOnClickListener(onClickListener);
-			// answerlayout.addView(answers[i]);
+			answersLayout[i].addView(cbanswer);
+			answersLayout[i].addView(tvanswer);
+			answersLayout[i].setId(ANSWER_TAG);
+			answersLayout[i].setOnClickListener(onClickListener);
+			// answerlayout.addView(answersLayout[i]);
 
 		}
 		if (hasOther) {
@@ -147,27 +144,27 @@ public class CheckBoxQuestionFragment extends QuestionFragment {
 				@Override
 				public boolean onTouch(View v, MotionEvent event) {
 					if (MotionEvent.ACTION_UP == event.getAction()) {
-						toggleCheckBox(answers[i]);
+						toggleCheckBox(answersLayout[i]);
 					}
 					return false;
 				}
 			});
 
 			// Add both to a linear layout
-			answers[i] = new LinearLayout(getActivity());
-			answers[i].setOrientation(LinearLayout.HORIZONTAL);
-			answers[i].addView(otherCB);
-			answers[i].addView(otherET);
-			answers[i].setId(ANSWER_TAG);
-			answers[i].setOnClickListener(onClickListener);
+			answersLayout[i] = new LinearLayout(getActivity());
+			answersLayout[i].setOrientation(LinearLayout.HORIZONTAL);
+			answersLayout[i].addView(otherCB);
+			answersLayout[i].addView(otherET);
+			answersLayout[i].setId(ANSWER_TAG);
+			answersLayout[i].setOnClickListener(onClickListener);
 
-			// answerlayout.addView(answers[i]);
+			// answerlayout.addView(answersLayout[i]);
 
 			otherET.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 				@Override
 				public boolean onEditorAction(TextView v, int actionId,
 						KeyEvent event) {
-					toggleCheckBox(answers[i]);
+					toggleCheckBox(answersLayout[i]);
 					return false;
 				}
 			});
@@ -183,7 +180,7 @@ public class CheckBoxQuestionFragment extends QuestionFragment {
 			String answerString = "";
 			for (int j = 0; j <= numAnswers; ++j) {
 				if (selectedAnswers.contains(j)) {
-					View answerView = answers[j].findViewById(ANSWER_TAG);
+					View answerView = answersLayout[j].findViewById(ANSWER_TAG);
 					if (answerView instanceof TextView) {
 						TextView answerTextView = (TextView) answerView;
 						answerString += answerTextView.getText() + ",";
@@ -203,21 +200,21 @@ public class CheckBoxQuestionFragment extends QuestionFragment {
 		for (int j = 0; j <= numAnswers; ++j) {
 			if (selectedAnswers.contains(j)) {
 				if (j == numAnswers) {
-					String otheranswerString = jquestion.getString("Answer");
-					otheranswerString = otheranswerString.substring(1,
-							otheranswerString.length() - 1);
-					for (int k = 0; k < numAnswers; ++k) {
-						if (selectedAnswers.contains(k)) {
-							TextView tvAnswer = (TextView) answers[k]
-									.findViewById(ANSWER_TAG);
-							String aux = (String) tvAnswer.getText();
-							otheranswerString = otheranswerString.substring(
-									aux.length() + 1,
-									otheranswerString.length());
-						}
-					}
+//					String otheranswerString = jquestion.getString("Answer");
+//					otheranswerString = otheranswerString.substring(1,
+//							otheranswerString.length() - 1);
+//					for (int k = 0; k < numAnswers; ++k) {
+//						if (selectedAnswers.contains(k)) {
+//							TextView tvAnswer = (TextView) answersLayout[k]
+//									.findViewById(ANSWER_TAG);
+//							String aux = (String) tvAnswer.getText();
+//							otheranswerString = otheranswerString.substring(
+//									aux.length() + 1,
+//									otheranswerString.length());
+//						}
+//					}
 				}
-				toggleCheckBox(answers[j]);
+				toggleCheckBox(answersLayout[j]);
 			}
 		}
 
