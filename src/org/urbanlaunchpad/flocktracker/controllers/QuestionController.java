@@ -22,6 +22,7 @@ import org.urbanlaunchpad.flocktracker.helpers.JSONUtil;
 import org.urbanlaunchpad.flocktracker.helpers.SubmissionHelper;
 import org.urbanlaunchpad.flocktracker.helpers.SurveyHelper;
 import org.urbanlaunchpad.flocktracker.models.Chapter;
+import org.urbanlaunchpad.flocktracker.models.Metadata;
 import org.urbanlaunchpad.flocktracker.models.Question;
 import org.urbanlaunchpad.flocktracker.models.Submission;
 import org.urbanlaunchpad.flocktracker.views.NavButtonsManager.NavButtonsListener;
@@ -32,9 +33,10 @@ import java.util.Set;
 import java.util.Stack;
 
 public class QuestionController implements QuestionAnswerListener, NavButtonsListener {
+  private Context context;
+  private Metadata metadata;
   private FragmentManager fragmentManager;
   private SubmissionHelper submissionHelper;
-  private Context context;
 
   private int chapterPosition = 0;
   private int questionPosition = 0;
@@ -48,8 +50,10 @@ public class QuestionController implements QuestionAnswerListener, NavButtonsLis
 
   private boolean isAskingTripQuestions = false;
 
-  public QuestionController(Context context, FragmentManager fragmentManager, SubmissionHelper submissionHelper) {
+  public QuestionController(Context context, Metadata metadata, FragmentManager fragmentManager,
+      SubmissionHelper submissionHelper) {
     this.context = context;
+    this.metadata = metadata;
     this.fragmentManager = fragmentManager;
     this.submissionHelper = submissionHelper;
     resetSurvey();
@@ -119,7 +123,7 @@ public class QuestionController implements QuestionAnswerListener, NavButtonsLis
 
   @Override
   public void onSelectedAnswer(String answer) {
-    // TODO
+    // TODO(adchia): implement
   }
 
   @Override
@@ -165,7 +169,7 @@ public class QuestionController implements QuestionAnswerListener, NavButtonsLis
     Submission submission = new Submission();
     submission.setChapters(chapterList);
     submission.setType(Submission.Type.SURVEY);
-    submission.setMetadata(ProjectConfig.get().getMetadata());
+    submission.setMetadata(metadata);
     submissionHelper.saveSubmission(submission);
   }
 

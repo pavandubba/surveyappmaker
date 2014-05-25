@@ -1,6 +1,5 @@
 package org.urbanlaunchpad.flocktracker.controllers;
 
-import org.urbanlaunchpad.flocktracker.ProjectConfig;
 import org.urbanlaunchpad.flocktracker.fragments.HubPageManager;
 import org.urbanlaunchpad.flocktracker.models.Metadata;
 
@@ -8,8 +7,8 @@ public class HubPageController implements HubPageManager.HubPageActionListener {
   private Metadata metadata;
   private QuestionController questionController;
 
-  public HubPageController(QuestionController questionController) {
-    this.metadata = ProjectConfig.get().getMetadata();
+  public HubPageController(Metadata metadata, QuestionController questionController) {
+    this.metadata = metadata;
     this.questionController = questionController;
   }
 
@@ -21,12 +20,12 @@ public class HubPageController implements HubPageManager.HubPageActionListener {
 
   @Override
   public void onStartSurvey() {
-
+    // TODO(adchia): implement
   }
 
   @Override
   public void onGetStatistics() {
-
+    // TODO(adchia): implement
   }
 
   @Override

@@ -91,6 +91,4 @@ public class Metadata {
   public void setSpeed(double speed) {
     this.speed = speed;
   }
-
-
 }

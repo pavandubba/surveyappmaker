@@ -34,8 +34,7 @@ import com.google.android.gms.location.LocationRequest;
 
 import org.json.JSONObject;
 import org.urbanlaunchpad.flocktracker.adapters.DrawerListViewAdapter;
-import org.urbanlaunchpad.flocktracker.controllers.QuestionController;
-import org.urbanlaunchpad.flocktracker.controllers.StatisticsPageController;
+import org.urbanlaunchpad.flocktracker.controllers.*;
 import org.urbanlaunchpad.flocktracker.fragments.HubPageFragment;
 import org.urbanlaunchpad.flocktracker.fragments.HubPageManager;
 import org.urbanlaunchpad.flocktracker.fragments.QuestionFragment;
@@ -44,6 +43,7 @@ import org.urbanlaunchpad.flocktracker.fragments.StatusPageFragment.StatusPageUp
 import org.urbanlaunchpad.flocktracker.helpers.*;
 import org.urbanlaunchpad.flocktracker.helpers.SurveyHelper.Tuple;
 import org.urbanlaunchpad.flocktracker.menu.RowItem;
+import org.urbanlaunchpad.flocktracker.models.Metadata;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -96,7 +96,10 @@ public class SurveyorActivity extends Activity implements
 
   // Controllers
   private QuestionController questionController;
+  private HubPageController hubPageController;
   private StatisticsPageController statisticsPageController;
+  private MetadataController metadataController;
+  private TrackerController trackerController;
 
 	// Metadata
 	private String username;
@@ -167,11 +170,8 @@ public class SurveyorActivity extends Activity implements
 
 		username = ProjectConfig.get().getUsername();
 		surveyHelper = new SurveyHelper(this);
-    SubmissionHelper submissionHelper = new SubmissionHelper();
-    questionController = new QuestionController(this, getFragmentManager(), submissionHelper);
 
-		driveHelper = new GoogleDriveHelper(this);
-		statisticsPageController = new StatisticsPageController(this);
+    driveHelper = new GoogleDriveHelper(this);
 
 		// Navigation drawer information.
 		title = chapterDrawerTitle = getTitle();
@@ -252,6 +252,13 @@ public class SurveyorActivity extends Activity implements
 		// Check for location services.
 		LocationHelper.checkLocationConfig(this);
 
+    SubmissionHelper submissionHelper = new SubmissionHelper();
+    Metadata metadata = new Metadata();
+    questionController = new QuestionController(this, metadata, getFragmentManager(), submissionHelper);
+    hubPageController = new HubPageController(metadata, questionController);
+    statisticsPageController = new StatisticsPageController(this);
+    metadataController = new MetadataController(metadata);
+    trackerController = new TrackerController(metadata, submissionHelper, mLocationClient);
 	}
 
 	/*

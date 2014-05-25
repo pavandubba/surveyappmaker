@@ -1,7 +1,6 @@
 package org.urbanlaunchpad.flocktracker;
 
 import android.content.SharedPreferences;
-import org.urbanlaunchpad.flocktracker.models.Metadata;
 
 public class ProjectConfig {
 
@@ -19,9 +18,6 @@ public class ProjectConfig {
   private String apiKey;
 
   private SharedPreferences sharedPreferences;
-
-  private Metadata metadata;
-
   /**
    * Private constructor to ensure static instance.
    */
@@ -105,16 +101,5 @@ public class ProjectConfig {
 
   public void setSharedPreferences(SharedPreferences sharedPreferences) {
     this.sharedPreferences = sharedPreferences;
-  }
-
-  public Metadata getMetadata() {
-    if (metadata == null) {
-      metadata = new Metadata();
-    }
-    return metadata;
-  }
-
-  public void setMetadata(Metadata metadata) {
-    this.metadata = metadata;
   }
 }

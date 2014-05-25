@@ -8,7 +8,7 @@ public class ImageKey {
   private final Integer loopIteration;
 
   public ImageKey(Integer chapterPosition, Integer questionPosition,
-    Integer loopIteration, Integer loopPosition) {
+      Integer loopIteration, Integer loopPosition) {
     this.chapterPosition = chapterPosition;
     this.questionPosition = questionPosition;
     this.loopIteration = loopIteration;
@@ -25,13 +25,13 @@ public class ImageKey {
     }
     ImageKey key = (ImageKey) o;
     return this.chapterPosition.equals(key.chapterPosition)
-           && this.questionPosition.equals(key.questionPosition);
+        && this.questionPosition.equals(key.questionPosition);
   }
 
   @Override
   public String toString() {
     return "[" + chapterPosition + "," + questionPosition + ","
-           + loopIteration + "," + loopPosition + "]";
+        + loopIteration + "," + loopPosition + "]";
   }
 
   public Integer getChapterPosition() {
