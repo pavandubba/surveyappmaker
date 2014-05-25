@@ -22,6 +22,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import org.urbanlaunchpad.flocktracker.models.Question;
 
 public class CheckBoxQuestionFragment extends QuestionFragment {
 	private LinearLayout[] answers;
@@ -40,7 +41,11 @@ public class CheckBoxQuestionFragment extends QuestionFragment {
 		}
 	};
 
-	private void toggleCheckBox(LinearLayout v) {
+  public CheckBoxQuestionFragment(Question question) {
+    super(question);
+  }
+
+  private void toggleCheckBox(LinearLayout v) {
 		CheckBox cb = (CheckBox) v.findViewById(CB_TAG);
 		TextView tv = (TextView) v.findViewById(ANSWER_TAG);
 		if (cb.isChecked()) {
@@ -154,7 +159,7 @@ public class CheckBoxQuestionFragment extends QuestionFragment {
 			answers[i].addView(otherCB);
 			answers[i].addView(otherET);
 			answers[i].setId(ANSWER_TAG);
-			answers[i].setOnClickListener(this);
+			answers[i].setOnClickListener(onClickListener);
 
 			// answerlayout.addView(answers[i]);
 
@@ -194,7 +199,7 @@ public class CheckBoxQuestionFragment extends QuestionFragment {
 	}
 
 	@Override
-	public void prepopulateQuestion() {
+	public void prepopulateQuestion() throws JSONException {
 		for (int j = 0; j <= numAnswers; ++j) {
 			if (selectedAnswers.contains(j)) {
 				if (j == numAnswers) {

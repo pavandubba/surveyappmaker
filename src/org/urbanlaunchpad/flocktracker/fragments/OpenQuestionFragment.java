@@ -13,6 +13,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import org.urbanlaunchpad.flocktracker.models.Question;
 
 public class OpenQuestionFragment extends QuestionFragment {
 	EditText openET;
@@ -28,7 +29,11 @@ public class OpenQuestionFragment extends QuestionFragment {
 		}
 	};
 
-	public void setupLayout() throws JSONException {
+  public OpenQuestionFragment(Question question) {
+    super(question);
+  }
+
+  public void setupLayout() throws JSONException {
 		String questionkind = jquestion.getString("kind");
 		if ((questionkind.equals("ON")) || questionkind.equals("LP")) {
 			askingNumbers = true;
@@ -53,7 +58,7 @@ public class OpenQuestionFragment extends QuestionFragment {
 			public boolean onEditorAction(TextView v, int actionId,
 					KeyEvent event) {
 				if (actionId == EditorInfo.IME_ACTION_DONE) {
-					onClick(openET);
+//					onClick(openET);
 					return false; // If false hides the keyboard after
 				}
 				return false;
@@ -63,7 +68,7 @@ public class OpenQuestionFragment extends QuestionFragment {
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
 				if (MotionEvent.ACTION_UP == event.getAction()) {
-					onClick(openET);
+//					onClick(openET);
 				}
 				return false;
 			}
@@ -78,7 +83,7 @@ public class OpenQuestionFragment extends QuestionFragment {
 	}
 
 	@Override
-	public void prepopulateQuestion() {
+	public void prepopulateQuestion() throws JSONException {
 		openET.setText(jquestion.getString("Answer"));
 	}
 

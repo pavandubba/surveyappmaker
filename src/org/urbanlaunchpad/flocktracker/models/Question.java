@@ -70,7 +70,7 @@ public class Question {
     this.questionID = questionID;
   }
 
-  public static boolean isOtherEnabled() {
+  public boolean isOtherEnabled() {
     return otherEnabled;
   }
 

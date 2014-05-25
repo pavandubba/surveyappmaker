@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.urbanlaunchpad.flocktracker.R;
 import org.urbanlaunchpad.flocktracker.adapters.StableArrayAdapter;
 import org.urbanlaunchpad.flocktracker.menu.DynamicListView;
 
@@ -15,6 +16,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ScrollView;
+import org.urbanlaunchpad.flocktracker.models.Question;
 
 public class OrderedListQuestionFragment extends QuestionFragment implements DynamicListView.SwappingEnded {
 
@@ -32,7 +34,11 @@ public class OrderedListQuestionFragment extends QuestionFragment implements Dyn
 
 	};
 
-	public void setupLayout() throws JSONException {
+  public OrderedListQuestionFragment(Question question) {
+    super(question);
+  }
+
+  public void setupLayout() throws JSONException {
 
 		ArrayList<String> originalAnswerList = new ArrayList<String>();
 		JSONArray jsonAnswers = jquestion.getJSONArray("Answers");
@@ -93,28 +99,22 @@ public class OrderedListQuestionFragment extends QuestionFragment implements Dyn
 	}
 
 	@Override
-	public void onClick(View v) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public void sendAnswer() {
 		if (skipButton != null) {
 			skipButton.setEnabled(true);
 			skipButton.setText(R.string.skip_question);
 		}
-		answerString = getorderedAnswers();
-		selectedAnswers = new ArrayList<Integer>();
-
-		for (int i = 0; i < totalanswers; ++i) {
-			for (int j = 0; j < totalanswers; ++j) {
-				if (originalAnswerList.get(i).equals(answerList.get(j))) {
-					selectedAnswers.add(j);
-					break;
-				}
-			}
-		}
+//		answerString = getorderedAnswers();
+//		selectedAnswers = new ArrayList<Integer>();
+//
+//		for (int i = 0; i < totalanswers; ++i) {
+//			for (int j = 0; j < totalanswers; ++j) {
+//				if (originalAnswerList.get(i).equals(answerList.get(j))) {
+//					selectedAnswers.add(j);
+//					break;
+//				}
+//			}
+//		}
 	}
 	
 	private String getorderedAnswers() {

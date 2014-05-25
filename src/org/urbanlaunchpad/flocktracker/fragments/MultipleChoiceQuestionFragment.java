@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.urbanlaunchpad.flocktracker.R;
 import org.urbanlaunchpad.flocktracker.models.Question;
 
 import com.google.android.gms.drive.internal.i;
@@ -27,9 +28,13 @@ public class MultipleChoiceQuestionFragment extends QuestionFragment {
 	private Integer answerId;
 	private ArrayList<Integer> selectedAnswers;
 
-	public void setupLayout() {
+  public MultipleChoiceQuestionFragment(Question question) {
+    super(question);
+  }
 
-		Boolean hasOther = Question.isOtherEnabled();
+  public void setupLayout() throws JSONException {
+
+		Boolean hasOther = getQuestion().isOtherEnabled();
 		String[] answerStringArray = Question.getAnswers();
 		final int numAnswers = hasOther ? answerStringArray.length
 				: answerStringArray.length + 1;
@@ -53,8 +58,9 @@ public class MultipleChoiceQuestionFragment extends QuestionFragment {
 			// Answer Text
 			LayoutInflater inflater = (LayoutInflater) getActivity()
 					.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			TextView answerTextView = (TextView) inflater.inflate(
-					getActivity(), R.layout.answer_edit_text, null);
+//			TextView answerTextView = (TextView) inflater.inflate(
+//					getActivity(), R.layout.answer_edit_text, null);
+      TextView answerTextView = new TextView(getActivity());
 			answerTextView.setId(ANSWER_TAG);
 			answerTextView.setText(answer);
 			LinearLayout.LayoutParams layoutParamsText = new LinearLayout.LayoutParams(
@@ -163,10 +169,10 @@ public class MultipleChoiceQuestionFragment extends QuestionFragment {
 					View answerView = answers[i].findViewById(ANSWER_TAG);
 					if (answerView instanceof TextView) {
 						TextView answerTextView = (TextView) answerView;
-						answerString = (String) answerTextView.getText();
+//						answerString = (String) answerTextView.getText();
 					} else if (answerView instanceof EditText) {
 						EditText answerEditText = (EditText) answerView;
-						answerString = answerEditText.getText().toString();
+//						answerString = answerEditText.getText().toString();
 					}
 				}
 			}
@@ -232,11 +238,5 @@ public class MultipleChoiceQuestionFragment extends QuestionFragment {
 					R.color.answer_selected));
 			answerEditText.requestFocus();
 		}
-	}
-
-	@Override
-	public void onClick(View v) {
-		// TODO Auto-generated method stub
-
 	}
 }

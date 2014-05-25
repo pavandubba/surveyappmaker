@@ -25,20 +25,24 @@ import android.widget.*;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.urbanlaunchpad.flocktracker.R;
 import org.urbanlaunchpad.flocktracker.SurveyorActivity;
 import org.urbanlaunchpad.flocktracker.adapters.StableArrayAdapter;
 import org.urbanlaunchpad.flocktracker.helpers.ImageHelper;
 import org.urbanlaunchpad.flocktracker.helpers.SurveyHelper;
 import org.urbanlaunchpad.flocktracker.menu.DynamicListView;
+import org.urbanlaunchpad.flocktracker.models.Question;
 import org.urbanlaunchpad.flocktracker.views.NavButtonsManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Set;
 
 public abstract class QuestionFragment extends Fragment implements
 		QuestionManager {
 
 	QuestionAnswerListener listener;
+  NavButtonsManager.NavButtonsListener navButtonsListener;
 
 	public static final String ARG_JSON_QUESTION = "Json question";
 	public static final String ARG_QUESTION_POSITION = "Question position";
@@ -69,8 +73,8 @@ public abstract class QuestionFragment extends Fragment implements
 	private ViewGroup answerlayout;
 	protected View rootView;
 	private String questionkind = null;
-	private Integer questionposition;
-	private Integer chapterposition;
+	protected Integer questionposition;
+  protected Integer chapterposition;
 	private boolean other;
 	private EditText otherET = null;
 	private LinearLayout otherfield = null;
@@ -87,14 +91,10 @@ public abstract class QuestionFragment extends Fragment implements
 	private Button skipButton;
 	private NavButtonsManager navButtonsManager;
 
-	// Loop stuff
-	Boolean inLoopBoolean;
-	Integer loopTotalInteger;
-	Integer loopIterationInteger;
-	Integer loopPositionInteger;
+  private Question question;
 
-	public QuestionFragment() {
-		// Empty constructor required for fragment subclasses
+	public QuestionFragment(Question question) {
+    this.question = question;
 	}
 
 	// Passes information about looped question.
@@ -104,62 +104,8 @@ public abstract class QuestionFragment extends Fragment implements
 			Bundle savedInstanceState) {
 		rootView = inflater.inflate(R.layout.fragment_question, container,
 				false);
-		mainActivity = getActivity();
-
-		// Getting json question and position in survey from parent activity.
-		Bundle args = this.getArguments();
-		if (args != null) {
-			jquestionstring = args.getString(ARG_JSON_QUESTION);
-			chapterposition = args.getInt(ARG_CHAPTER_POSITION);
-			questionposition = args.getInt(ARG_QUESTION_POSITION);
-			inLoopBoolean = args.getBoolean(ARG_IN_LOOP);
-			Log.v("In loop on fragment", inLoopBoolean.toString());
-			if (inLoopBoolean) {
-				loopTotalInteger = args.getInt(ARG_LOOP_TOTAL);
-				loopIterationInteger = args.getInt(ARG_LOOP_ITERATION);
-				loopPositionInteger = args.getInt(ARG_LOOP_POSITION);
-			}
-		}
 
 		setupNavButtons();
-
-		if (jquestionstring != null) {
-			try {
-				jquestion = new JSONObject(jquestionstring);
-			} catch (JSONException e) {
-				e.printStackTrace();
-				toast = Toast.makeText(getActivity(),
-						R.string.question_not_received, Toast.LENGTH_SHORT);
-				toast.show();
-			}
-
-			// Setting up layout of fragment.
-
-			answerlayout = (ViewGroup) rootView.findViewById(R.id.answerlayout);
-
-			try {
-				questionkind = jquestion.getString("Kind");
-				SurveyHelper.questionKind = questionkind;
-			} catch (JSONException e) {
-				e.printStackTrace();
-				questionkind = "no kind";
-				toast = Toast.makeText(getActivity(),
-						R.string.no_question_kind, Toast.LENGTH_SHORT);
-				toast.show();
-			}
-
-			selectedAnswers = new ArrayList<Integer>();
-
-			jumpString = getJump(jquestion);
-			ArrayList<Integer> key = getkey();
-			Callback.AnswerRecieve(answerString, jumpString, null, null,
-					questionkind, key);
-
-			try {
-				questionstring = jquestion.getString("Question");
-			} catch (JSONException e) {
-				// e.printStackTrace();
-			}
 
 			try {
 				setupLayout();
@@ -169,27 +115,25 @@ public abstract class QuestionFragment extends Fragment implements
 
 			return rootView;
 
-		}
+
 	}
 
-	public abstract void setupLayout();
+	public abstract void setupLayout() throws JSONException;
 
 	public abstract void sendAnswer();
 
 	public abstract void prepopulateQuestion() throws JSONException;
 
-	private void initializeQuestion();
-
 	private void setupNavButtons() {
 		navButtonsManager = (NavButtonsManager) rootView
 				.findViewById(R.id.questionButtons);
-		navButtonsManager.setQuestionType(listener);
+		navButtonsManager.setQuestionType(navButtonsListener, QuestionType.FIRST);
 	}
 
 	public void saveState() {
 		if (selectedAnswers != null && selectedAnswers.contains(-1)) {
 			if (otherfield != null) {
-				MultipleChoiceOnClick(otherfield);
+//				MultipleChoiceOnClick(otherfield);
 				InputMethodManager lManager = (InputMethodManager) mainActivity
 						.getSystemService(Context.INPUT_METHOD_SERVICE);
 				if (mainActivity.getCurrentFocus() != null) {
@@ -197,7 +141,7 @@ public abstract class QuestionFragment extends Fragment implements
 							.getCurrentFocus().getWindowToken(), 0);
 				}
 			} else if (openET != null) {
-				OpenOnClick(openET);
+//				OpenOnClick(openET);
 				InputMethodManager lManager = (InputMethodManager) mainActivity
 						.getSystemService(Context.INPUT_METHOD_SERVICE);
 				if (mainActivity.getCurrentFocus() != null) {
@@ -236,29 +180,11 @@ public abstract class QuestionFragment extends Fragment implements
 				String questionkindRecieve, ArrayList<Integer> questionkey);
 	}
 
-	private void getselectedAnswers() {
-		if (inLoopBoolean) {
-			if (SurveyorActivity.askingTripQuestions) {
-				selectedAnswers = SurveyHelper.selectedTrackingAnswersMap
-						.get(new ArrayList<Integer>(Arrays.asList(
-								questionposition, loopIterationInteger,
-								loopPositionInteger)));
-			} else {
-				selectedAnswers = SurveyHelper.selectedAnswersMap
-						.get(new ArrayList<Integer>(Arrays.asList(
-								chapterposition, questionposition,
-								loopIterationInteger, loopPositionInteger)));
-			}
-		} else {
-			if (SurveyorActivity.askingTripQuestions) {
-				selectedAnswers = SurveyHelper.selectedTrackingAnswersMap
-						.get(new ArrayList<Integer>(Arrays.asList(
-								questionposition, -1, -1)));
-			} else {
-				selectedAnswers = SurveyHelper.selectedAnswersMap
-						.get(new ArrayList<Integer>(Arrays.asList(
-								chapterposition, questionposition, -1, -1)));
-			}
-		}
-	}
+	protected Set<String> getSelectedAnswers() {
+    return question.getSelectedAnswers();
+  }
+
+  public Question getQuestion() {
+    return question;
+  }
 }

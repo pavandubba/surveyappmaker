@@ -370,134 +370,57 @@ public class SurveyHelper {
   }
 
   public void initializeLoop() {
-    // Clearing hashmap
-    clearLoopAnswerHashMap(chapterPosition, questionPosition,
-      SurveyorActivity.askingTripQuestions);
     // Clearing Loop answers arrays
     for (int i = 0; i < loopLimit; ++i) {
       if (!SurveyorActivity.askingTripQuestions) {
-        try {
-          chapterList[chapterPosition].getQuestions()[questionPosition]
-            .getJSONArray("Questions").getJSONObject(i)
-            .remove("LoopAnswers");
-        } catch (JSONException e) {
-          // e.printStackTrace();
+        for (Question loopQuestion : chapterList[chapterPosition].getQuestions()[questionPosition].getLoopQuestions()) {
+          loopQuestion.setSelectedAnswers(new HashSet<String>());
         }
       } else {
-        try {
-          jtracker.getJSONArray("Questions")
-            .getJSONObject(questionPosition)
-            .getJSONArray("Questions").getJSONObject(i)
-            .remove("LoopAnswers");
-        } catch (JSONException e) {
-          // e.printStackTrace();
+        for (Question loopQuestion : trackingQuestions[trackerQuestionPosition].getLoopQuestions()) {
+          loopQuestion.setSelectedAnswers(new HashSet<String>());
         }
       }
     }
     for (int i = 0; i < loopLimit; ++i) {
       // Creating an empty array
-      JSONArray tempArray = new JSONArray();
-      for (int j = 0; j < loopTotal; ++j) {
-        try {
-          tempArray.put(j, "");
-        } catch (JSONException e) {
-          // e.printStackTrace();
-        }
-      }
-      // Putting it on the JSON structure
-      if (!SurveyorActivity.askingTripQuestions) {
-        try {
-          chapterList[chapterPosition].getQuestions()[questionPosition]
-            .getJSONArray("Questions").getJSONObject(i)
-            .put("LoopAnswers", tempArray);
-        } catch (JSONException e) {
-          // e.printStackTrace();
-        }
-      } else {
-        try {
-          jtracker.getJSONArray("Questions")
-            .getJSONObject(questionPosition)
-            .getJSONArray("Questions").getJSONObject(i)
-            .put("LoopAnswers", tempArray);
-        } catch (JSONException e) {
-          // e.printStackTrace();
-        }
-      }
+//      JSONArray tempArray = new JSONArray();
+//      for (int j = 0; j < loopTotal; ++j) {
+//        try {
+//          tempArray.put(j, "");
+//        } catch (JSONException e) {
+//          // e.printStackTrace();
+//        }
+//      }
+//      // Putting it on the JSON structure
+//      if (!SurveyorActivity.askingTripQuestions) {
+//        try {
+//          chapterList[chapterPosition].getQuestions()[questionPosition].getLoopQuestions()[i]
+//            .getJSONArray("Questions").getJSONObject(i)
+//            .put("LoopAnswers", tempArray);
+//        } catch (JSONException e) {
+//          // e.printStackTrace();
+//        }
+//      } else {
+//        try {
+//          jtracker.getJSONArray("Questions")
+//            .getJSONObject(questionPosition)
+//            .getJSONArray("Questions").getJSONObject(i)
+//            .put("LoopAnswers", tempArray);
+//        } catch (JSONException e) {
+//          // e.printStackTrace();
+//        }
+//      }
     }
     Log.v("Initialize loop array", "Loop initialized!");
   }
 
-  public void clearLoopAnswerHashMap(Integer chapterPosition,
-    Integer questionPosition, Boolean askingTripQuestions) {
-    Integer loopTotalInteger = getLoopTotal(chapterPosition,
-      questionPosition, askingTripQuestions);
-    Integer loopLimitInteger = getLoopLimit(chapterPosition,
-      questionPosition, askingTripQuestions);
-
-    for (int i = 0; i < loopLimitInteger; ++i) {
-      if (!SurveyorActivity.askingTripQuestions) {
-        for (int j = 0; j < loopTotalInteger; ++j) {
-          ArrayList<Integer> key = new ArrayList<Integer>(
-            Arrays.asList(chapterPosition, questionPosition, i,
-              j)
-          );
-          if (selectedAnswersMap.containsKey(key)) {
-            selectedAnswersMap.remove(key);
-          }
-        }
-      } else {
-        for (int j = 0; j < loopTotalInteger; ++j) {
-          ArrayList<Integer> key = new ArrayList<Integer>(
-            Arrays.asList(questionPosition, i, j));
-          if (selectedTrackingAnswersMap.containsKey(key)) {
-            selectedTrackingAnswersMap.remove(key);
-          }
-        }
-      }
-    }
-    Log.v("Clear Loop", "Loop cleared!");
-  }
-
   public Integer getCurrentLoopTotal() {
-    Integer currentLoopTotal = getLoopTotal(chapterPosition,
-      questionPosition, SurveyorActivity.askingTripQuestions);
-    return currentLoopTotal;
-  }
-
-  private Integer getLoopTotal(Integer chapterPositionInteger,
-    Integer questionPositionInteger, Boolean askingTripQuestionsBoolean) {
-    String answer = null;
-    Integer localLoopTotal = null;
-    if (!askingTripQuestionsBoolean) {
-      try {
-        answer = jsurv.getJSONObject(SurveyorActivity.SURVEY_TYPE)
-          .getJSONArray("Chapters")
-          .getJSONObject(chapterPositionInteger)
-          .getJSONArray("Questions")
-          .getJSONObject(questionPositionInteger)
-          .getString("Answer");
-      } catch (JSONException e) {
-        // e.printStackTrace();
-      }
+    if (SurveyorActivity.askingTripQuestions) {
+      return chapterList[chapterPosition].getQuestions()[questionPosition].getLoopTotal();
     } else {
-      try {
-        answer = jtracker.getJSONArray("Questions")
-          .getJSONObject(questionPositionInteger)
-          .getString("Answer");
-      } catch (JSONException e) {
-        // e.printStackTrace();
-      }
+      return trackingQuestions[trackerQuestionPosition].getLoopTotal();
     }
-    if (answer != null) {
-      if (!answer.equals("")) {
-        localLoopTotal = Integer.parseInt(answer);
-      } else {
-        localLoopTotal = 0;
-      }
-    } else {
-      localLoopTotal = 0;
-    }
-    return localLoopTotal;
   }
 
   public enum NextQuestionResult {

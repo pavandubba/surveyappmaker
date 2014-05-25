@@ -39,10 +39,7 @@ import org.urbanlaunchpad.flocktracker.fragments.HubPageFragment;
 import org.urbanlaunchpad.flocktracker.fragments.QuestionFragment;
 import org.urbanlaunchpad.flocktracker.fragments.StatusPageFragment;
 import org.urbanlaunchpad.flocktracker.fragments.StatusPageFragment.StatusPageUpdate;
-import org.urbanlaunchpad.flocktracker.helpers.GoogleDriveHelper;
-import org.urbanlaunchpad.flocktracker.helpers.ImageHelper;
-import org.urbanlaunchpad.flocktracker.helpers.StatusPageHelper;
-import org.urbanlaunchpad.flocktracker.helpers.SurveyHelper;
+import org.urbanlaunchpad.flocktracker.helpers.*;
 import org.urbanlaunchpad.flocktracker.helpers.SurveyHelper.NextQuestionResult;
 import org.urbanlaunchpad.flocktracker.helpers.SurveyHelper.Tuple;
 import org.urbanlaunchpad.flocktracker.menu.RowItem;
@@ -54,7 +51,6 @@ import java.util.*;
 
 public class SurveyorActivity extends Activity implements
 		QuestionFragment.AnswerSelected,
-		QuestionNavigatorFragment.NavButtonCallback,
 		HubPageFragment.HubButtonCallback, StatusPageUpdate,
 		GooglePlayServicesClient.ConnectionCallbacks,
 		GooglePlayServicesClient.OnConnectionFailedListener {
@@ -248,7 +244,7 @@ public class SurveyorActivity extends Activity implements
 		}
 
 		// Check for location services.
-		SurveyHelper.checkLocationConfig(this);
+		LocationHelper.checkLocationConfig(this);
 
 	}
 
@@ -306,18 +302,18 @@ public class SurveyorActivity extends Activity implements
 							.getString("tripID") : "";
 					String surveyIDString = submission.has("surveyID") ? submission
 							.getString("surveyID") : "";
-					success = surveyHelper.submitSubmission(
-							submission.getString("jsurv"),
-							submission.getString("lat"),
-							submission.getString("lng"),
-							submission.getString("alt"),
-							submission.getString("imagePaths"), surveyIDString,
-							tripIDString, submission.getString("timestamp"),
-							submission.getString("type"),
-							submission.getString("maleCount"),
-							submission.getString("femaleCount"),
-							submission.getString("totalCount"),
-							submission.getString("speed"));
+//					success = surveyHelper.submitSubmission(
+//							submission.getString("jsurv"),
+//							submission.getString("lat"),
+//							submission.getString("lng"),
+//							submission.getString("alt"),
+//							submission.getString("imagePaths"), surveyIDString,
+//							tripIDString, submission.getString("timestamp"),
+//							submission.getString("type"),
+//							submission.getString("maleCount"),
+//							submission.getString("femaleCount"),
+//							submission.getString("totalCount"),
+//							submission.getString("speed"));
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -463,39 +459,39 @@ public class SurveyorActivity extends Activity implements
 			mLocationClient.connect();
 		}
 		if (mLocationClient.isConnected()) {
-			new Thread(new Runnable() {
-				public void run() {
-					String jsurvString = surveyHelper.jsurv.toString();
-					JSONObject imagePaths = new JSONObject();
-					for (ArrayList<Integer> key : SurveyHelper.prevImages
-							.keySet()) {
-						try {
-							imagePaths.put(key.toString(),
-									SurveyHelper.prevImages.get(key).getPath());
-						} catch (JSONException e) {
-							e.printStackTrace();
-						}
-					}
-					resetSurvey();
-					surveyHelper.jumpString = null;
-
-					// save location tagged survey
-					surveyHelper.saveSubmission(
-							mLocationClient.getLastLocation(), surveyID,
-							tripID, jsurvString, imagePaths, SURVEY_TYPE,
-							maleCount.toString(), femaleCount.toString(),
-							((Integer) (maleCount + femaleCount)).toString(),
-							statusPageHelper.getSpeed().toString());
-					// disconnect if not tracking or not currently
-					// submitting
-					// surveys
-					if (!isTripStarted && !submittingSubmission) {
-						mLocationClient.disconnect();
-					}
-
-					statusPageHelper.surveysCompleted++;
-				}
-			}).start();
+//			new Thread(new Runnable() {
+//				public void run() {
+//					String jsurvString = surveyHelper.jsurv.toString();
+//					JSONObject imagePaths = new JSONObject();
+//					for (ArrayList<Integer> key : SurveyHelper.prevImages
+//							.keySet()) {
+//						try {
+//							imagePaths.put(key.toString(),
+//									SurveyHelper.prevImages.get(key).getPath());
+//						} catch (JSONException e) {
+//							e.printStackTrace();
+//						}
+//					}
+//					resetSurvey();
+//					surveyHelper.jumpString = null;
+//
+//					// save location tagged survey
+//					surveyHelper.saveSubmission(
+//							mLocationClient.getLastLocation(), surveyID,
+//							tripID, jsurvString, imagePaths, SURVEY_TYPE,
+//							maleCount.toString(), femaleCount.toString(),
+//							((Integer) (maleCount + femaleCount)).toString(),
+//							statusPageHelper.getSpeed().toString());
+//					// disconnect if not tracking or not currently
+//					// submitting
+//					// surveys
+//					if (!isTripStarted && !submittingSubmission) {
+//						mLocationClient.disconnect();
+//					}
+//
+//					statusPageHelper.surveysCompleted++;
+//				}
+//			}).start();
 
 			messageHandler.sendEmptyMessage(EVENT_TYPE.SUBMITTED_SURVEY
 					.ordinal());
@@ -513,37 +509,37 @@ public class SurveyorActivity extends Activity implements
 			mLocationClient.connect();
 		}
 		if (mLocationClient.isConnected()) {
-			new Thread(new Runnable() {
-				public void run() {
-					try {
-						surveyHelper.jsurv.put("TrackerAlarm",
-								surveyHelper.jtracker);
-					} catch (JSONException e1) {
-						e1.printStackTrace();
-					}
-
-					String jsurvString = surveyHelper.jsurv.toString();
-					JSONObject imagePaths = new JSONObject();
-					for (ArrayList<Integer> key : SurveyHelper.prevTrackerImages
-							.keySet()) {
-						try {
-							imagePaths.put(key.toString(),
-									SurveyHelper.prevTrackerImages.get(key)
-											.getPath());
-						} catch (JSONException e) {
-							e.printStackTrace();
-						}
-					}
-
-					// save location tagged survey
-					surveyHelper.saveSubmission(statusPageHelper.startLocation,
-							surveyID, tripID, jsurvString, imagePaths,
-							TRACKER_TYPE, maleCount,
-							femaleCount,
-							maleCount + femaleCount,
-							statusPageHelper.getSpeed());
-				}
-			}).start();
+//			new Thread(new Runnable() {
+//				public void run() {
+//					try {
+//						surveyHelper.jsurv.put("TrackerAlarm",
+//								surveyHelper.jtracker);
+//					} catch (JSONException e1) {
+//						e1.printStackTrace();
+//					}
+//
+//					String jsurvString = surveyHelper.jsurv.toString();
+//					JSONObject imagePaths = new JSONObject();
+//					for (ArrayList<Integer> key : SurveyHelper.prevTrackerImages
+//							.keySet()) {
+//						try {
+//							imagePaths.put(key.toString(),
+//									SurveyHelper.prevTrackerImages.get(key)
+//											.getPath());
+//						} catch (JSONException e) {
+//							e.printStackTrace();
+//						}
+//					}
+//
+//					// save location tagged survey
+//					surveyHelper.saveSubmission(statusPageHelper.startLocation,
+//							surveyID, tripID, jsurvString, imagePaths,
+//							TRACKER_TYPE, maleCount,
+//							femaleCount,
+//							maleCount + femaleCount,
+//							statusPageHelper.getSpeed());
+//				}
+//			}).start();
 		}
 	}
 
@@ -567,15 +563,15 @@ public class SurveyorActivity extends Activity implements
 							Arrays.asList(
 									surveyHelper.getTrackerQuestionPosition(), -1,
 									-1));
-					SurveyHelper.prevTrackerImages
-							.put(key, driveHelper.fileUri);
+//					SurveyHelper.prevTrackerImages
+//							.put(key, driveHelper.fileUri);
 				} else {
 					ArrayList<Integer> key = new ArrayList<Integer>(
 							Arrays.asList(surveyHelper.getChapterPosition(),
 									surveyHelper.getQuestionPosition(), -1, -1));
-					SurveyHelper.prevImages.put(key, driveHelper.fileUri);
+//					SurveyHelper.prevImages.put(key, driveHelper.fileUri);
 				}
-				currentQuestionFragment.ImageLayout();
+//				currentQuestionFragment.ImageLayout();
 			} else {
 				startActivityForResult(
 						IniconfigActivity.credential.newChooseAccountIntent(),
@@ -608,15 +604,15 @@ public class SurveyorActivity extends Activity implements
 							Arrays.asList(
 									surveyHelper.getTrackerQuestionPosition(), -1,
 									-1));
-					SurveyHelper.prevTrackerImages
-							.put(key, driveHelper.fileUri);
+//					SurveyHelper.prevTrackerImages
+//							.put(key, driveHelper.fileUri);
 				} else {
 					ArrayList<Integer> key = new ArrayList<Integer>(
 							Arrays.asList(surveyHelper.getChapterPosition(),
 									surveyHelper.getQuestionPosition(), -1, -1));
-					SurveyHelper.prevImages.put(key, driveHelper.fileUri);
+//					SurveyHelper.prevImages.put(key, driveHelper.fileUri);
 				}
-				currentQuestionFragment.ImageLayout();
+//				currentQuestionFragment.ImageLayout();
 			}
 			break;
 
@@ -705,107 +701,92 @@ public class SurveyorActivity extends Activity implements
 	private void showCurrentQuestion() {
 		showingHubPage = false;
 		showingStatusPage = false;
-
-		int chapterPosition;
-		int questionPosition;
-		int loopPosition;
-		Boolean inloop;
-		inloop = surveyHelper.inLoop;
-
-		JSONObject currentQuestionJsonObject = null;
-		String currentQuestion = null;
-
-		if (surveyHelper.inLoop) {
-			loopPosition = surveyHelper.getLoopPosition();
-		}
-
-		if (askingTripQuestions) {
-			chapterPosition = 0;
-			questionPosition = surveyHelper.getChapterPosition();
-
-			// get current trip question
-			try {
-				currentQuestionJsonObject = surveyHelper
-						.getCurrentTripQuestion();
-			} catch (JSONException e) {
-				e.printStackTrace();
-			}
-
-			// Hide submit
-			navButtons.getView().findViewById(R.id.submit_survey_button)
-					.setVisibility(View.INVISIBLE);
-		} else {
-			chapterPosition = surveyHelper.getChapterPosition();
-			questionPosition = surveyHelper.getQuestionPosition();
-
-			// update selected item and title, then close the drawer.
-			fixedNavigationList.setItemChecked(-1, true);
-			chapterDrawerList.setItemChecked(chapterPosition, true);
-			setTitle(surveyHelper.getChapterTitles()[chapterPosition]);
-			chapterDrawerLayout.closeDrawer(drawer);
-
-			// Get current question
-			try {
-				currentQuestionJsonObject = surveyHelper.getCurrentQuestion();
-			} catch (JSONException e) {
-				e.printStackTrace();
-			}
-		}
-
-		// If in loop, putting the answer of the current iteration on its place.
-		if (surveyHelper.inLoop) {
-			try {
-				currentQuestionJsonObject.put("Answer",
-						currentQuestionJsonObject.getJSONArray("LoopAnswers")
-								.get(surveyHelper.loopIteration).toString());
-			} catch (JSONException e) {
-				// e.printStackTrace();
-			}
-		}
-
-		currentQuestion = currentQuestionJsonObject.toString();
-
-		// Starting question fragment and passing json question information.
-		currentQuestionFragment = new QuestionFragment();
-        Question question = new Question();
-		Bundle args = new Bundle();
-		args.putString(QuestionFragment.ARG_JSON_QUESTION,
-				currentQuestion.toString());
-		args.putInt(QuestionFragment.ARG_CHAPTER_POSITION, chapterPosition);
-		args.putInt(QuestionFragment.ARG_QUESTION_POSITION, questionPosition);
-        args.putInt(QuestionFrag)
-
-		Log.v("In loop from Surveyor", inloop.toString());
-		if (surveyHelper.inLoop) {
-			args.putBoolean(QuestionFragment.ARG_IN_LOOP, true);
-			args.putInt(QuestionFragment.ARG_LOOP_ITERATION,
-					surveyHelper.loopIteration);
-			args.putInt(QuestionFragment.ARG_LOOP_TOTAL, surveyHelper.loopTotal);
-			args.putInt(QuestionFragment.ARG_LOOP_POSITION,
-					surveyHelper.loopPosition);
-		} else {
-			args.putBoolean(QuestionFragment.ARG_IN_LOOP, false);
-		}
-		currentQuestionFragment.setArguments(args);
+//
+//		int chapterPosition;
+//		int questionPosition;
+//		int loopPosition;
+//		Boolean inloop;
+//		inloop = surveyHelper.inLoop;
+//
+//		JSONObject currentQuestionJsonObject = null;
+//		String currentQuestion = null;
+//
+//		if (surveyHelper.inLoop) {
+//			loopPosition = surveyHelper.getLoopPosition();
+//		}
+//
+//		if (askingTripQuestions) {
+//			chapterPosition = 0;
+//			questionPosition = surveyHelper.getChapterPosition();
+//
+//			// get current trip question
+//			try {
+//				currentQuestionJsonObject = surveyHelper
+//						.getCurrentTripQuestion();
+//			} catch (JSONException e) {
+//				e.printStackTrace();
+//			}
+//
+//			// Hide submit
+//			navButtons.getView().findViewById(R.id.submit_survey_button)
+//					.setVisibility(View.INVISIBLE);
+//		} else {
+//			chapterPosition = surveyHelper.getChapterPosition();
+//			questionPosition = surveyHelper.getQuestionPosition();
+//
+//			// update selected item and title, then close the drawer.
+//			fixedNavigationList.setItemChecked(-1, true);
+//			chapterDrawerList.setItemChecked(chapterPosition, true);
+//			setTitle(surveyHelper.getChapterTitles()[chapterPosition]);
+//			chapterDrawerLayout.closeDrawer(drawer);
+//
+//			// Get current question
+//			try {
+//				currentQuestionJsonObject = surveyHelper.getCurrentQuestion();
+//			} catch (JSONException e) {
+//				e.printStackTrace();
+//			}
+//		}
+//
+//		// If in loop, putting the answer of the current iteration on its place.
+//		if (surveyHelper.inLoop) {
+//			try {
+//				currentQuestionJsonObject.put("Answer",
+//						currentQuestionJsonObject.getJSONArray("LoopAnswers")
+//								.get(surveyHelper.loopIteration).toString());
+//			} catch (JSONException e) {
+//				// e.printStackTrace();
+//			}
+//		}
+//
+//		currentQuestion = currentQuestionJsonObject.toString();
+//
+//		// Starting question fragment and passing json question information.
+//		currentQuestionFragment = new QuestionFragment(surveyHelper.getCurrentQuestion());
+//		Bundle args = new Bundle();
+//		args.putString(QuestionFragment.ARG_JSON_QUESTION,
+//				question.getQuestionText());
+//		args.putInt(QuestionFragment.ARG_CHAPTER_POSITION, question.getChapter().getChapterNumber());
+//		args.putInt(QuestionFragment.ARG_QUESTION_POSITION, question.getQuestionNumber());
 
 		FragmentManager fragmentManager = getFragmentManager();
 		FragmentTransaction transaction = fragmentManager.beginTransaction();
 
 		// show navigation buttons and add new question
-		if (!navButtons.isVisible()) {
-			messageHandler.sendEmptyMessage(EVENT_TYPE.SHOW_NAV_BUTTONS
-					.ordinal());
-		}
-
-		// selectively show previous question button
-		if ((askingTripQuestions && surveyHelper.getTrackerQuestionPosition() == 0)
-				|| (!askingTripQuestions && questionPosition == 0)) {
-			navButtons.getView().findViewById(R.id.previous_question_button)
-					.setVisibility(View.INVISIBLE);
-		} else {
-			navButtons.getView().findViewById(R.id.previous_question_button)
-					.setVisibility(View.VISIBLE);
-		}
+//		if (!navButtons.isVisible()) {
+//			messageHandler.sendEmptyMessage(EVENT_TYPE.SHOW_NAV_BUTTONS
+//					.ordinal());
+//		}
+//
+//		// selectively show previous question button
+//		if ((askingTripQuestions && surveyHelper.getTrackerQuestionPosition() == 0)
+//				|| (!askingTripQuestions && questionPosition == 0)) {
+//			navButtons.getView().findViewById(R.id.previous_question_button)
+//					.setVisibility(View.INVISIBLE);
+//		} else {
+//			navButtons.getView().findViewById(R.id.previous_question_button)
+//					.setVisibility(View.VISIBLE);
+//		}
 
 		transaction.replace(R.id.surveyor_frame, currentQuestionFragment);
 		transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
@@ -882,62 +863,62 @@ public class SurveyorActivity extends Activity implements
 		// Display the connection status
 		Toast.makeText(this, R.string.disconnected, Toast.LENGTH_SHORT).show();
 	}
-
-	/*
-	 * Callback Handlers for Connecting to Google Play (Authentication)
-	 */
-
-	public void NavButtonPressed(NavButtonType type) {
-		switch (type) {
-
-		case PREVIOUS:
-			currentQuestionFragment.saveState();
-			surveyHelper.onPrevQuestionPressed(askingTripQuestions);
-			onBackPressed();
-			break;
-		case NEXT:
-			currentQuestionFragment.saveState();
-			NextQuestionResult result = surveyHelper
-					.onNextQuestionPressed(askingTripQuestions);
-
-			if (askingTripQuestions) {
-				if (result == NextQuestionResult.END) {
-					askingTripQuestions = false;
-					surveyHelper.updateSurveyPosition(
-							SurveyHelper.HUB_PAGE_CHAPTER_POSITION,
-							SurveyHelper.HUB_PAGE_QUESTION_POSITION);
-					surveyHelper.prevTrackingPositions = new Stack<Integer>();
-					showHubPage();
-					startTrip();
-					statusPageHelper.startTrip();
-					startTracker();
-					break;
-				}
-			} else {
-				if (result == NextQuestionResult.CHAPTER_END) {
-					rowItems.get(surveyHelper.getChapterPosition() - 1)
-							.setImageId(COMPLETE_CHAPTER);
-				} else if (result == NextQuestionResult.END) {
-					Toast.makeText(this, R.string.end_of_survey,
-							Toast.LENGTH_SHORT).show();
-					submitSurveyInterface();
-					break;
-				}
-
-				RowItem rowItem = rowItems.get(surveyHelper
-						.getChapterPosition());
-				if (rowItem.getImageId() != COMPLETE_CHAPTER) {
-					rowItem.setImageId(HALF_COMPLETE_CHAPTER);
-				}
-			}
-			showCurrentQuestion();
-			break;
-		case SUBMIT:
-			currentQuestionFragment.saveState();
-			submitSurveyInterface();
-			break;
-		}
-	}
+//
+//	/*
+//	 * Callback Handlers for Connecting to Google Play (Authentication)
+//	 */
+//
+//	public void NavButtonPressed(NavButtonType type) {
+//		switch (type) {
+//
+//		case PREVIOUS:
+//			currentQuestionFragment.saveState();
+//			surveyHelper.onPrevQuestionPressed(askingTripQuestions);
+//			onBackPressed();
+//			break;
+//		case NEXT:
+//			currentQuestionFragment.saveState();
+//			NextQuestionResult result = surveyHelper
+//					.onNextQuestionPressed(askingTripQuestions);
+//
+//			if (askingTripQuestions) {
+//				if (result == NextQuestionResult.END) {
+//					askingTripQuestions = false;
+//					surveyHelper.updateSurveyPosition(
+//							SurveyHelper.HUB_PAGE_CHAPTER_POSITION,
+//							SurveyHelper.HUB_PAGE_QUESTION_POSITION);
+//					surveyHelper.prevTrackingPositions = new Stack<Integer>();
+//					showHubPage();
+//					startTrip();
+//					statusPageHelper.startTrip();
+//					startTracker();
+//					break;
+//				}
+//			} else {
+//				if (result == NextQuestionResult.CHAPTER_END) {
+//					rowItems.get(surveyHelper.getChapterPosition() - 1)
+//							.setImageId(COMPLETE_CHAPTER);
+//				} else if (result == NextQuestionResult.END) {
+//					Toast.makeText(this, R.string.end_of_survey,
+//							Toast.LENGTH_SHORT).show();
+//					submitSurveyInterface();
+//					break;
+//				}
+//
+//				RowItem rowItem = rowItems.get(surveyHelper
+//						.getChapterPosition());
+//				if (rowItem.getImageId() != COMPLETE_CHAPTER) {
+//					rowItem.setImageId(HALF_COMPLETE_CHAPTER);
+//				}
+//			}
+//			showCurrentQuestion();
+//			break;
+//		case SUBMIT:
+//			currentQuestionFragment.saveState();
+//			submitSurveyInterface();
+//			break;
+//		}
+//	}
 
 	public void AnswerRecieve(String answerStringReceive,
 			String jumpStringReceive, ArrayList<Integer> selectedAnswers,
@@ -945,40 +926,40 @@ public class SurveyorActivity extends Activity implements
 			ArrayList<Integer> questionkey) {
 		// TODO: fix loop stuff
 
-		if (questionkindReceive.equals("LP") && (answerStringReceive != null)) {
-			Integer receivedLoopTotal = null;
-			Integer currentLoopTotal = surveyHelper.getCurrentLoopTotal();
-			if (!answerStringReceive.equals("")) {
-				receivedLoopTotal = Integer.parseInt(answerStringReceive);
-				if ((currentLoopTotal != receivedLoopTotal)
-						|| (receivedLoopTotal == 0)) {
-					surveyHelper.clearLoopAnswerHashMap(questionkey.get(0),questionkey.get(1), askingTripQuestions);
-					surveyHelper.loopTotal = receivedLoopTotal;
-					surveyHelper.updateLoopLimit();
-					surveyHelper.initializeLoop();
-					if (!askingTripQuestions) {
-						surveyHelper.answerCurrentQuestion(answerStringReceive,
-								selectedAnswers);
-					} else {
-						surveyHelper.answerCurrentTrackerQuestion(
-								answerStringReceive, selectedAnswers);
-					}
-				}
-			}
-
-		} else if ((answerStringReceive != null)) {
-			if (!askingTripQuestions) {
-				surveyHelper.answerCurrentQuestion(answerStringReceive,
-						selectedAnswers);
-			} else {
-				surveyHelper.answerCurrentTrackerQuestion(answerStringReceive,
-						selectedAnswers);
-			}
-		}
-
-		if (jumpStringReceive != null) {
-			surveyHelper.updateJumpString(jumpStringReceive);
-		}
+//		if (questionkindReceive.equals("LP") && (answerStringReceive != null)) {
+//			Integer receivedLoopTotal = null;
+//			Integer currentLoopTotal = surveyHelper.getCurrentLoopTotal();
+//			if (!answerStringReceive.equals("")) {
+//				receivedLoopTotal = Integer.parseInt(answerStringReceive);
+//				if ((currentLoopTotal != receivedLoopTotal)
+//						|| (receivedLoopTotal == 0)) {
+//					surveyHelper.clearLoopAnswerHashMap(questionkey.get(0),questionkey.get(1), askingTripQuestions);
+//					surveyHelper.loopTotal = receivedLoopTotal;
+//					surveyHelper.updateLoopLimit();
+//					surveyHelper.initializeLoop();
+//					if (!askingTripQuestions) {
+//						surveyHelper.answerCurrentQuestion(answerStringReceive,
+//								selectedAnswers);
+//					} else {
+//						surveyHelper.answerCurrentTrackerQuestion(
+//								answerStringReceive, selectedAnswers);
+//					}
+//				}
+//			}
+//
+//		} else if ((answerStringReceive != null)) {
+//			if (!askingTripQuestions) {
+//				surveyHelper.answerCurrentQuestion(answerStringReceive,
+//						selectedAnswers);
+//			} else {
+//				surveyHelper.answerCurrentTrackerQuestion(answerStringReceive,
+//						selectedAnswers);
+//			}
+//		}
+//
+//		if (jumpStringReceive != null) {
+//			surveyHelper.updateJumpString(jumpStringReceive);
+//		}
 	}
 
 	@Override
@@ -986,10 +967,10 @@ public class SurveyorActivity extends Activity implements
 		// hide navigation buttons
 		FragmentManager fragmentManager = getFragmentManager();
 
-		FragmentTransaction transactionHide = fragmentManager
-				.beginTransaction();
-		transactionHide.hide(navButtons);
-		transactionHide.commit();
+//		FragmentTransaction transactionHide = fragmentManager
+//				.beginTransaction();
+//		transactionHide.hide(navButtons);
+//		transactionHide.commit();
 
 		messageHandler.sendEmptyMessage(EVENT_TYPE.UPDATE_STATS_PAGE.ordinal());
 	}
