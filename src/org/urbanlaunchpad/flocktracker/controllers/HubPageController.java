@@ -1,5 +1,6 @@
 package org.urbanlaunchpad.flocktracker.controllers;
 
+import org.urbanlaunchpad.flocktracker.ProjectConfig;
 import org.urbanlaunchpad.flocktracker.fragments.HubPageManager;
 import org.urbanlaunchpad.flocktracker.models.Metadata;
 
@@ -7,8 +8,8 @@ public class HubPageController implements HubPageManager.HubPageActionListener {
   private Metadata metadata;
   private QuestionController questionController;
 
-  public HubPageController(Metadata metadata, QuestionController questionController) {
-    this.metadata = metadata;
+  public HubPageController(QuestionController questionController) {
+    this.metadata = ProjectConfig.get().getMetadata();
     this.questionController = questionController;
   }
 
@@ -29,23 +30,13 @@ public class HubPageController implements HubPageManager.HubPageActionListener {
   }
 
   @Override
-  public void onClickedMoreMen() {
-
+  public void onMaleCountChanged(int maleCount) {
+    metadata.setMaleCount(maleCount);
   }
 
   @Override
-  public void onClickedMoreWomen() {
-
-  }
-
-  @Override
-  public void onClickedFewerMen() {
-
-  }
-
-  @Override
-  public void onClickedFewerWomen() {
-
+  public void onFemaleCountChanged(int femaleCount) {
+    metadata.setFemaleCount(femaleCount);
   }
 
   public String createID() {

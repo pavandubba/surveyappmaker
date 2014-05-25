@@ -5,9 +5,7 @@ public interface HubPageManager {
     void onStartTrip();
     void onStartSurvey();
     void onGetStatistics();
-    void onClickedMoreMen();
-    void onClickedMoreWomen();
-    void onClickedFewerMen();
-    void onClickedFewerWomen();
+    void onMaleCountChanged(int maleCount);
+    void onFemaleCountChanged(int femaleCount);
   }
 }

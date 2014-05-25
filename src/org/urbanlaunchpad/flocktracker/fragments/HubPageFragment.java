@@ -84,7 +84,7 @@ public class HubPageFragment extends Fragment {
         maleCount++;
         maleCountView.setText(Integer.toString(maleCount));
         totalCountView.setText(Integer.toString(maleCount + femaleCount));
-        listener.onClickedMoreMen();
+        listener.onMaleCountChanged(maleCount);
         fewerMenButton.setEnabled(maleCount > 0);
       }
     });
@@ -95,7 +95,7 @@ public class HubPageFragment extends Fragment {
         maleCount--;
         maleCountView.setText(Integer.toString(maleCount));
         totalCountView.setText(Integer.toString(maleCount + femaleCount));
-        listener.onClickedFewerMen();
+        listener.onMaleCountChanged(maleCount);
         fewerMenButton.setEnabled(maleCount > 0);
       }
     });
@@ -106,7 +106,7 @@ public class HubPageFragment extends Fragment {
         femaleCount++;
         femaleCountView.setText(Integer.toString(femaleCount));
         totalCountView.setText(Integer.toString(maleCount + femaleCount));
-        listener.onClickedMoreWomen();
+        listener.onFemaleCountChanged(femaleCount);
         fewerWomenButton.setEnabled(femaleCount > 0);
       }
     });
@@ -117,7 +117,7 @@ public class HubPageFragment extends Fragment {
         femaleCount--;
         femaleCountView.setText(Integer.toString(femaleCount));
         totalCountView.setText(Integer.toString(maleCount + femaleCount));
-        listener.onClickedFewerWomen();
+        listener.onFemaleCountChanged(femaleCount);
         fewerWomenButton.setEnabled(femaleCount > 0);
       }
     });
