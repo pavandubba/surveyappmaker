@@ -27,8 +27,13 @@ public class ColumnCheckManager {
   }
 
   public void runChecks() {
-    checkSurveyColumns();
-    checkTrackerColumns();
+    new Thread(new Runnable() {
+      @Override
+      public void run() {
+        checkSurveyColumns();
+        checkTrackerColumns();
+      }
+    }).start();
   }
   private void checkSurveyColumns() {
     String[] metadataColumnNames = new String[]{"Location", "Date", "Lat",

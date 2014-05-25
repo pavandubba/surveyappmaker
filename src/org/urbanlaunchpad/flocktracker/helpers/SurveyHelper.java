@@ -184,12 +184,14 @@ public class SurveyHelper {
     jumpString = null;
   }
 
-  Question.QuestionType questionType = chapterList[chapterPosition].getQuestions()[questionPosition].getType();
   // updates positions to get next question. returns true if end of survey
   // reached
   public NextQuestionResult onNextQuestionPressed(
     // TODO fix the backstack of the loop questions
     Boolean askingTripQuestions) {
+
+    Question.QuestionType questionType = chapterList[chapterPosition].getQuestions()[questionPosition].getType();
+
     if (askingTripQuestions && inLoop) {
       if (loopIteration == -1) {
         loopIteration = 0;

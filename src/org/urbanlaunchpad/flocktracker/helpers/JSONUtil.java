@@ -52,8 +52,8 @@ public class JSONUtil {
         chapterList[i] = chapter;
       }
 
-      ProjectConfig.get().setSurveyUploadTableID(jsonSurvey.getJSONObject(SurveyorActivity.SURVEY_TYPE)
-        .getString("TableID"));
+      ProjectConfig.get().setSurveyUploadTableID(jsonSurvey.getJSONObject("Survey").getString("TableID"));
+      ProjectConfig.get().setTrackerTableID(jsonSurvey.getJSONObject("Tracker").getString("TableID"));
 
       return chapterList;
     } catch (JSONException e) {

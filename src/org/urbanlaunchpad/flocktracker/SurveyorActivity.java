@@ -59,7 +59,7 @@ public class SurveyorActivity extends Activity implements
 	public static final Integer COMPLETE_CHAPTER = R.drawable.complete_green;
 	public static final Integer HALF_COMPLETE_CHAPTER = R.drawable.complete_orange;
 	public static final String TRACKER_TYPE = "Tracker";
-	public static final String SURVEY_TYPE = "Submission";
+	public static final String SURVEY_TYPE = "Survey";
 	public static final String LOOP_TYPE = "Loop";
 	public static final int UPDATE_INTERVAL_IN_SECONDS = 5;
 	private static final int MILLISECONDS_PER_SECOND = 1000;
