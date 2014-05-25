@@ -44,55 +44,56 @@ public abstract class QuestionFragment extends Fragment implements
 	private QuestionActionListener listener;
 	private NavButtonsManager navButtonsManager;
 
-<<<<<<< HEAD
 	// Loop stuff
 	Boolean inLoopBoolean;
 	Integer loopTotalInteger;
 	Integer loopIterationInteger;
 	Integer loopPositionInteger;
-	
-	Question question;
-=======
-  private Question question;
-  private QuestionType questionType;
->>>>>>> bf1565654b75af0459966b6f12687cc43eab2acf
 
-	public QuestionFragment(QuestionActionListener listener, Question question, QuestionType questionType) {
-    this.listener = listener;
-    this.question = question;
-    this.questionType = questionType;
+	private Question question;
+	private QuestionType questionType;
+
+	public QuestionFragment(QuestionActionListener listener, Question question,
+			QuestionType questionType) {
+		this.listener = listener;
+		this.question = question;
+		this.questionType = questionType;
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		View rootView = inflater.inflate(R.layout.fragment_question, container, false);
+		View rootView = inflater.inflate(R.layout.fragment_question, container,
+				false);
 
-    navButtonsManager = (NavButtonsManager) rootView.findViewById(R.id.questionButtons);
-    navButtonsManager.setQuestionType(listener, questionType);
+		navButtonsManager = (NavButtonsManager) rootView
+				.findViewById(R.id.questionButtons);
+		navButtonsManager.setQuestionType(listener, questionType);
 
-    setupLayout();
-    prepopulateQuestion();
+		setupLayout();
+		prepopulateQuestion();
 
 		return rootView;
 	}
 
 	abstract void setupLayout();
+
 	abstract void prepopulateQuestion();
 
-  protected Question getQuestion() {
-    return question;
-  }
+	protected Question getQuestion() {
+		return question;
+	}
 
-  protected QuestionType getQuestionType() {
-    return questionType;
-  }
+	protected QuestionType getQuestionType() {
+		return questionType;
+	}
 
-  protected QuestionActionListener getListener() {
-    return listener;
-  }
+	protected QuestionActionListener getListener() {
+		return listener;
+	}
 
-  protected LayoutInflater getInflater() {
-    return (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-  }
+	protected LayoutInflater getInflater() {
+		return (LayoutInflater) getActivity().getSystemService(
+				Context.LAYOUT_INFLATER_SERVICE);
+	}
 }
