@@ -1,6 +1,6 @@
 package org.urbanlaunchpad.flocktracker.views;
 
-import org.urbanlaunchpad.flocktracker.fragments.QuestionManager.*;
+import org.urbanlaunchpad.flocktracker.fragments.QuestionFragment.*;
 
 public interface NavButtonsManager {
 

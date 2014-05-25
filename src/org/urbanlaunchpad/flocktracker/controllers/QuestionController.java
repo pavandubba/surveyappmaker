@@ -9,7 +9,7 @@ import org.json.JSONObject;
 import org.urbanlaunchpad.flocktracker.ProjectConfig;
 import org.urbanlaunchpad.flocktracker.R;
 import org.urbanlaunchpad.flocktracker.fragments.*;
-import org.urbanlaunchpad.flocktracker.fragments.QuestionManager.*;
+import org.urbanlaunchpad.flocktracker.fragments.QuestionFragment.*;
 import org.urbanlaunchpad.flocktracker.helpers.ColumnCheckHelper;
 import org.urbanlaunchpad.flocktracker.util.JSONUtil;
 import org.urbanlaunchpad.flocktracker.helpers.SubmissionHelper;

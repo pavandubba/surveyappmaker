@@ -8,8 +8,8 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 import org.urbanlaunchpad.flocktracker.R;
-import org.urbanlaunchpad.flocktracker.fragments.QuestionManager;
-import org.urbanlaunchpad.flocktracker.fragments.QuestionManager.*;
+import org.urbanlaunchpad.flocktracker.fragments.QuestionFragment.QuestionActionListener;
+import org.urbanlaunchpad.flocktracker.fragments.QuestionFragment.QuestionType;
 
 public class NavButtonsView extends LinearLayout implements NavButtonsManager {
 
@@ -17,7 +17,7 @@ public class NavButtonsView extends LinearLayout implements NavButtonsManager {
   private View nextQuestionButton;
   private View submitSurveyButton;
 
-  private QuestionManager.QuestionActionListener listener;
+  private QuestionActionListener listener;
 
   private DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
     @Override

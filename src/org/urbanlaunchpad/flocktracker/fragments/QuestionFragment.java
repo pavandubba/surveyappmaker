@@ -38,8 +38,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Set;
 
-public abstract class QuestionFragment extends Fragment implements
-		QuestionManager {
+public abstract class QuestionFragment extends Fragment {
 
 	private QuestionActionListener listener;
 	private NavButtonsManager navButtonsManager;
@@ -84,5 +83,25 @@ public abstract class QuestionFragment extends Fragment implements
 
   protected LayoutInflater getInflater() {
     return (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+  }
+
+  /**
+   * Enum to specify question type
+   */
+  public enum QuestionType {
+    FIRST, NORMAL, LAST, TRIP_FIRST, TRIP_NORMAL
+  }
+
+  /**
+   * Listener for answer changes
+   */
+  public interface QuestionActionListener {
+    void onSelectedAnswer(String answer);
+
+    void onPrevQuestionButtonClicked();
+
+    void onNextQuestionButtonClicked();
+
+    void onSubmitButtonClicked();
   }
 }

@@ -1,6 +1,7 @@
 package org.urbanlaunchpad.flocktracker.views;
 
 import android.content.Context;
+import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -18,8 +19,8 @@ public class AnswerView extends LinearLayout {
   private boolean isOther;
   private Question.QuestionType questionType;
 
-  public AnswerView(Context context) {
-    super(context);
+  public AnswerView(Context context, AttributeSet attrs) {
+    super(context, attrs);
   }
 
   @Override
