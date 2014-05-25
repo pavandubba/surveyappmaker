@@ -106,20 +106,18 @@ public class SurveyHelper {
   }
 
   public void resetTracker() {
-    JSONObject trackerJSONObject = null;
-    JSONObject surveyJSONObject;
+    JSONObject surveyJSONObject = null;
 
     // parse json survey
     try {
       surveyJSONObject = new JSONObject(ProjectConfig.get().getOriginalJSONSurveyString());
-      trackerJSONObject = surveyJSONObject.getJSONObject(SurveyorActivity.TRACKER_TYPE);
     } catch (JSONException e) {
       Toast.makeText(context, R.string.json_format_error, Toast.LENGTH_SHORT).show();
       e.printStackTrace();
     }
 
     // Parse survey and tracking information.
-    trackingQuestions = JSONUtil.parseTrackingQuestions(context, trackerJSONObject);
+    trackingQuestions = JSONUtil.parseTrackingQuestions(context, surveyJSONObject);
     trackerQuestionPosition = 0;
     prevTrackingPositions = new Stack<Integer>();
   }

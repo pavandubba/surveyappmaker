@@ -168,7 +168,7 @@ public class SurveyorActivity extends Activity implements
     LocationUtil.checkLocationConfig(this);
 
     SubmissionHelper submissionHelper = new SubmissionHelper();
-    Statistics statistics = new Statistics(this, metadata);
+    statistics = new Statistics(this, metadata);
     questionController = new QuestionController(this, metadata, getFragmentManager(), submissionHelper);
     hubPageController = new HubPageController(metadata, questionController);
     statisticsPageController = new StatisticsPageController(this, statistics);
