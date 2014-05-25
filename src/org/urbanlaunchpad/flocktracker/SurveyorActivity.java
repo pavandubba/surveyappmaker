@@ -32,18 +32,17 @@ import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 
-import org.json.JSONObject;
 import org.urbanlaunchpad.flocktracker.adapters.DrawerListViewAdapter;
 import org.urbanlaunchpad.flocktracker.controllers.*;
 import org.urbanlaunchpad.flocktracker.fragments.HubPageFragment;
-import org.urbanlaunchpad.flocktracker.fragments.HubPageManager;
 import org.urbanlaunchpad.flocktracker.fragments.QuestionFragment;
-import org.urbanlaunchpad.flocktracker.fragments.StatusPageFragment;
-import org.urbanlaunchpad.flocktracker.fragments.StatusPageFragment.StatusPageUpdate;
+import org.urbanlaunchpad.flocktracker.fragments.StatisticsPageFragment;
 import org.urbanlaunchpad.flocktracker.helpers.*;
 import org.urbanlaunchpad.flocktracker.helpers.SurveyHelper.Tuple;
 import org.urbanlaunchpad.flocktracker.menu.RowItem;
 import org.urbanlaunchpad.flocktracker.models.Metadata;
+import org.urbanlaunchpad.flocktracker.models.Statistics;
+import org.urbanlaunchpad.flocktracker.util.LocationUtil;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -96,11 +95,12 @@ public class SurveyorActivity extends Activity implements
   private QuestionController questionController;
   private HubPageController hubPageController;
   private StatisticsPageController statisticsPageController;
-  private MetadataController metadataController;
+  private DataController dataController;
   private TrackerController trackerController;
 
 	// Metadata
   private Metadata metadata = new Metadata();
+  private Statistics statistics;
 	private String username;
 	private String surveyID;
 	private String tripID;
@@ -123,8 +123,6 @@ public class SurveyorActivity extends Activity implements
 					ImageView gear = (ImageView) findViewById(R.id.start_trip_button);
 					gear.setImageResource(R.drawable.ft_red_st);
 				}
-			} else if (msg.what == EVENT_TYPE.UPDATE_STATS_PAGE.ordinal()) {
-				statisticsPageController.updateStatusPage();
 			} else if (msg.what == EVENT_TYPE.SUBMITTED_SURVEY.ordinal()) {
 				Toast toast = Toast.makeText(getApplicationContext(),
 						getResources().getString(R.string.survey_submitted),
@@ -167,13 +165,14 @@ public class SurveyorActivity extends Activity implements
     surveyID = "S" + createID();
 
     // Check for location services.
-    LocationHelper.checkLocationConfig(this);
+    LocationUtil.checkLocationConfig(this);
 
     SubmissionHelper submissionHelper = new SubmissionHelper();
+    Statistics statistics = new Statistics(this, metadata);
     questionController = new QuestionController(this, metadata, getFragmentManager(), submissionHelper);
     hubPageController = new HubPageController(metadata, questionController);
-    statisticsPageController = new StatisticsPageController(this);
-    metadataController = new MetadataController(metadata);
+    statisticsPageController = new StatisticsPageController(this, statistics);
+    dataController = new DataController(metadata, statistics);
     trackerController = new TrackerController(metadata, submissionHelper, mLocationClient);
 
 		// Navigation drawer information.
@@ -231,12 +230,6 @@ public class SurveyorActivity extends Activity implements
 	/*
 	 * Activity Lifecycle Handlers
 	 */
-
-	@Override
-	protected void onPause() {
-		statisticsPageController.onPause();
-		super.onPause();
-	}
 
 	@Override
 	protected void onDestroy() {
@@ -523,7 +516,7 @@ public class SurveyorActivity extends Activity implements
 
 	private void showStatusPage() {
 		FragmentManager fragmentManager = getFragmentManager();
-		Fragment fragment = new StatusPageFragment();
+		Fragment fragment = new StatisticsPageFragment(statistics);
 
 		FragmentTransaction transaction = fragmentManager.beginTransaction();
 		transaction.replace(R.id.surveyor_frame, fragment);
@@ -677,8 +670,7 @@ public class SurveyorActivity extends Activity implements
 				new LocationListener() {
 					@Override
 					public void onLocationChanged(final Location location) {
-						statisticsPageController.onLocationChanged(isTripStarted,
-								location);
+						dataController.onLocationChanged(isTripStarted, location);
 					}
 				});
 
@@ -691,9 +683,8 @@ public class SurveyorActivity extends Activity implements
 				}
 			}).start();
 		} else { // connecting for tracking
-			statisticsPageController.startLocation = mLocationClient.getLastLocation();
-			Toast.makeText(this, R.string.tracking_on, Toast.LENGTH_SHORT)
-					.show();
+			dataController.onLocationChanged(isTripStarted, mLocationClient.getLastLocation());
+			Toast.makeText(this, R.string.tracking_on, Toast.LENGTH_SHORT).show();
 		}
 	}
 

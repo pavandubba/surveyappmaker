@@ -34,7 +34,6 @@ public class HubPageFragment extends Fragment {
     this.femaleCount = femaleCount;
   }
 
-
   @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);

@@ -1,13 +1,13 @@
 package org.urbanlaunchpad.flocktracker.models;
 
+import android.location.Location;
+
 public class Metadata {
   private String timeStamp;
   private String surveyID;
   private String tripID;
   private String imagePaths;
-  private double latitude;
-  private double longitude;
-  private double altitude;
+  private Location location;
   private int maleCount;
   private int femaleCount;
   private double speed;
@@ -44,28 +44,12 @@ public class Metadata {
     this.imagePaths = imagePaths;
   }
 
-  public double getLatitude() {
-    return latitude;
+  public Location getCurrentLocation() {
+    return location;
   }
 
-  public void setLatitude(double latitude) {
-    this.latitude = latitude;
-  }
-
-  public double getLongitude() {
-    return longitude;
-  }
-
-  public void setLongitude(double longitude) {
-    this.longitude = longitude;
-  }
-
-  public double getAltitude() {
-    return altitude;
-  }
-
-  public void setAltitude(double altitude) {
-    this.altitude = altitude;
+  public void setCurrentLocation(Location location) {
+    this.location = location;
   }
 
   public int getMaleCount() {

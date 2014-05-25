@@ -1,10 +1,11 @@
 package org.urbanlaunchpad.flocktracker.models;
 
+import android.location.Location;
 import com.google.api.services.fusiontables.Fusiontables;
 import org.urbanlaunchpad.flocktracker.IniconfigActivity;
 import org.urbanlaunchpad.flocktracker.ProjectConfig;
 import org.urbanlaunchpad.flocktracker.SurveyorActivity;
-import org.urbanlaunchpad.flocktracker.helpers.LocationHelper;
+import org.urbanlaunchpad.flocktracker.util.LocationUtil;
 
 import java.io.IOException;
 
@@ -119,10 +120,8 @@ public class Submission {
       }
     }
 
-    String locationString = LocationHelper.getLngLatAlt(
-        metadata.getLongitude(),
-        metadata.getLatitude(),
-        metadata.getAltitude());
+    Location currentLocation = metadata.getCurrentLocation();
+    String locationString = LocationUtil.getLngLatAlt(currentLocation);
     String query = "";
 
     switch (type) {
@@ -133,8 +132,8 @@ public class Submission {
             + questionIDString
             + "Location,Lat,Lng,Alt,Date,TripID,Username,TotalCount,FemaleCount,MaleCount,Speed) VALUES ("
             + answerString + "<Point><coordinates>" + locationString
-            + "</coordinates></Point>','" + metadata.getLatitude() + "','" + metadata.getLongitude()
-            + "','" + metadata.getAltitude() + "','" + metadata.getTimeStamp() + "','" + metadata.getTripID()
+            + "</coordinates></Point>','" + currentLocation.getLatitude() + "','" + currentLocation.getLongitude()
+            + "','" + currentLocation.getAltitude() + "','" + metadata.getTimeStamp() + "','" + metadata.getTripID()
             + "','" + ProjectConfig.get().getUsername() + "','"
             + (metadata.getMaleCount() + metadata.getFemaleCount()) + "','"
             + metadata.getFemaleCount() + "','" + metadata.getMaleCount() + "','" + metadata.getSpeed() + "');";
@@ -147,8 +146,8 @@ public class Submission {
             + "Location,Lat,Lng,Alt,Date,SurveyID,TripID,Username,TotalCount,FemaleCount,MaleCount,Speed"
             + ") VALUES (" + answerString
             + "<Point><coordinates>" + locationString
-            + "</coordinates></Point>','" + metadata.getLatitude() + "','" + metadata.getLongitude()
-            + "','" + metadata.getAltitude() + "','" + metadata.getTimeStamp() + "','" + metadata.getSurveyID()
+            + "</coordinates></Point>','" + currentLocation.getLatitude() + "','" + currentLocation.getLongitude()
+            + "','" + currentLocation.getAltitude() + "','" + metadata.getTimeStamp() + "','" + metadata.getSurveyID()
             + "','" + metadata.getTripID() + "','" + ProjectConfig.get().getUsername() + "','"
             + (metadata.getMaleCount() + metadata.getFemaleCount()) + "','" + metadata.getFemaleCount()
             + "','" + metadata.getMaleCount() + "','" + metadata.getSpeed() + "');";
@@ -166,10 +165,8 @@ public class Submission {
   private String getMetadataInsertQuery() {
     String query = null;
 
-    String locationString = LocationHelper.getLngLatAlt(
-        metadata.getLongitude(),
-        metadata.getLatitude(),
-        metadata.getAltitude());
+    Location currentLocation = metadata.getCurrentLocation();
+    String locationString = LocationUtil.getLngLatAlt(currentLocation);
 
     switch (type) {
       case TRACKER:
@@ -177,8 +174,8 @@ public class Submission {
             + ProjectConfig.get().getTrackerTableID()
             + " (Location,Lat,Lng,Alt,Date,TripID,TotalCount,FemaleCount,MaleCount,Speed)"
             + " VALUES (" + "'<Point><coordinates>" + locationString
-            + "</coordinates></Point>','" + metadata.getLatitude() + "','"
-            + metadata.getLongitude() + "','" + metadata.getAltitude() + "','"
+            + "</coordinates></Point>','" + currentLocation.getLatitude() + "','"
+            + currentLocation.getLongitude() + "','" + currentLocation.getAltitude() + "','"
             + metadata.getTimeStamp() + "','" + metadata.getTripID()
             + "','" + (metadata.getMaleCount() + metadata.getFemaleCount()) + "','"
             + metadata.getFemaleCount() + "','" + metadata.getMaleCount() + "','"
@@ -190,8 +187,8 @@ public class Submission {
             + " (Location,Lat,Lng,Alt,Date,SurveyID,TripID,TotalCount,FemaleCount,"
             + "MaleCount,Speed)" + " VALUES ("
             + "'<Point><coordinates>" + locationString
-            + "</coordinates></Point>','" + metadata.getLatitude() + "','"
-            + metadata.getLongitude() + "','" + metadata.getAltitude() + "','"
+            + "</coordinates></Point>','" + currentLocation.getLatitude() + "','"
+            + currentLocation.getLongitude() + "','" + currentLocation.getAltitude() + "','"
             + metadata.getTimeStamp() + "','" + metadata.getSurveyID() + "','"
             + metadata.getTripID() + "','" + (metadata.getMaleCount() + metadata.getFemaleCount())
             + "','" + metadata.getFemaleCount() + "','" + metadata.getMaleCount() + "','"
