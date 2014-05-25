@@ -1,6 +1,9 @@
 package org.urbanlaunchpad.flocktracker.models;
 
-public class Metadata {
+import android.location.Location;
+import com.google.android.gms.location.LocationListener;
+
+public class Metadata implements LocationListener {
   private String timeStamp;
   private String surveyID;
   private String tripID;
@@ -90,5 +93,12 @@ public class Metadata {
 
   public void setSpeed(double speed) {
     this.speed = speed;
+  }
+
+  @Override
+  public void onLocationChanged(Location location) {
+    latitude = location.getLatitude();
+    longitude = location.getLongitude();
+    altitude = location.getAltitude();
   }
 }

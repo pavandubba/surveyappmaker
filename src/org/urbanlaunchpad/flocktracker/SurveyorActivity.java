@@ -502,51 +502,6 @@ public class SurveyorActivity extends Activity implements
 		}
 	}
 
-	/*
-	 * Submitting survey and location logic
-	 */
-
-	public void saveLocation() {
-		// connect if not tracking
-		Log.d("Save Location", "" + mLocationClient.isConnected());
-		if (!mLocationClient.isConnected()) {
-			mLocationClient.connect();
-		}
-		if (mLocationClient.isConnected()) {
-//			new Thread(new Runnable() {
-//				public void run() {
-//					try {
-//						surveyHelper.jsurv.put("TrackerAlarm",
-//								surveyHelper.jtracker);
-//					} catch (JSONException e1) {
-//						e1.printStackTrace();
-//					}
-//
-//					String jsurvString = surveyHelper.jsurv.toString();
-//					JSONObject imagePaths = new JSONObject();
-//					for (ArrayList<Integer> key : SurveyHelper.prevTrackerImages
-//							.keySet()) {
-//						try {
-//							imagePaths.put(key.toString(),
-//									SurveyHelper.prevTrackerImages.get(key)
-//											.getPath());
-//						} catch (JSONException e) {
-//							e.printStackTrace();
-//						}
-//					}
-//
-//					// save location tagged survey
-//					surveyHelper.saveSubmission(statusPageHelper.startLocation,
-//							surveyID, tripID, jsurvString, imagePaths,
-//							TRACKER_TYPE, maleCount,
-//							femaleCount,
-//							maleCount + femaleCount,
-//							statusPageHelper.getSpeed());
-//				}
-//			}).start();
-		}
-	}
-
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode,
 			Intent intent) {
