@@ -14,14 +14,11 @@ import org.urbanlaunchpad.flocktracker.models.QuestionUtil;
 
 public class JSONUtil {
   /**
-   * Deserialize JSON information into Chapter and Question objects
-   *
-   * @param jsonSurvey
+   * De-serialize JSON information into Chapter and Question objects
    */
   public static Chapter[] parseChapters(Context context, JSONObject jsonSurvey) {
     try {
-      JSONArray jsonChapterList = jsonSurvey.getJSONObject(SurveyorActivity.SURVEY_TYPE)
-        .getJSONArray("Chapters");
+      JSONArray jsonChapterList = jsonSurvey.getJSONObject("Survey").getJSONArray("Chapters");
       Chapter[] chapterList = new Chapter[jsonChapterList.length()];
 
       // Parse chapters
@@ -68,13 +65,11 @@ public class JSONUtil {
   }
 
   /**
-   * Deserialize tracker questions into Question objects
-   *
-   * @param jsonTracker
+   * De-serialize tracker questions into Question objects
    */
-  public static Question[] parseTrackingQuestions(Context context, JSONObject jsonTracker) {
+  public static Question[] parseTrackingQuestions(Context context, JSONObject jsonSurvey) {
     try {
-      JSONArray jTrackerQuestions = jsonTracker.getJSONArray("Questions");
+      JSONArray jTrackerQuestions = jsonSurvey.getJSONObject("Tracker").getJSONArray("Questions");
       Question[] trackingQuestions = new Question[jTrackerQuestions.length()];
 
       // Create Question objects
@@ -94,7 +89,7 @@ public class JSONUtil {
       }
 
       // Update trip table ID if any
-      ProjectConfig.get().setTrackerTableID(jsonTracker.getString("TableID"));
+      ProjectConfig.get().setTrackerTableID(jsonSurvey.getJSONObject("Tracker").getString("TableID"));
 
       return trackingQuestions;
     } catch (JSONException e2) {

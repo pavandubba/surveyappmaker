@@ -12,7 +12,7 @@ import java.util.List;
 public class Submission {
   public static final Integer MAX_QUERY_LENGTH = 2000; // max length allowed by fusion table
 
-  private List<Chapter> chapters;
+  private Chapter[] chapters;
   private Metadata metadata;
   private Type type;
 
@@ -24,11 +24,11 @@ public class Submission {
     this.metadata = metadata;
   }
 
-  public List<Chapter> getChapters() {
+  public Chapter[] getChapters() {
     return chapters;
   }
 
-  public void setChapters(List<Chapter> chapters) {
+  public void setChapters(Chapter[] chapters) {
     this.chapters = chapters;
   }
 

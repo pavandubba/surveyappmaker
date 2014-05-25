@@ -39,7 +39,6 @@ public class SurveyHelper {
   private Integer chapterPosition = HUB_PAGE_CHAPTER_POSITION;
   private Integer questionPosition = HUB_PAGE_QUESTION_POSITION;
   private Integer trackerQuestionPosition = 0;
-  private Integer[] jumpPosition = null;
   private Chapter[] chapterList;
   private Question[] trackingQuestions;
   private HashMap<String, Question> jumpStringToQuestionMap = new HashMap<String, Question>();
@@ -186,128 +185,125 @@ public class SurveyHelper {
 
   // updates positions to get next question. returns true if end of survey
   // reached
-  public NextQuestionResult onNextQuestionPressed(
-    // TODO fix the backstack of the loop questions
-    Boolean askingTripQuestions) {
-
-    Question.QuestionType questionType = chapterList[chapterPosition].getQuestions()[questionPosition].getType();
-
-    if (askingTripQuestions && inLoop) {
-      if (loopIteration == -1) {
-        loopIteration = 0;
-      }
-      loopPosition++;
-      Log.v("Loop position", loopPosition.toString());
-      if (loopPosition == loopLimit) {
-        loopPosition = 0;
-        loopIteration++;
-        if (loopIteration == loopTotal) {
-          trackerQuestionPosition++;
-          loopPosition = -1;
-          loopIteration = -1;
-          inLoop = false;
-          if (trackerQuestionPosition == trackingQuestions.length) {
-            return NextQuestionResult.END;
-          }
-        }
-      }
-    } else if (!askingTripQuestions && inLoop) {
-      Integer looptemporalpositionInteger = loopPosition;
-      Integer loopTemporaryIteration = loopIteration;
-      if (loopIteration == -1) {
-        loopIteration = 0;
-      }
-      loopPosition++;
-      Log.v("Loop position", loopPosition.toString());
-      if (loopPosition == loopLimit) {
-        loopPosition = 0;
-        loopIteration++;
-        if (loopIteration == loopTotal) {
-          questionPosition++;
-          loopPosition = -1;
-          loopIteration = -1;
-          inLoop = false;
-          if (questionPosition == chapterList[chapterPosition].getQuestionCount()) {
-            if (chapterPosition == chapterList.length - 1) {
-              loopPosition = looptemporalpositionInteger;
-              loopIteration = loopTemporaryIteration;
-              inLoop = true;
-              questionPosition--;
-              return NextQuestionResult.END;
-            } else {
-              chapterPosition++;
-              questionPosition = 0;
-              inLoop = false;
-              return NextQuestionResult.CHAPTER_END;
-            }
-          }
-        }
-      }
-
-    } else if (askingTripQuestions && !inLoop && questionType != Question.QuestionType.LOOP) {
-      prevTrackingPositions.add(trackerQuestionPosition);
-      trackerQuestionPosition++;
-      if (trackerQuestionPosition == trackingQuestions.length) {
-        return NextQuestionResult.END;
-      }
-    } else if (!askingTripQuestions && !inLoop && questionType != Question.QuestionType.LOOP) {
-      prevPositions.add(new Tuple(chapterPosition, questionPosition));
-      questionPosition++;
-      if (questionPosition == chapterList[chapterPosition].getQuestionCount()) {
-        if (chapterPosition == chapterList.length - 1) {
-          questionPosition--;
-          return NextQuestionResult.END;
-        } else {
-          chapterPosition++;
-          questionPosition = 0;
-          return NextQuestionResult.CHAPTER_END;
-        }
-      }
-    } else if (askingTripQuestions && !inLoop && questionType == Question.QuestionType.LOOP) {
-      loopTotal = getCurrentLoopTotal();
-      prevTrackingPositions.add(trackerQuestionPosition);
-      if (loopTotal == 0) {
-        trackerQuestionPosition++;
-        if (trackerQuestionPosition == trackingQuestions.length) {
-          return NextQuestionResult.END;
-        }
-      } else {
-        loopIteration = 0;
-        loopPosition = 0;
-        inLoop = true;
-      }
-    } else if (!askingTripQuestions && !inLoop && questionType == Question.QuestionType.LOOP) {
-      loopTotal = getCurrentLoopTotal();
-      prevPositions.add(new Tuple(chapterPosition, questionPosition));
-      if (loopTotal == 0) {
-        questionPosition++;
-        if (questionPosition == chapterList[chapterPosition].getQuestionCount()) {
-          if (chapterPosition == chapterList.length - 1) {
-            questionPosition--;
-            return NextQuestionResult.END;
-          } else {
-            chapterPosition++;
-            questionPosition = 0;
-            return NextQuestionResult.CHAPTER_END;
-          }
-        }
-      } else {
-        loopIteration = 0;
-        loopPosition = 0;
-        inLoop = true;
-      }
-    }
-
-    if (jumpString != null) {
-      Question jumpQuestion = jumpStringToQuestionMap.get(jumpString);
-      chapterPosition = jumpQuestion.getChapter().getChapterNumber();
-      questionPosition = jumpQuestion.getQuestionNumber();
-      jumpString = null;
-      return NextQuestionResult.JUMPSTRING;
-    }
-
-    return NextQuestionResult.NORMAL;
-  }
+//  public NextQuestionResult onNextQuestionPressed(
+//    // TODO fix the backstack of the loop questions
+//    Boolean askingTripQuestions) {
+//    if (askingTripQuestions && inLoop) {
+//      if (loopIteration == -1) {
+//        loopIteration = 0;
+//      }
+//      loopPosition++;
+//      Log.v("Loop position", loopPosition.toString());
+//      if (loopPosition == loopLimit) {
+//        loopPosition = 0;
+//        loopIteration++;
+//        if (loopIteration == loopTotal) {
+//          trackerQuestionPosition++;
+//          loopPosition = -1;
+//          loopIteration = -1;
+//          inLoop = false;
+//          if (trackerQuestionPosition == trackingQuestions.length) {
+//            return NextQuestionResult.END;
+//          }
+//        }
+//      }
+//    } else if (!askingTripQuestions && inLoop) {
+//      Integer looptemporalpositionInteger = loopPosition;
+//      Integer loopTemporaryIteration = loopIteration;
+//      if (loopIteration == -1) {
+//        loopIteration = 0;
+//      }
+//      loopPosition++;
+//      Log.v("Loop position", loopPosition.toString());
+//      if (loopPosition == loopLimit) {
+//        loopPosition = 0;
+//        loopIteration++;
+//        if (loopIteration == loopTotal) {
+//          questionPosition++;
+//          loopPosition = -1;
+//          loopIteration = -1;
+//          inLoop = false;
+//          if (questionPosition == chapterList[chapterPosition].getQuestionCount()) {
+//            if (chapterPosition == chapterList.length - 1) {
+//              loopPosition = looptemporalpositionInteger;
+//              loopIteration = loopTemporaryIteration;
+//              inLoop = true;
+//              questionPosition--;
+//              return NextQuestionResult.END;
+//            } else {
+//              chapterPosition++;
+//              questionPosition = 0;
+//              inLoop = false;
+//              return NextQuestionResult.CHAPTER_END;
+//            }
+//          }
+//        }
+//      }
+//
+//    } else if (askingTripQuestions && !inLoop && questionType != Question.QuestionType.LOOP) {
+//      prevTrackingPositions.add(trackerQuestionPosition);
+//      trackerQuestionPosition++;
+//      if (trackerQuestionPosition == trackingQuestions.length) {
+//        return NextQuestionResult.END;
+//      }
+//    } else if (!askingTripQuestions && !inLoop && questionType != Question.QuestionType.LOOP) {
+//      prevPositions.add(new Tuple(chapterPosition, questionPosition));
+//      questionPosition++;
+//      if (questionPosition == chapterList[chapterPosition].getQuestionCount()) {
+//        if (chapterPosition == chapterList.length - 1) {
+//          questionPosition--;
+//          return NextQuestionResult.END;
+//        } else {
+//          chapterPosition++;
+//          questionPosition = 0;
+//          return NextQuestionResult.CHAPTER_END;
+//        }
+//      }
+//    } else if (askingTripQuestions && !inLoop && questionType == Question.QuestionType.LOOP) {
+//      loopTotal = getCurrentLoopTotal();
+//      prevTrackingPositions.add(trackerQuestionPosition);
+//      if (loopTotal == 0) {
+//        trackerQuestionPosition++;
+//        if (trackerQuestionPosition == trackingQuestions.length) {
+//          return NextQuestionResult.END;
+//        }
+//      } else {
+//        loopIteration = 0;
+//        loopPosition = 0;
+//        inLoop = true;
+//      }
+//    } else if (!askingTripQuestions && !inLoop && questionType == Question.QuestionType.LOOP) {
+//      loopTotal = getCurrentLoopTotal();
+//      prevPositions.add(new Tuple(chapterPosition, questionPosition));
+//      if (loopTotal == 0) {
+//        questionPosition++;
+//        if (questionPosition == chapterList[chapterPosition].getQuestionCount()) {
+//          if (chapterPosition == chapterList.length - 1) {
+//            questionPosition--;
+//            return NextQuestionResult.END;
+//          } else {
+//            chapterPosition++;
+//            questionPosition = 0;
+//            return NextQuestionResult.CHAPTER_END;
+//          }
+//        }
+//      } else {
+//        loopIteration = 0;
+//        loopPosition = 0;
+//        inLoop = true;
+//      }
+//    }
+//
+//    if (jumpString != null) {
+//      Question jumpQuestion = jumpStringToQuestionMap.get(jumpString);
+//      chapterPosition = jumpQuestion.getChapter().getChapterNumber();
+//      questionPosition = jumpQuestion.getQuestionNumber();
+//      jumpString = null;
+//      return NextQuestionResult.JUMPSTRING;
+//    }
+//
+//    return NextQuestionResult.NORMAL;
+//  }
 
   public Integer getChapterPosition() {
     return chapterPosition;

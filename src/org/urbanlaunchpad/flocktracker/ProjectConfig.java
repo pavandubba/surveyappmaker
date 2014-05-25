@@ -1,5 +1,8 @@
 package org.urbanlaunchpad.flocktracker;
 
+import android.content.SharedPreferences;
+import org.urbanlaunchpad.flocktracker.models.Metadata;
+
 public class ProjectConfig {
 
   private static ProjectConfig applicationConfig;
@@ -15,7 +18,9 @@ public class ProjectConfig {
   private String imageDirectoryURL;
   private String apiKey;
 
-  // Survey Table Columns
+  private SharedPreferences sharedPreferences;
+
+  private Metadata metadata;
 
   /**
    * Private constructor to ensure static instance.
@@ -92,5 +97,24 @@ public class ProjectConfig {
 
   public void setApiKey(String apiKey) {
     this.apiKey = apiKey;
+  }
+
+  public SharedPreferences getSharedPreferences() {
+    return sharedPreferences;
+  }
+
+  public void setSharedPreferences(SharedPreferences sharedPreferences) {
+    this.sharedPreferences = sharedPreferences;
+  }
+
+  public Metadata getMetadata() {
+    if (metadata == null) {
+      metadata = new Metadata();
+    }
+    return metadata;
+  }
+
+  public void setMetadata(Metadata metadata) {
+    this.metadata = metadata;
   }
 }

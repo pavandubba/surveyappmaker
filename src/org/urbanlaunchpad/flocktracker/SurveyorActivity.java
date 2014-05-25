@@ -32,26 +32,24 @@ import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.urbanlaunchpad.flocktracker.adapters.DrawerListViewAdapter;
+import org.urbanlaunchpad.flocktracker.controllers.QuestionController;
 import org.urbanlaunchpad.flocktracker.fragments.HubPageFragment;
+import org.urbanlaunchpad.flocktracker.fragments.HubPageManager;
 import org.urbanlaunchpad.flocktracker.fragments.QuestionFragment;
 import org.urbanlaunchpad.flocktracker.fragments.StatusPageFragment;
 import org.urbanlaunchpad.flocktracker.fragments.StatusPageFragment.StatusPageUpdate;
 import org.urbanlaunchpad.flocktracker.helpers.*;
-import org.urbanlaunchpad.flocktracker.helpers.SurveyHelper.NextQuestionResult;
 import org.urbanlaunchpad.flocktracker.helpers.SurveyHelper.Tuple;
 import org.urbanlaunchpad.flocktracker.menu.RowItem;
-import org.urbanlaunchpad.flocktracker.models.Question;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.*;
 
 public class SurveyorActivity extends Activity implements
-		QuestionFragment.AnswerSelected,
-		HubPageFragment.HubButtonCallback, StatusPageUpdate,
+		QuestionFragment.AnswerSelected, StatusPageUpdate,
 		GooglePlayServicesClient.ConnectionCallbacks,
 		GooglePlayServicesClient.OnConnectionFailedListener {
 
@@ -105,6 +103,9 @@ public class SurveyorActivity extends Activity implements
 	private boolean isTripStarted = false;
 	private boolean showingStatusPage = false;
 	private boolean showingHubPage = false;
+
+  private QuestionController questionController;
+
 	@SuppressLint("HandlerLeak")
 	private Handler messageHandler = new Handler() {
 
@@ -161,8 +162,11 @@ public class SurveyorActivity extends Activity implements
 		getWindow().setSoftInputMode(
 				WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
+
 		username = ProjectConfig.get().getUsername();
 		surveyHelper = new SurveyHelper(this);
+    SubmissionHelper submissionHelper = new SubmissionHelper();
+    questionController = new QuestionController(this, getFragmentManager(), submissionHelper);
 
 		driveHelper = new GoogleDriveHelper(this);
 		statusPageHelper = new StatusPageHelper(this);
@@ -230,7 +234,7 @@ public class SurveyorActivity extends Activity implements
 		surveyID = "S" + createID();
 
 		// location tracking
-		TrackerAlarm.surveyorActivity = this;
+//		TrackerAlarm.surveyorActivity = this;
 
 		trackerSubmissionQueue = new HashSet<String>(
 				IniconfigActivity.prefs.getStringSet("trackerSubmissionQueue",
@@ -655,27 +659,27 @@ public class SurveyorActivity extends Activity implements
 	}
 
 	private void showHubPage() {
-		showingHubPage = true;
-		showingStatusPage = false;
-
-		// Update fragments
-		FragmentManager fragmentManager = getFragmentManager();
-		Fragment fragment = new HubPageFragment();
-
-		FragmentTransaction transaction = fragmentManager.beginTransaction();
-		transaction.replace(R.id.surveyor_frame, fragment);
-		transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-		transaction.addToBackStack(null);
-		transaction.commit();
-
-		// update selected item and title, then close the drawer.
-		fixedNavigationList.setItemChecked(0, true);
-		chapterDrawerList.setItemChecked(-1, true);
-		setTitle(getString(R.string.hub_page_title));
-		chapterDrawerLayout.closeDrawer(drawer);
-
-		// update ui
-		messageHandler.sendEmptyMessage(EVENT_TYPE.UPDATE_HUB_PAGE.ordinal());
+//		showingHubPage = true;
+//		showingStatusPage = false;
+//
+//		// Update fragments
+//		FragmentManager fragmentManager = getFragmentManager();
+//		Fragment fragment = new HubPageFragment();
+//
+//		FragmentTransaction transaction = fragmentManager.beginTransaction();
+//		transaction.replace(R.id.surveyor_frame, fragment);
+//		transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+//		transaction.addToBackStack(null);
+//		transaction.commit();
+//
+//		// update selected item and title, then close the drawer.
+//		fixedNavigationList.setItemChecked(0, true);
+//		chapterDrawerList.setItemChecked(-1, true);
+//		setTitle(getString(R.string.hub_page_title));
+//		chapterDrawerLayout.closeDrawer(drawer);
+//
+//		// update ui
+//		messageHandler.sendEmptyMessage(EVENT_TYPE.UPDATE_HUB_PAGE.ordinal());
 	}
 
 	private void showStatusPage() {
@@ -988,70 +992,70 @@ public class SurveyorActivity extends Activity implements
 	 * Question Event Handlers
 	 */
 
-	@Override
-	public void HubButtonPressed(HubButtonType type) {
-		switch (type) {
-		case UPDATE_PAGE:
-			showingHubPage = true;
-			messageHandler.sendEmptyMessage(EVENT_TYPE.UPDATE_HUB_PAGE
-					.ordinal());
-			break;
-		case TOGGLETRIP:
-			if (isTripStarted) {
-				// Update status page info
-				stopTripDialog();
-			} else {
-				surveyHelper.resetTracker();
-				askingTripQuestions = true;
-
-				// Starting question fragment and passing json question
-				// information.
-				surveyHelper.updateTrackerPosition(0);
-				showCurrentQuestion();
-			}
-			break;
-		case NEWSURVEY:
-			surveyHelper.updateSurveyPosition(0, 0);
-			surveyHelper.inLoop = false;
-			surveyHelper.loopIteration = -1;
-			surveyHelper.loopPosition = -1;
-			showCurrentQuestion();
-			break;
-		case STATISTICS:
-			if (askingTripQuestions) {
-				surveyHelper
-						.updateTrackerPosition(SurveyHelper.STATS_PAGE_QUESTION_POSITION);
-			} else {
-				surveyHelper.updateSurveyPosition(
-						SurveyHelper.STATS_PAGE_CHAPTER_POSITION,
-						SurveyHelper.STATS_PAGE_QUESTION_POSITION);
-			}
-			showStatusPage();
-			break;
-		case FEWERMEN:
-			if (maleCount > 0) {
-				maleCount--;
-				updateCount("male");
-			}
-			break;
-		case FEWERWOMEN:
-			if (femaleCount > 0) {
-				femaleCount--;
-				updateCount("female");
-			}
-			break;
-		case MOREMEN:
-			maleCount++;
-			updateCount("male");
-			break;
-		case MOREWOMEN:
-			femaleCount++;
-			updateCount("female");
-			break;
-		default:
-			break;
-		}
-	}
+//	@Override
+//	public void HubButtonPressed(HubButtonType type) {
+//		switch (type) {
+//		case UPDATE_PAGE:
+//			showingHubPage = true;
+//			messageHandler.sendEmptyMessage(EVENT_TYPE.UPDATE_HUB_PAGE
+//					.ordinal());
+//			break;
+//		case TOGGLETRIP:
+//			if (isTripStarted) {
+//				// Update status page info
+//				stopTripDialog();
+//			} else {
+//				surveyHelper.resetTracker();
+//				askingTripQuestions = true;
+//
+//				// Starting question fragment and passing json question
+//				// information.
+//				surveyHelper.updateTrackerPosition(0);
+//				showCurrentQuestion();
+//			}
+//			break;
+//		case NEWSURVEY:
+//			surveyHelper.updateSurveyPosition(0, 0);
+//			surveyHelper.inLoop = false;
+//			surveyHelper.loopIteration = -1;
+//			surveyHelper.loopPosition = -1;
+//			showCurrentQuestion();
+//			break;
+//		case STATISTICS:
+//			if (askingTripQuestions) {
+//				surveyHelper
+//						.updateTrackerPosition(SurveyHelper.STATS_PAGE_QUESTION_POSITION);
+//			} else {
+//				surveyHelper.updateSurveyPosition(
+//						SurveyHelper.STATS_PAGE_CHAPTER_POSITION,
+//						SurveyHelper.STATS_PAGE_QUESTION_POSITION);
+//			}
+//			showStatusPage();
+//			break;
+//		case FEWERMEN:
+//			if (maleCount > 0) {
+//				maleCount--;
+//				updateCount("male");
+//			}
+//			break;
+//		case FEWERWOMEN:
+//			if (femaleCount > 0) {
+//				femaleCount--;
+//				updateCount("female");
+//			}
+//			break;
+//		case MOREMEN:
+//			maleCount++;
+//			updateCount("male");
+//			break;
+//		case MOREWOMEN:
+//			femaleCount++;
+//			updateCount("female");
+//			break;
+//		default:
+//			break;
+//		}
+//	}
 
 	/*
 	 * Status Page Event Handlers
