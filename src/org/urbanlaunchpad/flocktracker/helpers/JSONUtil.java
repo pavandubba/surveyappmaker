@@ -41,12 +41,14 @@ public class JSONUtil {
           questions[i].setQuestionID(jsonQuestion.getString("id"));
           questions[i].setType(QuestionUtil.getQuestionTypeFromString(jsonQuestion.getString("Kind")));
 
-          JSONArray jsonAnswers = jsonQuestion.getJSONArray("Answers");
-          String[] answers = new String[jsonAnswers.length()];
-          for (int k = 0; k < answers.length; k++) {
-            answers[k] = jsonAnswers.getJSONObject(k).getString("Answer");
+          if (jsonQuestion.has("Answers")) {
+            JSONArray jsonAnswers = jsonQuestion.getJSONArray("Answers");
+            String[] answers = new String[jsonAnswers.length()];
+            for (int k = 0; k < answers.length; k++) {
+              answers[k] = jsonAnswers.getJSONObject(k).getString("Answer");
+            }
+            questions[i].setAnswers(answers);
           }
-          questions[i].setAnswers(answers);
         }
 
         chapterList[i] = chapter;
